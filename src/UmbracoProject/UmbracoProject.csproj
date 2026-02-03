@@ -12,7 +12,7 @@
     <PackageReference Include="Umbraco.Cms" Version="17.1.0" />
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.1.0" />
     <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.0.1" />
-    <PackageReference Include="Umbraco.Forms" Version="17.1.0" />
+    <PackageReference Include="Umbraco.Forms" Version="17.1.2" />
     <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.0" />
   </ItemGroup>
 

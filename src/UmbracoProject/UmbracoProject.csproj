@@ -9,7 +9,12 @@
   <ItemGroup>
     <PackageReference Include="Clean.Core" Version="7.0.5" />
     <PackageReference Include="Umbraco.AI" Version="1.1.0" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="1.1.0" />
+    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.0-alpha2" />
+    <PackageReference Include="Umbraco.AI.Agent.UI" Version="1.0.0-alpha1" />
     <PackageReference Include="Umbraco.AI.Anthropic" Version="1.1.0" />
+    <PackageReference Include="Umbraco.AI.Google" Version="1.1.0" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="1.1.0" />
     <PackageReference Include="Umbraco.AI.Prompt" Version="1.1.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.0.1" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.0.0" />
@@ -24,6 +29,10 @@
     <!-- Opt-in to app-local ICU to ensure consistent globalization APIs across different platforms -->
     <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
     <RuntimeHostConfigurationOption Include="System.Globalization.AppLocalIcu" Value="72.1.0.3" Condition="$(RuntimeIdentifier.StartsWith('linux')) or $(RuntimeIdentifier.StartsWith('win')) or ('$(RuntimeIdentifier)' == '' and !$([MSBuild]::IsOSPlatform('osx')))" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../HelloWorld/HelloWorld.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

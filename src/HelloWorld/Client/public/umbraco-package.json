@@ -1,0 +1,14 @@
+{
+  "id": "HelloWorld",
+  "name": "HelloWorld",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Hello World Bundle",
+      "alias": "HelloWorld.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/HelloWorld/hello-world.js"
+    }
+  ]
+}

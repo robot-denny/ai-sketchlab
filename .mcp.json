@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "umbraco-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@umbraco-cms/mcp-dev@17"
+      ],
+      "env": {
+        "UMBRACO_CLIENT_ID": "${UMBRACO_CLIENT_ID}",
+        "UMBRACO_CLIENT_SECRET": "${UMBRACO_CLIENT_SECRET}",
+        "UMBRACO_BASE_URL": "${UMBRACO_BASE_URL}",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0",
+        "UMBRACO_INCLUDE_TOOL_COLLECTIONS": "document,media,document-type,data-type"
+      }
+    }
+  }
+}

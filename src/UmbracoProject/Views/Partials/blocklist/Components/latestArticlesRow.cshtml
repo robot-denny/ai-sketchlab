@@ -71,6 +71,10 @@
         {
             @await Component.InvokeAsync("Pagination", new { totalItems = totalItemCount, url = row.ArticleList.Url(), pageNumber = pageNumber, pageSize = pageSize })
         }
+        @if (row.Author != null)
+        {
+            <p class="block-author text-muted fst-italic mt-2">— @row.Author.Name</p>
+        }
     </div>
 </div>
 

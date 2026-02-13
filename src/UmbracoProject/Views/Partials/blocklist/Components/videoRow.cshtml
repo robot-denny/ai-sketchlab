@@ -24,6 +24,10 @@
         {
             <p class="caption video-caption">@row.Caption</p>
         }
+        @if (row.Author != null)
+        {
+            <p class="block-author text-muted fst-italic mt-2">— @row.Author.Name</p>
+        }
     </div>
 </div>
 

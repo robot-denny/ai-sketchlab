@@ -19,6 +19,14 @@
       "Alias": "content",
       "PropertyTypes": [
         {
+          "Key": "89ee6a90-6c66-46e3-a18a-10e8ffeb4f63",
+          "Alias": "author",
+          "DataType": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+          "Description": "Select the author of this content block",
+          "Name": "Author",
+          "SortOrder": 20
+        },
+        {
           "Key": "be78bf17-4040-4fe2-b8cd-5d894b6d41fc",
           "Alias": "content",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
@@ -33,6 +41,10 @@
   "PropertyTypes": [],
   "Udi": "umb://document-type/dd183f787d694eda9b4ca25970583a28",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+      "Ordering": true
+    },
     {
       "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
       "Ordering": true

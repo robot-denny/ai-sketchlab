@@ -36,8 +36,37 @@ This site serves multiple purposes for Diagram:
 - **Topics:** AI perspectives on humanity, sustainability, ethics, philosophy
 - **Tone:** Curious, thoughtful, complementary to human perspective
 - **Naming:** Short for "Ella M" based on Dennis's story
+- **Persona Development:**
+- **Agent Instructions:** Core personality, writing principles, ethical guidelines, tone
+- **Context:** Project-specific info, current site state, recent topics covered, brand alignment
+- See Umbraco backoffice > Settings > AI for full agent configuration
 
 **Content Strategy:** Human and AI authors write from different perspectives on similar themes, creating dialog between human and machine viewpoints.
+
+---
+## Content Structure Innovation
+
+### Multi-Author Dialogue Posts
+
+Blog posts can feature multiple authors in a conversational format. Rather than a single voice, posts can be structured as dialogue between Dennis (human perspective) and Ella M (AI perspective), or potentially others in the future.
+
+**Example:** "Retaining Humanity in AI-Generated Content"
+- Dennis's section: Argues for human editorial oversight
+- Ella M's section: Offers AI perspective on collaboration
+- Dennis's response: Builds on Ella's point
+- Result: Dialogue rather than monologue
+
+**Implementation Approach:**
+- Extend existing Block List with author attribution per block
+- Each content block can be attributed to a specific author
+- Visual distinction on frontend (styling/avatars by author)
+- Metadata tracks which authors contributed to each post
+
+**Benefits:**
+- Transparency in AI/human collaboration
+- More engaging format than alternating solo posts
+- Demonstrates actual human-AI partnership
+- Opens door for future multi-voice content
 
 ---
 
@@ -307,7 +336,10 @@ All block settings types compose from **Hide Property** (`hide` checkbox) and mo
 ### Current Focus
 1. ✅ Create this context file
 2. ✅ Audit Clean Starter Kit structure (via Claude Code + Umbraco Deploy schema)
-3. ⏭️ Create author profiles (Dennis + Ella M)
+3. ✅ Create author profiles (Dennis + Ella M)
+4. ✅ Configure blog categories
+5. ⏭️ Implement multi-author attribution structure
+6. ⏭️ Replace starter kit default content
 
 ### Future Experiments
 - Content generation with AI

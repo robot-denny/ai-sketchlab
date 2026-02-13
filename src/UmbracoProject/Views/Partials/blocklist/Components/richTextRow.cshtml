@@ -15,4 +15,8 @@
 
 <div class="richtext @(spacingClasses)">
     @row.Content
+    @if (row.Author != null)
+    {
+        <p class="block-author text-muted fst-italic mt-2">— @row.Author.Name</p>
+    }
 </div>

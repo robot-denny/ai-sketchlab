@@ -32,6 +32,14 @@
           "Name": "Code",
           "SortOrder": 1,
           "LabelOnTop": true
+        },
+        {
+          "Key": "e3a6c2dd-ffc0-4078-8362-16eb15564809",
+          "Alias": "author",
+          "DataType": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+          "Description": "Select the author of this content block",
+          "Name": "Author",
+          "SortOrder": 2
         }
       ]
     }
@@ -41,6 +49,10 @@
   "Dependencies": [
     {
       "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/bd37253b2f0540e08d386041c9456230",
       "Ordering": true
     },
     {

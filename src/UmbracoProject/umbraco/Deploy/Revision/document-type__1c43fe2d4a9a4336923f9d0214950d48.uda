@@ -25,6 +25,14 @@
           "Description": "Choose the images for the carousel row",
           "Name": "Images",
           "SortOrder": 1
+        },
+        {
+          "Key": "51eddc34-0534-488b-82b0-354c8644fc15",
+          "Alias": "author",
+          "DataType": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+          "Description": "Select the author of this content block",
+          "Name": "Author",
+          "SortOrder": 2
         }
       ]
     }
@@ -34,6 +42,10 @@
   "Dependencies": [
     {
       "Udi": "umb://data-type/0e63d883b62b479988c3157f82e83ecc",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/bd37253b2f0540e08d386041c9456230",
       "Ordering": true
     },
     {

@@ -21,9 +21,10 @@
         {
           "Key": "4e300c2a-054e-44f8-8c13-7914b4ffc165",
           "Alias": "author",
-          "DataType": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+          "DataType": "umb://data-type/13037248a9ad4490bd77399fd7913171",
+          "Description": "Select one or more authors for this article",
           "Mandatory": true,
-          "Name": "Author",
+          "Name": "Authors",
           "SortOrder": 25
         },
         {
@@ -49,11 +50,11 @@
   "Udi": "umb://document-type/e68abe4876464ef4abb8f1a5b24b27cc",
   "Dependencies": [
     {
-      "Udi": "umb://data-type/9a426393b2c84403a85f00b7a51ebe69",
+      "Udi": "umb://data-type/13037248a9ad4490bd77399fd7913171",
       "Ordering": true
     },
     {
-      "Udi": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+      "Udi": "umb://data-type/9a426393b2c84403a85f00b7a51ebe69",
       "Ordering": true
     },
     {

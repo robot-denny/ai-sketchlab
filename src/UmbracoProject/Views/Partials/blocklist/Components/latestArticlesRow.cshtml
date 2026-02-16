@@ -26,7 +26,8 @@
     <div class="col-md-12 column">
         @foreach (var article in pageOfArticles)
         {
-            var author = article.Author;
+            var authors = article.Author;
+            var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
             bool.TryParse(article.Value<string>("showFullArticleOnListPage", fallback: Fallback.ToAncestors), out var showFullArticleOnListPage);
 
             <div class="post-preview">
@@ -41,7 +42,7 @@
                 </a>
                 <p class="post-meta @(showFullArticleOnListPage ? "mb-0" : "")">
                     @Umbraco.GetDictionaryValue("Article.Posted")
-                    @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@author.Name
+                    @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames
                     @Umbraco.GetDictionaryValue("Article.On") @article.ArticleDate.ToString("MMMM dd, yyyy")
                 </p>
                 @if (showFullArticleOnListPage && article.Categories != null && article.Categories.Any())

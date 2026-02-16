@@ -50,10 +50,11 @@
                                 @if (result.Content is IArticleControls article && ((result.Content.HasProperty("author") && result.Content.HasValue("author"))
                                || (result.Content.HasProperty("articleDate") && result.Content.HasValue("articleDate") && result.Content.Value<DateTime>("articleDate") > DateTime.MinValue)))
                                 {
-                                    var author = article.Author;
+                                    var authors = article.Author;
+                                    var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
                                     <p class="post-meta">
                                         @Umbraco.GetDictionaryValue("Article.Posted")
-                                        @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@(author.Name)
+                                        @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames
 
                                         @if (article.ArticleDate != null && article.ArticleDate > DateTime.MinValue)
                                         {

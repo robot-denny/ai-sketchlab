@@ -22,10 +22,32 @@
     "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
     "umb://document-type/e68abe4876464ef4abb8f1a5b24b27cc"
   ],
-  "PropertyGroups": [],
+  "PropertyGroups": [
+    {
+      "Key": "3e2a08cc-768b-4194-9ad9-27a5121f5442",
+      "Name": "Notes",
+      "SortOrder": 20,
+      "Type": 1,
+      "Alias": "notes",
+      "PropertyTypes": [
+        {
+          "Key": "0878f223-ff55-4695-b8c2-1402ca50f397",
+          "Alias": "postNotes",
+          "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "Description": "Optional notes displayed below the article content",
+          "Name": "Post Notes",
+          "LabelOnTop": true
+        }
+      ]
+    }
+  ],
   "PropertyTypes": [],
   "Udi": "umb://document-type/0f63b49a542346bd91fa0e78bbd2f6d6",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+      "Ordering": true
+    },
     {
       "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
       "Ordering": true

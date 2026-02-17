@@ -1,0 +1,79 @@
+{
+  "Name": "Documentation",
+  "Alias": "documentation",
+  "DefaultTemplate": "umb://template/9fd73dbb5133435c94bb334eb887cf9c",
+  "AllowedTemplates": [
+    "umb://template/9fd73dbb5133435c94bb334eb887cf9c"
+  ],
+  "HistoryCleanup": {},
+  "Icon": "icon-book color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "A documentation page supporting both markdown content and block list components.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+  "CompositionContentTypes": [
+    "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+    "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+    "umb://document-type/b1c27e8c169242ad9701c87f12716ee7",
+    "umb://document-type/ce869f5cd4104a3e85729593e49101c6",
+    "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "65e1cf87-906e-4f95-b1aa-10c64969fb49",
+      "Name": "Documentation",
+      "Type": 1,
+      "Alias": "documentation",
+      "PropertyTypes": [
+        {
+          "Key": "2cb34cf0-2854-4585-85cb-a60fdc9dc6ac",
+          "Alias": "markdownContent",
+          "DataType": "umb://data-type/5f96402a733848429fa3e39347dfb03b",
+          "Name": "Markdown Content",
+          "LabelOnTop": true
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/2cf4d65039ec41ef8bd65085ee9f780a",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/5f96402a733848429fa3e39347dfb03b",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/b1c27e8c169242ad9701c87f12716ee7",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/ce869f5cd4104a3e85729593e49101c6",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://template/9fd73dbb5133435c94bb334eb887cf9c",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

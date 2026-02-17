@@ -1,0 +1,12 @@
+{
+  "Name": "Capabilities Page - Markdown Content - Markdown Editor",
+  "EditorAlias": "Umbraco.MarkdownEditor",
+  "EditorUiAlias": "Umb.PropertyEditorUi.MarkdownEditor",
+  "Configuration": {
+    "defaultValue": "#Get Started with Markdown"
+  },
+  "Udi": "umb://data-type/72c012d3249346e19dabdbbc177ab1cc",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

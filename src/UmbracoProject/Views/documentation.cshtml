@@ -1,0 +1,28 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Documentation>
+
+@using Clean.Core.Models.ViewModels
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+
+@{
+    Layout = "master.cshtml";
+}
+
+@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                @Html.GetBlockListHtml(Model.ContentRows)
+
+                @if (Model.MarkdownContent != null)
+                {
+                    <div class="markdown-content">
+                        @Model.MarkdownContent
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</article>

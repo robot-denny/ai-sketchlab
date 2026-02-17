@@ -1,0 +1,13 @@
+{
+  "Name": "[Markdown] Documentation",
+  "EditorAlias": "Umbraco.MarkdownEditor",
+  "EditorUiAlias": "Umb.PropertyEditorUi.MarkdownEditor",
+  "Configuration": {
+    "preview": true,
+    "defaultValue": ""
+  },
+  "Udi": "umb://data-type/5f96402a733848429fa3e39347dfb03b",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

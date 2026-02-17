@@ -1,0 +1,21 @@
+{
+  "Name": "Documentation",
+  "Alias": "documentation",
+  "File": "umb://template-file/documentation.cshtml",
+  "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+  "Udi": "umb://template/9fd73dbb5133435c94bb334eb887cf9c",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/documentation.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.0.1"
+}

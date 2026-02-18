@@ -2,10 +2,12 @@
 
 @using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Markdig
 
 
 @{
     Layout = "master.cshtml";
+    var markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 }
 
 @await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
@@ -19,7 +21,7 @@
                 @if (Model.MarkdownContent != null)
                 {
                     <div class="markdown-content">
-                        @Model.MarkdownContent
+                        @Html.Raw(Markdown.ToHtml(Model.MarkdownContent.Raw, markdownPipeline))
                     </div>
                 }
             </div>

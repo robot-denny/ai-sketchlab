@@ -58,6 +58,81 @@ The backoffice includes an **AI Copilot** that can generate and edit content dir
 
 The **Umbraco MCP server** enables Claude Code to interact with backoffice content. Connection settings are in `.env` with tool collections for `document`, `media`, `document-type`, and `data-type`.
 
+## Modifying Umbraco Content from Claude Code
+
+Claude Code can read and write Umbraco document properties directly via the Management API. The Umbraco MCP server's tools are designed for the backoffice browser UI, so Claude Code must call the REST API using the same OAuth credentials.
+
+### Authentication
+
+```bash
+# Get a bearer token (expires in ~5 minutes, refresh as needed)
+curl -sk -X POST "https://localhost:44367/umbraco/management/api/v1/security/back-office/token" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials&client_id=${UMBRACO_CLIENT_ID}&client_secret=${UMBRACO_CLIENT_SECRET}"
+# Returns: { "access_token": "...", "token_type": "Bearer", "expires_in": 299 }
+```
+
+Credentials are in `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`).
+
+### Key Management API Endpoints
+
+All endpoints require `Authorization: Bearer {token}`.
+
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Document tree root | GET | `/umbraco/management/api/v1/tree/document/root?skip=0&take=100` |
+| Document tree children | GET | `/umbraco/management/api/v1/tree/document/children?parentId={id}&skip=0&take=100` |
+| Get document | GET | `/umbraco/management/api/v1/document/{id}` |
+| Update document | PUT | `/umbraco/management/api/v1/document/{id}` |
+| Document type tree root | GET | `/umbraco/management/api/v1/tree/document-type/root?skip=0&take=100` |
+| Document type tree children | GET | `/umbraco/management/api/v1/tree/document-type/children?parentId={id}&skip=0&take=100` |
+| Get document type | GET | `/umbraco/management/api/v1/document-type/{id}` |
+
+### Workflow for Updating Page Properties
+
+1. **Find the document** — Walk the tree (`/tree/document/root` then `/tree/document/children?parentId=...`) to locate the target page by name
+2. **Read the document** — GET `/document/{id}` to retrieve all current property values. The response includes a `values` array with objects like `{ "alias": "title", "value": "..." }`
+3. **Identify property aliases** — If unsure of field names, GET the document type or its compositions to see available properties. Common compositions include SEO Controls (`metaName`, `metaDescription`, `metaKeywords`), Header Controls (`title`, `subtitle`), etc.
+4. **Build the update payload** — The PUT body requires `template`, `values`, and `variants` from the original document. Modify or add entries in the `values` array:
+   ```json
+   {
+     "template": { "id": "..." },
+     "values": [
+       { "alias": "metaName", "culture": null, "segment": null, "value": "New SEO Title" },
+       { "alias": "metaDescription", "culture": null, "segment": null, "value": "New description" }
+     ],
+     "variants": [{ "culture": null, "segment": null, "name": "Page Name", "state": "Draft" }]
+   }
+   ```
+5. **Update the document** — PUT `/document/{id}` with the payload. HTTP 200 = success. This saves a draft; it does not publish.
+
+### Using the AI Agent API for Content Generation
+
+AI agents configured in the backoffice can be invoked via the Agent API to generate content. Endpoints are under `/umbraco/ai/management/api/v1/agents/`:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | List all agents |
+| GET | `/{idOrAlias}` | Get agent by ID or alias |
+| POST | `/{idOrAlias}/run` | Run agent (SSE stream) |
+
+**Important**: Agent tools (`get_page_info`, `set_property_value`, `search_umbraco`) are **frontend/client-side tools** that only work in the Copilot browser UI. When calling from Claude Code, provide the page content directly in the message and parse the agent's text response instead.
+
+```bash
+# Run an agent (returns Server-Sent Events stream)
+curl -sk -N -X POST "https://localhost:44367/umbraco/ai/management/api/v1/agents/website-content-assistant/run" \
+  -H "Authorization: Bearer {token}" \
+  -H "Content-Type: application/json" \
+  -d '{"threadId":"t1","runId":"r1","messages":[{"id":"m1","role":"user","content":"Generate SEO for this article: ..."}]}'
+```
+
+The response is an SSE stream. Extract text from `TEXT_MESSAGE_CHUNK` events:
+```
+data: {"type":"TEXT_MESSAGE_CHUNK","messageId":"...","role":"assistant","delta":"partial text"}
+```
+
+Reassemble all `delta` values to get the full agent response.
+
 ## Deployment
 
 Git push to Umbraco Cloud triggers the build pipeline — the `.umbraco` file at the repo root tells Cloud which `.csproj` to build. No separate CI/CD is configured. Environment-specific config is in `appsettings.{Development,Staging,Production}.json`.

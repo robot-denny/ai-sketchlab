@@ -36,7 +36,6 @@
 | Context management for brand consistency and topic boundaries | Tested, working | Backoffice Settings > AI > Contexts |
 | Page property modifications (metadata, titles, descriptions) | Tested, working | Copilot editing via configured permissions |
 | Rich Text block population with maintained voice consistency | Tested, working | Requires pre-created block structure |
-| Ethical self-awareness in generated content | Tested, working | Agent persona configuration |
 | SEO metadata generation from page content | Tested, working | Copilot reads current page content and generates metaName, metaDescription, metaKeywords |
 
 ### MCP + AI Agent Orchestration
@@ -64,7 +63,6 @@
 | Cannot autonomously create new Rich Text Row blocks | Copilot can only edit existing blocks, not add new ones |
 | Cannot populate empty blocks without prior manual setup | Block structure must be pre-created before Copilot can fill content |
 | Requires pre-created block structure for content generation | Manual block scaffolding needed first |
-| Agent permissions must be explicitly configured | Settings > AI > Agent > Permissions must define scope (doc types/properties). Packages + API key alone are not enough. |
 | Copilot is scoped to the current page only | Cannot navigate the document tree or modify content on other pages. Cross-page operations require MCP + Management API orchestration. |
 
 ### MCP Environment

@@ -1,0 +1,23 @@
+@inherits UmbracoViewPage<BlockListItem>
+@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Strings
+
+@{
+    var row = Model.Content;
+    var alertLevel = row?.Value<string>("alertLevel") ?? "informational";
+    var alertContent = row?.Value<IHtmlEncodedString>("alertContent");
+
+    var bootstrapClass = alertLevel switch
+    {
+        "emergency" => "alert-danger",
+        "warning"   => "alert-warning",
+        _           => "alert-info"
+    };
+}
+
+@if (alertContent != null)
+{
+    <div class="alert @(bootstrapClass)" role="alert">
+        @alertContent
+    </div>
+}

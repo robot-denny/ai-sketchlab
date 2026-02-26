@@ -418,3 +418,8 @@ healthchecksdb
 #Additions
 .env
 **/appsettings.Development.json
+
+# Playwright E2E
+tests/e2e/.auth/user.json
+playwright-report/
+test-results/

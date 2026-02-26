@@ -22,7 +22,7 @@ dotnet dev-certs https --trust
 dotnet publish src/UmbracoProject -c Release
 ```
 
-There are no test projects or linting tools configured.
+For E2E tests, see the **Testing** section below.
 
 ## Architecture
 
@@ -132,6 +132,83 @@ data: {"type":"TEXT_MESSAGE_CHUNK","messageId":"...","role":"assistant","delta":
 ```
 
 Reassemble all `delta` values to get the full agent response.
+
+## Testing
+
+### E2E Tests (Playwright)
+
+Tests live in `tests/e2e/`. The test runner and dependencies are in the root `package.json` (separate from the C# project).
+
+```bash
+# Node is managed via nvm — prefix commands with PATH if node isn't in your shell PATH
+PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx playwright test
+
+# Run with visual UI (great for debugging)
+PATH="..." npx playwright test --ui
+
+# Run a specific file
+PATH="..." npx playwright test tests/e2e/blocks/alertBanner.spec.ts
+```
+
+**Packages** (root `package.json`):
+- `@playwright/test` ^1.56
+- `@umbraco/playwright-testhelpers` 17.1.0-beta.7 — must match Umbraco major version
+- `@umbraco/json-models-builders` ^2.0.42 — for building element type payloads
+
+**First-time setup:**
+```bash
+PATH="..." npm install
+PATH="..." npx playwright install chromium
+```
+
+### Auth Setup
+
+`tests/e2e/auth.setup.ts` uses **OAuth client credentials** (not UI login). The Umbraco 17 backoffice is a Lit SPA — `LoginUiHelper` from testhelpers won't find `[name="username"]` in the DOM. Instead, auth setup:
+
+1. POSTs to `/umbraco/management/api/v1/security/back-office/token` with `grant_type=client_credentials`
+2. Writes `tests/e2e/.auth/user.json` with the token in `umb:userAuthTokenResponse` localStorage format
+
+Credentials come from `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`). The testhelpers package reads `process.env.URL` (not `UMBRACO_URL`) for the base URL — both are set in `.env`.
+
+**Tokens expire in 299 seconds.** Auth re-runs automatically before each Playwright session.
+
+### Block Development Workflow (TDD)
+
+Use the `/block` command (`.claude/commands/block.md`) to build new blocklist components using a RED → GREEN loop:
+
+1. **Write the E2E test** — describe the element type name and expected property aliases
+2. **Run to confirm RED** — test fails because the element type doesn't exist yet
+3. **Create the element type** via Management API using `DocumentTypeBuilder`
+4. **Create the Razor partial** named `{elementTypeAlias}.cshtml` in `Views/Partials/blocklist/Components/` — the alias is derived from the element type name (e.g. "Alert Banner" → `alertBanner.cshtml`). **Do not add "Row" to the file name unless "Row" is part of the element type name itself** — existing blocks follow this convention ("Rich Text Row" → alias `richTextRow` → `richTextRow.cshtml`). For rich text properties, add `@using Umbraco.Cms.Core.Strings` — `IHtmlEncodedString` is not in the default `_ViewImports.cshtml`
+5. **Build** with `dotnet build` to catch Razor errors
+6. **Run tests again** — GREEN
+
+### Umbraco 17 Management API Quirks
+
+Hard-won lessons from building tests against the live API:
+
+**Reserved property aliases** — These aliases are rejected silently or cause validation errors:
+- `level` — reserved (use `alertLevel`, `severityLevel`, etc.)
+- When in doubt, prefix with the block name (e.g., `alertContent` not `content`)
+
+**Correct dropdown editor UI alias:**
+```
+Umb.PropertyEditorUi.Dropdown
+```
+`SelectBox` does not exist. The property editor alias (schema) is `Umbraco.DropDown.Flexible`.
+
+**`getByName()` returns `false`, not `null`** when an entity isn't found. Use `.toBeTruthy()` / `.toBeFalsy()`, not `.toBeNull()` / `.not.toBeNull()`.
+
+**Flat `properties` array** — The Management API returns document type properties directly on the object:
+```typescript
+// WRONG — no groups nesting in the API response
+elementType.groups?.flatMap((g) => g.properties)
+
+// CORRECT
+elementType.properties ?? []
+```
+
+**Token lifetime** — Access tokens expire in 299 seconds (~5 min). For long-running scripts, re-authenticate before each logical operation.
 
 ## Deployment
 

@@ -1,0 +1,18 @@
+{
+  "Name": "Alert Level (1)",
+  "EditorAlias": "Umbraco.DropDown.Flexible",
+  "EditorUiAlias": "Umb.PropertyEditorUi.Dropdown",
+  "DatabaseType": "Nvarchar",
+  "Configuration": {
+    "multiple": false,
+    "items": [
+      "emergency",
+      "warning",
+      "informational"
+    ]
+  },
+  "Udi": "umb://data-type/3d6a3dc2fe444c368898dbb76f33cd09",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

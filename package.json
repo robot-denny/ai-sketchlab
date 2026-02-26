@@ -1,0 +1,17 @@
+{
+  "name": "umbraco-17-demo-site-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56",
+    "@umbraco/json-models-builders": "^2.0.42",
+    "@umbraco/playwright-testhelpers": "17.1.0-beta.7",
+    "dotenv": "^16.3.1"
+  }
+}

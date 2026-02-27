@@ -3,12 +3,13 @@
   "Alias": "alertBanner",
   "AllowedTemplates": [],
   "HistoryCleanup": {},
-  "Icon": "icon-document",
+  "Icon": "icon-alert-alt color-light-blue",
   "Thumbnail": "folder.png",
   "Permissions": {
     "IsElementType": true,
     "AllowedChildContentTypes": []
   },
+  "Parent": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
   "CompositionContentTypes": [],
   "PropertyGroups": [
     {
@@ -42,6 +43,10 @@
     },
     {
       "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
       "Ordering": true
     }
   ],

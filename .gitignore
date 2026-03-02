@@ -391,8 +391,8 @@ healthchecksdb
 **/wwwroot/umbraco/views/
 
 # Umbraco Media Files
-# Media is transfered via Deploy as content
-**/wwwroot/media
+# Media is committed to git for local development (starter site public assets only)
+# **/wwwroot/media
 
 # Umbraco Models Builder out of date flag file
 **/umbraco/models/ood.flag

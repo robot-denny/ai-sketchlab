@@ -478,5 +478,5 @@ umbraco-package-schema.json
 # Log files
 /umbraco/Logs/
 
-# Media files
-/wwwroot/media/
+# Media files committed to git for local development (starter site public assets only)
+# /wwwroot/media/

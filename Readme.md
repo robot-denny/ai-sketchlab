@@ -1,3 +1,52 @@
+# Umbraco 17 AI Demo Site
+
+This is a demo site built on Umbraco 17 with the [Paul Seal starter site](https://codeshare.co.uk/umbraco-starter-site/) as a base. It includes the full Umbraco AI suite, AI Copilot, and MCP server integration — set up for experimenting with AI-assisted content editing in the backoffice.
+
+## Getting Started (Collaborators)
+
+### Prerequisites
+
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download)
+- Access to this Umbraco Cloud project (request an invite if you don't have one)
+
+### 1. Clone the repository
+
+Your Umbraco Cloud invitation email includes the git URL. Clone it:
+
+```bash
+git clone https://scm.umbraco.io/useast01/umbraco-17-demo-site.git
+cd umbraco-17-demo-site
+```
+
+### 2. Add the required config files
+
+Three files are not in the repository and need to be obtained from a team member (shared via Slack or a secure channel):
+
+| File | Where to place it |
+|------|------------------|
+| `Umbraco.sqlite.db` | `src/UmbracoProject/umbraco/Data/` |
+| `appsettings.Development.json` | `src/UmbracoProject/` |
+| `.env` | repo root |
+
+The SQLite database contains all site content. `appsettings.Development.json` holds the Anthropic API key for AI features. `.env` holds credentials for the MCP server.
+
+### 3. Trust the HTTPS dev certificate (first time only)
+
+```bash
+dotnet dev-certs https --trust
+```
+
+### 4. Run the site
+
+```bash
+cd src/UmbracoProject
+dotnet run
+```
+
+The terminal output will show the local URLs — typically `https://localhost:44367`. The backoffice is at `/umbraco`.
+
+---
+
 # Welcome to Umbraco Cloud
 
 In order to run Umbraco locally you will need to [install the .NET 10.0 SDK](https://dotnet.microsoft.com/download) (if you do not have this already).

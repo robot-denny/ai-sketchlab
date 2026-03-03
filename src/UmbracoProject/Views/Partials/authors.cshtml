@@ -31,7 +31,10 @@
                         <div class="col-4 mx-auto">
                             <div class="card">
                                 <header>
-                                    <img src="@(author.MainImage.Url())" alt="@author.Name" class="w-100" />
+                                    @if (author.MainImage != null)
+                                    {
+                                        <img src="@(author.MainImage.Url())" alt="@author.Name" class="w-100" />
+                                    }
                                 </header>
                                 <div class="card-body">
                                     <div class="content-left text-start my-auto py-4">

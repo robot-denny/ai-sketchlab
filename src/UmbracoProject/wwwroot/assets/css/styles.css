@@ -11373,3 +11373,92 @@ header.masthead .site-heading .h1 {
         background:#1E1E1E;
         padding: 1em;
     }
+
+/* ========================
+   Section Navigation
+   ======================== */
+
+.section-nav {
+  font-size: 0.875rem;
+}
+
+.section-nav ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.section-nav .nav-link {
+  padding: 0.35rem 0;
+  color: #212529;
+  display: block;
+  border-left: 3px solid transparent;
+  padding-left: 0.75rem;
+}
+
+.section-nav .nav-link:hover {
+  color: #005E70;
+  border-left-color: #dee2e6;
+}
+
+.section-nav .nav-link.active {
+  font-weight: 600;
+  color: #005E70;
+  border-left-color: #005E70;
+}
+
+.section-nav-children {
+  padding-left: 1rem;
+}
+
+.section-nav-children .nav-link {
+  font-size: 0.8125rem;
+  color: #6c757d;
+}
+
+.section-nav-children .nav-link:hover {
+  color: #005E70;
+}
+
+.section-nav-toggle {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #212529;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.section-nav-toggle .fa-chevron-down {
+  transition: transform 0.2s;
+}
+
+.section-nav-toggle[aria-expanded="true"] .fa-chevron-down {
+  transform: rotate(180deg);
+}
+
+@media (min-width: 992px) {
+  .section-nav-mobile {
+    display: none;
+  }
+  .section-nav-desktop {
+    display: block;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .section-nav-desktop {
+    display: none;
+  }
+  .section-nav-mobile {
+    display: block;
+  }
+}

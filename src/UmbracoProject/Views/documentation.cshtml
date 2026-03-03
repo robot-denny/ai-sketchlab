@@ -8,23 +8,45 @@
 @{
     Layout = "master.cshtml";
     var markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+    var showSectionNavigation = Model.Value<bool>("showSectionNavigation");
 }
 
 @await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
 
 <article>
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                @Html.GetBlockListHtml(Model.ContentRows)
+        @if (showSectionNavigation)
+        {
+            <div class="row">
+                <div class="col-lg-3">
+                    @await Html.PartialAsync("~/Views/Partials/sectionNavigation.cshtml", Model)
+                </div>
+                <div class="col-lg-9">
+                    @Html.GetBlockListHtml(Model.ContentRows)
 
-                @if (Model.MarkdownContent != null)
-                {
-                    <div class="markdown-content">
-                        @Html.Raw(Markdown.ToHtml(Model.MarkdownContent.Raw, markdownPipeline))
-                    </div>
-                }
+                    @if (Model.MarkdownContent != null)
+                    {
+                        <div class="markdown-content">
+                            @Html.Raw(Markdown.ToHtml(Model.MarkdownContent.Raw, markdownPipeline))
+                        </div>
+                    }
+                </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-lg-8 col-md-10 mx-auto">
+                    @Html.GetBlockListHtml(Model.ContentRows)
+
+                    @if (Model.MarkdownContent != null)
+                    {
+                        <div class="markdown-content">
+                            @Html.Raw(Markdown.ToHtml(Model.MarkdownContent.Raw, markdownPipeline))
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     </div>
 </article>

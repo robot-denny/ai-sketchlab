@@ -49,7 +49,7 @@ Section navigation is a contextual navigation element that displays the current 
 - Which document types beyond general content and documentation should receive this property? those types are sufficient
 - Should the existing "hide from navigation" flag be reused for section nav exclusion, or should a separate flag be introduced? hide from navigation should apply to both
 - Should the mobile toggle be expanded by default when the user is already on a page within that section? collapsed by default
-- What are the preferred column proportions for the sidebar vs. content area at wide viewports? 1/4 width
+- What are the preferred column proportions for the sidebar vs. content area at wide viewports? 1/4 (25%) width
 
 ## Testing Guidelines
 

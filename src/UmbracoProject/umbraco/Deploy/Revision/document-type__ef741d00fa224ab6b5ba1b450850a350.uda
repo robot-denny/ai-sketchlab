@@ -1,0 +1,45 @@
+{
+  "Name": "Section Navigation Controls",
+  "Alias": "sectionNavigationControls",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-navigation color-pink",
+  "Thumbnail": "folder.png",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "c01f85b6-e393-463c-8d9e-01c56c507b9a",
+      "Name": "Section Navigation",
+      "SortOrder": 25,
+      "Type": 1,
+      "Alias": "sectionNavigation",
+      "PropertyTypes": [
+        {
+          "Key": "5d65b679-1f53-4e66-86ce-4cbe19bc089d",
+          "Alias": "showSectionNavigation",
+          "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "Description": "Enable a sidebar showing sibling and child pages for contextual navigation",
+          "Name": "Show Section Navigation"
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/ef741d00fa224ab6b5ba1b450850a350",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

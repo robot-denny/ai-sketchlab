@@ -3,7 +3,7 @@
 > **Source of truth** for what has been tested with MCP integration and Umbraco AI.
 > This file should be kept in sync with the [Capabilities page](https://umbraco-17-demo-site.useast01.umbraco.io/capabilities/) in the Umbraco backoffice.
 
-**Last Updated:** 2026-02-18
+**Last Updated:** 2026-03-03
 
 ---
 
@@ -27,6 +27,7 @@
 | Content publishing via MCP | Tested, working | Used `publish-document` to publish updated Capabilities page |
 | Document tree traversal via Management API | Tested, working | Walked tree root → children to locate articles for bulk SEO update |
 | Bulk content operations via MCP | Tested, working | Updated SEO fields across all blog articles in a single workflow |
+| Block List editor configuration (add/remove block types) | Tested, working | Alert Banner element type registered in Block List data type via MCP |
 
 ### AI Content Generation (Copilot)
 
@@ -51,6 +52,34 @@
 | Capability | Status | Evidence |
 |---|---|---|
 | Dashboard extension via Umbraco Skills plugin | Tested, working | Commit `d5c7cee` — HelloWorld extension |
+
+### Claude Code Custom Commands
+
+| Capability | Status | Evidence |
+|---|---|---|
+| `/block` — TDD block component creation (RED → GREEN) | Tested, working | Commit `f0fb946` — Alert Banner block created via E2E test-first workflow |
+| `/spec` — Feature spec and branch generation from a short idea | Tested, working | Commit `0da9ebe` — Section Navigation spec created, branch auto-generated |
+
+### TDD Block Development Workflow
+
+| Capability | Status | Evidence |
+|---|---|---|
+| Write Playwright E2E test before element type exists (RED) | Tested, working | `tests/e2e/blocks/alertBanner.spec.ts` — test fails until element type is created |
+| Create element type via Management API using `DocumentTypeBuilder` | Tested, working | Alert Banner created with `alertLevel` (dropdown) and `alertContent` (RTE) properties |
+| Register new block in Block List data type via MCP | Tested, working | Alert Banner added to site's block list editor |
+| Create Razor partial matching element type alias convention | Tested, working | `alertBanner.cshtml` — maps Bootstrap alert classes from dropdown value |
+| Verify partial file exists via E2E test (naming mismatch guard) | Tested, working | Second test case validates `{alias}.cshtml` file exists at correct path |
+| Full RED → GREEN cycle in a single session | Tested, working | `/block` command orchestrates test → API creation → partial → build → green |
+
+### Feature Planning Workflow (Spec → Plan → Implement)
+
+| Capability | Status | Evidence |
+|---|---|---|
+| Generate feature spec from short description (`/spec`) | Tested, working | `_specs/section-navigation.md` — functional requirements, acceptance criteria, edge cases |
+| Create implementation plan with step-by-step prompts | Tested, working | `_plans/section-navigation.md` — 5 steps, each a self-contained prompt |
+| Create composition doc types via Management API scripts | Tested, working | `sectionNavigationControls` composition added to `content` and `documentation` types |
+| Multi-step feature implementation across Razor, CSS, and templates | Tested, working | Commits `1f750a9`, `0da9ebe` — section navigation sidebar with responsive layout |
+| Responsive layout with Bootstrap collapse for mobile | Tested, working | Desktop sidebar (col-lg-3) + mobile "In this Section" toggle using Bootstrap 5 collapse |
 
 ---
 
@@ -77,11 +106,9 @@
 
 | Capability | Category | Notes |
 |---|---|---|
-| Block List editor configuration modifications | MCP | Adding/removing block types from a Block List data type config (element types *within* blocks have been modified successfully) |
 | Media upload and management via MCP | MCP | `media` tool collection is enabled but not exercised |
 | Multi-language AI translation | AI | Requires Umbraco variants configuration |
 | Image generation integration | AI | AI-generated images placed into media library |
-| NotebookLM audio embeds | Integration | External audio content embedded in pages |
 | Content unpublishing via MCP | MCP | `unpublish-document` tool available but not tested |
 | Content validation via MCP | MCP | `validate-document` tool available but not tested |
 
@@ -100,3 +127,7 @@
 | 2026-02-18 | Validated document search, content update, and publishing via MCP | — |
 | 2026-02-18 | AI Copilot generated SEO fields for current page; confirmed Copilot is single-page scoped | — |
 | 2026-02-18 | MCP + AI Agent orchestration: bulk SEO update across all blog articles via tree traversal, Agent API, and Management API | — |
+| 2026-03-01 | Created `/block` custom command for TDD block development; built Alert Banner block (E2E test → element type → Razor partial) | `f0fb946` |
+| 2026-03-01 | Created `/spec` custom command for feature spec generation; created Section Navigation spec and branch | `0da9ebe` |
+| 2026-03-02 | Implemented section navigation sidebar for content and documentation pages (composition, partial, responsive layout, CSS) | `1f750a9` |
+| 2026-03-03 | Updated Capabilities tracker with new workflows and features | — |

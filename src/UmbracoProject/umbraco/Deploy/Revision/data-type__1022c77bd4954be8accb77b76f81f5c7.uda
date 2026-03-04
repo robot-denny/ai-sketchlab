@@ -1,0 +1,17 @@
+{
+  "Name": "Article List Display Mode",
+  "EditorAlias": "Umbraco.DropDown.Flexible",
+  "EditorUiAlias": "Umb.PropertyEditorUi.Dropdown",
+  "DatabaseType": "Nvarchar",
+  "Configuration": {
+    "items": [
+      "list",
+      "grid"
+    ],
+    "multiple": false
+  },
+  "Udi": "umb://data-type/1022c77bd4954be8accb77b76f81f5c7",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

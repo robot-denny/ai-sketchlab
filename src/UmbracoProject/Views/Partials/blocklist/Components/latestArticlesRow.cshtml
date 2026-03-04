@@ -1,4 +1,4 @@
-﻿@inherits UmbracoViewPage<BlockListItem>
+@inherits UmbracoViewPage<BlockListItem>
 @using Umbraco.Cms.Core.Models.Blocks
 @using Clean.Core.Extensions
 @using Clean.Core.Helpers
@@ -20,61 +20,125 @@
     var pageOfArticles = allArticles.Skip((pageNumber - 1) * pageSize).Take(pageSize);
     var totalItemCount = allArticles.Count();
     var pageCount = totalItemCount > 0 ? Math.Ceiling((double)totalItemCount / pageSize) : 1;
+
+    var displayMode = row.Value<string>("displayMode");
+    var isGridView = string.Equals(displayMode, "grid", StringComparison.OrdinalIgnoreCase);
 }
 
 <div class="row clearfix @(spacingClasses)">
     <div class="col-md-12 column">
-        @foreach (var article in pageOfArticles)
+        @if (isGridView)
         {
-            var authors = article.Author;
-            var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
-            bool.TryParse(article.Value<string>("showFullArticleOnListPage", fallback: Fallback.ToAncestors), out var showFullArticleOnListPage);
-
-            <div class="post-preview">
-                <a href="@article.Url()">
-                    <h2 class="post-title">
-                        @(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)
-                    </h2>
-                    @if (!string.IsNullOrWhiteSpace(article.Subtitle))
-                    {
-                        <h3 class="post-subtitle">@article.Subtitle</h3>
-                    }
-                </a>
-                <p class="post-meta @(showFullArticleOnListPage ? "mb-0" : "")">
-                    @Umbraco.GetDictionaryValue("Article.Posted")
-                    @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames
-                    @Umbraco.GetDictionaryValue("Article.On") @article.ArticleDate.ToString("MMMM dd, yyyy")
-                </p>
-                @if (showFullArticleOnListPage && article.Categories != null && article.Categories.Any())
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 article-grid">
+                @foreach (var article in allArticles.Take(12))
                 {
-                    <span class="mt-2 d-block"></span>
-                    @foreach (var category in article.Categories.Select(x => x.Name).OrderBy(y => y))
-                    {
-                        <span class="badge rounded-pill bg-light text-dark border-dark border-5">@category</span>
-                    }
+                    var authors = article.Author;
+                    var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
+                    var metaDescription = article.Value<string>("metaDescription");
+                    var hasImage = article.HasValue("mainImage");
 
+                    <div class="col">
+                        <div class="card h-100 article-grid-card">
+                            <div class="ratio ratio-16x9">
+                                @if (hasImage)
+                                {
+                                    <img src="@article.MainImage.GetCropUrl(width: 400, height: 225)" alt="@(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)" class="card-img-top object-fit-cover" loading="lazy">
+                                }
+                                else
+                                {
+                                    <div class="article-grid-card__no-image bg-light"></div>
+                                }
+                            </div>
+                            <div class="card-body">
+                                <h2 class="card-title h5">
+                                    <a href="@article.Url()" class="stretched-link">
+                                        @(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)
+                                    </a>
+                                </h2>
+                                @if (!string.IsNullOrWhiteSpace(article.Subtitle))
+                                {
+                                    <p class="small text-muted mb-1">@article.Subtitle</p>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(metaDescription))
+                                {
+                                    <p class="card-text small">@metaDescription</p>
+                                }
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <p class="post-meta small mb-0">
+                                    @Umbraco.GetDictionaryValue("Article.Posted")
+                                    @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames
+                                    @Umbraco.GetDictionaryValue("Article.On") @article.ArticleDate.ToString("MMMM dd, yyyy")
+                                </p>
+                                @if (article.Categories != null && article.Categories.Any())
+                                {
+                                    <div class="mt-2">
+                                        @foreach (var category in article.Categories.Select(x => x.Name).OrderBy(y => y))
+                                        {
+                                            <span class="badge rounded-pill bg-light text-dark border-dark border-5">@category</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 }
             </div>
-
-            @if (showFullArticleOnListPage)
+        }
+        else
+        {
+            @foreach (var article in pageOfArticles)
             {
-                <div class="row">
-                    <div class="col-12">
-                        @Html.GetBlockListHtml(article.ContentRows)
-                    </div>
+                var authors = article.Author;
+                var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
+                bool.TryParse(article.Value<string>("showFullArticleOnListPage", fallback: Fallback.ToAncestors), out var showFullArticleOnListPage);
+
+                <div class="post-preview">
+                    <a href="@article.Url()">
+                        <h2 class="post-title">
+                            @(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)
+                        </h2>
+                        @if (!string.IsNullOrWhiteSpace(article.Subtitle))
+                        {
+                            <h3 class="post-subtitle">@article.Subtitle</h3>
+                        }
+                    </a>
+                    <p class="post-meta @(showFullArticleOnListPage ? "mb-0" : "")">
+                        @Umbraco.GetDictionaryValue("Article.Posted")
+                        @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames
+                        @Umbraco.GetDictionaryValue("Article.On") @article.ArticleDate.ToString("MMMM dd, yyyy")
+                    </p>
+                    @if (showFullArticleOnListPage && article.Categories != null && article.Categories.Any())
+                    {
+                        <span class="mt-2 d-block"></span>
+                        @foreach (var category in article.Categories.Select(x => x.Name).OrderBy(y => y))
+                        {
+                            <span class="badge rounded-pill bg-light text-dark border-dark border-5">@category</span>
+                        }
+
+                    }
                 </div>
+
+                @if (showFullArticleOnListPage)
+                {
+                    <div class="row">
+                        <div class="col-12">
+                            @Html.GetBlockListHtml(article.ContentRows)
+                        </div>
+                    </div>
+                }
+
+                <hr>
             }
 
-            <hr>
-        }
-
-        @if (row.ShowPagination)
-        {
-            @await Component.InvokeAsync("Pagination", new { totalItems = totalItemCount, url = row.ArticleList.Url(), pageNumber = pageNumber, pageSize = pageSize })
-        }
-        @if (row.Author != null)
-        {
-            <p class="block-author text-muted fst-italic mt-2">— @row.Author.Name</p>
+            @if (row.ShowPagination)
+            {
+                @await Component.InvokeAsync("Pagination", new { totalItems = totalItemCount, url = row.ArticleList.Url(), pageNumber = pageNumber, pageSize = pageSize })
+            }
+            @if (row.Author != null)
+            {
+                <p class="block-author text-muted fst-italic mt-2">— @row.Author.Name</p>
+            }
         }
     </div>
 </div>

@@ -11462,3 +11462,30 @@ header.masthead .site-heading .h1 {
     display: block;
   }
 }
+/* ========================
+   Article List Grid View
+   ======================== */
+
+.article-grid-card {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.article-grid-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.article-grid-card .card-title a {
+  color: #212529;
+  text-decoration: none;
+}
+
+.article-grid-card .card-title a:hover {
+  color: #005E70;
+}
+
+.article-grid-card__no-image {
+  width: 100%;
+  height: 100%;
+}

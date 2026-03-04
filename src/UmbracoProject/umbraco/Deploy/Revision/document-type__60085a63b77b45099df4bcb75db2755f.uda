@@ -27,6 +27,14 @@
           "SortOrder": 20
         },
         {
+          "Key": "59671e49-12ae-4d6e-b82c-fa37ce70ee26",
+          "Alias": "displayMode",
+          "DataType": "umb://data-type/1022c77bd4954be8accb77b76f81f5c7",
+          "Description": "Choose how articles are displayed: as a vertical list or a responsive grid.",
+          "Name": "Display Mode",
+          "SortOrder": 21
+        },
+        {
           "Key": "6962d14c-37cc-43b4-98eb-996282650985",
           "Alias": "showPagination",
           "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
@@ -60,6 +68,10 @@
   "PropertyTypes": [],
   "Udi": "umb://document-type/60085a63b77b45099df4bcb75db2755f",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/1022c77bd4954be8accb77b76f81f5c7",
+      "Ordering": true
+    },
     {
       "Udi": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
       "Ordering": true

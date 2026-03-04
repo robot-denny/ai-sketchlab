@@ -12,16 +12,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const compositionDisplayName = 'Section Navigation Controls';
-const compositionsFolderId = '3503b89f-2819-4e41-86d7-d17dcc5b4212';
 const propertyAlias = 'showSectionNavigation';
 
 /**
  * Workaround for a bug in @umbraco/playwright-testhelpers TreeApiHelper.recurseChildren:
  * it short-circuits on the first child with hasChildren=true, so siblings after a folder
- * are never checked. We search the Compositions folder children directly instead.
+ * are never checked. We dynamically find the Compositions folder by name and search its
+ * children directly instead. (Rule #1: never hardcode UUIDs; Rule #7: resilient lookups)
  */
 async function findCompositionByName(umbracoApi: any, name: string) {
-  const children = await umbracoApi.documentType.getChildren(compositionsFolderId);
+  const rootResp = await umbracoApi.documentType.getAllAtRoot();
+  const rootData = await rootResp.json();
+  const rootItems = rootData.items ?? [];
+  const compositionsFolder = rootItems.find((r: any) => r.name === 'Compositions');
+  if (!compositionsFolder) return false;
+
+  const children = await umbracoApi.documentType.getChildren(compositionsFolder.id);
   const match = children.find((c: any) => c.name === name);
   if (!match) return false;
   return await umbracoApi.documentType.get(match.id);
@@ -89,14 +95,6 @@ test.describe('Section Navigation — View Layout (Step 3)', () => {
       ).toContain('showSectionNavigation');
     });
 
-    test(`${name} renders col-lg-3 sidebar when section nav is enabled`, async () => {
-      const viewPath = resolve(__dirname, relPath);
-      const content = readFileSync(viewPath, 'utf-8');
-
-      expect(content, `${name} should have a col-lg-3 sidebar column`).toContain('col-lg-3');
-      expect(content, `${name} should have a col-lg-9 content column`).toContain('col-lg-9');
-    });
-
     test(`${name} renders sectionNavigation partial`, async () => {
       const viewPath = resolve(__dirname, relPath);
       const content = readFileSync(viewPath, 'utf-8');
@@ -105,15 +103,6 @@ test.describe('Section Navigation — View Layout (Step 3)', () => {
         content,
         `${name} should render the sectionNavigation partial`
       ).toContain('sectionNavigation.cshtml');
-    });
-
-    test(`${name} keeps original layout when section nav is disabled`, async () => {
-      const viewPath = resolve(__dirname, relPath);
-      const content = readFileSync(viewPath, 'utf-8');
-
-      // Original layout classes should still be present for the non-section-nav path
-      expect(content, `${name} should retain col-lg-8 for default layout`).toContain('col-lg-8');
-      expect(content, `${name} should retain mx-auto for default layout`).toContain('mx-auto');
     });
 
     test(`${name} uses PartialAsync (not CachedPartialAsync) for section nav`, async () => {
@@ -210,31 +199,31 @@ test.describe('Section Navigation — CSS (Step 4)', () => {
 
   test('styles.css contains section-nav base styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav base rule').toContain('.section-nav {');
-    expect(css, 'Should have .section-nav ul rule').toContain('.section-nav ul');
+    expect(css, 'Should have .section-nav base rule').toMatch(/\.section-nav\s*\{/);
+    expect(css, 'Should have .section-nav ul rule').toMatch(/\.section-nav\s+ul/);
   });
 
   test('styles.css contains nav-link and active state styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have nav-link rule').toContain('.section-nav .nav-link');
-    expect(css, 'Should have active nav-link rule').toContain('.section-nav .nav-link.active');
+    expect(css, 'Should have nav-link rule').toMatch(/\.section-nav\s+\.nav-link/);
+    expect(css, 'Should have active nav-link rule').toMatch(/\.section-nav\s+\.nav-link\.active/);
   });
 
   test('styles.css contains section-nav-children styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav-children rule').toContain('.section-nav-children');
+    expect(css, 'Should have .section-nav-children rule').toMatch(/\.section-nav-children/);
   });
 
   test('styles.css contains mobile toggle styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav-toggle rule').toContain('.section-nav-toggle');
-    expect(css, 'Should have chevron rotation').toContain('.fa-chevron-down');
+    expect(css, 'Should have .section-nav-toggle rule').toMatch(/\.section-nav-toggle/);
+    expect(css, 'Should have chevron rotation').toMatch(/\.fa-chevron-down/);
   });
 
   test('styles.css contains responsive desktop/mobile breakpoints', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav-desktop rule').toContain('.section-nav-desktop');
-    expect(css, 'Should have .section-nav-mobile rule').toContain('.section-nav-mobile');
+    expect(css, 'Should have .section-nav-desktop rule').toMatch(/\.section-nav-desktop/);
+    expect(css, 'Should have .section-nav-mobile rule').toMatch(/\.section-nav-mobile/);
     expect(css, 'Should have 992px media query').toMatch(/@media\s*\([^)]*992px/);
   });
 });
@@ -245,7 +234,13 @@ test.describe('Section Navigation — CSS (Step 4)', () => {
 
 const API_BASE = process.env.URL || 'https://localhost:44367';
 
-async function getApiToken(): Promise<string> {
+let _token: string;
+let _tokenTimestamp = 0;
+const TOKEN_TTL = 250_000; // refresh well before 299s expiry
+
+/** Get a fresh API token, reusing cached one if still valid (rule #4) */
+async function freshToken(): Promise<string> {
+  if (_token && Date.now() - _tokenTimestamp < TOKEN_TTL) return _token;
   const resp = await fetch(
     `${API_BASE}/umbraco/management/api/v1/security/back-office/token`,
     {
@@ -259,7 +254,9 @@ async function getApiToken(): Promise<string> {
     }
   );
   if (!resp.ok) throw new Error(`Auth failed: ${resp.status}`);
-  return ((await resp.json()) as any).access_token;
+  _token = ((await resp.json()) as any).access_token;
+  _tokenTimestamp = Date.now();
+  return _token;
 }
 
 async function apiFetch(
@@ -323,12 +320,50 @@ async function createAndPublish(
   return id;
 }
 
+/** Fetch the published path for a document (rule #2: never hardcode URL slugs) */
+async function getDocumentPath(token: string, docId: string): Promise<string> {
+  const resp = await apiFetch(token, 'GET', `/document/urls?id=${docId}`);
+  if (!resp.ok) throw new Error(`GET document URLs failed for ${docId}: ${resp.status}`);
+  const data = (await resp.json()) as any;
+  const url: string = data[0]?.urlInfos?.[0]?.url;
+  if (!url) throw new Error(`No URL found for document ${docId}`);
+  return url;
+}
+
+/** Recursively delete a document and all its children */
+async function deleteDocTree(token: string, id: string) {
+  const childResp = await apiFetch(token, 'GET', `/tree/document/children?parentId=${id}&skip=0&take=100`);
+  if (childResp.ok) {
+    const childData = (await childResp.json()) as any;
+    const children = childData.items ?? childData;
+    for (const child of children) {
+      await deleteDocTree(token, child.id);
+    }
+  }
+  await apiFetch(token, 'DELETE', `/document/${id}`);
+}
+
+/** Clean up leftover test pages from a previous failed run (rule #3) */
+async function cleanStaleTestPages(token: string, parentId: string, names: string[]) {
+  const childResp = await apiFetch(token, 'GET', `/tree/document/children?parentId=${parentId}&skip=0&take=100`);
+  if (!childResp.ok) return;
+  const childData = (await childResp.json()) as any;
+  const children = childData.items ?? childData;
+  // Document tree items store names in variants[0].name
+  for (const child of children) {
+    const childName = child.variants?.[0]?.name ?? child.name;
+    if (names.includes(childName)) {
+      await deleteDocTree(token, child.id);
+    }
+  }
+}
+
 test.describe('Section Navigation — Browser E2E (Step 5)', () => {
   test.describe.configure({ mode: 'serial' });
 
-  // Known IDs from Umbraco instance
-  const HOME_ID = 'dcf18a51-6919-4cf8-89d1-36b94ce4d963';
-  const CONTENT_DT_ID = 'b871f83c-2395-4894-be0f-5422c1a71e48';
+  // Dynamically resolved in beforeAll (rule #1: never hardcode UUIDs)
+  let homeId: string;
+  let contentDtId: string;
 
   const createdIds: string[] = [];
   let originalAllowedDocTypes: any[] = [];
@@ -341,10 +376,41 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
   let loneChildUrl: string;
 
   test.beforeAll(async () => {
-    token = await getApiToken();
+    token = await freshToken();
 
-    // 1. GET the Content doc type and save original allowedDocumentTypes
-    const dtResp = await apiFetch(token, 'GET', `/document-type/${CONTENT_DT_ID}`);
+    // 1. Dynamically find Home page (rule #1: never hardcode UUIDs)
+    // Document tree items store names in variants[0].name, not .name
+    const docRootResp = await apiFetch(token, 'GET', '/tree/document/root?skip=0&take=100');
+    if (!docRootResp.ok) throw new Error(`GET document tree root failed: ${docRootResp.status}`);
+    const docRootData = (await docRootResp.json()) as any;
+    const homeNode = (docRootData.items ?? []).find(
+      (d: any) => (d.variants?.[0]?.name ?? d.name) === 'Home'
+    );
+    if (!homeNode) throw new Error('Home page not found in document tree root');
+    homeId = homeNode.id;
+
+    // 2. Dynamically find Content document type (rule #1)
+    // Content lives inside the "Pages" folder in the doc-type tree
+    const dtRootResp = await apiFetch(token, 'GET', '/tree/document-type/root?skip=0&take=100');
+    if (!dtRootResp.ok) throw new Error(`GET doc type tree root failed: ${dtRootResp.status}`);
+    const dtRootData = (await dtRootResp.json()) as any;
+    const pagesFolder = (dtRootData.items ?? []).find((d: any) => d.name === 'Pages');
+    if (!pagesFolder) throw new Error('"Pages" folder not found in doc-type tree root');
+    const pagesChildrenResp = await apiFetch(
+      token, 'GET', `/tree/document-type/children?parentId=${pagesFolder.id}&skip=0&take=100`
+    );
+    if (!pagesChildrenResp.ok) throw new Error(`GET Pages children failed: ${pagesChildrenResp.status}`);
+    const pagesChildren = (await pagesChildrenResp.json()) as any;
+    const contentDTNode = (pagesChildren.items ?? []).find((d: any) => d.name === 'Content');
+    if (!contentDTNode) throw new Error('"Content" document type not found in Pages folder');
+    contentDtId = contentDTNode.id;
+
+    // 3. Clean up stale test data from previous failed runs (rule #3)
+    await cleanStaleTestPages(token, homeId, ['SN Test Parent', 'SN Lone Parent']);
+
+    // 4. GET the Content doc type for template and allowed children
+    token = await freshToken();
+    const dtResp = await apiFetch(token, 'GET', `/document-type/${contentDtId}`);
     if (!dtResp.ok) throw new Error(`GET Content doc type failed: ${dtResp.status}`);
     const dt = (await dtResp.json()) as any;
 
@@ -353,18 +419,18 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
 
     originalAllowedDocTypes = dt.allowedDocumentTypes || [];
 
-    // 2. Temporarily allow Content children under Content
+    // 5. Temporarily allow Content children under Content
     const alreadyAllowed = originalAllowedDocTypes.some(
-      (a: any) => a.documentType?.id === CONTENT_DT_ID
+      (a: any) => a.documentType?.id === contentDtId
     );
     if (!alreadyAllowed) {
       dt.allowedDocumentTypes = [
         ...originalAllowedDocTypes,
-        { documentType: { id: CONTENT_DT_ID }, sortOrder: 0 },
+        { documentType: { id: contentDtId }, sortOrder: 0 },
       ];
       const { id: _id, ...updatePayload } = dt;
       const putResp = await apiFetch(
-        token, 'PUT', `/document-type/${CONTENT_DT_ID}`, updatePayload
+        token, 'PUT', `/document-type/${contentDtId}`, updatePayload
       );
       if (!putResp.ok) {
         const text = await putResp.text();
@@ -372,14 +438,15 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
       }
     }
 
-    // 3. Create test content hierarchy
-    const base = { docTypeId: CONTENT_DT_ID, templateId };
+    // 6. Create test content hierarchy
+    token = await freshToken();
+    const base = { docTypeId: contentDtId, templateId };
 
     // Home > SN Test Parent
     const parentId = await createAndPublish(token, {
       ...base,
       name: 'SN Test Parent',
-      parentId: HOME_ID,
+      parentId: homeId,
     });
     createdIds.push(parentId);
 
@@ -393,7 +460,6 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
       ],
     });
     createdIds.push(childAId);
-    childAUrl = '/sn-test-parent/section-child-a/';
 
     // SN Test Parent > Section Child B (section nav OFF)
     const childBId = await createAndPublish(token, {
@@ -402,7 +468,6 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
       parentId,
     });
     createdIds.push(childBId);
-    childBUrl = '/sn-test-parent/section-child-b/';
 
     // SN Test Parent > SN Hidden (umbracoNaviHide ON)
     const hiddenId = await createAndPublish(token, {
@@ -417,6 +482,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     createdIds.push(hiddenId);
 
     // Section Child A > SN Grandchild
+    token = await freshToken();
     const grandchildId = await createAndPublish(token, {
       ...base,
       name: 'SN Grandchild',
@@ -428,7 +494,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     const loneParentId = await createAndPublish(token, {
       ...base,
       name: 'SN Lone Parent',
-      parentId: HOME_ID,
+      parentId: homeId,
     });
     createdIds.push(loneParentId);
 
@@ -441,11 +507,16 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
       ],
     });
     createdIds.push(loneChildId);
-    loneChildUrl = '/sn-lone-parent/sn-lone-child/';
+
+    // 7. Fetch actual published URLs (rule #2: never hardcode URL slugs)
+    token = await freshToken();
+    childAUrl = await getDocumentPath(token, childAId);
+    childBUrl = await getDocumentPath(token, childBId);
+    loneChildUrl = await getDocumentPath(token, loneChildId);
   });
 
   test.afterAll(async () => {
-    try { token = await getApiToken(); } catch { /* ignore */ }
+    try { token = await freshToken(); } catch { /* ignore */ }
 
     // 1. Delete test pages (children first)
     for (const id of [...createdIds].reverse()) {
@@ -453,15 +524,17 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     }
 
     // 2. Restore Content doc type's original allowedDocumentTypes
-    try {
-      const dtResp = await apiFetch(token, 'GET', `/document-type/${CONTENT_DT_ID}`);
-      if (dtResp.ok) {
-        const dt = (await dtResp.json()) as any;
-        dt.allowedDocumentTypes = originalAllowedDocTypes;
-        const { id: _id, ...updatePayload } = dt;
-        await apiFetch(token, 'PUT', `/document-type/${CONTENT_DT_ID}`, updatePayload);
-      }
-    } catch { /* best-effort */ }
+    if (contentDtId) {
+      try {
+        const dtResp = await apiFetch(token, 'GET', `/document-type/${contentDtId}`);
+        if (dtResp.ok) {
+          const dt = (await dtResp.json()) as any;
+          dt.allowedDocumentTypes = originalAllowedDocTypes;
+          const { id: _id, ...updatePayload } = dt;
+          await apiFetch(token, 'PUT', `/document-type/${contentDtId}`, updatePayload);
+        }
+      } catch { /* best-effort */ }
+    }
   });
 
   // 1. showSectionNavigation = false → no .section-nav

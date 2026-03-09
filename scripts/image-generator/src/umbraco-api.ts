@@ -322,9 +322,11 @@ export async function fetchArticles(token: string): Promise<ArticleMetadata[]> {
 
     // Categories: MNTP format [{ type: "document", unique: "uuid" }]
     const categoriesRaw = getValue('categories') ?? [];
+    const categoryIds: string[] = [];
     const categories: string[] = [];
     for (const ref of categoriesRaw) {
       const uuid = ref.unique ?? ref.id ?? ref;
+      categoryIds.push(uuid);
       const name = categoryMap.get(uuid);
       if (name) categories.push(name);
     }
@@ -339,6 +341,7 @@ export async function fetchArticles(token: string): Promise<ArticleMetadata[]> {
       title,
       wordCount,
       categories,
+      categoryIds,
     });
   }
 
@@ -360,9 +363,11 @@ export async function fetchArticleById(token: string, id: string): Promise<Artic
   const title = getValue('title') || doc.variants?.[0]?.name || 'Untitled';
 
   const categoriesRaw = getValue('categories') ?? [];
+  const categoryIds: string[] = [];
   const categories: string[] = [];
   for (const ref of categoriesRaw) {
     const uuid = ref.unique ?? ref.id ?? ref;
+    categoryIds.push(uuid);
     const name = categoryMap.get(uuid);
     if (name) categories.push(name);
   }
@@ -376,6 +381,7 @@ export async function fetchArticleById(token: string, id: string): Promise<Artic
     title,
     wordCount,
     categories,
+    categoryIds,
   };
 }
 

@@ -27,7 +27,7 @@ const e = [
     name: "Image Generator Dashboard",
     alias: "ImageGenerator.Dashboard",
     type: "dashboard",
-    element: () => import("./dashboard.element-Dz-reJlD.js"),
+    element: () => import("./dashboard.element-Df3x_rVu.js"),
     meta: {
       label: "Image Generator",
       pathname: "image-generator"

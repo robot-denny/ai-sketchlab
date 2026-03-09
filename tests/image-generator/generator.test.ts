@@ -9,6 +9,7 @@ const SAMPLE_METADATA: ArticleMetadata = {
   title: 'Retaining Humanity in AI-Generated Content',
   wordCount: 500,
   categories: ['AI & Machine Learning'],
+  categoryIds: ['aaaaaaaa-0000-0000-0000-000000000001'],
 };
 
 describe('generator', () => {
@@ -49,7 +50,7 @@ describe('generator', () => {
   });
 
   it('no categories → valid PNG without crashing', () => {
-    const buf = generateImage({ ...SAMPLE_METADATA, categories: [] });
+    const buf = generateImage({ ...SAMPLE_METADATA, categories: [], categoryIds: [] });
     assert.ok(buf.length > 0);
     assert.equal(buf[0], 0x89);
   });

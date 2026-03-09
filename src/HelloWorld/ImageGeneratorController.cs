@@ -74,6 +74,22 @@ public class ImageGeneratorController : ControllerBase
         return Ok(articles);
     }
 
+    [HttpGet("categories")]
+    public IActionResult GetCategories()
+    {
+        var contentType = _contentTypeService.Get("category");
+        if (contentType == null)
+            return NotFound(new { error = "Category content type not found" });
+
+        var categories = _contentService.GetPagedOfType(
+                contentType.Id, 0, int.MaxValue, out _, null!, Ordering.By("Name"))
+            .Select(c => new { id = c.Key, name = c.Name })
+            .OrderBy(c => c.name)
+            .ToList();
+
+        return Ok(categories);
+    }
+
     [HttpPost("generate/batch")]
     public async Task<IActionResult> GenerateBatch([FromQuery] bool force = false)
     {

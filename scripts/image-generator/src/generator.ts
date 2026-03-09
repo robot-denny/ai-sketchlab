@@ -22,7 +22,7 @@ export function generateImage(metadata: ArticleMetadata, options?: GeneratorOpti
   const idSeed = stringToSeed(metadata.id);
 
   // Select palette from categories (using config if provided)
-  const palette = getCategoryPalette(metadata.categories, paletteConfig);
+  const palette = getCategoryPalette(metadata.categoryIds, paletteConfig);
 
   // Compute particle params from word count
   const { numParticles, maxSteps } = computeParticleParams(metadata.wordCount);

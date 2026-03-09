@@ -3,14 +3,20 @@ export interface ArticleMetadata {
   name: string;         // Document name
   title: string;        // Display title (from headerControls)
   wordCount: number;    // Derived from contentRows block list
-  categories: string[]; // Resolved category names
+  categories: string[]; // Resolved category names (for logging)
+  categoryIds: string[]; // Category document UUIDs (for palette matching)
 }
 
 export type RGBColor = [number, number, number];
 export type Palette = RGBColor[];
 
+export interface PaletteEntry {
+  name: string;
+  colors: Palette;
+}
+
 export interface PaletteConfig {
-  entries: Record<string, Palette>;
+  entries: Record<string, PaletteEntry>;  // UUID → {name, colors}
   default: Palette;
 }
 

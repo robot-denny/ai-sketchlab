@@ -1,56 +1,37 @@
 import { readFileSync } from 'node:fs';
-import type { RGBColor, Palette, PaletteConfig } from './types.js';
+import type { Palette, PaletteConfig } from './types.js';
 
-const PALETTES: Record<string, Palette> = {
-  'AI & Machine Learning': [
-    [0, 140, 200],    // Cyan
-    [20, 180, 220],   // Light cyan
-    [0, 100, 180],    // Deep blue
-  ],
-  'Ethics of AI': [
-    [220, 100, 60],   // Coral
-    [240, 140, 80],   // Orange
-    [200, 80, 40],    // Deep orange
-  ],
-  'Sustainability': [
-    [40, 180, 100],   // Green
-    [60, 200, 120],   // Light green
-    [20, 140, 80],    // Deep green
-  ],
-  'Vibe Coding': [
-    [160, 80, 180],   // Purple
-    [200, 120, 200],  // Light purple
-    [120, 40, 140],   // Deep purple
-  ],
-};
-
-const DEFAULT_PALETTE: Palette = PALETTES['AI & Machine Learning'];
+const DEFAULT_PALETTE: Palette = [
+  [0, 140, 200],    // Cyan
+  [20, 180, 220],   // Light cyan
+  [0, 100, 180],    // Deep blue
+];
 
 /**
  * Load palette configuration from a JSON file.
- * Falls back to hardcoded defaults if the file doesn't exist or is invalid.
+ * Falls back to empty entries + default palette if the file doesn't exist or is invalid.
  */
 export function loadPaletteConfig(configPath: string): PaletteConfig {
   try {
     const raw = readFileSync(configPath, 'utf8');
     return JSON.parse(raw) as PaletteConfig;
   } catch {
-    return { entries: PALETTES, default: DEFAULT_PALETTE };
+    return { entries: {}, default: DEFAULT_PALETTE };
   }
 }
 
 /**
- * Select a color palette based on article categories.
+ * Select a color palette based on article category UUIDs.
  * Merges all matching category palettes into a single combined color pool.
- * Falls back to default cyan/blue when no categories match.
+ * Falls back to default palette when no categories match.
  */
-export function getCategoryPalette(categories: string[], config?: PaletteConfig): Palette {
-  const entries = config?.entries ?? PALETTES;
+export function getCategoryPalette(categoryIds: string[], config?: PaletteConfig): Palette {
+  const entries = config?.entries ?? {};
   const fallback = config?.default ?? DEFAULT_PALETTE;
   const merged: Palette = [];
-  for (const cat of categories) {
-    if (entries[cat]) {
-      merged.push(...entries[cat]);
+  for (const id of categoryIds) {
+    if (entries[id]) {
+      merged.push(...entries[id].colors);
     }
   }
   return merged.length > 0 ? merged : fallback;

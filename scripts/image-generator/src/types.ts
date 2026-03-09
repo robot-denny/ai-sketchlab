@@ -9,6 +9,11 @@ export interface ArticleMetadata {
 export type RGBColor = [number, number, number];
 export type Palette = RGBColor[];
 
+export interface PaletteConfig {
+  entries: Record<string, Palette>;
+  default: Palette;
+}
+
 export interface Particle {
   x: number;
   y: number;

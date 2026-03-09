@@ -1,11 +1,11 @@
-const a = [
+const e = [
   {
     name: "Hello World Entrypoint",
     alias: "HelloWorld.Entrypoint",
     type: "backofficeEntryPoint",
     js: () => import("./entrypoint-DOe2Kklk.js")
   }
-], o = [
+], a = [
   {
     name: "Hello World Dashboard",
     alias: "HelloWorld.Dashboard",
@@ -23,10 +23,43 @@ const a = [
     ]
   }
 ], t = [
+  {
+    name: "Image Generator Dashboard",
+    alias: "ImageGenerator.Dashboard",
+    type: "dashboard",
+    element: () => import("./dashboard.element-Dz-reJlD.js"),
+    meta: {
+      label: "Image Generator",
+      pathname: "image-generator"
+    },
+    conditions: [
+      {
+        alias: "Umb.Condition.SectionAlias",
+        match: "Umb.Section.Settings"
+      }
+    ]
+  }
+], o = [
+  {
+    type: "propertyAction",
+    kind: "default",
+    alias: "ImageGenerator.PropertyAction.Generate",
+    name: "Generate Flow Field Image",
+    api: () => import("./generateImage.action-DmjEez86.js"),
+    forPropertyEditorUis: ["Umb.PropertyEditorUi.MediaPicker"],
+    weight: 100,
+    meta: {
+      icon: "icon-wand",
+      label: "Generate Image"
+    }
+  }
+], n = [
+  ...e,
   ...a,
+  ...t,
   ...o
 ];
 export {
-  t as manifests
+  n as manifests
 };
 //# sourceMappingURL=hello-world.js.map

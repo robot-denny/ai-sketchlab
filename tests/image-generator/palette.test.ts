@@ -54,9 +54,21 @@ describe('getCategoryPalette', () => {
     assert.ok(isCyanBlue(palette), `Expected default cyan palette, got ${JSON.stringify(palette)}`);
   });
 
-  it('multiple categories uses first match', () => {
+  it('multiple categories merges all matching palettes', () => {
     const palette = getCategoryPalette(['Ethics of AI', 'Sustainability']);
-    assert.ok(isCoralOrange(palette), `Expected coral/orange (first match), got ${JSON.stringify(palette)}`);
+    assert.equal(palette.length, 6, `Expected 6 colors (3+3 merged), got ${palette.length}`);
+    // First 3 colors are coral/orange (Ethics of AI)
+    assert.ok(isCoralOrange(palette.slice(0, 3) as [RGBColor, RGBColor, RGBColor]),
+      `Expected first 3 to be coral/orange, got ${JSON.stringify(palette.slice(0, 3))}`);
+    // Last 3 colors are green (Sustainability)
+    assert.ok(isGreen(palette.slice(3, 6) as [RGBColor, RGBColor, RGBColor]),
+      `Expected last 3 to be green, got ${JSON.stringify(palette.slice(3, 6))}`);
+  });
+
+  it('multiple categories with one unknown only includes the known palette', () => {
+    const palette = getCategoryPalette(['Cooking', 'Vibe Coding']);
+    assert.equal(palette.length, 3, `Expected 3 colors (only Vibe Coding matched), got ${palette.length}`);
+    assert.ok(isPurple(palette), `Expected purple palette, got ${JSON.stringify(palette)}`);
   });
 });
 

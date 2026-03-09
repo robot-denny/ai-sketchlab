@@ -2,14 +2,14 @@ import { stringToSeed } from './seed.js';
 import { getCategoryPalette, computeParticleParams } from './palette.js';
 import { generateFlowField, spawnParticles, simulateParticles } from './flow-field.js';
 import { renderToBuffer } from './renderer.js';
-import type { ArticleMetadata, GeneratorOptions } from './types.js';
+import type { ArticleMetadata, GeneratorOptions, PaletteConfig } from './types.js';
 
 /**
  * Generate a deterministic abstract flow-field PNG image from article metadata.
  *
  * Pipeline: metadata → seed/palette → flow field → particles → PNG buffer
  */
-export function generateImage(metadata: ArticleMetadata, options?: GeneratorOptions): Buffer {
+export function generateImage(metadata: ArticleMetadata, options?: GeneratorOptions, paletteConfig?: PaletteConfig): Buffer {
   const width = options?.width ?? 1200;
   const height = options?.height ?? 630;
   const gridScale = options?.gridScale ?? 4;
@@ -21,8 +21,8 @@ export function generateImage(metadata: ArticleMetadata, options?: GeneratorOpti
   const titleSeed = stringToSeed(metadata.title);
   const idSeed = stringToSeed(metadata.id);
 
-  // Select palette from categories
-  const palette = getCategoryPalette(metadata.categories);
+  // Select palette from categories (using config if provided)
+  const palette = getCategoryPalette(metadata.categories, paletteConfig);
 
   // Compute particle params from word count
   const { numParticles, maxSteps } = computeParticleParams(metadata.wordCount);

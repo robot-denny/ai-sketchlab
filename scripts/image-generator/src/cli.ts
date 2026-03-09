@@ -12,7 +12,10 @@
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { generateImage } from './generator.js';
+import { loadPaletteConfig } from './palette.js';
+import type { PaletteConfig } from './types.js';
 import {
   authenticate,
   freshToken,
@@ -124,6 +127,7 @@ async function processArticle(
   args: CliArgs,
   token: string | null,
   folderId: string | null,
+  paletteConfig?: PaletteConfig,
 ): Promise<'generated' | 'skipped' | 'error'> {
   // Check if article already has an image (skip unless --force)
   if (!args.force && !args.localOnly && token) {
@@ -137,7 +141,7 @@ async function processArticle(
 
   // Generate image
   console.log(`  Generating: "${article.name}" (${article.wordCount} words, [${article.categories.join(', ')}])`);
-  const pngBuffer = generateImage(article);
+  const pngBuffer = generateImage(article, undefined, paletteConfig);
 
   if (args.localOnly) {
     // Save locally
@@ -171,6 +175,11 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv);
   validateArgs(args);
 
+  // Load palette config from config/palettes.json (relative to this script)
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const configPath = path.join(__dirname, '..', 'config', 'palettes.json');
+  const paletteConfig = loadPaletteConfig(configPath);
+
   let token: string | null = null;
   let folderId: string | null = null;
 
@@ -202,7 +211,7 @@ async function main(): Promise<void> {
 
       for (const article of articles) {
         try {
-          const status = await processArticle(article, args, token, folderId);
+          const status = await processArticle(article, args, token, folderId, paletteConfig);
           result[status]++;
         } catch (err) {
           console.error(`  Error processing "${article.name}": ${(err as Error).message}`);
@@ -228,7 +237,7 @@ async function main(): Promise<void> {
         }
         const t2 = await freshToken();
         const article = await fetchArticleById(t2, match.id);
-        const status = await processArticle(article, args, null, null);
+        const status = await processArticle(article, args, null, null, paletteConfig);
         result[status]++;
       } else {
         const t = await freshToken();
@@ -242,7 +251,7 @@ async function main(): Promise<void> {
         const t2 = await freshToken();
         const article = await fetchArticleById(t2, match.id);
         try {
-          const status = await processArticle(article, args, token, folderId);
+          const status = await processArticle(article, args, token, folderId, paletteConfig);
           result[status]++;
         } catch (err) {
           console.error(`  Error: ${(err as Error).message}`);
@@ -260,14 +269,14 @@ async function main(): Promise<void> {
           process.exit(1);
         }
         const article = await fetchArticleById(t, args.id);
-        const status = await processArticle(article, args, null, null);
+        const status = await processArticle(article, args, null, null, paletteConfig);
         result[status]++;
       } else {
         const t = await freshToken();
         const article = await fetchArticleById(t, args.id!);
         console.log(`Found: "${article.name}" (${article.id})\n`);
         try {
-          const status = await processArticle(article, args, token, folderId);
+          const status = await processArticle(article, args, token, folderId, paletteConfig);
           result[status]++;
         } catch (err) {
           console.error(`  Error: ${(err as Error).message}`);

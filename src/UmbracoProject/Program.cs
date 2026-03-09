@@ -6,6 +6,9 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(HelloWorld.ImageGeneratorController).Assembly);
+
 WebApplication app = builder.Build();
 
 await app.BootUmbracoAsync();
@@ -23,5 +26,7 @@ app.UseUmbraco()
         u.UseBackOfficeEndpoints();
         u.UseWebsiteEndpoints();
     });
+
+app.MapControllers();
 
 await app.RunAsync();

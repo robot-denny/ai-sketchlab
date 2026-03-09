@@ -1,4 +1,5 @@
-import type { RGBColor, Palette } from './types.js';
+import { readFileSync } from 'node:fs';
+import type { RGBColor, Palette, PaletteConfig } from './types.js';
 
 const PALETTES: Record<string, Palette> = {
   'AI & Machine Learning': [
@@ -26,16 +27,33 @@ const PALETTES: Record<string, Palette> = {
 const DEFAULT_PALETTE: Palette = PALETTES['AI & Machine Learning'];
 
 /**
- * Select a color palette based on article categories.
- * Uses the first matching category; falls back to default cyan/blue.
+ * Load palette configuration from a JSON file.
+ * Falls back to hardcoded defaults if the file doesn't exist or is invalid.
  */
-export function getCategoryPalette(categories: string[]): Palette {
+export function loadPaletteConfig(configPath: string): PaletteConfig {
+  try {
+    const raw = readFileSync(configPath, 'utf8');
+    return JSON.parse(raw) as PaletteConfig;
+  } catch {
+    return { entries: PALETTES, default: DEFAULT_PALETTE };
+  }
+}
+
+/**
+ * Select a color palette based on article categories.
+ * Merges all matching category palettes into a single combined color pool.
+ * Falls back to default cyan/blue when no categories match.
+ */
+export function getCategoryPalette(categories: string[], config?: PaletteConfig): Palette {
+  const entries = config?.entries ?? PALETTES;
+  const fallback = config?.default ?? DEFAULT_PALETTE;
+  const merged: Palette = [];
   for (const cat of categories) {
-    if (PALETTES[cat]) {
-      return PALETTES[cat];
+    if (entries[cat]) {
+      merged.push(...entries[cat]);
     }
   }
-  return DEFAULT_PALETTE;
+  return merged.length > 0 ? merged : fallback;
 }
 
 /**

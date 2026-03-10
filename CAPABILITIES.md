@@ -1,9 +1,9 @@
 # Umbraco 17 + AI Capabilities Tracker
 
-> **Source of truth** for what has been tested with MCP integration and Umbraco AI.
+> **My Source of truth** for what I've tested with MCP integration and Umbraco AI.
 > This file should be kept in sync with the [Capabilities page](https://umbraco-17-demo-site.useast01.umbraco.io/capabilities/) in the Umbraco backoffice.
 
-**Last Updated:** 2026-03-03
+**Last Updated:** 2026-03-10
 
 ---
 
@@ -28,6 +28,7 @@
 | Document tree traversal via Management API | Tested, working | Walked tree root → children to locate articles for bulk SEO update |
 | Bulk content operations via MCP | Tested, working | Updated SEO fields across all blog articles in a single workflow |
 | Block List editor configuration (add/remove block types) | Tested, working | Alert Banner element type registered in Block List data type via MCP |
+| Dynamic category resolution from backoffice (no hardcoding) | Tested, working | Commit `d30aa50` — categories pulled from category list via Management API |
 
 ### AI Content Generation (Copilot)
 
@@ -52,6 +53,9 @@
 | Capability | Status | Evidence |
 |---|---|---|
 | Dashboard extension via Umbraco Skills plugin | Tested, working | Commit `d5c7cee` — HelloWorld extension |
+| Custom Settings dashboard (Image Generator with palette editor, single/batch generation) | Tested, working | Commit `55306d4` — Lit dashboard in Settings section with C# API controller |
+| Property action on media picker (one-click image generation from article edit page) | Tested, working | Commit `55306d4` — registered on `Umbraco.MediaPicker3` properties |
+| C# API controller backing a backoffice extension (palette CRUD, process spawning) | Tested, working | `src/HelloWorld/ImageGeneratorController.cs` |
 
 ### Claude Code Custom Commands
 
@@ -59,6 +63,7 @@
 |---|---|---|
 | `/block` — TDD block component creation (RED → GREEN) | Tested, working | Commit `f0fb946` — Alert Banner block created via E2E test-first workflow |
 | `/spec` — Feature spec and branch generation from a short idea | Tested, working | Commit `0da9ebe` — Section Navigation spec created, branch auto-generated |
+| `/cms-image` — Generate flow-field featured images from article metadata and publish to CMS | Tested, working | Commit `8bd4457` — CLI + backoffice integration |
 
 ### TDD Block Development Workflow
 
@@ -70,6 +75,7 @@
 | Create Razor partial matching element type alias convention | Tested, working | `alertBanner.cshtml` — maps Bootstrap alert classes from dropdown value |
 | Verify partial file exists via E2E test (naming mismatch guard) | Tested, working | Second test case validates `{alias}.cshtml` file exists at correct path |
 | Full RED → GREEN cycle in a single session | Tested, working | `/block` command orchestrates test → API creation → partial → build → green |
+| Block property addition with display mode toggle (list vs grid) | Tested, working | Commit `ede1bcf` — `displayMode` dropdown on `latestArticlesRow` with 24-test E2E suite |
 
 ### Feature Planning Workflow (Spec → Plan → Implement)
 
@@ -80,6 +86,23 @@
 | Create composition doc types via Management API scripts | Tested, working | `sectionNavigationControls` composition added to `content` and `documentation` types |
 | Multi-step feature implementation across Razor, CSS, and templates | Tested, working | Commits `1f750a9`, `0da9ebe` — section navigation sidebar with responsive layout |
 | Responsive layout with Bootstrap collapse for mobile | Tested, working | Desktop sidebar (col-lg-3) + mobile "In this Section" toggle using Bootstrap 5 collapse |
+| Spec → Plan → CLI tool → Backoffice integration (multi-phase feature) | Tested, working | `_specs/image-generator/`, `_plans/image-generator.md`, `_plans/image-generator-backoffice.md` |
+
+### Procedural Image Generation
+
+| Capability | Status | Evidence |
+|---|---|---|
+| Deterministic flow-field PNG generation seeded from article metadata | Tested, working | Commit `8bd4457` — TypeScript CLI at `scripts/image-generator/` |
+| Category-to-color palette mapping with multi-category merging | Tested, working | `config/palettes.json` persisted config, commit `59443f1` |
+| Batch image generation + upload to Umbraco media library via Management API | Tested, working | CLI `--batch` flag; backoffice dashboard batch mode |
+| End-to-end pipeline: generate → upload media → assign mainImage property | Tested, working | CLI orchestrates metadata fetch, canvas render, media upload, and property assignment |
+
+### E2E Testing
+
+| Capability | Status | Evidence |
+|---|---|---|
+| E2E resilience rules (dynamic UUIDs, stale cleanup, token refresh, regex assertions) | Tested, working | Commit `05d5b91` — 7 rules codified in CLAUDE.md and applied to section nav tests |
+| Article list grid view E2E suite (24 tests: rendering, edge cases, responsive breakpoints) | Tested, working | Commit `ede1bcf` — `tests/e2e/articleListGridView.spec.ts` |
 
 ---
 
@@ -106,9 +129,8 @@
 
 | Capability | Category | Notes |
 |---|---|---|
-| Media upload and management via MCP | MCP | `media` tool collection is enabled but not exercised |
+| Media upload and management via MCP | MCP | `media` tool collection is enabled but not exercised (CLI uses Management API directly) |
 | Multi-language AI translation | AI | Requires Umbraco variants configuration |
-| Image generation integration | AI | AI-generated images placed into media library |
 | Content unpublishing via MCP | MCP | `unpublish-document` tool available but not tested |
 | Content validation via MCP | MCP | `validate-document` tool available but not tested |
 
@@ -131,3 +153,9 @@
 | 2026-03-01 | Created `/spec` custom command for feature spec generation; created Section Navigation spec and branch | `0da9ebe` |
 | 2026-03-02 | Implemented section navigation sidebar for content and documentation pages (composition, partial, responsive layout, CSS) | `1f750a9` |
 | 2026-03-03 | Updated Capabilities tracker with new workflows and features | — |
+| 2026-03-03 | Hardened section navigation E2E tests with 7 resilience rules | `05d5b91` |
+| 2026-03-04 | Added grid view display mode to article list block with 24-test E2E suite | `ede1bcf` |
+| 2026-03-04 | Built metadata image generator CLI (flow-field PNGs from article metadata) | `8bd4457`, `7b7596f` |
+| 2026-03-09 | Added backoffice image generator dashboard and property action with palette management | `55306d4` |
+| 2026-03-09 | Dynamic categories from backoffice; reformatted palettes.json | `d30aa50`, `59443f1` |
+| 2026-03-10 | Updated Capabilities tracker with image generator, grid view, E2E testing entries | — |

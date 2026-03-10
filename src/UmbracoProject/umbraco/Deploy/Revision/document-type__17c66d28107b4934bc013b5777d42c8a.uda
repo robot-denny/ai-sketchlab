@@ -30,6 +30,14 @@
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
           "Name": "Alert Content",
           "SortOrder": 1
+        },
+        {
+          "Key": "bd12a752-6bb4-4d74-9d0e-15fc9addf28b",
+          "Alias": "iconOverride",
+          "DataType": "umb://data-type/23f1a6f92a35401491777307b2f34723",
+          "Description": "Optional: select an icon to override the default for this alert level",
+          "Name": "Icon Override",
+          "SortOrder": 2
         }
       ]
     }
@@ -37,6 +45,10 @@
   "PropertyTypes": [],
   "Udi": "umb://document-type/17c66d28107b4934bc013b5777d42c8a",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/23f1a6f92a35401491777307b2f34723",
+      "Ordering": true
+    },
     {
       "Udi": "umb://data-type/3d6a3dc2fe444c368898dbb76f33cd09",
       "Ordering": true

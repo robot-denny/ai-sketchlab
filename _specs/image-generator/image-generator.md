@@ -132,7 +132,7 @@ A dedicated backoffice dashboard (or section within site settings) provides CMS 
 
 ## Open Questions
 - Which Umbraco property alias holds the "main image" for articles? — believed to be `mainImage`
-- Where should category palette configuration be persisted? Options: a dedicated Umbraco document type ("Image Generator Settings"), a JSON config file, or the Umbraco key/value store. Consider what's easiest for the CLI to also read.
+- ~~Where should category palette configuration be persisted?~~ **Resolved** — stored as Umbraco content (dedicated document type with Block List). See `palette-storage.md` in this directory for the full spec. This ensures palettes transfer between environments via Umbraco Deploy.
 - Should the backoffice "Generate Image" button be an entity action (shown in the action menu) or a custom property action next to the `mainImage` field? A property action feels more discoverable, but entity action is simpler to implement.
 - Should generated images be stored in a dedicated media folder (e.g., "Generated Images") for easy identification? — Yes
 - Should the batch backoffice operation run as a background job (so the editor can navigate away), or is a long-running request acceptable for the demo? A background job is more robust but adds complexity.

@@ -1,0 +1,95 @@
+#!/bin/sh
+# AI Code Review — runs accessibility + code quality review before pushing.
+#
+# DISABLED by default. To enable:
+#   export ENABLE_AI_REVIEW=1   (add to ~/.zshrc or ~/.bashrc)
+#   — or —
+#   Set ENABLE_AI_REVIEW=true in .githooks.conf
+#
+# Requires: claude CLI (Claude Code) installed and authenticated.
+#
+# To bypass in an emergency: git push --no-verify
+
+# Source local config if present
+CONF="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks.conf"
+[ -f "$CONF" ] && . "$CONF"
+
+# Disabled by default — must opt in
+if [ "$ENABLE_AI_REVIEW" != "1" ] && [ "$ENABLE_AI_REVIEW" != "true" ]; then
+  exit 0
+fi
+
+# Check that claude CLI is available
+if ! command -v claude >/dev/null 2>&1; then
+  echo ""
+  echo "  ⚠️  AI review is enabled but 'claude' CLI is not installed or not in PATH."
+  echo "  Skipping AI review. Install Claude Code or set ENABLE_AI_REVIEW=false."
+  echo ""
+  exit 0
+fi
+
+# Get the diff of what's being pushed vs the remote
+REMOTE="$1"
+REMOTE_URL="$2"
+
+# Read the refs being pushed from stdin
+DIFF=""
+while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
+  if [ "$REMOTE_SHA" = "0000000000000000000000000000000000000000" ]; then
+    # New branch — diff against the default branch
+    BASE=$(git rev-parse --abbrev-ref HEAD)
+    DIFF=$(git diff "origin/master...${LOCAL_SHA}" 2>/dev/null || git diff "HEAD~5..HEAD" 2>/dev/null)
+  else
+    DIFF=$(git diff "${REMOTE_SHA}..${LOCAL_SHA}" 2>/dev/null)
+  fi
+done
+
+if [ -z "$DIFF" ]; then
+  exit 0
+fi
+
+echo ""
+echo "┌──────────────────────────────────────────────────────────────┐"
+echo "│  🔍  Running AI code review before push...                    │"
+echo "│  (This may take 30-90 seconds)                                │"
+echo "│  To skip: git push --no-verify                                │"
+echo "└──────────────────────────────────────────────────────────────┘"
+echo ""
+
+# Run Claude in headless mode with the diff
+REVIEW=$(echo "$DIFF" | claude -p "You are a code reviewer. Review the following diff for:
+1. Accessibility issues (WCAG violations, missing ARIA, keyboard navigation gaps)
+2. Code quality issues (security, correctness, maintainability)
+
+Be concise. Group findings by severity (Blocker/Major/Minor).
+If no issues found, say 'No issues found.'
+Only review the diff provided — do not speculate about code outside the diff.
+
+DIFF:
+$(cat)" --allowedTools "Read" --output-format text 2>&1)
+
+REVIEW_EXIT=$?
+
+if [ $REVIEW_EXIT -ne 0 ]; then
+  echo "  ⚠️  AI review failed to run (exit code $REVIEW_EXIT). Proceeding with push."
+  echo ""
+  exit 0
+fi
+
+echo "$REVIEW"
+echo ""
+
+# Check if the review found blockers
+if echo "$REVIEW" | grep -qi "blocker"; then
+  echo "┌──────────────────────────────────────────────────────────────┐"
+  echo "│  🔴  Blocker-level issues found. Push blocked.               │"
+  echo "│  Fix the issues above, then push again.                      │"
+  echo "│  To force: git push --no-verify                              │"
+  echo "└──────────────────────────────────────────────────────────────┘"
+  echo ""
+  exit 1
+fi
+
+echo "  ✅  No blocker-level issues. Proceeding with push."
+echo ""
+exit 0

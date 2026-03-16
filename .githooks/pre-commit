@@ -1,0 +1,123 @@
+#!/bin/sh
+# UDA Guard — warns about Umbraco Deploy schema conflicts before committing.
+#
+# Setup (one-time, per developer):
+#   git config core.hooksPath .githooks
+#
+# To bypass in an emergency: git commit --no-verify
+#
+# To disable this check permanently:
+#   export SKIP_UDA_CHECK=1   (add to ~/.zshrc or ~/.bashrc)
+#   — or —
+#   Set ENABLE_UDA_CHECK=false in .githooks.conf
+
+# Source local config if present
+CONF="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks.conf"
+[ -f "$CONF" ] && . "$CONF"
+
+# Allow skipping via env var or config file
+if [ "$SKIP_UDA_CHECK" = "1" ] || [ "$ENABLE_UDA_CHECK" = "false" ]; then
+  exit 0
+fi
+
+UDA_PATTERN="src/UmbracoProject/umbraco/Deploy/Revision"
+
+# Check for staged .uda files
+STAGED_UDA=$(git diff --cached --name-only | grep "\.uda$")
+
+if [ -z "$STAGED_UDA" ]; then
+  exit 0  # Nothing to check
+fi
+
+STAGED_COUNT=$(echo "$STAGED_UDA" | wc -l | tr -d ' ')
+
+echo ""
+echo "┌──────────────────────────────────────────────────────────────┐"
+echo "│  ⚠️   Umbraco Deploy: Schema files detected in this commit    │"
+echo "└──────────────────────────────────────────────────────────────┘"
+echo ""
+echo "  $STAGED_COUNT .uda schema file(s) are staged:"
+echo ""
+echo "$STAGED_UDA" | head -8 | sed 's/^/    /'
+if [ "$STAGED_COUNT" -gt 8 ]; then
+  REMAINING=$((STAGED_COUNT - 8))
+  echo "    ... and $REMAINING more"
+fi
+
+# Try to fetch and compare with remote
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)
+
+if [ -z "$UPSTREAM" ]; then
+  echo ""
+  echo "  ℹ️  No upstream tracking branch — skipping remote conflict check."
+  echo "     (This is expected for new branches not yet pushed.)"
+  echo ""
+  echo "  Run '/check-uda' in Claude Code for a full analysis."
+  echo "  To bypass: git commit --no-verify"
+  echo ""
+  exit 0
+fi
+
+# Fetch silently
+git fetch origin "$BRANCH" --quiet 2>/dev/null
+
+# Get .uda files changed on remote that we haven't pulled
+REMOTE_UDA=$(git diff "HEAD..${UPSTREAM}" --name-only 2>/dev/null | grep "\.uda$")
+
+if [ -z "$REMOTE_UDA" ]; then
+  echo ""
+  echo "  ✅ Remote is in sync — no unpulled schema changes detected."
+  echo ""
+  echo "  Proceeding with commit."
+  echo ""
+  exit 0
+fi
+
+# Find direct conflicts (files in both staged and remote)
+STAGED_SORTED=$(mktemp)
+REMOTE_SORTED=$(mktemp)
+echo "$STAGED_UDA" | sort > "$STAGED_SORTED"
+echo "$REMOTE_UDA" | sort > "$REMOTE_SORTED"
+CONFLICTS=$(comm -12 "$STAGED_SORTED" "$REMOTE_SORTED")
+rm -f "$STAGED_SORTED" "$REMOTE_SORTED"
+
+REMOTE_COUNT=$(echo "$REMOTE_UDA" | wc -l | tr -d ' ')
+
+if [ -n "$CONFLICTS" ]; then
+  CONFLICT_COUNT=$(echo "$CONFLICTS" | wc -l | tr -d ' ')
+  echo ""
+  echo "  🔴 DIRECT CONFLICTS: $CONFLICT_COUNT file(s) changed both locally AND on remote:"
+  echo ""
+  echo "$CONFLICTS" | sed 's/^/    /'
+  echo ""
+  echo "  Committing now will break Umbraco Deploy on the shared environment."
+  echo ""
+  echo "  Recommended steps:"
+  echo "    1. git stash (save your code changes)"
+  echo "    2. git pull"
+  echo "    3. git stash pop"
+  echo "    4. Resolve any .uda conflicts, then re-commit"
+  echo ""
+  echo "  Or run '/check-uda' in Claude Code for a detailed analysis."
+  echo "  To bypass (not recommended): git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+# Remote has changes but to different files
+echo ""
+echo "  ⚠️  Remote has $REMOTE_COUNT unpulled schema change(s) (different files from yours):"
+echo ""
+echo "$REMOTE_UDA" | head -5 | sed 's/^/    /'
+if [ "$REMOTE_COUNT" -gt 5 ]; then
+  echo "    ... and $((REMOTE_COUNT - 5)) more"
+fi
+echo ""
+echo "  No direct conflicts, but consider pulling before pushing:"
+echo "    git pull && git push"
+echo ""
+echo "  Run '/check-uda' in Claude Code for a full analysis."
+echo "  Proceeding with commit (pull before push is recommended)."
+echo ""
+exit 0

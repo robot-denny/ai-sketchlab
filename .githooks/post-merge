@@ -1,0 +1,4 @@
+#!/bin/sh
+# Triggers Umbraco Deploy to re-sync schema after a merge.
+# Originally in .git/hooks/post-merge — migrated here so it's shared with the team.
+echo > src/UmbracoProject/umbraco/Deploy/deploy

@@ -417,6 +417,7 @@ healthchecksdb
 
 #Additions
 .env
+.githooks.conf
 **/appsettings.Development.json
 
 # Playwright E2E

@@ -133,6 +133,18 @@ data: {"type":"TEXT_MESSAGE_CHUNK","messageId":"...","role":"assistant","delta":
 
 Reassemble all `delta` values to get the full agent response.
 
+## Schema Management
+
+`.uda` files in `umbraco/Deploy/Revision/` are auto-modified by Umbraco on every local startup. Before staging, always verify `.uda` changes are intentional — if not, discard them:
+
+```bash
+git checkout -- src/UmbracoProject/umbraco/Deploy/Revision/
+```
+
+The pre-commit hook in `.githooks/pre-commit` (activated with `git config core.hooksPath .githooks` — see README) automatically checks for conflicts before each commit.
+
+Use `/check-uda` for a detailed pre-commit analysis: fetches remote state, identifies which schema entities are at risk, rates conflict severity (SAFE / LOW / MEDIUM / HIGH / CRITICAL), and gives specific remediation steps.
+
 ## Testing
 
 ### E2E Tests (Playwright)
@@ -174,14 +186,7 @@ Credentials come from `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`). The
 
 ### Block Development Workflow (TDD)
 
-Use the `/block` command (`.claude/commands/block.md`) to build new blocklist components using a RED → GREEN loop:
-
-1. **Write the E2E test** — describe the element type name and expected property aliases
-2. **Run to confirm RED** — test fails because the element type doesn't exist yet
-3. **Create the element type** via Management API using `DocumentTypeBuilder`
-4. **Create the Razor partial** named `{elementTypeAlias}.cshtml` in `Views/Partials/blocklist/Components/` — the alias is derived from the element type name (e.g. "Alert Banner" → `alertBanner.cshtml`). **Do not add "Row" to the file name unless "Row" is part of the element type name itself** — existing blocks follow this convention ("Rich Text Row" → alias `richTextRow` → `richTextRow.cshtml`). For rich text properties, add `@using Umbraco.Cms.Core.Strings` — `IHtmlEncodedString` is not in the default `_ViewImports.cshtml`
-5. **Build** with `dotnet build` to catch Razor errors
-6. **Run tests again** — GREEN
+Use the `/block` command for the full RED → GREEN TDD workflow for building blocklist components. See [.claude/commands/block.md](.claude/commands/block.md) for details.
 
 ### Umbraco 17 Management API Quirks
 

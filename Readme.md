@@ -36,7 +36,48 @@ The SQLite database contains all site content. `appsettings.Development.json` ho
 dotnet dev-certs https --trust
 ```
 
-### 4. Run the site
+### 4. Activate git hooks (one time per clone)
+
+This repo ships shared git hooks in `.githooks/`. Run this once to activate them:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Three hooks are included:
+
+- **`pre-commit` — UDA Guard**: checks whether any `.uda` schema files you're committing conflict with changes on the remote. Warns and blocks if direct conflicts are detected. To bypass in an emergency: `git commit --no-verify`.
+- **`pre-push` — AI Code Review** (disabled by default): runs accessibility + code quality review via Claude Code before pushing. Requires the `claude` CLI to be installed. Enable by setting `ENABLE_AI_REVIEW=1` in your shell profile or `.githooks.conf`.
+- **`post-merge`**: triggers Umbraco Deploy to sync schema after a `git pull` or merge.
+
+#### Configuring hooks per-developer
+
+Each hook can be toggled without modifying tracked files. Two methods:
+
+**Option 1 — Environment variables** (in `~/.zshrc` or `~/.bashrc`):
+
+```bash
+export SKIP_UDA_CHECK=1     # Disable UDA Guard on pre-commit
+export ENABLE_AI_REVIEW=1   # Enable AI review on pre-push
+```
+
+**Option 2 — Local config file**:
+
+```bash
+cp .githooks.conf.example .githooks.conf
+# Edit .githooks.conf to your preferences (gitignored, stays local)
+```
+
+See [.githooks.conf.example](.githooks.conf.example) for all available flags.
+
+### 5. Install Node dependencies (for E2E tests)
+
+```bash
+npm install
+npx playwright install chromium
+```
+
+### 6. Run the site
 
 ```bash
 cd src/UmbracoProject
@@ -44,6 +85,20 @@ dotnet run
 ```
 
 The terminal output will show the local URLs — typically `https://localhost:44367`. The backoffice is at `/umbraco`.
+
+---
+
+## Umbraco Schema Files (.uda)
+
+Umbraco stores CMS schema (document types, data types, templates) as `.uda` files in `src/UmbracoProject/umbraco/Deploy/Revision/`. These are version-controlled and deployed to Umbraco Cloud automatically when pushed.
+
+**Watch out for accidental changes**: Umbraco rewrites `.uda` files on startup to reflect the local database. This means `git status` may show modifications even if you haven't touched any document types in the backoffice. Review before staging — if you didn't intentionally change schema, discard:
+
+```bash
+git checkout -- src/UmbracoProject/umbraco/Deploy/Revision/
+```
+
+When committing intentional schema changes, the pre-commit hook checks for remote conflicts automatically. For a detailed analysis before committing, use `/check-uda` in Claude Code.
 
 ---
 

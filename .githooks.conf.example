@@ -1,0 +1,21 @@
+# Git Hooks Configuration
+# =======================
+# Copy this file to .githooks.conf and adjust to your preferences.
+# This file is gitignored — your settings stay local.
+#
+# Alternatively, you can set equivalent environment variables in your
+# shell profile (~/.zshrc or ~/.bashrc) using the SKIP_*/ENABLE_* names
+# shown in the comments below.
+
+# UDA Guard (pre-commit)
+# Checks for Umbraco Deploy .uda schema conflicts before committing.
+# Enabled by default. Set to "false" to disable.
+# Env var equivalent: SKIP_UDA_CHECK=1
+ENABLE_UDA_CHECK=true
+
+# AI Code Review (pre-push)
+# Runs accessibility + code quality review via Claude Code before pushing.
+# Disabled by default — opt in when you want automated review.
+# Requires: claude CLI installed and authenticated.
+# Env var equivalent: ENABLE_AI_REVIEW=1
+ENABLE_AI_REVIEW=false

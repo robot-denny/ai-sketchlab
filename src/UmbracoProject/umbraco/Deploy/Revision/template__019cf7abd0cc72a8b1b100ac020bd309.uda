@@ -1,0 +1,21 @@
+{
+  "Name": "Login",
+  "Alias": "Login",
+  "File": "umb://template-file/Login.cshtml",
+  "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+  "Udi": "umb://template/019cf7abd0cc72a8b1b100ac020bd309",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/Login.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.0.1"
+}

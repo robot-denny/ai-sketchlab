@@ -1,0 +1,21 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Login>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+    Layout = "master.cshtml";
+}
+
+@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml",
+    new Clean.Core.Models.ViewModels.PageHeaderViewModel(Model.Name, null, null, null))
+
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                @await Html.PartialAsync("~/Views/Partials/LoginStatus.cshtml")
+                @await Html.PartialAsync("~/Views/Partials/Login.cshtml")
+                @await Html.PartialAsync("~/Views/Partials/Register.cshtml")
+            </div>
+        </div>
+    </div>
+</article>

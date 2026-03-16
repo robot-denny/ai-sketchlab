@@ -1,0 +1,7 @@
+{
+  "Name": "H5YR",
+  "Udi": "umb://member-group/5174a9bf70e74304a714d484e47a50f6",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.MemberGroupArtifact",
+  "__version": "17.0.1"
+}

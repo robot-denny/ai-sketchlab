@@ -31,11 +31,12 @@ Process:
 
 - Merge results into:
   1. Summary (max 10 bullets total)
-  2. Accessibility findings (Blocker/Major/Minor/Nit)
-  3. Code quality findings (Blocker/Major/Minor/Nit)
-  4. Performance findings (Critical/High/Medium/Low/Info)
+  2. Accessibility findings (Blocker/Major/Minor/Nit) — include ALL findings from the subagent, not just top ones
+  3. Code quality findings (Blocker/Major/Minor/Nit) — include ALL findings from the subagent, not just top ones
+  4. Performance findings (Critical/High/Medium/Low/Info) — include ALL findings from the subagent, not just top ones
   5. Combined action plan (ordered checklist)
   6. Questions/uncertainties (anything that needs human intent)
+  - De-duplicate where multiple agents flag the same issue, but never silently drop a unique finding.
 
 Rules:
 - Do NOT edit any files yet.

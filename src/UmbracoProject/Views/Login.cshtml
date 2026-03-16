@@ -1,20 +1,76 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Extensions;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Login>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
     Layout = "master.cshtml";
+    var isLoggedIn = Context.User.GetMemberIdentity()?.IsAuthenticated ?? false;
 }
 
 @await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml",
     new Clean.Core.Models.ViewModels.PageHeaderViewModel(Model.Name, null, null, null))
+
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.21.0/jquery.validate.min.js"
+        integrity="sha512-KFHXdr2oObHKI9w4Hv1XPKc898mE4kgYx58oqsc/JqqdLMDI4YjOLzom+EMlW8HFUd0QfjfAvxSL6sEq/a42fQ=="
+        crossorigin="anonymous"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/4.0.0/jquery.validate.unobtrusive.min.js"
+        integrity="sha512-xq+Vm8jC94ynOikewaQXMEkJIOBp7iArs3IhFWSWdRT3Pq8wFz46p+ZDFAR7kHnSFf+zUv52B3prRYnbDRdgog=="
+        crossorigin="anonymous"></script>
 
 <article>
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-md-10 mx-auto">
                 @await Html.PartialAsync("~/Views/Partials/LoginStatus.cshtml")
-                @await Html.PartialAsync("~/Views/Partials/Login.cshtml")
-                @await Html.PartialAsync("~/Views/Partials/Register.cshtml")
+
+                @if (!isLoggedIn)
+                {
+                    <div id="login-panel">
+                        <h2>Log In</h2>
+                        <p>Enter your username and password to log in or <button type="button" class="btn btn-link p-0 align-baseline" id="show-register-btn" aria-expanded="false" aria-controls="register-panel" onclick="showPanel('register')">create an account</button>.</p>
+                        @await Html.PartialAsync("~/Views/Partials/Login.cshtml")
+                    </div>
+
+                    <div id="register-panel" style="display:none">
+                        <h2>Create an Account</h2>
+                        <p>Already have an account? <button type="button" class="btn btn-link p-0 align-baseline" id="show-login-btn" aria-expanded="false" aria-controls="login-panel" onclick="showPanel('login')">Log in</button>.</p>
+                        @await Html.PartialAsync("~/Views/Partials/Register.cshtml")
+                    </div>
+
+                    <script>
+                        function showPanel(panel) {
+                            var login = document.getElementById('login-panel');
+                            var register = document.getElementById('register-panel');
+                            var showLoginBtn = document.getElementById('show-login-btn');
+                            var showRegisterBtn = document.getElementById('show-register-btn');
+                            if (!login || !register) return;
+
+                            if (panel === 'register') {
+                                login.style.display = 'none';
+                                register.style.display = '';
+                                if (showRegisterBtn) showRegisterBtn.setAttribute('aria-expanded', 'true');
+                                if (showLoginBtn) showLoginBtn.setAttribute('aria-expanded', 'false');
+                                history.replaceState(null, '', '?view=register');
+                                var target = register.querySelector('input:not([type="hidden"])');
+                                if (target) target.focus();
+                            } else {
+                                register.style.display = 'none';
+                                login.style.display = '';
+                                if (showLoginBtn) showLoginBtn.setAttribute('aria-expanded', 'true');
+                                if (showRegisterBtn) showRegisterBtn.setAttribute('aria-expanded', 'false');
+                                history.replaceState(null, '', window.location.pathname);
+                                var target = login.querySelector('input:not([type="hidden"])');
+                                if (target) target.focus();
+                            }
+                        }
+                        if (new URLSearchParams(window.location.search).get('view') === 'register') {
+                            showPanel('register');
+                        }
+                    </script>
+                }
             </div>
         </div>
     </div>

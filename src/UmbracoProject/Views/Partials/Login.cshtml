@@ -14,18 +14,13 @@
     loginModel.RedirectUrl = null;
 }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
-
-
 @if (ViewData.TryGetTwoFactorProviderNames(out var providerNames))
 {
 
     foreach (var providerName in providerNames)
     {
         <div class="2fa-form">
-            <h4>Two factor with @providerName.</h4>
+            <h3>Two factor with @providerName.</h3>
             <div asp-validation-summary="All" class="text-danger"></div>
             @using (Html.BeginUmbracoForm<UmbTwoFactorLoginController>(nameof(UmbTwoFactorLoginController.Verify2FACode)))
             {
@@ -50,7 +45,6 @@ else
     @using (Html.BeginUmbracoForm<UmbLoginController>(
         "HandleLogin", new { RedirectUrl = loginModel.RedirectUrl })) {
 
-            <h4>Log in with a local account.</h4>
             <hr />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="mb-3">
@@ -81,7 +75,7 @@ else
     if (loginProviders.Any())
     {
         <hr/>
-        <h4>Or using external providers</h4>
+        <h3>Or using external providers</h3>
         if (externalSignInError?.AuthenticationType is null && externalSignInError?.Errors.Any() == true)
         {
             @Html.DisplayFor(x => externalSignInError.Errors);

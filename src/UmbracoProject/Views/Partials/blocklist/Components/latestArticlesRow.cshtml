@@ -98,11 +98,11 @@
                         <h2 class="post-title">
                             @(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)
                         </h2>
-                        @if (!string.IsNullOrWhiteSpace(article.Subtitle))
+                    </a>
+                    @if (!string.IsNullOrWhiteSpace(article.Subtitle))
                         {
                             <h3 class="post-subtitle">@article.Subtitle</h3>
                         }
-                    </a>
                     <p class="post-meta @(showFullArticleOnListPage ? "mb-0" : "")">
                         @Umbraco.GetDictionaryValue("Article.Posted")
                         @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames

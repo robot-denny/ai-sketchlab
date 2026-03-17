@@ -11150,7 +11150,7 @@ blockquote {
   }
 }
 
-footer.site-footer {
+.site-footer {
   border-top: 6px solid #000;
   background-color: #fff;
   padding: 39px;
@@ -11168,7 +11168,7 @@ footer.site-footer {
 
 .site-footer .footer-brand img {
   width: 153px;
-  height: 21px;
+  height: auto;
   object-fit: contain;
 }
 
@@ -11201,12 +11201,18 @@ footer.site-footer {
 }
 
 .site-footer .footer-nav a:hover {
+  border-bottom-color: #8859b6;
+  color: #8859b6;
+}
+
+.site-footer .footer-nav a:focus-visible {
+  outline: 2px solid #009171;
+  outline-offset: 2px;
   border-bottom-color: #009171;
-  color: #000;
 }
 
 @media (max-width: 767.98px) {
-  footer.site-footer {
+  .site-footer {
     padding: 36px 24px;
   }
   .site-footer .footer-inner {

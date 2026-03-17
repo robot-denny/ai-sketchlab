@@ -3,7 +3,8 @@
 @using Umbraco.Cms.Core.Models
 
 @{
-    var homePage = Model.AncestorOrSelf<ContentModels.Home>();
+    var homePage = Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
+    if (homePage == null) { return; }
 }
 
 <footer class="site-footer">
@@ -11,7 +12,11 @@
         <div class="footer-brand">
             @if (homePage.FooterLogo != null)
             {
-                <img src="@homePage.FooterLogo.Url()" alt="@homePage.FooterLogo.Name" />
+                <img src="@homePage.FooterLogo.Url()"
+                     alt="@(homePage.FooterLogo.Value<string>("altText") ?? Umbraco.GetDictionaryValue("Site.Name"))"
+                     width="153"
+                     height="21"
+                     loading="lazy" />
             }
             @if (!string.IsNullOrWhiteSpace(homePage.FooterDescription?.ToString()))
             {
@@ -22,12 +27,15 @@
         </div>
         @if (homePage.FooterNavigation != null && homePage.FooterNavigation.Any())
         {
-            <nav>
+            <nav aria-label="Footer">
                 <ul class="footer-nav">
                     @foreach (var link in homePage.FooterNavigation)
                     {
                         <li>
-                            <a href="@link.Url" target="@link.Target" rel="@(link.Type == LinkType.External ? "noopener" : null)">@link.Name</a>
+                            <a href="@link.Url"
+                               target="@link.Target"
+                               rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)"
+                               @(link.Target == "_blank" ? $"aria-label=\"{link.Name} (opens in new tab)\"" : null)>@link.Name</a>
                         </li>
                     }
                 </ul>

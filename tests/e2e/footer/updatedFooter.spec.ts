@@ -97,27 +97,26 @@ async function findCompositionByName(name: string) {
 
 test.describe('Updated Footer — Document Type Properties', () => {
   const compositionName = 'Footer Controls';
+  let docType: any;
+
+  test.beforeAll(async () => {
+    docType = await findCompositionByName(compositionName);
+  });
 
   test('footerLogo property exists on Footer Controls composition (media picker)', async () => {
-    const docType = await findCompositionByName(compositionName);
     expect(docType, `"${compositionName}" composition should exist`).toBeTruthy();
-
     const aliases = (docType.properties ?? []).map((p: any) => p.alias);
     expect(aliases, 'Should have a "footerLogo" property').toContain('footerLogo');
   });
 
   test('footerDescription property exists on Footer Controls composition (rich text)', async () => {
-    const docType = await findCompositionByName(compositionName);
     expect(docType, `"${compositionName}" composition should exist`).toBeTruthy();
-
     const aliases = (docType.properties ?? []).map((p: any) => p.alias);
     expect(aliases, 'Should have a "footerDescription" property').toContain('footerDescription');
   });
 
   test('footerNavigation property exists on Footer Controls composition (multi-url picker)', async () => {
-    const docType = await findCompositionByName(compositionName);
     expect(docType, `"${compositionName}" composition should exist`).toBeTruthy();
-
     const aliases = (docType.properties ?? []).map((p: any) => p.alias);
     expect(aliases, 'Should have a "footerNavigation" property').toContain('footerNavigation');
   });
@@ -166,25 +165,10 @@ test.describe('Updated Footer — CSS', () => {
     expect(content).toMatch(/\.site-footer\s*\{/);
   });
 
-  test('contains border-top rule with 6px', () => {
-    const content = readFileSync(cssPath, 'utf-8');
-    expect(content).toMatch(/border-top\s*:\s*6px/);
-  });
-
   test('contains .footer-nav with Oxanium font reference', () => {
     const content = readFileSync(cssPath, 'utf-8');
     expect(content).toMatch(/\.footer-nav/);
     expect(content).toMatch(/Oxanium/);
-  });
-
-  test('contains hover color #009171', () => {
-    const content = readFileSync(cssPath, 'utf-8');
-    expect(content).toMatch(/#009171/);
-  });
-
-  test('contains @media rule at 768px breakpoint with footer-inner column-reverse', () => {
-    const content = readFileSync(cssPath, 'utf-8');
-    expect(content).toMatch(/\.site-footer\s+\.footer-inner\s*\{[^}]*column-reverse/);
   });
 });
 

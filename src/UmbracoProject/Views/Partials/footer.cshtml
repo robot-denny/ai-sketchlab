@@ -1,23 +1,37 @@
-﻿@inherits UmbracoViewPage
+@inherits UmbracoViewPage
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models
 
 @{
     var homePage = Model.AncestorOrSelf<ContentModels.Home>();
 }
 
-<!-- Footer-->
-<footer>
-    <div class="container px-4 px-lg-5">
-        <div class="row gx-4 gx-lg-5 justify-content-center">
-            <div class="col-md-10 col-lg-8 col-xl-7">
-                @if (homePage.SocialIconLinks != null && homePage.SocialIconLinks.Any())
-                {
-                    <ul class="list-inline text-center">
-                        @Html.GetBlockListHtml(homePage.SocialIconLinks)
-                    </ul>
-                }
-                <p class="small text-center text-muted fst-italic">@Umbraco.GetDictionaryValue("Footer.CopyrightTitle") &copy; @DateTime.Now.Year @Umbraco.GetDictionaryValue("Footer.CopyrightStatement")</p>
-            </div>
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            @if (homePage.FooterLogo != null)
+            {
+                <img src="@homePage.FooterLogo.Url()" alt="@homePage.FooterLogo.Name" />
+            }
+            @if (!string.IsNullOrWhiteSpace(homePage.FooterDescription?.ToString()))
+            {
+                <div class="footer-description">
+                    @homePage.FooterDescription
+                </div>
+            }
         </div>
+        @if (homePage.FooterNavigation != null && homePage.FooterNavigation.Any())
+        {
+            <nav>
+                <ul class="footer-nav">
+                    @foreach (var link in homePage.FooterNavigation)
+                    {
+                        <li>
+                            <a href="@link.Url" target="@link.Target" rel="@(link.Type == LinkType.External ? "noopener" : null)">@link.Name</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
     </div>
 </footer>

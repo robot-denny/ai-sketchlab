@@ -25,6 +25,30 @@
           "Description": "Add any social links using the SVG icons",
           "Name": "Social Icon Links",
           "SortOrder": 5
+        },
+        {
+          "Key": "54cc1812-1309-4efe-bfdd-d02d15569c7b",
+          "Alias": "footerDescription",
+          "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "Description": "Rich text description displayed below the logo",
+          "Name": "Footer Description",
+          "SortOrder": 15
+        },
+        {
+          "Key": "66af713d-ce5f-4087-b707-c43d57dbab8e",
+          "Alias": "footerLogo",
+          "DataType": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
+          "Description": "Logo image displayed in the footer (supports PNG, SVG, and other image formats)",
+          "Name": "Footer Logo",
+          "SortOrder": 10
+        },
+        {
+          "Key": "fca0c69b-6bb3-47a1-86fe-527ef321dd68",
+          "Alias": "footerNavigation",
+          "DataType": "umb://data-type/b4e3535a175347e28568602cf8cfee6f",
+          "Description": "Navigation links displayed in the footer",
+          "Name": "Footer Navigation",
+          "SortOrder": 20
         }
       ]
     }
@@ -32,6 +56,18 @@
   "PropertyTypes": [],
   "Udi": "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/b4e3535a175347e28568602cf8cfee6f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+      "Ordering": true
+    },
     {
       "Udi": "umb://data-type/f8d7b987745c471f8f34a47f00838f06",
       "Ordering": true

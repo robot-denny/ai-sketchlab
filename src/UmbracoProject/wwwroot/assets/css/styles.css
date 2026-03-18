@@ -11557,6 +11557,10 @@ footer a {
    Article List Grid View
    ======================== */
 
+.article-grid {
+  margin-bottom: 2rem;
+}
+
 .article-grid-card {
   border-radius: 0.5rem;
   overflow: hidden;

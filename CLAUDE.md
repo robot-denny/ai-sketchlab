@@ -26,7 +26,7 @@ For E2E tests, see the **Testing** section below.
 
 ## Architecture
 
-**Entry point**: `src/UmbracoProject/Program.cs` — bootstraps Umbraco with `CreateUmbracoBuilder()`, adds BackOffice + Website middleware and endpoints.
+**Entry point**: `src/UmbracoProject/Program.cs` — bootstraps Umbraco with `CreateUmbracoBuilder()`, adds BackOffice + Website middleware and endpoints. Also registers MVC controllers (including `ImageGeneratorController` from the HelloWorld project).
 
 **Key directories under `src/UmbracoProject/`:**
 
@@ -41,11 +41,11 @@ For E2E tests, see the **Testing** section below.
 
 **Content model**: Document types are defined in the Umbraco backoffice and stored as `.uda` files in `umbraco/Deploy/Revision/`. C# models are auto-generated at runtime in `umbraco/Data/TEMP/InMemoryAuto/`.
 
-**Backoffice extension**: `src/HelloWorld/` — a sample dashboard extension created via Umbraco Skills plugin, referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build.
+**Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.1.0, Umbraco.Forms 17.1.2, Umbraco.Deploy.Cloud 17.0.1, Clean.Core 7.0.5 (view models for contact form/page headers).
+**Key NuGet packages**: Umbraco.Cms 17.2.2, Umbraco.Forms 17.1.2, Umbraco.Deploy.Cloud 17.0.1, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.4.
 
-**AI packages**: Umbraco.AI 1.1.0, Umbraco.AI.Agent 1.1.0, Umbraco.AI.Agent.Copilot 1.0.0-alpha2, Umbraco.AI.Agent.UI 1.0.0-alpha1, Umbraco.AI.Anthropic 1.1.0, Umbraco.AI.Google 1.1.0, Umbraco.AI.OpenAI 1.1.0, Umbraco.AI.Prompt 1.1.0.
+**AI packages**: Umbraco.AI 1.6.0, Umbraco.AI.Agent 1.5.0, Umbraco.AI.AGUI 1.5.0, Umbraco.AI.Anthropic 1.2.2, Umbraco.AI.Google 1.1.4, Umbraco.AI.OpenAI 1.1.3, Umbraco.AI.Prompt 1.5.0.
 
 ## AI & Copilot
 
@@ -248,6 +248,27 @@ async function cleanStaleTestData(token, prefix) {
 const doc = await apiFetch(token, 'GET', `/document/${id}`);
 const actualUrl = doc.urls?.[0]?.url;
 ```
+
+## Image Generator
+
+Canvas-based image generator for creating flow-field featured images from article metadata. Lives in two locations:
+
+- `scripts/image-generator/` — standalone CLI tool (`tsx scripts/image-generator/src/cli.ts`)
+- `src/HelloWorld/Client/src/imageGenerator/` — backoffice integration module
+
+Uses `@napi-rs/canvas` for server-side rendering. Run via `npm run generate:images`. Unit tests via `npm run test:unit`.
+
+Use the `/cms-image` command to generate and publish images.
+
+## Additional Scripts
+
+- `scripts/add-article-list-display-mode.cjs` — utility for adding article list display modes
+- `scripts/add-section-nav-property.cjs` — utility for adding section navigation properties
+
+## Project Planning
+
+- `_specs/` — feature specification documents
+- `_plans/` — implementation plans for features
 
 ## Deployment
 

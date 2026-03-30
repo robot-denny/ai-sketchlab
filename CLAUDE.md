@@ -45,7 +45,7 @@ For E2E tests, see the **Testing** section below.
 
 **Key NuGet packages**: Umbraco.Cms 17.2.2, Umbraco.Forms 17.1.2, Umbraco.Deploy.Cloud 17.0.1, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.4.
 
-**AI packages**: Umbraco.AI 1.6.0, Umbraco.AI.Agent 1.5.0, Umbraco.AI.AGUI 1.5.0, Umbraco.AI.Anthropic 1.2.2, Umbraco.AI.Google 1.1.4, Umbraco.AI.OpenAI 1.1.3, Umbraco.AI.Prompt 1.5.0.
+**AI packages**: Umbraco.AI 1.6.0, Umbraco.AI.Agent 1.5.0, Umbraco.AI.Agent.Copilot 1.0.0-alpha5 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0-alpha4 (shared chat UI components), Umbraco.AI.AGUI 1.5.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.2.2, Umbraco.AI.Google 1.1.4, Umbraco.AI.OpenAI 1.1.3, Umbraco.AI.Prompt 1.5.0.
 
 ## AI & Copilot
 

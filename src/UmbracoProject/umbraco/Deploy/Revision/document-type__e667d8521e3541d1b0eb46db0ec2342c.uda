@@ -20,10 +20,31 @@
     "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
     "umb://document-type/f1052d4868f1438c812c9e053abeca99"
   ],
-  "PropertyGroups": [],
+  "PropertyGroups": [
+    {
+      "Key": "216e7cb9-2633-49c3-8de4-5512234dbe1c",
+      "Name": "Content",
+      "SortOrder": 10,
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "57b0db93-dfb5-4c2a-b0bf-e68e4c3a3ec0",
+          "Alias": "form",
+          "DataType": "umb://data-type/5d710f95b98842fc9f5833ce973cb511",
+          "Name": "Form",
+          "SortOrder": 21
+        }
+      ]
+    }
+  ],
   "PropertyTypes": [],
   "Udi": "umb://document-type/e667d8521e3541d1b0eb46db0ec2342c",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/5d710f95b98842fc9f5833ce973cb511",
+      "Ordering": true
+    },
     {
       "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
       "Ordering": true

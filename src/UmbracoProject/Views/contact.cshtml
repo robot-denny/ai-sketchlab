@@ -34,7 +34,10 @@
                 {
                     @Model.InstructionMessage
                     <div class="my-5">
-                        @await Component.InvokeAsync("Contact")
+                        @if (Model.Form != null)
+                        {
+                            @await Component.InvokeAsync("RenderForm", new { formId = Model.Form })
+                        }
                     </div>
 
                 }

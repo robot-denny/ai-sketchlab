@@ -3,7 +3,7 @@
 > **My Source of truth** for what I've tested with MCP integration and Umbraco AI.
 > This file should be kept in sync with the [Capabilities page](https://umbraco-17-demo-site.useast01.umbraco.io/capabilities/) in the Umbraco backoffice.
 
-**Last Updated:** 2026-03-10
+**Last Updated:** 2026-03-31
 
 ---
 
@@ -39,6 +39,10 @@
 | Page property modifications (metadata, titles, descriptions) | Tested, working | Copilot editing via configured permissions |
 | Rich Text block population with maintained voice consistency | Tested, working | Requires pre-created block structure |
 | SEO metadata generation from page content | Tested, working | Copilot reads current page content and generates metaName, metaDescription, metaKeywords |
+| Text summarization prompt | Tested, working | Backoffice Settings > AI > Prompts — summarize selected text in-place |
+| Image alt text generation prompt | Tested, working | Backoffice Settings > AI > Prompts — generates descriptive alt text for selected images |
+| SEO content agent | Tested, working | Backoffice Settings > AI > Agents — dedicated agent for generating SEO titles, descriptions, and keywords |
+| CMS editor support agent | Tested, working | Backoffice Settings > AI > Agents — support agent that helps editors navigate and use Umbraco |
 
 ### MCP + AI Agent Orchestration
 
@@ -64,6 +68,8 @@
 | `/block` — TDD block component creation (RED → GREEN) | Tested, working | Commit `f0fb946` — Alert Banner block created via E2E test-first workflow |
 | `/spec` — Feature spec and branch generation from a short idea | Tested, working | Commit `0da9ebe` — Section Navigation spec created, branch auto-generated |
 | `/cms-image` — Generate flow-field featured images from article metadata and publish to CMS | Tested, working | Commit `8bd4457` — CLI + backoffice integration |
+| `/code-review` — Orchestrates three subagents in parallel (accessibility, code quality, performance) to review uncommitted changes | Tested, working | Commits `f330598`, `a9e5f6b`, `a60fb21` — three specialized agents run concurrently and report findings |
+| `/check-uda` — Detailed pre-commit analysis of Umbraco Deploy schema conflicts (fetches remote state, rates severity, gives remediation steps) | Tested, working | Commit `f5ee9bb` — also ships pre-commit/pre-push/post-merge git hooks in `.githooks/` |
 
 ### TDD Block Development Workflow
 
@@ -88,6 +94,13 @@
 | Responsive layout with Bootstrap collapse for mobile | Tested, working | Desktop sidebar (col-lg-3) + mobile "In this Section" toggle using Bootstrap 5 collapse |
 | Spec → Plan → CLI tool → Backoffice integration (multi-phase feature) | Tested, working | `_specs/image-generator/`, `_plans/image-generator.md`, `_plans/image-generator-backoffice.md` |
 
+### Site Features
+
+| Capability | Status | Evidence |
+|---|---|---|
+| Article list grid view display mode (editor-selectable list vs grid layout) | Tested, working | Commit `ede1bcf` — `displayMode` dropdown on `latestArticlesRow` block, Bootstrap grid rendering |
+| Updated site footer (multi-column layout, branding, link groups, CSS custom properties) | Tested, working | Commit `8239aca` — new `footer.cshtml` partial, new document type for footer content, E2E suite |
+
 ### Procedural Image Generation
 
 | Capability | Status | Evidence |
@@ -103,6 +116,7 @@
 |---|---|---|
 | E2E resilience rules (dynamic UUIDs, stale cleanup, token refresh, regex assertions) | Tested, working | Commit `05d5b91` — 7 rules codified in CLAUDE.md and applied to section nav tests |
 | Article list grid view E2E suite (24 tests: rendering, edge cases, responsive breakpoints) | Tested, working | Commit `ede1bcf` — `tests/e2e/articleListGridView.spec.ts` |
+| Site footer E2E suite (column layout, links, branding, responsive behavior) | Tested, working | Commit `8239aca` — `tests/e2e/footer/updatedFooter.spec.ts` |
 
 ---
 
@@ -159,3 +173,9 @@
 | 2026-03-09 | Added backoffice image generator dashboard and property action with palette management | `55306d4` |
 | 2026-03-09 | Dynamic categories from backoffice; reformatted palettes.json | `d30aa50`, `59443f1` |
 | 2026-03-10 | Updated Capabilities tracker with image generator, grid view, E2E testing entries | — |
+| 2026-03-13 | Created `/code-review` command; built accessibility and code-quality subagents | `f330598`, `a9e5f6b` |
+| 2026-03-16 | Added perf-reviewer subagent to `/code-review` pipeline (three parallel subagents) | `a60fb21` |
+| 2026-03-16 | Added `/check-uda` command and git hooks for UDA conflict detection | `f5ee9bb` |
+| 2026-03-17 | Built updated site footer (multi-column layout, branding, CSS custom properties, E2E suite) | `8239aca`, `f54d3fc` |
+| 2026-03-31 | Configured AI prompts (text summarization, image alt text) and agents (SEO, editor support) in backoffice | — |
+| 2026-03-31 | Updated Capabilities tracker with AI prompts/agents, code-review, check-uda, grid view, footer | — |

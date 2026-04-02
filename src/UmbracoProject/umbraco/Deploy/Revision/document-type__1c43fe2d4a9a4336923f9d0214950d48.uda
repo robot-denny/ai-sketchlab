@@ -19,6 +19,14 @@
       "Alias": "content",
       "PropertyTypes": [
         {
+          "Key": "27d43f81-9498-4a2f-a7f4-c3cdb28f8815",
+          "Alias": "scrollSpeedMs",
+          "DataType": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
+          "Description": "Auto-scroll interval in milliseconds. Default is 5000. Set to 0 to disable auto-scroll.",
+          "Name": "Scroll Speed (ms)",
+          "SortOrder": 3
+        },
+        {
           "Key": "3d9ba030-db57-4cb0-9530-c08753a70e4b",
           "Alias": "images",
           "DataType": "umb://data-type/0e63d883b62b479988c3157f82e83ecc",
@@ -42,6 +50,10 @@
   "Dependencies": [
     {
       "Udi": "umb://data-type/0e63d883b62b479988c3157f82e83ecc",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
       "Ordering": true
     },
     {

@@ -1,4 +1,4 @@
-﻿@inherits UmbracoViewPage<BlockListItem>
+@inherits UmbracoViewPage<BlockListItem>
 @using Umbraco.Cms.Core.Models.Blocks
 @using Clean.Core.Extensions
 
@@ -13,43 +13,74 @@
     {
         spacingClasses = Clean.Core.Helpers.SpacingHelper.GetSpacingClasses(spacing.PaddingTop, spacing.PaddingBottom, spacing.PaddingLeft, spacing.PaddingRight, spacing.MarginTop, spacing.MarginBottom, spacing.MarginLeft, spacing.MarginRight);
     }
+
+    var images = row.Images.ToList();
+    var imageCount = images.Count;
+    var sliderId = "slider-" + row.Key.ToString();
+    var scrollSpeedMs = row.ScrollSpeedMs > 0 ? row.ScrollSpeedMs : 5000;
+    var autoRide = row.ScrollSpeedMs == 0 ? "false" : "carousel";
 }
 
 <div class="row clearfix @(spacingClasses)">
     <div class="col-md-12 column">
-        <div class="swiffy-slider slider-item-reveal slider-nav-round slider-item-ratio slider-item-ratio-4x3" id="slider-@(row.Key.ToString())">
-            <ul class="slider-container">
-                @foreach (var item in row.Images)
-                {
-                    <li><img src="@item.Url()" loading="lazy" alt="@item.Content.GetAltText()"></li>
-                }
-            </ul>
 
-            <button type="button" class="slider-nav" aria-label="Go left"></button>
-            <button type="button" class="slider-nav slider-nav-next" aria-label="Go right"></button>
+        @if (imageCount == 1)
+        {
+            <img src="@images[0].Url()" alt="@images[0].Content.GetAltText()" class="w-100" loading="eager">
+        }
+        else
+        {
+            <div id="@sliderId"
+                 class="carousel slide carousel-fade"
+                 data-bs-ride="@autoRide"
+                 data-bs-interval="@scrollSpeedMs"
+                 data-bs-pause="false"
+                 data-bs-wrap="true">
 
-            <div class="slider-indicators slider-indicators-square d-none d-md-flex">
-                <button class="active" aria-label="Go to slide"></button>
-                @if (row.Images.Count() > 1)
-                {
-                    foreach (var image in row.Images.Skip(1))
+                <div class="carousel-inner">
+                    @for (int i = 0; i < imageCount; i++)
                     {
-                        <button aria-label="Go to slide"></button>
+                        var image = images[i];
+                        var activeClass = i == 0 ? " active" : "";
+                        var loadingMode = i == 0 ? "eager" : "lazy";
+                        <div class="carousel-item@(activeClass)">
+                            <img src="@image.Url()" class="d-block w-100" alt="@image.Content.GetAltText()" loading="@loadingMode">
+                        </div>
                     }
-                }
-            </div>
+                </div>
 
-            <div class="slider-indicators slider-indicators-sm slider-indicators-dark slider-indicators-round d-md-none slider-indicators-highlight">
-                <button class="active" aria-label="Go to slide"></button>
-                @if (row.Images.Count() > 1)
-                {
-                    foreach (var image in row.Images.Skip(1))
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < imageCount; i++)
                     {
-                        <button aria-label="Go to slide"></button>
+                        var ariaCurrent = i == 0 ? " aria-current=\"true\"" : "";
+                        var activeClass = i == 0 ? " active" : "";
+                        <button type="button"
+                                data-bs-target="#@sliderId"
+                                data-bs-slide-to="@i"
+                                class="@activeClass.Trim()"
+                                @Html.Raw(ariaCurrent)
+                                aria-label="Go to slide @(i + 1) of @imageCount"></button>
                     }
-                }
+                    <button type="button"
+                            class="carousel-play-pause"
+                            data-carousel-id="@sliderId">
+                        <i class="fa-regular fa-circle-pause" aria-hidden="true"></i>
+                        <span class="carousel-play-pause-label">Pause carousel</span>
+                    </button>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#@sliderId" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous slide</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#@sliderId" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next slide</span>
+                </button>
+
             </div>
-        </div>
+        }
+
         @if (row.Author != null)
         {
             <p class="block-author text-muted fst-italic mt-2">— @row.Author.Name</p>

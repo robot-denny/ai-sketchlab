@@ -1,7 +1,7 @@
 ---
 description: Create a phased, TDD-first implementation plan from a spec file or feature description
 argument-hint: Path to spec file (e.g. _specs/my-feature.md) or a short feature description
-allowed-tools: Read, Write, Glob, Bash(git branch*), Bash(git status*)
+allowed-tools: Read, Write, Glob, Bash(git branch*), Bash(git status*), mcp__umbraco-mcp__*, Agent(*)
 ---
 
 You are creating a detailed implementation plan for this project. Always follow the rules in CLAUDE.md.
@@ -31,6 +31,38 @@ Before planning, read enough of the codebase to answer:
 - What is the right test file location and naming convention for this feature?
 
 Do not plan in a vacuum — ground every step in what already exists.
+
+### Use MCP to inspect live backoffice state (schema-related features)
+
+If the feature involves document types, element types, compositions, or data types, query the live Umbraco instance via MCP tools **before** designing the schema steps. This surfaces real IDs, existing property editors, and reusable compositions that can't be reliably derived from `.uda` files alone.
+
+Useful MCP tools for planning:
+- `mcp__umbraco-mcp__get-all-document-types` — see every existing document type and composition
+- `mcp__umbraco-mcp__get-all-data-types` — find reusable data types (dropdowns, toggles, text fields, etc.) by name rather than hardcoding IDs
+- `mcp__umbraco-mcp__get-document-type-by-id` — inspect a specific type's properties and groups
+- `mcp__umbraco-mcp__get-data-type-root` / `get-data-type-children` — browse the data type tree
+
+Record any IDs or aliases discovered here in the plan's **Key Decisions** section so implementers don't need to look them up again.
+
+### Invoke the relevant Umbraco skill (backoffice extension features)
+
+If the feature involves a backoffice extension (dashboards, property editors, workspaces, modals, trees, context API, entry points, or any TypeScript/Lit component in `src/HelloWorld/Client/src/`), **invoke the matching skill before writing the plan**. Umbraco 17 uses Lit web components and a specific extension registry pattern — the skills provide authoritative, current documentation that training data may not cover accurately.
+
+Choose the skill that matches the extension type:
+
+| Extension type | Skill to invoke |
+|----------------|----------------|
+| Dashboard | `umbraco-cms-backoffice-skills:umbraco-dashboard` |
+| Property editor UI | `umbraco-cms-backoffice-skills:umbraco-property-editor-ui` |
+| Workspace | `umbraco-cms-backoffice-skills:umbraco-workspace` |
+| Modal / dialog | `umbraco-cms-backoffice-skills:umbraco-modals` |
+| Tree / tree item | `umbraco-cms-backoffice-skills:umbraco-tree` / `umbraco-tree-item` |
+| Context API | `umbraco-cms-backoffice-skills:umbraco-context-api` |
+| Entry point | `umbraco-cms-backoffice-skills:umbraco-entry-point` |
+| Entity actions | `umbraco-cms-backoffice-skills:umbraco-entity-actions` |
+| Block editor custom view | `umbraco-cms-backoffice-skills:umbraco-block-editor-custom-view` |
+
+Skip skills for: Management API/content CRUD, C#/Razor/.NET patterns, or tasks where the pattern is already clearly visible in the codebase.
 
 ## Step 3 — Identify the feature layers
 

@@ -11590,3 +11590,18 @@ footer a {
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--bs-gray-600);
 }
+
+/* ── Content Section Rows ─────────────────────────────────── */
+.section-row {
+  display: block;
+}
+.section-row--bg-light {
+  background-color: var(--bs-gray-100);
+}
+.section-row--bg-accent {
+  background-color: var(--bs-teal);
+  color: #fff;
+}
+.section-row--container {
+  border-radius: 0.375rem;
+}

@@ -1,0 +1,47 @@
+{
+  "Name": "Section Row Controls",
+  "Alias": "sectionRowControls",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-settings color-pink",
+  "Thumbnail": "folder.png",
+  "Description": "Provides the sectionRows block list property for page types that support content section rows.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "2f1b3990-4916-402e-8431-4762f6c2120c",
+      "Name": "Content",
+      "SortOrder": 10,
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "fcc17ce4-5adf-4074-836d-b497ee761311",
+          "Alias": "sectionRows",
+          "DataType": "umb://data-type/8fdfe8f374904b9b82f1c0ffb7fdab0b",
+          "Description": "Add one or more styled section rows below the main content area.",
+          "Name": "Section Rows",
+          "SortOrder": 20
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/84b4af3867f04ab39dd9020047ea0b3f",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/8fdfe8f374904b9b82f1c0ffb7fdab0b",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

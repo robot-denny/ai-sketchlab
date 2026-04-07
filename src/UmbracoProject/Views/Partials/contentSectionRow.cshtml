@@ -1,0 +1,51 @@
+@inherits UmbracoViewPage<BlockListItem>
+@using Umbraco.Cms.Core.Models.Blocks
+
+@{
+    var row = Model.Content as ContentSectionRow;
+    var settings = Model.Settings as ContentSectionRowSettings;
+    if (row?.SectionContent == null || !row.SectionContent.Any()) { return; }
+
+    var spacingClasses = "";
+    if (Model.Settings is ISpacingProperties spacing)
+    {
+        spacingClasses = Clean.Core.Helpers.SpacingHelper.GetSpacingClasses(spacing.PaddingTop, spacing.PaddingBottom, spacing.PaddingLeft, spacing.PaddingRight, spacing.MarginTop, spacing.MarginBottom, spacing.MarginLeft, spacing.MarginRight);
+    }
+
+    var bgColor = settings?.SectionBackgroundColor ?? "none";
+    var bgClass = bgColor switch
+    {
+        "light" => "section-row--bg-light",
+        "accent" => "section-row--bg-accent",
+        _ => ""
+    };
+    var isFullBleed = settings?.SectionBackgroundWidth == "full-bleed";
+    var widthClass = isFullBleed ? "section-row--full-bleed" : "section-row--container";
+
+    var headingLevel = row.SectionHeadingLevel ?? "h2";
+}
+
+@if (isFullBleed)
+{
+    <section class="section-row @bgClass @widthClass @spacingClasses">
+        <div class="container">
+            @if (row.HasValue("sectionTitle"))
+            {
+                @Html.Raw($"<{headingLevel}>{row.SectionTitle}</{headingLevel}>")
+            }
+            @Html.GetBlockListHtml(row.SectionContent)
+        </div>
+    </section>
+}
+else
+{
+    <div class="container">
+        <section class="section-row @bgClass @widthClass @spacingClasses">
+            @if (row.HasValue("sectionTitle"))
+            {
+                @Html.Raw($"<{headingLevel}>{row.SectionTitle}</{headingLevel}>")
+            }
+            @Html.GetBlockListHtml(row.SectionContent)
+        </section>
+    </div>
+}

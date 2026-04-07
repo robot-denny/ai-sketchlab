@@ -1,0 +1,66 @@
+{
+  "Name": "Content Section Row Settings",
+  "Alias": "contentSectionRowSettings",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-settings color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "Background color, background width, and spacing settings for a section row.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/a3274987179946d6885c551ba2986c90",
+  "CompositionContentTypes": [
+    "umb://document-type/2e1a4fd4b695403386261a45b54e04cb"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "e8383e86-94e3-4d39-acdb-ac6bf70891f4",
+      "Name": "Settings",
+      "SortOrder": 10,
+      "Type": 1,
+      "Alias": "settings",
+      "PropertyTypes": [
+        {
+          "Key": "517519e8-728e-4ffe-8333-1aed6ba20aee",
+          "Alias": "sectionBackgroundColor",
+          "DataType": "umb://data-type/713d86d059a9442d9f34e64a1675713c",
+          "Description": "Background color treatment for this section row.",
+          "Name": "Background Color",
+          "SortOrder": 5
+        },
+        {
+          "Key": "ccc3f99d-c273-40d2-9b9e-4f07472a2369",
+          "Alias": "sectionBackgroundWidth",
+          "DataType": "umb://data-type/856f224e7b134775bd5ab40506f33e04",
+          "Description": "Container: background fills the content container width. Full bleed: background extends edge-to-edge.",
+          "Name": "Background Width",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/a4c734353b284180a2c91a4bdc2ae9ed",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/713d86d059a9442d9f34e64a1675713c",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/856f224e7b134775bd5ab40506f33e04",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/a3274987179946d6885c551ba2986c90",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/2e1a4fd4b695403386261a45b54e04cb",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

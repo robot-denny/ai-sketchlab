@@ -1,0 +1,18 @@
+{
+  "Name": "[Dropdown] Section Background Color",
+  "EditorAlias": "Umbraco.DropDown.Flexible",
+  "EditorUiAlias": "Umb.PropertyEditorUi.Dropdown",
+  "DatabaseType": "Nvarchar",
+  "Configuration": {
+    "multiple": false,
+    "items": [
+      "none",
+      "light",
+      "accent"
+    ]
+  },
+  "Udi": "umb://data-type/713d86d059a9442d9f34e64a1675713c",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

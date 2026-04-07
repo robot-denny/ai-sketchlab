@@ -49,4 +49,12 @@
             </div>
         }
     </div>
+    @if (Model.HasValue("sectionRows"))
+    {
+        var rows = Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("sectionRows");
+        foreach (var row in rows)
+        {
+            @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+        }
+    }
 </article>

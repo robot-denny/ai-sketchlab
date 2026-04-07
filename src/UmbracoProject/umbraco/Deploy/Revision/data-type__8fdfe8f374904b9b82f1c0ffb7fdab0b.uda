@@ -1,0 +1,30 @@
+{
+  "Name": "[BlockList] Section Rows",
+  "EditorAlias": "Umbraco.BlockList",
+  "EditorUiAlias": "Umb.PropertyEditorUi.BlockList",
+  "Configuration": {
+    "blocks": [
+      {
+        "contentElementTypeKey": "d5f39061-2c36-4d3c-bdc9-d8133918579b",
+        "settingsElementTypeKey": "a4c73435-3b28-4180-a2c9-1a4bdc2ae9ed",
+        "label": "**Section Row**${ sectionTitle ? \u0022: \u0022 \u002B sectionTitle : \u0022\u0022 }"
+      }
+    ],
+    "useSingleBlockMode": false,
+    "validationLimit": {
+      "min": null,
+      "max": null
+    }
+  },
+  "Udi": "umb://data-type/8fdfe8f374904b9b82f1c0ffb7fdab0b",
+  "Dependencies": [
+    {
+      "Udi": "umb://document-type/a4c734353b284180a2c91a4bdc2ae9ed"
+    },
+    {
+      "Udi": "umb://document-type/d5f390612c364d3cbdc9d8133918579b"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

@@ -1,0 +1,72 @@
+{
+  "Name": "Content Section Row",
+  "Alias": "contentSectionRow",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-document-2 color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "A styled section row rendered below the main content area, with optional heading and background settings.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "7bd2e78f-5a1e-4c48-9cd7-1e0bb30b3eda",
+      "Name": "Content",
+      "SortOrder": 10,
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "636193df-2a90-4250-ad8c-e8160de2e23a",
+          "Alias": "sectionContent",
+          "DataType": "umb://data-type/b5922818d8d843df88ed4582a24c0fa6",
+          "Description": "Block list content for this section row.",
+          "Name": "Section Content",
+          "SortOrder": 20
+        },
+        {
+          "Key": "acdbb96a-9b84-48ac-a805-0c4e6052d5f9",
+          "Alias": "sectionTitle",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Description": "Optional heading displayed above the section content.",
+          "Name": "Section Title",
+          "SortOrder": 5
+        },
+        {
+          "Key": "d2209105-df6a-417a-8b8a-13b8d559fdee",
+          "Alias": "sectionHeadingLevel",
+          "DataType": "umb://data-type/a4807c6e86eb4da8a17e77f1b1c655fa",
+          "Description": "HTML heading element to use for the section title. Defaults to h2.",
+          "Name": "Heading Level",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d5f390612c364d3cbdc9d8133918579b",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/a4807c6e86eb4da8a17e77f1b1c655fa",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/b5922818d8d843df88ed4582a24c0fa6",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

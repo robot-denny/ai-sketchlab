@@ -46,7 +46,7 @@ interface HttpResponse {
   body: string;
 }
 
-function request(method: string, urlPath: string, body: unknown, token?: string): Promise<HttpResponse> {
+export function request(method: string, urlPath: string, body: unknown, token?: string): Promise<HttpResponse> {
   return new Promise((resolve, reject) => {
     const url = new URL(urlPath, BASE_URL);
     const options: https.RequestOptions = {

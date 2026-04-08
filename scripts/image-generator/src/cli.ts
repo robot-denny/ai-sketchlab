@@ -15,6 +15,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateImage } from './generator.js';
 import { loadPaletteConfig } from './palette.js';
+import { fetchPaletteConfigFromApi } from './palette-reader.js';
 import type { PaletteConfig } from './types.js';
 import {
   authenticate,
@@ -38,10 +39,13 @@ interface CliArgs {
   force: boolean;
   localOnly: boolean;
   output?: string;
+  paletteJson?: string;
+  paletteJsonFile?: string;
+  paletteFromApi: boolean;
 }
 
 function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { batch: false, force: false, localOnly: false };
+  const args: CliArgs = { batch: false, force: false, localOnly: false, paletteFromApi: false };
   let i = 2; // skip node + script path
 
   while (i < argv.length) {
@@ -65,6 +69,15 @@ function parseArgs(argv: string[]): CliArgs {
       case '--output':
         args.output = argv[++i];
         break;
+      case '--palette-json':
+        args.paletteJson = argv[++i];
+        break;
+      case '--palette-json-file':
+        args.paletteJsonFile = argv[++i];
+        break;
+      case '--palette-from-api':
+        args.paletteFromApi = true;
+        break;
       case '--help':
       case '-h':
         printUsage();
@@ -85,18 +98,23 @@ function printUsage(): void {
 Usage: npx tsx scripts/image-generator/src/cli.ts [options]
 
 Options:
-  --name <title>    Generate image for article matching this name
-  --id <uuid>       Generate image for article with this document ID
-  --batch           Generate images for all articles without a featured image
-  --force           Regenerate even if article already has an image
-  --local-only      Save PNG locally without uploading to Umbraco
-  --output <path>   Output path for --local-only (default: ./generated-<name>.png)
-  --help, -h        Show this help message
+  --name <title>        Generate image for article matching this name
+  --id <uuid>           Generate image for article with this document ID
+  --batch               Generate images for all articles without a featured image
+  --force               Regenerate even if article already has an image
+  --local-only          Save PNG locally without uploading to Umbraco
+  --output <path>       Output path for --local-only (default: ./generated-<name>.png)
+  --palette-json <json>      Use palette config from a JSON string
+  --palette-json-file <path> Read palette config from a JSON file (used by C# controller)
+  --palette-from-api         Fetch palette config from the CMS settings document
+  --help, -h                 Show this help message
+
+Palette priority: --palette-json / --palette-json-file > --palette-from-api > config/palettes.json > hardcoded defaults
 
 Examples:
   npx tsx scripts/image-generator/src/cli.ts --name "Retaining Humanity"
   npx tsx scripts/image-generator/src/cli.ts --batch --force
-  npx tsx scripts/image-generator/src/cli.ts --name "Article" --local-only --output ./preview.png
+  npx tsx scripts/image-generator/src/cli.ts --name "Article" --palette-from-api --local-only
 `);
 }
 
@@ -175,10 +193,42 @@ async function main(): Promise<void> {
   const args = parseArgs(process.argv);
   validateArgs(args);
 
-  // Load palette config from config/palettes.json (relative to this script)
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const configPath = path.join(__dirname, '..', 'config', 'palettes.json');
-  const paletteConfig = loadPaletteConfig(configPath);
+  // Resolve palette config: --palette-json > --palette-from-api > file > defaults
+  let paletteConfig: PaletteConfig | undefined;
+
+  if (args.paletteJson) {
+    try {
+      paletteConfig = JSON.parse(args.paletteJson) as PaletteConfig;
+      console.log('Palette source: --palette-json argument');
+    } catch (err) {
+      console.error(`Error: Invalid JSON in --palette-json: ${(err as Error).message}`);
+      process.exit(1);
+    }
+  } else if (args.paletteJsonFile) {
+    try {
+      const raw = fs.readFileSync(args.paletteJsonFile, 'utf8');
+      paletteConfig = JSON.parse(raw) as PaletteConfig;
+      console.log('Palette source: --palette-json-file');
+    } catch (err) {
+      console.error(`Error: Could not read palette JSON file: ${(err as Error).message}`);
+      process.exit(1);
+    }
+  } else if (args.paletteFromApi) {
+    try {
+      const t = await authenticate();
+      paletteConfig = await fetchPaletteConfigFromApi(t);
+      console.log(`Palette source: CMS settings document (${Object.keys(paletteConfig.entries).length} entries)`);
+    } catch (err) {
+      console.warn(`Warning: Could not fetch palettes from API (${(err as Error).message}). Falling back to file.`);
+    }
+  }
+
+  if (!paletteConfig) {
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    const configPath = path.join(__dirname, '..', 'config', 'palettes.json');
+    paletteConfig = loadPaletteConfig(configPath);
+    console.log('Palette source: config/palettes.json');
+  }
 
   let token: string | null = null;
   let folderId: string | null = null;

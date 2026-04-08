@@ -1,0 +1,31 @@
+{
+  "Name": "[ContentPicker] Single Category",
+  "EditorAlias": "Umbraco.MultiNodeTreePicker",
+  "EditorUiAlias": "Umb.PropertyEditorUi.ContentPicker",
+  "Configuration": {
+    "ignoreUserStartNodes": false,
+    "maxNumber": 1,
+    "minNumber": 0,
+    "startNode": {
+      "type": "content",
+      "query": null,
+      "dynamicRoot": {
+        "originAlias": "ByKey",
+        "originKey": "dcf18a51-6919-4cf8-89d1-36b94ce4d963",
+        "querySteps": [
+          {
+            "alias": "NearestDescendantOrSelf",
+            "anyOfDocTypeKeys": [
+              "539869ea-4f0d-4c3b-80b1-aaa80a1c16e6"
+            ]
+          }
+        ]
+      },
+      "id": null
+    }
+  },
+  "Udi": "umb://data-type/765ed8243724414d86dfb0599fe84006",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

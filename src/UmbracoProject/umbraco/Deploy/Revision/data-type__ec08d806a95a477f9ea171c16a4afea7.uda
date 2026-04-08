@@ -1,0 +1,26 @@
+{
+  "Name": "[BlockList] Category Palettes",
+  "EditorAlias": "Umbraco.BlockList",
+  "EditorUiAlias": "Umb.PropertyEditorUi.BlockList",
+  "Configuration": {
+    "blocks": [
+      {
+        "contentElementTypeKey": "5bb2e98c-2bb4-47c0-86f8-6e4124a8a131",
+        "label": "{umbContentName: paletteCategory | fallback:[No category]} \u2014 {umbValue: palettePrimary}"
+      }
+    ],
+    "useSingleBlockMode": false,
+    "validationLimit": {
+      "min": null,
+      "max": null
+    }
+  },
+  "Udi": "umb://data-type/ec08d806a95a477f9ea171c16a4afea7",
+  "Dependencies": [
+    {
+      "Udi": "umb://document-type/5bb2e98c2bb447c086f86e4124a8a131"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

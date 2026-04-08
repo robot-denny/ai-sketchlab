@@ -1,0 +1,10 @@
+{
+  "Name": "[EyeDropper] Palette Color",
+  "EditorAlias": "Umbraco.Plain.String",
+  "EditorUiAlias": "Umb.PropertyEditorUi.EyeDropper",
+  "Configuration": {},
+  "Udi": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.1"
+}

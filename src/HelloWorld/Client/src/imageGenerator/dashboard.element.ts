@@ -11,37 +11,10 @@ import { UMB_NOTIFICATION_CONTEXT } from "@umbraco-cms/backoffice/notification";
 
 // -- Types --
 
-type RgbColor = [number, number, number];
-
-interface PaletteEntry {
-  name: string;
-  colors: RgbColor[];
-}
-
-interface PaletteConfig {
-  entries: Record<string, PaletteEntry>; // UUID → {name, colors}
-  default: RgbColor[];
-}
-
 interface Article {
   id: string;
   name: string;
 }
-
-interface Category {
-  id: string;
-  name: string;
-}
-
-// -- Helpers --
-
-const hexToRgb = (hex: string): RgbColor => {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-};
-
-const rgbToHex = ([r, g, b]: RgbColor) =>
-  "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
 
 const API_BASE = "/umbraco/api/image-generator";
 
@@ -49,16 +22,12 @@ const API_BASE = "/umbraco/api/image-generator";
 
 @customElement("image-generator-dashboard")
 export default class ImageGeneratorDashboardElement extends UmbLitElement {
-  @state() private _palettes: PaletteConfig = { entries: {}, default: [] };
   @state() private _articles: Article[] = [];
-  @state() private _categories: Category[] = [];
   @state() private _selectedArticleId = "";
-  @state() private _selectedNewCategoryId = "";
   @state() private _forceRegenerate = false;
   @state() private _generating = false;
   @state() private _batchRunning = false;
   @state() private _output = "";
-  @state() private _savingPalettes = false;
 
   #authContext?: typeof UMB_AUTH_CONTEXT.TYPE;
   #notificationContext?: typeof UMB_NOTIFICATION_CONTEXT.TYPE;
@@ -83,45 +52,8 @@ export default class ImageGeneratorDashboardElement extends UmbLitElement {
   // -- Data Loading --
 
   async #loadData() {
-    const [palettes, articles, categories] = await Promise.all([
-      this.#apiFetch<PaletteConfig>("GET", "/palettes"),
-      this.#apiFetch<Article[]>("GET", "/articles"),
-      this.#apiFetch<Category[]>("GET", "/categories"),
-    ]);
-    if (palettes) this._palettes = palettes;
+    const articles = await this.#apiFetch<Article[]>("GET", "/articles");
     if (articles) this._articles = articles;
-    if (categories) this._categories = categories;
-
-    this.#syncCategoryNames();
-  }
-
-  /**
-   * Auto-sync display names: if a category was renamed in Umbraco,
-   * update the name field in the palette entry and notify the user.
-   */
-  #syncCategoryNames() {
-    const catMap = new Map(this._categories.map((c) => [c.id, c.name]));
-    let changed = false;
-    const entries = { ...this._palettes.entries };
-
-    for (const [uuid, entry] of Object.entries(entries)) {
-      const liveName = catMap.get(uuid);
-      if (liveName && liveName !== entry.name) {
-        entries[uuid] = { ...entry, name: liveName };
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      this._palettes = { ...this._palettes, entries };
-      this.#notificationContext?.peek("warning", {
-        data: {
-          headline: "Category names updated",
-          message:
-            "Some categories were renamed in the CMS. Save palettes to persist the updated names.",
-        },
-      });
-    }
   }
 
   // -- API Helpers --
@@ -153,84 +85,6 @@ export default class ImageGeneratorDashboardElement extends UmbLitElement {
       return null;
     }
   }
-
-  // -- Computed --
-
-  get #unassignedCategories(): Category[] {
-    return this._categories.filter((c) => !this._palettes.entries[c.id]);
-  }
-
-  #isCategoryOrphaned(uuid: string): boolean {
-    return !this._categories.some((c) => c.id === uuid);
-  }
-
-  // -- Palette Actions --
-
-  #onColorChange(uuid: string, index: number, hex: string) {
-    const entries = { ...this._palettes.entries };
-    const entry = entries[uuid];
-    const colors = [...entry.colors];
-    colors[index] = hexToRgb(hex);
-    entries[uuid] = { ...entry, colors };
-    this._palettes = { ...this._palettes, entries };
-  }
-
-  #onDefaultColorChange(index: number, hex: string) {
-    const def = [...this._palettes.default] as RgbColor[];
-    def[index] = hexToRgb(hex);
-    this._palettes = { ...this._palettes, default: def };
-  }
-
-  #addColorToCategory(uuid: string) {
-    const entries = { ...this._palettes.entries };
-    const entry = entries[uuid];
-    entries[uuid] = { ...entry, colors: [...entry.colors, [0, 140, 200] as RgbColor] };
-    this._palettes = { ...this._palettes, entries };
-  }
-
-  #removeColorFromCategory(uuid: string, index: number) {
-    const entries = { ...this._palettes.entries };
-    const entry = entries[uuid];
-    entries[uuid] = { ...entry, colors: entry.colors.filter((_, i) => i !== index) };
-    this._palettes = { ...this._palettes, entries };
-  }
-
-  #removeCategory(uuid: string) {
-    const entries = { ...this._palettes.entries };
-    delete entries[uuid];
-    this._palettes = { ...this._palettes, entries };
-  }
-
-  #addCategory() {
-    const id = this._selectedNewCategoryId;
-    if (!id || this._palettes.entries[id]) return;
-    const cat = this._categories.find((c) => c.id === id);
-    if (!cat) return;
-    const entries = { ...this._palettes.entries };
-    entries[id] = { name: cat.name, colors: [[0, 140, 200] as RgbColor] };
-    this._palettes = { ...this._palettes, entries };
-    this._selectedNewCategoryId = "";
-  }
-
-  #onSavePalettes = async () => {
-    this._savingPalettes = true;
-    const result = await this.#apiFetch<{ success: boolean }>(
-      "PUT",
-      "/palettes",
-      this._palettes
-    );
-    this._savingPalettes = false;
-
-    if (result?.success) {
-      this.#notificationContext?.peek("positive", {
-        data: { headline: "Palettes saved", message: "" },
-      });
-    } else {
-      this.#notificationContext?.peek("danger", {
-        data: { headline: "Failed to save palettes", message: "" },
-      });
-    }
-  };
 
   // -- Generate Actions --
 
@@ -294,149 +148,20 @@ export default class ImageGeneratorDashboardElement extends UmbLitElement {
 
   render() {
     return html`
-      ${this.#renderPaletteEditor()} ${this.#renderSingleGenerator()}
+      ${this.#renderPaletteInfo()} ${this.#renderSingleGenerator()}
       ${this.#renderBatchGenerator()}
       ${this._output ? this.#renderOutput() : nothing}
     `;
   }
 
-  #renderPaletteEditor() {
-    const categories = Object.entries(this._palettes.entries);
-    const unassigned = this.#unassignedCategories;
-
+  #renderPaletteInfo() {
     return html`
-      <uui-box headline="Category Colors">
+      <uui-box headline="Palette Settings">
         <p>
-          Each category maps to a set of colors used in generated flow-field
-          images. Articles with multiple categories merge all matching palettes.
+          Category color palettes are managed in the content tree:
+          <strong>Home → Site Settings → Image Generator Settings</strong>.
+          Open the settings document to add, edit, or remove category palette entries.
         </p>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Colors</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${categories.map(
-              ([uuid, entry]) => html`
-                <tr>
-                  <td class="category-name">
-                    ${entry.name}
-                    ${this.#isCategoryOrphaned(uuid)
-                      ? html`<span class="orphan-badge" title="This category no longer exists in the CMS">Deleted</span>`
-                      : nothing}
-                  </td>
-                  <td class="color-cells">
-                    ${entry.colors.map(
-                      (c, i) => html`
-                        <span class="color-slot">
-                          <input
-                            type="color"
-                            .value=${rgbToHex(c)}
-                            @input=${(e: Event) =>
-                              this.#onColorChange(
-                                uuid,
-                                i,
-                                (e.target as HTMLInputElement).value
-                              )}
-                          />
-                          <uui-button
-                            compact
-                            look="secondary"
-                            label="Remove color"
-                            @click=${() =>
-                              this.#removeColorFromCategory(uuid, i)}
-                            >x</uui-button
-                          >
-                        </span>
-                      `
-                    )}
-                    <uui-button
-                      compact
-                      look="outline"
-                      label="Add color"
-                      @click=${() => this.#addColorToCategory(uuid)}
-                      >+</uui-button
-                    >
-                  </td>
-                  <td>
-                    <uui-button
-                      compact
-                      color="danger"
-                      look="secondary"
-                      label="Remove category"
-                      @click=${() => this.#removeCategory(uuid)}
-                    >
-                      Remove
-                    </uui-button>
-                  </td>
-                </tr>
-              `
-            )}
-          </tbody>
-        </table>
-
-        <div class="default-palette">
-          <strong>Default palette:</strong>
-          ${this._palettes.default.map(
-            (c, i) => html`
-              <input
-                type="color"
-                .value=${rgbToHex(c)}
-                @input=${(e: Event) =>
-                  this.#onDefaultColorChange(
-                    i,
-                    (e.target as HTMLInputElement).value
-                  )}
-              />
-            `
-          )}
-        </div>
-
-        <div class="add-category">
-          ${unassigned.length > 0
-            ? html`
-                <uui-select
-                  label="Select category"
-                  placeholder="Select a category..."
-                  .options=${[
-                    { name: "Select a category...", value: "", selected: !this._selectedNewCategoryId },
-                    ...unassigned.map((c) => ({
-                      name: c.name,
-                      value: c.id,
-                      selected: c.id === this._selectedNewCategoryId,
-                    })),
-                  ]}
-                  @change=${(e: Event) => {
-                    this._selectedNewCategoryId = (e.target as HTMLSelectElement).value;
-                  }}
-                ></uui-select>
-                <uui-button
-                  look="outline"
-                  label="Add category"
-                  ?disabled=${!this._selectedNewCategoryId}
-                  @click=${this.#addCategory}
-                >
-                  Add Category
-                </uui-button>
-              `
-            : html`<em>All categories have palette entries assigned.</em>`}
-        </div>
-
-        <div class="actions">
-          <uui-button
-            color="positive"
-            look="primary"
-            label="Save palettes"
-            .state=${this._savingPalettes ? "waiting" : undefined}
-            @click=${this.#onSavePalettes}
-          >
-            Save Palettes
-          </uui-button>
-        </div>
       </uui-box>
     `;
   }
@@ -463,7 +188,6 @@ export default class ImageGeneratorDashboardElement extends UmbLitElement {
         <div class="form-row">
           <label>
             <uui-toggle
-              label="Force regenerate"
               .checked=${this._forceRegenerate}
               @change=${(e: Event) => {
                 this._forceRegenerate = (e.target as HTMLInputElement).checked;
@@ -520,7 +244,7 @@ export default class ImageGeneratorDashboardElement extends UmbLitElement {
   #renderOutput() {
     return html`
       <uui-box headline="Output">
-        <pre class="cli-output">${this._output}</pre>
+        <pre class="cli-output" role="region" aria-label="Command output" tabindex="0">${this._output}</pre>
       </uui-box>
     `;
   }
@@ -536,81 +260,6 @@ export default class ImageGeneratorDashboardElement extends UmbLitElement {
 
       uui-box {
         margin-bottom: var(--uui-size-layout-1);
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: var(--uui-size-space-4);
-      }
-
-      th {
-        text-align: left;
-        padding: var(--uui-size-space-2);
-        border-bottom: 1px solid var(--uui-color-border);
-      }
-
-      td {
-        padding: var(--uui-size-space-2);
-        vertical-align: middle;
-      }
-
-      .category-name {
-        font-weight: 600;
-        white-space: nowrap;
-      }
-
-      .orphan-badge {
-        display: inline-block;
-        background: var(--uui-color-danger);
-        color: var(--uui-color-danger-contrast);
-        font-size: 11px;
-        font-weight: 600;
-        padding: 1px 6px;
-        border-radius: 3px;
-        margin-left: 8px;
-        vertical-align: middle;
-      }
-
-      .color-cells {
-        display: flex;
-        align-items: center;
-        gap: var(--uui-size-space-2);
-        flex-wrap: wrap;
-      }
-
-      .color-slot {
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
-      }
-
-      input[type="color"] {
-        width: 36px;
-        height: 28px;
-        border: 1px solid var(--uui-color-border);
-        border-radius: 4px;
-        padding: 0;
-        cursor: pointer;
-      }
-
-      .default-palette {
-        display: flex;
-        align-items: center;
-        gap: var(--uui-size-space-2);
-        margin-bottom: var(--uui-size-space-4);
-      }
-
-      .add-category {
-        display: flex;
-        gap: var(--uui-size-space-2);
-        align-items: end;
-        margin-bottom: var(--uui-size-space-4);
-      }
-
-      .add-category uui-select {
-        flex: 1;
-        max-width: 300px;
       }
 
       .form-row {

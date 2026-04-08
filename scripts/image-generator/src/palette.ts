@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import type { Palette, PaletteConfig } from './types.js';
 
-const DEFAULT_PALETTE: Palette = [
+export const DEFAULT_PALETTE: Palette = [
   [0, 140, 200],    // Cyan
   [20, 180, 220],   // Light cyan
   [0, 100, 180],    // Deep blue

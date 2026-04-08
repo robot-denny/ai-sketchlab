@@ -112,10 +112,10 @@ The current implementation stores palette configuration in a JSON file on disk. 
 
 ## Open Questions
 
-- Should the settings document live under a "Site Settings" folder, or somewhere else in the content tree? This depends on how the site's content architecture organizes configuration nodes.
-- Should the category reference in each palette block be a content picker (node reference) or a text field? A content picker is more robust (survives renames) but requires categories to be Umbraco content nodes. A text field is simpler but can become stale.
-- Should the system prevent creating multiple "Image Generator Settings" documents? If so, how — document type validation, max-children on the parent, or a runtime check?
-- Is the three-color-per-palette model (primary, mid, deep) sufficient long-term, or should the Block List allow a variable number of colors per entry? The current generator uses exactly three, but future algorithms might want more.
+- Should the settings document live under a "Site Settings" folder, or somewhere else in the content tree? This depends on how the site's content architecture organizes configuration nodes. --We can add a Site Settings folder if it does not yet exist. 
+- Should the category reference in each palette block be a content picker (node reference) or a text field? A content picker is more robust (survives renames) but requires categories to be Umbraco content nodes. A text field is simpler but can become stale. --Content Picker
+- Should the system prevent creating multiple "Image Generator Settings" documents? If so, how — document type validation, max-children on the parent, or a runtime check? --It should prevent creating multuple image generator settings docs. Let's try doc type validation.
+- Is the three-color-per-palette model (primary, mid, deep) sufficient long-term, or should the Block List allow a variable number of colors per entry? The current generator uses exactly three, but future algorithms might want more. --Three is sufficient for now.
 
 ## Testing Guidelines
 

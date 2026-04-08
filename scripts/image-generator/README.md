@@ -15,15 +15,13 @@ categories → color palette
 
 Particles are spawned across the canvas and "walk" through the flow field, leaving colored trails. The output is rendered to a dark background (#0F141E) PNG via `@napi-rs/canvas`.
 
-**Category palette mapping:**
+**Category palette mapping** is stored in the Umbraco CMS as a content document (**Home → Site Settings → Image Generator Settings**). Each category has a Block List entry with three Eye Dropper color properties (primary, mid, deep). Default fallback colors are also stored in the settings document.
 
-| Category              | Palette       |
-|-----------------------|---------------|
-| AI & Machine Learning | Cyan / blue   |
-| Ethics of AI          | Coral / orange|
-| Sustainability        | Green         |
-| Vibe Coding           | Purple        |
-| _(no match / empty)_  | Cyan (default)|
+The CLI reads palettes via a priority chain:
+1. `--palette-json <json>` argument (used by the C# controller)
+2. `--palette-from-api` flag (fetches from the CMS Management API)
+3. `config/palettes.json` file (static fallback/reference)
+4. Hardcoded defaults
 
 ## Prerequisites
 
@@ -69,6 +67,14 @@ Skips articles that already have a Main Image set. To regenerate everything:
 npx tsx scripts/image-generator/src/cli.ts --batch --force
 ```
 
+### Use CMS palette settings
+
+Fetch palette colors from the Image Generator Settings content node:
+
+```bash
+npx tsx scripts/image-generator/src/cli.ts --name "Retaining Humanity" --palette-from-api
+```
+
 ### Preview locally (no upload)
 
 Save the PNG to disk without touching the CMS:
@@ -101,16 +107,17 @@ npx tsx --test tests/image-generator/integration.test.ts
 
 ```
 scripts/image-generator/src/
-├── types.ts         # Shared interfaces (ArticleMetadata, Palette, etc.)
-├── seed.ts          # String-to-seed hash + seedable PRNG (Mulberry32)
-├── palette.ts       # Category → color palette mapping + particle params
-├── word-count.ts    # Extract word count from HTML / Tiptap JSON
-├── noise.ts         # Perlin noise (ported from Python reference)
-├── flow-field.ts    # Flow field generation + particle simulation
-├── renderer.ts      # Canvas rendering → PNG buffer
-├── generator.ts     # Orchestrator: metadata → PNG (pure, no I/O)
-├── umbraco-api.ts   # Umbraco Management API: auth, fetch, upload, assign
-└── cli.ts           # CLI entry point
+├── types.ts          # Shared interfaces (ArticleMetadata, Palette, PaletteConfig, etc.)
+├── seed.ts           # String-to-seed hash + seedable PRNG (Mulberry32)
+├── palette.ts        # Category → color palette mapping + particle params
+├── palette-reader.ts # Reads palette config from CMS settings document (Management API)
+├── word-count.ts     # Extract word count from HTML / Tiptap JSON
+├── noise.ts          # Perlin noise (ported from Python reference)
+├── flow-field.ts     # Flow field generation + particle simulation
+├── renderer.ts       # Canvas rendering → PNG buffer
+├── generator.ts      # Orchestrator: metadata → PNG (pure, no I/O)
+├── umbraco-api.ts    # Umbraco Management API: auth, fetch, upload, assign
+└── cli.ts            # CLI entry point
 ```
 
 The core generator (`generator.ts`) is a pure function with no side effects — it takes metadata in, returns a PNG buffer. The Umbraco API layer and CLI are separate, making the generator reusable for future backoffice integration.

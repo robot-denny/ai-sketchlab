@@ -1,0 +1,73 @@
+{
+  "Name": "Category Palette Entry",
+  "Alias": "categoryPaletteEntry",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-palette color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "A category-to-palette color mapping for the image generator",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "f2d15966-0310-4f2f-9dd9-f3262a2afa72",
+      "Name": "Palette",
+      "Alias": "palette",
+      "PropertyTypes": [
+        {
+          "Key": "42d26011-897f-4a06-8b7e-52c2b11c36d2",
+          "Alias": "paletteDeep",
+          "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "Description": "Deep/dark palette color (hex)",
+          "Name": "Deep Color",
+          "SortOrder": 3
+        },
+        {
+          "Key": "da2b2b8c-742c-442d-a317-b0793b10f924",
+          "Alias": "palettePrimary",
+          "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "Description": "Primary palette color (hex)",
+          "Name": "Primary Color",
+          "SortOrder": 1
+        },
+        {
+          "Key": "eed9cd56-3893-4904-af05-6aab536ede84",
+          "Alias": "paletteMid",
+          "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "Description": "Mid-range palette color (hex)",
+          "Name": "Mid Color",
+          "SortOrder": 2
+        },
+        {
+          "Key": "f206e20c-bed5-42c7-8c17-f9703fd97995",
+          "Alias": "paletteCategory",
+          "DataType": "umb://data-type/765ed8243724414d86dfb0599fe84006",
+          "Description": "The category this palette applies to",
+          "Name": "Category"
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/5bb2e98c2bb447c086f86e4124a8a131",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/765ed8243724414d86dfb0599fe84006",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

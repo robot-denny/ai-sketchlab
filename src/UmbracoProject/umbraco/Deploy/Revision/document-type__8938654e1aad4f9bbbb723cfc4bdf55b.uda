@@ -1,0 +1,81 @@
+{
+  "Name": "Image Generator Settings",
+  "Alias": "imageGeneratorSettings",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-palette color-amber",
+  "Thumbnail": "folder.png",
+  "Description": "Configuration for the image generator: category color palettes and default palette",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "c05b91ce-413d-4286-b331-be1a41a11603",
+      "Name": "Category Palettes",
+      "Type": 1,
+      "Alias": "categoryPalettes",
+      "PropertyTypes": [
+        {
+          "Key": "1b7aa686-6e21-44c6-ab4e-8a8ec70b6e61",
+          "Alias": "categoryPalettes",
+          "DataType": "umb://data-type/ec08d806a95a477f9ea171c16a4afea7",
+          "Description": "Map categories to color palettes for generated images",
+          "Name": "Category Palettes"
+        }
+      ]
+    },
+    {
+      "Key": "fb6138f6-902f-46c2-b07e-5bb2a7578474",
+      "Name": "Default Palette",
+      "SortOrder": 1,
+      "Type": 1,
+      "Alias": "defaultPalette",
+      "PropertyTypes": [
+        {
+          "Key": "01eefc74-e998-461f-bcf8-5af5870b70ab",
+          "Alias": "defaultDeep",
+          "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "Description": "Fallback deep/dark color when no category matches",
+          "Name": "Default Deep Color",
+          "SortOrder": 2
+        },
+        {
+          "Key": "c9cb9175-c3f1-4efd-85e1-f0ba0e6118ba",
+          "Alias": "defaultMid",
+          "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "Description": "Fallback mid-range color when no category matches",
+          "Name": "Default Mid Color",
+          "SortOrder": 1
+        },
+        {
+          "Key": "d041ff2a-698c-4437-80f4-4d6beeb36590",
+          "Alias": "defaultPrimary",
+          "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "Description": "Fallback primary color when no category matches",
+          "Name": "Default Primary Color"
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/8938654e1aad4f9bbbb723cfc4bdf55b",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ec08d806a95a477f9ea171c16a4afea7",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.1"
+}

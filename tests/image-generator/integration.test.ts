@@ -18,7 +18,8 @@ import {
   hasMainImage,
 } from '../../scripts/image-generator/src/umbraco-api.js';
 import { generateImage } from '../../scripts/image-generator/src/generator.js';
-import type { ArticleMetadata } from '../../scripts/image-generator/src/types.js';
+import { fetchPaletteConfigFromApi } from '../../scripts/image-generator/src/palette-reader.js';
+import type { ArticleMetadata, PaletteConfig } from '../../scripts/image-generator/src/types.js';
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -198,5 +199,36 @@ describe('integration: image generator pipeline', () => {
     const media = JSON.parse(res.body);
     assert.ok(media.id === mediaId, 'Media item ID should match');
     assert.ok(media.variants?.[0]?.name?.startsWith('integration-test-'), 'Media name should match upload');
+  });
+
+  it('fetchPaletteConfigFromApi returns valid palette config from CMS', async () => {
+    token = await freshToken();
+    const config: PaletteConfig = await fetchPaletteConfigFromApi(token);
+
+    // Should have a default palette with 3 RGB colors
+    assert.equal(config.default.length, 3, 'Default palette should have 3 colors');
+    for (const color of config.default) {
+      assert.equal(color.length, 3, 'Each default color should be an RGB triple');
+      assert.ok(color.every((c) => c >= 0 && c <= 255), 'RGB values should be 0-255');
+    }
+
+    // Entries should be a record (may be empty if settings doc is missing, but not undefined)
+    assert.ok(typeof config.entries === 'object', 'entries should be an object');
+  });
+
+  it('generateImage succeeds with CMS-sourced palette config', async () => {
+    token = await freshToken();
+    const paletteConfig = await fetchPaletteConfigFromApi(token);
+    const article = articles[0];
+
+    const buf = generateImage(article, undefined, paletteConfig);
+
+    assert.ok(Buffer.isBuffer(buf), 'Result should be a Buffer');
+    assert.ok(buf.length > 0, 'Buffer should have non-zero length');
+    // PNG magic bytes
+    assert.equal(buf[0], 0x89);
+    assert.equal(buf[1], 0x50); // P
+    assert.equal(buf[2], 0x4e); // N
+    assert.equal(buf[3], 0x47); // G
   });
 });

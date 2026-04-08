@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -19,43 +18,29 @@ public class ImageGeneratorController : ControllerBase
     private readonly IContentService _contentService;
     private readonly IContentTypeService _contentTypeService;
     private readonly IConfiguration _configuration;
+    private readonly PaletteService _paletteService;
 
     public ImageGeneratorController(
         IWebHostEnvironment env,
         IContentService contentService,
         IContentTypeService contentTypeService,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        PaletteService paletteService)
     {
         _env = env;
         _contentService = contentService;
         _contentTypeService = contentTypeService;
         _configuration = configuration;
+        _paletteService = paletteService;
     }
 
     private string RepoRoot => Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", ".."));
 
-    private string PalettesPath => Path.Combine(RepoRoot, "scripts", "image-generator", "config", "palettes.json");
-
     [HttpGet("palettes")]
     public IActionResult GetPalettes()
     {
-        if (!System.IO.File.Exists(PalettesPath))
-            return NotFound(new { error = "palettes.json not found" });
-
-        var json = System.IO.File.ReadAllText(PalettesPath);
+        var json = _paletteService.GetPaletteConfigJson();
         return Content(json, "application/json");
-    }
-
-    [HttpPut("palettes")]
-    public IActionResult SavePalettes([FromBody] JsonElement config)
-    {
-        var dir = Path.GetDirectoryName(PalettesPath);
-        if (dir != null && !Directory.Exists(dir))
-            Directory.CreateDirectory(dir);
-
-        var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
-        System.IO.File.WriteAllText(PalettesPath, json);
-        return Ok(new { success = true });
     }
 
     [HttpGet("articles")]
@@ -114,6 +99,12 @@ public class ImageGeneratorController : ControllerBase
     {
         var scriptPath = Path.Combine(RepoRoot, "scripts", "image-generator", "src", "cli.ts");
 
+        // Write CMS palette config to a temp file to avoid shell-escaping issues
+        var paletteJson = _paletteService.GetPaletteConfigJson();
+        var paletteTmpFile = Path.GetTempFileName();
+        await System.IO.File.WriteAllTextAsync(paletteTmpFile, paletteJson);
+        args += $" --palette-json-file \"{paletteTmpFile}\"";
+
         var nodeBinPath = _configuration["ImageGenerator:NodeBinPath"];
         var npxPath = "npx";
         if (!string.IsNullOrEmpty(nodeBinPath))
@@ -137,17 +128,27 @@ public class ImageGeneratorController : ControllerBase
 
         using var process = Process.Start(psi);
         if (process == null)
+        {
+            System.IO.File.Delete(paletteTmpFile);
             return (-1, "Failed to start CLI process");
+        }
 
-        var stdout = await process.StandardOutput.ReadToEndAsync();
-        var stderr = await process.StandardError.ReadToEndAsync();
+        try
+        {
+            var stdout = await process.StandardOutput.ReadToEndAsync();
+            var stderr = await process.StandardError.ReadToEndAsync();
 
-        await process.WaitForExitAsync();
+            await process.WaitForExitAsync();
 
-        var output = stdout;
-        if (!string.IsNullOrWhiteSpace(stderr))
-            output += "\n" + stderr;
+            var output = stdout;
+            if (!string.IsNullOrWhiteSpace(stderr))
+                output += "\n" + stderr;
 
-        return (process.ExitCode, output.Trim());
+            return (process.ExitCode, output.Trim());
+        }
+        finally
+        {
+            System.IO.File.Delete(paletteTmpFile);
+        }
     }
 }

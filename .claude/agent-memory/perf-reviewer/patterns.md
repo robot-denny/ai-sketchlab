@@ -18,6 +18,13 @@ type: project
 
 - `.block-author` rule was appended to the footer stylesheet (`styles.css`). Block-level rules are drifting into footer CSS — watch for this spreading.
 
+## PaletteService / ImageGeneratorController
+
+- `PaletteService.GetPaletteConfigJson()` is called twice per generate request: once explicitly in `RunCli` (line 103) and once via `GetPalettes`. Each call walks the published content tree (root → home → siteSettings → imageGeneratorSettings) and re-serializes. No caching on this path.
+- `PaletteService` registered as Scoped — appropriate given `IPublishedContentQuery` dependency, but means no cross-request cache benefit. A `IMemoryCache` layer or output-caching on the `/palettes` endpoint would be the fix.
+- `_configuration["ImageGenerator:NodeBinPath"]` is accessed inside `RunCli` on every generate call. Low severity on its own; should use `IOptions<T>` if the project grows more config reads in this hot path.
+- `RunCli` injects the palette JSON into the CLI command line as a shell-escaped string argument. Large palettes can cause `args` to exceed OS command-line limits and expose the JSON in process listings. HTTP body or temp file is safer for non-trivial payloads.
+
 ## Fonts
 
 - `'Source Sans 3'` and `'Oxanium'` font families used in footer CSS. Origin (Google Fonts vs self-hosted) not confirmed in diff. If externally hosted, `<link rel="preconnect">` hints should be present in the master layout `<head>`.

@@ -424,6 +424,11 @@ healthchecksdb
 tests/e2e/.auth/user.json
 playwright-report/
 test-results/
-# Local utility scripts (except image generator which is version-controlled)
+# Local utility scripts (except image generator and font fetch script which are version-controlled)
 scripts/*
 !scripts/image-generator/
+!scripts/fetch-canvas-fonts.sh
+
+# Generative skills outputs and large assets
+skills/output/
+skills/canvas-design/canvas-fonts/

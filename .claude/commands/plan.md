@@ -85,14 +85,17 @@ Order the layers into implementation steps following these rules:
 3. **Manual verification checkpoints** — any step that changes visible behavior in the browser (layout, rendered output, interactive JS) should end with a concrete manual check the developer can do before moving to the next step.
 4. **Each step must be independently completable** — it should have a clear start state (what was done before) and end state (what passes/exists after).
 
+5. **Feature doc verification as the final step** — every plan ends with a step that runs `/feature update _features/{slug}.md` (or `/feature _specs/{slug}.md` if no feature doc exists yet) to verify/update the living behavioral spec against the actual implementation.
+
 Typical step order for most features:
 1. Schema (Management API script)
 2. Razor partial / template (+ build check)
 3. Layout integration (+ build + browser check)
 4. CSS / JS assets (+ browser check)
 5. E2E test file (write tests → RED, then confirm GREEN after prior steps)
+6. Verify feature behavioral spec (`/feature update`)
 
-Backoffice extensions follow their own order — schema is usually not needed; steps follow: extension registration → component → context/state → E2E.
+Backoffice extensions follow their own order — schema is usually not needed; steps follow: extension registration → component → context/state → E2E → verify feature spec.
 
 ## Step 5 — Draft the plan content
 
@@ -141,7 +144,17 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ---
 
-[Repeat for each step]
+[Repeat for each implementation step]
+
+---
+
+### Step {final} — Verify feature behavioral spec
+
+> **Prompt**: Run `/feature update _features/{feature_slug}.md` to verify the living behavioral spec reflects the actual implementation. Review each scenario against the code and test results. Update any scenarios where the implementation diverged from the draft. Fill in the test coverage table with actual test file paths and line numbers. Remove the "Draft" banner if present. Commit the verified feature doc.
+
+**Validation**:
+- [Manual]: Every scenario in `_features/{feature_slug}.md` matches observable behavior
+- [Manual]: Test coverage table has no unexpected "Not covered" gaps
 
 ---
 
@@ -152,6 +165,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 | Create | `path/to/file` |
 | Modify | `path/to/file` |
 | Create (delete after running) | `scripts/setup-*.mjs` |
+| Create/Update | `_features/{feature_slug}.md` |
 ```
 
 ## Step 6 — Validate the plan before saving

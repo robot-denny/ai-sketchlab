@@ -14,7 +14,7 @@ The existing generator pipeline (CLI in `scripts/image-generator/`, backoffice d
 ## Key Decisions
 
 - **Settings document location**: New "Site Settings" node under Home (using a new "Site Settings" doc type as a container). Future site-wide settings can live alongside the palette config. Home's allowed children will include the new Site Settings type.
-- **Site Settings doc type**: General-purpose settings container — no template, no properties, acts as a folder for any site-wide settings pages. Initially allows Image Generator Settings as a child; additional settings doc types (e.g., SEO Defaults, Analytics Config) can be added to its allowed children list later without modifying the container itself.
+- **Site Settings doc type**: General-purpose settings container — no template, acts as a folder for any site-wide settings pages. Initially allows Image Generator Settings as a child; additional settings doc types (e.g., SEO Defaults, Analytics Config) can be added to its allowed children list later without modifying the container itself. **Must include the Visibility Controls composition** (`7cebdc47-a965-49ec-ab42-bc887d6b1119`) so `hideFromTopNavigation`, `hideFromXMLSitemap`, and `umbracoNaviHide` can be set — the main navigation filters children of Home using `hideFromTopNavigation`.
 - **Eye Dropper color picker**: Create a new `[EyeDropper] Palette Color` data type (`Umb.PropertyEditorUi.EyeDropper` / `Umbraco.Plain.String`). Returns hex strings like `"#008cc8"`. No pre-existing Eye Dropper data type exists in this instance.
 - **Category picker in palette block**: Create `[ContentPicker] Single Category` data type — same dynamic root config as `[MNTP] Categories` (`9a426393-b2c8-4403-a85f-00b7a51ebe69`) but with `maxNumber: 1`. Uses `Umb.PropertyEditorUi.ContentPicker` / `Umbraco.MultiNodeTreePicker` with start node scoped to Categories list under Home.
 - **Three-color model**: Each palette block has `palettePrimary`, `paletteMid`, `paletteDeep` — three Eye Dropper properties. Matches the current 3-color-per-category model in `palettes.json`.
@@ -35,6 +35,7 @@ The existing generator pipeline (CLI in `scripts/image-generator/`, backoffice d
 | Categories document | `5756eed9-c96d-42ee-96e9-bccc5d1dd655` | Start node for category picker |
 | Content Picker data type | `fd1e0da5-5606-4862-b679-5d0cf3a52a59` | `Umbraco.ContentPicker` / `Umb.PropertyEditorUi.DocumentPicker` |
 | [MNTP] Categories data type | `9a426393-b2c8-4403-a85f-00b7a51ebe69` | Template for single category picker config |
+| Visibility Controls composition | `7cebdc47-a965-49ec-ab42-bc887d6b1119` | Provides hideFromTopNavigation, hideFromXMLSitemap, umbracoNaviHide |
 | Elements folder (doc types) | `5dde5b35-b5f9-4d61-aaf1-158368a1b0fb` | Parent for new element type |
 | Content Models subfolder | `1645b9b1-459b-40e7-90a5-ea194afda61d` | Where block element types live |
 | Pages folder (doc types) | `a2c71960-9678-4b56-9828-c1d8f8f7df40` | Where page doc types live |
@@ -67,11 +68,11 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 > 3. Create a `[BlockList] Category Palettes` data type
 > 4. Create a "Category Palette Entry" element type (in Elements/Content Models folder `1645b9b1-459b-40e7-90a5-ea194afda61d`) with properties: `paletteCategory` (Single Category picker), `palettePrimary`, `paletteMid`, `paletteDeep` (all Eye Dropper Color)
 > 5. Configure the Block List data type to allow the Category Palette Entry element type as a block
-> 6. Create a "Site Settings" document type (in Pages folder `a2c71960-9678-4b56-9828-c1d8f8f7df40`, no template, icon `icon-settings`, not allowed as root)
+> 6. Create a "Site Settings" document type (in Pages folder `a2c71960-9678-4b56-9828-c1d8f8f7df40`, no template, icon `icon-settings`, not allowed as root, **with Visibility Controls composition** `7cebdc47-a965-49ec-ab42-bc887d6b1119`)
 > 7. Create an "Image Generator Settings" document type (in Pages folder, no template, icon `icon-palette`, not allowed as root) with: a "Category Palettes" group containing a `categoryPalettes` Block List property, and a "Default Palette" group containing `defaultPrimary`, `defaultMid`, `defaultDeep` Eye Dropper properties
 > 8. Set Site Settings' allowed children to include Image Generator Settings (as the initial child type — the container is designed to accept additional settings types in the future)
 > 9. Update Home doc type (`a95360e8-ff04-40b1-8f46-7aa4b5983096`) to add Site Settings as an allowed child type
-> 10. Create a "Site Settings" content node under Home (`dcf18a51-6919-4cf8-89d1-36b94ce4d963`)
+> 10. Create a "Site Settings" content node under Home (`dcf18a51-6919-4cf8-89d1-36b94ce4d963`) **with `hideFromTopNavigation`, `hideFromXMLSitemap`, and `umbracoNaviHide` all set to `true`** (prevents it from appearing in site navigation, search, and sitemap)
 > 11. Create an "Image Generator Settings" content node under Site Settings, seeded with palette data from `scripts/image-generator/config/palettes.json` (4 category entries + default colors, hex values from the seed data table in the plan)
 > 12. Publish both documents
 >

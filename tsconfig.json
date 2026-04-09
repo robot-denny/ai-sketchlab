@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["@types/node", "@playwright/test"]
+    "types": ["@types/node"]
   },
   "include": ["tests/**/*", "playwright.config.ts"],
   "exclude": ["node_modules"]

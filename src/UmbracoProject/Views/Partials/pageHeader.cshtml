@@ -30,7 +30,7 @@
                             <div class="mt-4">
                                 @foreach (var category in Model.Categories.Select(x => x.Name).OrderBy(y => y))
                                 {
-                                    <span class="badge rounded-pill bg-light text-dark border-dark border-5">@category</span>
+                                    <span class="badge bg-light">@category</span>
                                 }
                             </div>
                         }

@@ -13,28 +13,87 @@
 /* ── Design Tokens ─────────────────────────────────────────────── */
 
 :root {
-  /* Font stacks */
+  /* ── Font Stacks ──────────────────────────────────────────── */
   --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Text colors — warm stone tones, not cool Bootstrap grays */
+  /* ── Text Colors — warm stone tones ───────────────────────── */
   --text-primary: #1C1917;
   --text-secondary: #57534E;
   --text-tertiary: #78716C;
   --text-on-dark: #F0EDE8;
   --text-on-dark-secondary: #A8A29E;
 
-  /* Override Bootstrap body defaults */
+  /* ── Surface Palette ──────────────────────────────────────── */
+  --surface-primary: #FFFCF9;
+  --surface-secondary: #F5F0EB;
+  --surface-tertiary: #EDE8E3;
+  --surface-dark: #1A1A1E;
+  --surface-dark-elevated: #252530;
+  --surface-overlay: rgba(26, 26, 30, 0.6);
+
+  /* ── Accent Palette ───────────────────────────────────────── */
+  --accent-primary: #C23D2E;
+  --accent-primary-hover: #A83428;
+  --accent-primary-subtle: rgba(194, 61, 46, 0.08);
+  --accent-primary-light: #E8ADA7;
+  --accent-secondary: #8B6B4A;
+  --accent-secondary-hover: #6E5339;
+  --accent-tertiary: #4A6B6E;
+
+  /* ── Semantic Status ──────────────────────────────────────── */
+  --status-success: #3D7A4A;
+  --status-warning: #B8860B;
+  --status-error: #C23D2E;
+  --status-info: #4A6B6E;
+
+  /* ── Border & Divider Tones ───────────────────────────────── */
+  --border-light: #E0DAD4;
+  --border-medium: #C4BCB4;
+  --border-dark: #3A3A42;
+  --border-accent: var(--accent-primary);
+
+  /* ── Spacing Scale (tied to 18px base) ────────────────────── */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 8rem;
+
+  /* ── Easing Tokens ────────────────────────────────────────── */
+  --ease-micro: 150ms ease;
+  --ease-standard: 250ms ease-out;
+  --ease-emphasis: 350ms ease-out;
+
+  /* ── Override Bootstrap body defaults ──────────────────────── */
   --bs-body-color: #1C1917;
+  --bs-body-bg: #FFFCF9;
   --bs-body-line-height: 1.6;
   --bs-body-font-family: var(--font-body);
+
+  /* ── Override Bootstrap palette with design system ─────────── */
+  --bs-primary: #C23D2E;
+  --bs-primary-rgb: 194, 61, 46;
+  --bs-teal: #4A6B6E;
+  --bs-gray-100: #F5F0EB;
+  --bs-gray-200: #EDE8E3;
+  --bs-gray-300: #E0DAD4;
+  --bs-light: #F5F0EB;
+  --bs-dark: #1A1A1E;
+  --bs-dark-rgb: 26, 26, 30;
+
+  /* ── Replace inherited link colors ────────────────────────── */
+  --site-link-color: #8B6B4A;
+  --site-link-hover-color: #6E5339;
 }
 
 /* ── Base ───────────────────────────────────────────────────────── */
 
 body {
   color: var(--text-primary);
+  background-color: var(--surface-primary);
   line-height: 1.6;
 }
 
@@ -49,7 +108,7 @@ a {
   text-underline-offset: 0.15em;
   text-decoration-skip-ink: auto;
   text-decoration-color: currentColor;
-  transition: color 0.15s ease, text-decoration-color 0.15s ease, text-decoration-thickness 0.15s ease;
+  transition: color var(--ease-micro), text-decoration-color var(--ease-micro), text-decoration-thickness var(--ease-micro);
 }
 
 a:hover {
@@ -57,7 +116,7 @@ a:hover {
 }
 
 a:focus-visible {
-  outline: 2px solid var(--site-link-color, #8859b6);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
   text-decoration: none;
 }
@@ -74,7 +133,7 @@ a:focus-visible {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.06em;
-  text-decoration-color: rgba(136, 89, 182, 0.4);
+  text-decoration-color: rgba(139, 107, 74, 0.4);
   text-decoration-skip-ink: auto;
 }
 
@@ -88,7 +147,7 @@ a:focus-visible {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.04em;
-  text-decoration-color: rgba(136, 89, 182, 0.4);
+  text-decoration-color: rgba(139, 107, 74, 0.4);
 }
 
 .article-grid-card .card-title a:hover,
@@ -367,7 +426,7 @@ kbd {
 /* ── UI: Footer ────────────────────────────────────────────────── */
 
 .site-footer .footer-description {
-  color: var(--text-secondary);
+  color: var(--text-on-dark-secondary);
 }
 
 .site-footer .footer-nav a {
@@ -566,7 +625,7 @@ header.masthead .post-heading .meta a {
 .post-notes {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  border-top: 1px solid #E7E5E4;
+  border-top: 1px solid var(--border-light);
   margin-top: 2rem;
   padding-top: 1.5rem;
 }

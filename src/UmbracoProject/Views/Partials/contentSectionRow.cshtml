@@ -27,7 +27,7 @@
 
 @if (isFullBleed)
 {
-    <section class="section-row @bgClass @widthClass @spacingClasses">
+    <section class="section-row @bgClass @widthClass @spacingClasses reveal-on-scroll">
         <div class="container">
             @if (row.HasValue("sectionTitle"))
             {
@@ -40,7 +40,7 @@
 else
 {
     <div class="container">
-        <section class="section-row @bgClass @widthClass @spacingClasses">
+        <section class="section-row @bgClass @widthClass @spacingClasses reveal-on-scroll">
             @if (row.HasValue("sectionTitle"))
             {
                 @Html.Raw($"<{headingLevel} class=\"section-row__title\">{row.SectionTitle}</{headingLevel}>")

@@ -36,24 +36,43 @@ window.addEventListener('DOMContentLoaded', () => {
     let scrollPos = 0;
     const mainNav = document.getElementById('mainNav');
     const headerHeight = mainNav.clientHeight;
+
+    /* ── Navbar: opacity fade on scroll ──────────────────────── */
     window.addEventListener('scroll', function() {
         const currentTop = document.body.getBoundingClientRect().top * -1;
-        if ( currentTop < scrollPos) {
-            // Scrolling Up
+        if (currentTop < scrollPos) {
+            // Scrolling Up — show fixed nav
             if (currentTop > 0 && mainNav.classList.contains('is-fixed')) {
                 mainNav.classList.add('is-visible');
             } else {
                 mainNav.classList.remove('is-visible', 'is-fixed');
             }
         } else {
-            // Scrolling Down
-            mainNav.classList.remove(['is-visible']);
+            // Scrolling Down — hide fixed nav
+            mainNav.classList.remove('is-visible');
             if (currentTop > headerHeight && !mainNav.classList.contains('is-fixed')) {
                 mainNav.classList.add('is-fixed');
             }
         }
         scrollPos = currentTop;
     });
+
+    /* ── Section reveal on scroll ────────────────────────────── */
+    const revealElements = document.querySelectorAll('.reveal-on-scroll');
+    if (revealElements.length > 0 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const revealObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-revealed');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        revealElements.forEach(function(el) {
+            revealObserver.observe(el);
+        });
+    }
 
     initYouTubeVideos();
 })

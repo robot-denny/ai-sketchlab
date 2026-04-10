@@ -1,0 +1,616 @@
+/* ================================================================
+   Typography System: "The Human Signal"
+   Contrast layer for Dark Constructivism imagery
+
+   Three typefaces:
+     Cormorant Garamond — display/editorial voice (serif)
+     Source Sans 3      — body/UI workhorse (sans)
+     IBM Plex Mono      — code/AI/technical (mono)
+
+   Loaded AFTER styles.css to override Bootstrap + Clean Blog base.
+   ================================================================ */
+
+/* ── Design Tokens ─────────────────────────────────────────────── */
+
+:root {
+  /* Font stacks */
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Text colors — warm stone tones, not cool Bootstrap grays */
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary: #78716C;
+  --text-on-dark: #F0EDE8;
+  --text-on-dark-secondary: #A8A29E;
+
+  /* Override Bootstrap body defaults */
+  --bs-body-color: #1C1917;
+  --bs-body-line-height: 1.6;
+  --bs-body-font-family: var(--font-body);
+}
+
+/* ── Base ───────────────────────────────────────────────────────── */
+
+body {
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* ── Links ─────────────────────────────────────────────────────── */
+/* Every link gets a non-color identifier (underline) per WCAG 1.4.1.
+   Underlines are refined with thickness, offset, and skip-ink for
+   a clean look that doesn't fight the typographic hierarchy.        */
+
+a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  text-decoration-skip-ink: auto;
+  text-decoration-color: currentColor;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease, text-decoration-thickness 0.15s ease;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--site-link-color, #8859b6);
+  outline-offset: 2px;
+  text-decoration: none;
+}
+
+/* --- Title/heading links (post titles, card titles) ------------- */
+/* Standalone interactive elements — a faded underline identifies   */
+/* them without dominating the display typography.                  */
+
+.post-preview > a {
+  text-decoration: none;
+}
+
+.post-preview > a > .post-title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.06em;
+  text-decoration-color: rgba(136, 89, 182, 0.4);
+  text-decoration-skip-ink: auto;
+}
+
+.post-preview > a:hover > .post-title,
+.post-preview > a:focus-visible > .post-title {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+.article-grid-card .card-title a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.04em;
+  text-decoration-color: rgba(136, 89, 182, 0.4);
+}
+
+.article-grid-card .card-title a:hover,
+.article-grid-card .card-title a:focus-visible {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+/* Author card "Read more" link */
+.card .card-body a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+/* --- Links on dark backgrounds (masthead, on-dark) -------------- */
+/* Must be distinguishable from surrounding light text.             */
+
+header.masthead a {
+  color: var(--text-on-dark);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  text-decoration-color: rgba(240, 237, 232, 0.5);
+}
+
+header.masthead a:hover {
+  text-decoration-color: var(--text-on-dark);
+  text-decoration-thickness: 2px;
+}
+
+header.masthead a:focus-visible {
+  outline-color: var(--text-on-dark);
+}
+
+.on-dark a {
+  color: var(--text-on-dark);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  text-decoration-color: rgba(240, 237, 232, 0.5);
+}
+
+.on-dark a:hover {
+  text-decoration-color: var(--text-on-dark);
+  text-decoration-thickness: 2px;
+}
+
+.on-dark a:focus-visible {
+  outline-color: var(--text-on-dark);
+}
+
+/* --- Navigation links — context provides identification --------- */
+/* Nav bars, section nav, pagination, breadcrumbs are clearly       */
+/* navigational UI. Underlines are not needed and would add noise.  */
+
+#mainNav a,
+.section-nav a,
+.pagination a,
+.breadcrumb a,
+.navbar-brand {
+  text-decoration: none;
+}
+
+#mainNav a:hover,
+.section-nav a:hover {
+  text-decoration: none;
+}
+
+#mainNav a:focus-visible,
+.section-nav a:focus-visible,
+.pagination a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  text-decoration: none;
+}
+
+/* Footer nav — border-bottom already serves as non-color indicator */
+.site-footer .footer-nav a {
+  text-decoration: none;
+}
+
+/* --- Button links — no underline -------------------------------- */
+
+.btn,
+.btn:hover,
+.btn:focus-visible {
+  text-decoration: none;
+}
+
+/* --- Badge/tag links — no underline ----------------------------- */
+
+.badge a,
+a.badge {
+  text-decoration: none;
+}
+
+/* ── Headings ──────────────────────────────────────────────────── */
+
+/* Display tier: serif voice */
+h1, .h1, h2, .h2 {
+  font-family: var(--font-display);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+h1, .h1 {
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  font-size: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+}
+
+h2, .h2 {
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.25rem);
+}
+
+/* Structural tier: sans voice */
+h3, .h3 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  line-height: 1.25;
+}
+
+h4, .h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.125rem, 1rem + 0.3vw, 1.25rem);
+  line-height: 1.3;
+}
+
+h5, .h5 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 1.35;
+  letter-spacing: 0.015em;
+}
+
+h6, .h6 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+/* ── Overline Utility ──────────────────────────────────────────── */
+/* Uppercase small-text label — use on <span>, <p>, <div> etc. */
+
+.overline {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* ── Body & Editorial ──────────────────────────────────────────── */
+
+.lead {
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+blockquote,
+.blockquote {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--text-primary);
+  border-left: 3px solid var(--text-secondary);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+.blockquote-footer {
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-style: normal;
+}
+
+.pull-quote {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-align: center;
+  margin: 3rem auto;
+  max-width: 36em;
+}
+
+.caption {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* ── Article Meta ──────────────────────────────────────────────── */
+
+.post-meta,
+.article-meta {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+/* ── Code ───────────────────────────────────────────────────────── */
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+pre code {
+  font-family: var(--font-mono);
+}
+
+kbd {
+  font-family: var(--font-mono);
+}
+
+/* ── UI: Navigation ────────────────────────────────────────────── */
+
+#mainNav {
+  font-family: var(--font-body);
+}
+
+#mainNav .navbar-brand {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+#mainNav .navbar-toggler {
+  font-family: var(--font-body);
+}
+
+#mainNav .navbar-nav > li.nav-item > a.nav-link {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── UI: Buttons ───────────────────────────────────────────────── */
+
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── UI: Footer ────────────────────────────────────────────────── */
+
+.site-footer .footer-description {
+  color: var(--text-secondary);
+}
+
+.site-footer .footer-nav a {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+}
+
+/* ── Section Heading ───────────────────────────────────────────── */
+
+.section-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ── Post Preview / Article List ───────────────────────────────── */
+
+.post-preview > a > .post-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.post-subtitle {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: 1.125rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin-bottom: 0.625rem;
+}
+
+.post-preview > .post-meta {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Article grid cards */
+.article-grid-card .card-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.375rem;
+  line-height: 1.2;
+}
+
+.article-grid-card .card-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Author cards */
+.card .card-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+.card .card-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ── Block Author Attribution ──────────────────────────────────── */
+
+.block-author {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-tertiary);
+  margin-top: 0.5rem;
+}
+
+/* ── Category Badges ───────────────────────────────────────────── */
+
+.badge {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Badges on dark backgrounds (masthead) */
+header.masthead .badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* ── Masthead / Hero (text on dark imagery) ────────────────────── */
+
+header.masthead .page-heading,
+header.masthead .post-heading,
+header.masthead .site-heading {
+  color: var(--text-on-dark);
+}
+
+header.masthead h1,
+header.masthead .h1,
+header.masthead h2,
+header.masthead .h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-on-dark);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+header.masthead .page-heading .subheading,
+header.masthead .site-heading .subheading {
+  font-family: var(--font-body);
+  font-weight: 300;
+}
+
+header.masthead .post-heading .subheading {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+header.masthead .post-heading .meta {
+  font-family: var(--font-body);
+  color: var(--text-on-dark-secondary);
+}
+
+header.masthead .post-heading .meta a {
+  color: var(--text-on-dark);
+}
+
+/* ── On-Dark Context (CMS-toggled class) ───────────────────────── */
+/* Applied via CMS selector when content sits on dark backgrounds  */
+
+.on-dark {
+  color: var(--text-on-dark);
+}
+
+.on-dark h1, .on-dark .h1,
+.on-dark h2, .on-dark .h2 {
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  color: var(--text-on-dark);
+}
+
+.on-dark h3, .on-dark .h3,
+.on-dark h4, .on-dark .h4,
+.on-dark h5, .on-dark .h5,
+.on-dark h6, .on-dark .h6 {
+  color: var(--text-on-dark);
+}
+
+.on-dark .overline {
+  color: var(--text-on-dark-secondary);
+}
+
+.on-dark a {
+  color: var(--text-on-dark);
+}
+
+/* ── Section Rows ──────────────────────────────────────────────── */
+
+.section-row__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+}
+
+.section-row--bg-accent {
+  color: var(--text-on-dark);
+}
+
+.section-row--bg-accent h1,
+.section-row--bg-accent h2,
+.section-row--bg-accent h3,
+.section-row--bg-accent .section-row__title {
+  color: var(--text-on-dark);
+}
+
+.section-row--bg-accent .post-meta,
+.section-row--bg-accent .block-author {
+  color: var(--text-on-dark-secondary);
+}
+
+.section-row--bg-accent a {
+  color: var(--text-on-dark);
+  text-decoration-color: rgba(240, 237, 232, 0.5);
+}
+
+.section-row--bg-accent a:hover {
+  text-decoration-color: var(--text-on-dark);
+}
+
+.section-row--bg-accent a:focus-visible {
+  outline-color: var(--text-on-dark);
+}
+
+/* ── Post Notes ────────────────────────────────────────────────── */
+
+.post-notes {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border-top: 1px solid #E7E5E4;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+}
+
+/* ── AI-Authored Content ───────────────────────────────────────── */
+/* Subtle temperature shift: cooler, more measured, mono-inflected */
+
+.ai-authored {
+  letter-spacing: 0.005em;
+  border-left: 2px solid var(--text-tertiary);
+  padding-left: 1.5rem;
+}
+
+.ai-authored h1, .ai-authored .h1,
+.ai-authored h2, .ai-authored .h2 {
+  font-family: var(--font-body);
+  font-weight: 300;
+  letter-spacing: 0;
+}
+
+.ai-authored blockquote,
+.ai-authored .blockquote {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-style: italic;
+  letter-spacing: 0;
+}
+
+.ai-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* AI-assisted (human-edited) — lighter treatment, no border */
+.ai-assisted {
+  border-left: none;
+  padding-left: 0;
+}
+
+.ai-assisted .ai-label {
+  font-weight: 400;
+  font-size: 0.65rem;
+}

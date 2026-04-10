@@ -44,7 +44,7 @@
                                     </h2>
                                     @if (result.Content.HasProperty("subtitle") && result.Content.HasValue("subtitle") && !string.IsNullOrWhiteSpace(result.Content.Value<string>("subtitle")))
                                     {
-                                        <h3 class="post-subtitle">@(result.Content.Value<string>("subtitle"))</h3>
+                                        <p class="post-subtitle">@(result.Content.Value<string>("subtitle"))</p>
                                     }
                                 </a>
                                 @if (result.Content is IArticleControls article && ((result.Content.HasProperty("author") && result.Content.HasValue("author"))

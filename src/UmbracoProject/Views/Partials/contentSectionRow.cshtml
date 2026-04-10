@@ -31,7 +31,7 @@
         <div class="container">
             @if (row.HasValue("sectionTitle"))
             {
-                @Html.Raw($"<{headingLevel}>{row.SectionTitle}</{headingLevel}>")
+                @Html.Raw($"<{headingLevel} class=\"section-row__title\">{row.SectionTitle}</{headingLevel}>")
             }
             @Html.GetBlockListHtml(row.SectionContent)
         </div>
@@ -43,7 +43,7 @@ else
         <section class="section-row @bgClass @widthClass @spacingClasses">
             @if (row.HasValue("sectionTitle"))
             {
-                @Html.Raw($"<{headingLevel}>{row.SectionTitle}</{headingLevel}>")
+                @Html.Raw($"<{headingLevel} class=\"section-row__title\">{row.SectionTitle}</{headingLevel}>")
             }
             @Html.GetBlockListHtml(row.SectionContent)
         </section>

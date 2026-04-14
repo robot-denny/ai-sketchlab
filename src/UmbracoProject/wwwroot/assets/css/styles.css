@@ -11070,14 +11070,11 @@ blockquote {
 
 /* ── Navigation: The Human Signal ───────────────────────────── */
 #mainNav {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 1030;
-  border-bottom: 1px solid transparent;
-  background: transparent;
-  transition: opacity var(--ease-emphasis, 350ms ease-out), background-color var(--ease-emphasis, 350ms ease-out), border-color var(--ease-emphasis, 350ms ease-out);
+  border-bottom: 1px solid var(--border-light);
+  background-color: var(--surface-primary);
 }
 #mainNav .navbar-brand {
   font-weight: 600;
@@ -11096,61 +11093,36 @@ blockquote {
   text-transform: uppercase;
   transition: color var(--ease-micro, 150ms ease);
 }
-/* Desktop default: transparent over hero, warm off-white text */
+/* Desktop default: white surface, dark text */
 @media (min-width: 992px) {
   #mainNav .navbar-brand {
-    color: var(--text-on-dark);
+    color: var(--text-primary);
   }
   #mainNav .navbar-brand:focus, #mainNav .navbar-brand:hover {
-    color: rgba(240, 237, 232, 0.8);
+    color: var(--accent-secondary);
   }
   #mainNav .navbar-nav > li.nav-item > a.nav-link {
-    color: var(--text-on-dark);
+    color: var(--text-primary);
   }
   #mainNav .navbar-nav > li.nav-item > a.nav-link:focus, #mainNav .navbar-nav > li.nav-item > a.nav-link:hover {
     color: var(--accent-secondary);
   }
 }
-/* Desktop scrolled: opacity fade in/out, warm paper surface */
-@media (min-width: 992px) {
-  #mainNav.is-fixed {
-    position: fixed;
-    top: 0;
-    background-color: var(--surface-primary);
-    border-bottom: 1px solid var(--border-light);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--ease-emphasis, 350ms ease-out);
-  }
-  #mainNav.is-fixed .navbar-brand {
-    color: var(--text-primary);
-  }
-  #mainNav.is-fixed .navbar-brand:focus, #mainNav.is-fixed .navbar-brand:hover {
-    color: var(--accent-secondary);
-  }
-  #mainNav.is-fixed .navbar-nav > li.nav-item > a {
-    color: var(--text-primary);
-  }
-  #mainNav.is-fixed .navbar-nav > li.nav-item > a:focus, #mainNav.is-fixed .navbar-nav > li.nav-item > a:hover {
-    color: var(--accent-secondary);
-  }
-  #mainNav.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-/* Mobile: dark surface takeover */
+/* Mobile: collapsed menu dark overlay below white bar */
 @media (max-width: 991.98px) {
-  #mainNav {
-    background-color: var(--surface-dark);
-    border-bottom: 1px solid var(--border-dark);
-  }
   #mainNav .navbar-brand {
-    color: var(--text-on-dark);
+    color: var(--text-primary);
   }
   #mainNav .navbar-toggler {
-    color: var(--text-on-dark);
-    border-color: var(--border-dark);
+    color: var(--text-primary);
+    border-color: var(--border-medium);
+  }
+  #mainNav .navbar-collapse {
+    background-color: var(--surface-dark);
+    padding: var(--space-md);
+    margin: 0 calc(-1 * var(--bs-gutter-x, 0.75rem));
+    padding-left: var(--bs-gutter-x, 0.75rem);
+    padding-right: var(--bs-gutter-x, 0.75rem);
   }
   #mainNav .navbar-nav > li.nav-item > a.nav-link {
     color: var(--text-on-dark);
@@ -11254,7 +11226,7 @@ footer a {
 header.masthead {
   position: relative;
   margin-bottom: var(--space-lg, 3rem);
-  padding-top: calc(var(--space-2xl, 8rem) + 57px);
+  padding-top: var(--space-2xl, 8rem);
   padding-bottom: var(--space-2xl, 8rem);
   background: no-repeat center center;
   background-color: var(--surface-dark);
@@ -11315,8 +11287,8 @@ header.masthead .post-heading .meta a {
 }
 @media (min-width: 992px) {
   header.masthead {
-    padding-top: 12.5rem;
-    padding-bottom: 12.5rem;
+    padding-top: 10rem;
+    padding-bottom: 10rem;
   }
   header.masthead .page-heading h1, header.masthead .page-heading .h1,
 header.masthead .site-heading h1,

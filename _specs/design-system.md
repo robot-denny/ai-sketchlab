@@ -275,9 +275,10 @@ Article list grids and card layouts should use a consistent internal rhythm:
 
 The navigation bar is the one persistent horizontal element. Its treatment signals the design system:
 
-- **Default state**: Transparent over the hero, text in warm off-white. No background, no border — the navigation floats on the imagery.
-- **Scrolled/fixed state**: `--surface-primary` background with `--border-light` bottom border. Transition via opacity, not slide. The current translate-Y show/hide animation creates unnecessary motion.
-- **Mobile**: Full-height overlay in `--surface-dark` with warm off-white text and generous vertical spacing between items. Not a cramped dropdown but a proper surface takeover.
+- **Default state**: `position: sticky` at the top of the viewport with `--surface-primary` background and `--border-light` bottom border. Text in `--text-primary`. The nav sits in normal document flow above the hero — it does not float over imagery.
+- **Scrolled state**: No visual change. Sticky positioning keeps the nav visible at all times without JavaScript class toggling or opacity transitions.
+- **Mobile bar**: Same white (`--surface-primary`) background as desktop. Brand and toggler use `--text-primary`.
+- **Mobile expanded menu**: Full-width overlay in `--surface-dark` with warm off-white text (`--text-on-dark`) and generous vertical spacing between items. A deliberate surface takeover below the white bar.
 
 ### Footer composition
 
@@ -475,7 +476,7 @@ Update the footer to dark surface treatment, refine section row backgrounds, imp
 Replace navbar scroll behavior, add section reveal animations, implement the easing token system. Requires JS changes.
 
 ### Phase 5: Navigation and structural chrome
-Rework the mobile navigation overlay, implement the transparent → solid nav transition, update the masthead overlay approach. Razor + CSS + JS.
+~~Rework the mobile navigation overlay, implement the transparent → solid nav transition, update the masthead overlay approach.~~ **Done** — nav is now `position: sticky` with permanent white background; scroll-triggered JS removed; mobile bar is white with dark collapsed overlay. See `_features/site-header.md`.
 
 ---
 

@@ -1,0 +1,60 @@
+{
+  "Name": "Image Carousel Slide",
+  "Alias": "imageCarouselSlide",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-picture color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "A single slide in an Image Carousel Row: an image plus an optional caption.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/5dde5b35b5f94d61aaf1158368a1b0fb",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "270ff7f1-e489-44ba-a464-4834da9c398c",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "79fb8c4a-21db-4482-b438-390a90619ed8",
+          "Alias": "image",
+          "DataType": "umb://data-type/ad9f0cf2bda245d59ea1a63cfc873fd3",
+          "Description": "The image shown for this slide.",
+          "Mandatory": true,
+          "MandatoryMessage": "Please select an image for this slide.",
+          "Name": "Image"
+        },
+        {
+          "Key": "b45bcf78-ab78-480a-ba80-183f7ec2342d",
+          "Alias": "caption",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Description": "Optional plain-text caption shown below the image when the row\u0027s Show captions toggle is on.",
+          "Name": "Caption",
+          "SortOrder": 1
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/2da696cc791f46929d4e3fae742a4aa3",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ad9f0cf2bda245d59ea1a63cfc873fd3",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/5dde5b35b5f94d61aaf1158368a1b0fb",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

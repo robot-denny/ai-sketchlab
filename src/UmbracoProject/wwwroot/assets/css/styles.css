@@ -11903,3 +11903,263 @@ header.masthead code,
     transform: none;
   }
 }
+
+/* ============================================================
+   Image Carousel Row — refined control bar
+   Introduced by _plans/image-carousel-captions-controls.md.
+   See _plans/notes/image-carousel-controls-design.md for the
+   full rationale.
+
+   IMPORTANT: design-system primitives (--accent-primary,
+   --accent-secondary, --text-primary, --text-on-dark,
+   --border-medium, --ease-micro, --space-*) are scoped to
+   `.image-carousel { ... }` rather than `:root` so they
+   don't activate other in-file references that have been
+   waiting on the broader design-system rollout (Phase 1 in
+   _specs/design-system.md). When that rollout lands and the
+   tokens move to `:root`, this scoped block can be removed
+   and the carousel will inherit the global values seamlessly.
+   ============================================================ */
+
+/* Wrapper — 2-col grid at < lg (stage spans both; bottom row: controls | toggle).
+   Arrows are position: absolute at < lg so they overlay the stage without taking
+   grid space. At ≥ lg the grid shifts to 3 cols (prev | stage | next) and arrows
+   go back into normal flow. */
+.image-carousel {
+  /* --- Design-system primitives consumed by the carousel (scoped) --- */
+  --accent-primary: #C23D2E;                /* signal red */
+  --accent-secondary: #8B6B4A;              /* warm bronze */
+  --accent-secondary-hover: #6E5339;
+  --text-primary: #1C1917;
+  --text-on-dark: #F0EDE8;
+  --border-medium: #C4BCB4;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --ease-micro: 150ms ease;
+
+  /* --- Caption typography --- */
+  --caption-font-size: 0.875rem;
+  --caption-line-height: 1.5;
+  --caption-color: #57534E;                  /* --text-secondary */
+
+  /* --- Carousel control bar tokens --- */
+  --carousel-control-target: 2.75rem;        /* 44px — WCAG 2.5.8 */
+  --carousel-control-bar-gap: var(--space-sm);
+  --carousel-control-bar-margin-top: var(--space-md);
+  --carousel-indicator-bar-width: 1.5rem;    /* 24px visible tick width */
+  --carousel-indicator-bar-height: 0.25rem;  /*  4px visible tick height */
+  --carousel-indicator-inactive: #918A82;             /* warm stone — 3.06:1 vs white (WCAG 1.4.11) */
+  --carousel-indicator-hover: var(--accent-secondary);
+  --carousel-indicator-active: var(--accent-primary);
+  --carousel-arrow-bg-narrow: var(--accent-secondary);
+  --carousel-arrow-bg-narrow-hover: var(--accent-secondary-hover);
+  --carousel-arrow-fg-narrow: var(--text-on-dark);
+  --carousel-arrow-fg-wide: var(--text-primary);
+  --carousel-arrow-fg-wide-hover: var(--accent-primary);
+  --carousel-toggle-fg: var(--text-primary);
+  --carousel-toggle-fg-hover: var(--accent-primary);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "stage    stage"
+    "controls toggle";
+  row-gap: var(--carousel-control-bar-margin-top);
+  column-gap: var(--carousel-control-bar-gap);
+  align-items: center;
+}
+
+.image-carousel__stage {
+  grid-area: stage;
+  position: relative;
+}
+
+.image-carousel__stage .carousel {
+  margin: 0;
+}
+
+.image-carousel__slide {
+  margin: 0;
+}
+
+/* Caption typography — left aligned, supporting-content tone */
+.image-carousel__caption {
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  text-align: left;
+  font-size:   var(--caption-font-size);
+  line-height: var(--caption-line-height);
+  color:       var(--caption-color);
+}
+
+/* Prev / next arrows — overlay the stage at < lg with a solid warm-bronze background. */
+.image-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width:  var(--carousel-control-target);
+  height: var(--carousel-control-target);
+  min-width:  var(--carousel-control-target);
+  min-height: var(--carousel-control-target);
+  padding: 0;
+  margin: 0;
+  display: inline-grid;
+  place-items: center;
+  background: var(--carousel-arrow-bg-narrow);
+  color:      var(--carousel-arrow-fg-narrow);
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background-color var(--ease-micro), color var(--ease-micro);
+  opacity: 1;
+}
+.image-carousel__arrow:hover {
+  background: var(--carousel-arrow-bg-narrow-hover);
+}
+.image-carousel__arrow--prev { left: 0; }
+.image-carousel__arrow--next { right: 0; }
+.image-carousel__arrow .image-carousel__icon-chevron {
+  width:  1rem;
+  height: 1rem;
+}
+
+/* Controls container — flex row, left-aligned */
+.image-carousel__controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
+  gap: var(--carousel-control-bar-gap);
+  margin: 0;
+  padding: 0;
+  justify-self: start;
+}
+
+.image-carousel__indicators {
+  display: flex;
+  gap: var(--carousel-control-bar-gap);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.image-carousel__indicators > li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Indicator — 44×44 hit area with a 24×4 visible tick centred inside. */
+.image-carousel__indicator {
+  width:  var(--carousel-control-target);
+  height: var(--carousel-control-target);
+  min-width:  var(--carousel-control-target);
+  min-height: var(--carousel-control-target);
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+}
+.image-carousel__indicator::after {
+  content: "";
+  display: block;
+  width:  var(--carousel-indicator-bar-width);
+  height: var(--carousel-indicator-bar-height);
+  background: var(--carousel-indicator-inactive);
+  transition: background-color var(--ease-micro);
+  opacity: 1;
+  text-indent: 0;
+}
+.image-carousel__indicator:hover::after { background: var(--carousel-indicator-hover); }
+.image-carousel__indicator.active::after,
+.image-carousel__indicator[aria-current="true"]::after {
+  background: var(--carousel-indicator-active);
+}
+
+/* Play/pause toggle — icon-only, right-aligned */
+.image-carousel__toggle {
+  grid-area: toggle;
+  width:  var(--carousel-control-target);
+  height: var(--carousel-control-target);
+  min-width:  var(--carousel-control-target);
+  min-height: var(--carousel-control-target);
+  padding: 0;
+  margin: 0;
+  display: inline-grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--carousel-toggle-fg);
+  cursor: pointer;
+  transition: color var(--ease-micro);
+  justify-self: end;
+}
+.image-carousel__toggle:hover { color: var(--carousel-toggle-fg-hover); }
+.image-carousel__toggle .image-carousel__icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Focus-visible outline (per _specs/design-system.md) */
+.image-carousel__arrow:focus-visible,
+.image-carousel__indicator:focus-visible,
+.image-carousel__toggle:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ≥ lg (992px): arrows step out into reserved grid columns so the image width
+   does not visibly reflow at the breakpoint. Controls and toggle both target the
+   bottom-bar grid area — justify-self: start/end pushes them to opposite edges. */
+@media (min-width: 992px) {
+  .image-carousel {
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "prev stage      next"
+      "prev bottom-bar next";
+    column-gap: var(--space-sm);
+  }
+  .image-carousel__arrow {
+    position: static;
+    top: auto;
+    transform: none;
+    background: transparent;
+    color: var(--carousel-arrow-fg-wide);
+    align-self: center;
+  }
+  .image-carousel__arrow:hover {
+    background: transparent;
+    color: var(--carousel-arrow-fg-wide-hover);
+  }
+  .image-carousel__arrow--prev { grid-area: prev; left: auto; }
+  .image-carousel__arrow--next { grid-area: next; right: auto; }
+  .image-carousel__controls { grid-area: bottom-bar; justify-self: start; }
+  .image-carousel__toggle   { grid-area: bottom-bar; justify-self: end; }
+}
+
+/* Single-slide variant — no carousel machinery, figure wraps the image + caption. */
+.image-carousel--single {
+  position: static;
+  display: block;
+}
+
+/* Respect prefers-reduced-motion for the carousel's own colour transitions
+   AND Bootstrap's carousel-fade cross-fade animation on manual navigation. */
+@media (prefers-reduced-motion: reduce) {
+  .image-carousel__arrow,
+  .image-carousel__indicator::after,
+  .image-carousel__toggle {
+    transition: none;
+  }
+  .image-carousel .carousel-item {
+    transition: none;
+  }
+}

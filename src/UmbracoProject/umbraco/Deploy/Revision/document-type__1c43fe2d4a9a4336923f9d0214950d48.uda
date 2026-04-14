@@ -19,20 +19,19 @@
       "Alias": "content",
       "PropertyTypes": [
         {
+          "Key": "11ac13c5-36cf-4845-97e5-7cf269c0f33b",
+          "Alias": "slides",
+          "DataType": "umb://data-type/32854757860e47d2a1a5a66c11857bbd",
+          "Description": "Each slide has an image and an optional caption. Reorder by dragging.",
+          "Name": "Slides"
+        },
+        {
           "Key": "27d43f81-9498-4a2f-a7f4-c3cdb28f8815",
           "Alias": "scrollSpeedMs",
           "DataType": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
           "Description": "Auto-scroll interval in milliseconds. Default is 5000. Set to 0 to disable auto-scroll.",
           "Name": "Scroll Speed (ms)",
-          "SortOrder": 3
-        },
-        {
-          "Key": "3d9ba030-db57-4cb0-9530-c08753a70e4b",
-          "Alias": "images",
-          "DataType": "umb://data-type/0e63d883b62b479988c3157f82e83ecc",
-          "Description": "Choose the images for the carousel row",
-          "Name": "Images",
-          "SortOrder": 1
+          "SortOrder": 2
         },
         {
           "Key": "51eddc34-0534-488b-82b0-354c8644fc15",
@@ -40,7 +39,15 @@
           "DataType": "umb://data-type/bd37253b2f0540e08d386041c9456230",
           "Description": "Select the author of this content block",
           "Name": "Author",
-          "SortOrder": 2
+          "SortOrder": 3
+        },
+        {
+          "Key": "f5738665-1d74-4e1f-9435-d5f3fd612adf",
+          "Alias": "showCaptions",
+          "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "Description": "When on, each slide\u0027s caption is shown below its image.",
+          "Name": "Show captions",
+          "SortOrder": 1
         }
       ]
     }
@@ -49,11 +56,15 @@
   "Udi": "umb://document-type/1c43fe2d4a9a4336923f9d0214950d48",
   "Dependencies": [
     {
-      "Udi": "umb://data-type/0e63d883b62b479988c3157f82e83ecc",
+      "Udi": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
       "Ordering": true
     },
     {
-      "Udi": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
+      "Udi": "umb://data-type/32854757860e47d2a1a5a66c11857bbd",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
       "Ordering": true
     },
     {
@@ -66,5 +77,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.0.2"
 }

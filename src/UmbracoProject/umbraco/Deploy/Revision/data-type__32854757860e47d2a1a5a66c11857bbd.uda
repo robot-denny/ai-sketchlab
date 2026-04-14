@@ -1,0 +1,25 @@
+{
+  "Name": "[BlockList] Image Carousel Slides",
+  "EditorAlias": "Umbraco.BlockList",
+  "EditorUiAlias": "Umb.PropertyEditorUi.BlockList",
+  "Configuration": {
+    "blocks": [
+      {
+        "contentElementTypeKey": "2da696cc-791f-4692-9d4e-3fae742a4aa3"
+      }
+    ],
+    "useSingleBlockMode": false,
+    "validationLimit": {
+      "min": null,
+      "max": null
+    }
+  },
+  "Udi": "umb://data-type/32854757860e47d2a1a5a66c11857bbd",
+  "Dependencies": [
+    {
+      "Udi": "umb://document-type/2da696cc791f46929d4e3fae742a4aa3"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.2"
+}

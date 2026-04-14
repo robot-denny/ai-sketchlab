@@ -6,7 +6,13 @@
     var row = Model.Content as ImageCarouselRow;
     var settings = Model.Settings as ImageCarouselRowSettings;
     if (settings?.Hide ?? false) { return; }
-    if (row.Images == null || !row.Images.Any()) { return; }
+    if (row?.Slides == null) { return; }
+
+    var slideItems = row.Slides
+        .Where(s => s?.Content is ImageCarouselSlide slide && slide.Image != null)
+        .ToList();
+    var slideCount = slideItems.Count;
+    if (slideCount == 0) { return; }
 
     var spacingClasses = "";
     if (Model.Settings is ISpacingProperties spacing)
@@ -14,68 +20,114 @@
         spacingClasses = Clean.Core.Helpers.SpacingHelper.GetSpacingClasses(spacing.PaddingTop, spacing.PaddingBottom, spacing.PaddingLeft, spacing.PaddingRight, spacing.MarginTop, spacing.MarginBottom, spacing.MarginLeft, spacing.MarginRight);
     }
 
-    var images = row.Images.ToList();
-    var imageCount = images.Count;
     var sliderId = "slider-" + row.Key.ToString();
     var scrollSpeedMs = row.ScrollSpeedMs > 0 ? row.ScrollSpeedMs : 5000;
     var autoRide = row.ScrollSpeedMs == 0 ? "false" : "carousel";
+    var showCaptions = row.ShowCaptions;
 }
 
 <div class="row clearfix @(spacingClasses)">
     <div class="col-md-12 column">
 
-        @if (imageCount == 1)
+        @if (slideCount == 1)
         {
-            <img src="@images[0].Url()" alt="@images[0].Content.GetAltText()" class="w-100" loading="eager">
+            var firstSlide = slideItems[0].Content as ImageCarouselSlide;
+            if (firstSlide?.Image == null) { return; }
+            var firstImage = firstSlide.Image;
+            var firstCaption = firstSlide.Caption;
+            <figure class="image-carousel image-carousel--single mb-0">
+                <img src="@firstImage.Url()" alt="@firstImage.Content.GetAltText()" class="w-100" loading="eager">
+                @if (showCaptions && !string.IsNullOrWhiteSpace(firstCaption))
+                {
+                    <figcaption class="image-carousel__caption">@firstCaption</figcaption>
+                }
+            </figure>
         }
         else
         {
-            <div id="@sliderId"
-                 class="carousel slide carousel-fade"
-                 data-bs-ride="@autoRide"
-                 data-bs-interval="@scrollSpeedMs"
-                 data-bs-pause="false"
-                 data-bs-wrap="true">
+            <div class="image-carousel" data-carousel-id="@sliderId">
 
-                <div class="carousel-inner">
-                    @for (int i = 0; i < imageCount; i++)
-                    {
-                        var image = images[i];
-                        var activeClass = i == 0 ? " active" : "";
-                        var loadingMode = i == 0 ? "eager" : "lazy";
-                        <div class="carousel-item@(activeClass)">
-                            <img src="@image.Url()" class="d-block w-100" alt="@image.Content.GetAltText()" loading="@loadingMode">
+                <div class="image-carousel__stage">
+                    <div id="@sliderId"
+                         class="carousel slide carousel-fade"
+                         data-bs-ride="@autoRide"
+                         data-bs-interval="@scrollSpeedMs"
+                         data-bs-pause="false"
+                         data-bs-wrap="true">
+
+                        <div class="carousel-inner">
+                            @for (int i = 0; i < slideCount; i++)
+                            {
+                                var slide = slideItems[i].Content as ImageCarouselSlide;
+                                if (slide?.Image == null) { continue; }
+                                var image = slide.Image;
+                                var caption = slide.Caption;
+                                var activeClass = i == 0 ? " active" : "";
+                                var loadingMode = i == 0 ? "eager" : "lazy";
+                                <div class="carousel-item@(activeClass)">
+                                    <figure class="image-carousel__slide mb-0">
+                                        <img src="@image.Url()" class="d-block w-100" alt="@image.Content.GetAltText()" loading="@loadingMode">
+                                        @if (showCaptions && !string.IsNullOrWhiteSpace(caption))
+                                        {
+                                            <figcaption class="image-carousel__caption">@caption</figcaption>
+                                        }
+                                    </figure>
+                                </div>
+                            }
                         </div>
-                    }
+                    </div>
                 </div>
 
-                <div class="carousel-indicators">
-                    @for (int i = 0; i < imageCount; i++)
-                    {
-                        var ariaCurrent = i == 0 ? " aria-current=\"true\"" : "";
-                        var activeClass = i == 0 ? " active" : "";
-                        <button type="button"
-                                data-bs-target="#@sliderId"
-                                data-bs-slide-to="@i"
-                                class="@activeClass.Trim()"
-                                @Html.Raw(ariaCurrent)
-                                aria-label="Go to slide @(i + 1) of @imageCount"></button>
-                    }
+                @* Tab order: prev → indicators → next → play/pause (per spec's resolved focus order) *@
+                <button type="button"
+                        class="image-carousel__arrow image-carousel__arrow--prev"
+                        data-bs-target="#@sliderId"
+                        data-bs-slide="prev"
+                        aria-label="Previous slide">
+                    <svg class="image-carousel__icon-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M15 6 L9 12 L15 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"/>
+                    </svg>
+                </button>
+
+                <div class="image-carousel__controls">
+                    <ol class="image-carousel__indicators">
+                        @for (int i = 0; i < slideCount; i++)
+                        {
+                            var ariaCurrent = i == 0 ? " aria-current=\"true\"" : "";
+                            var activeClass = i == 0 ? " active" : "";
+                            <li>
+                                <button type="button"
+                                        class="image-carousel__indicator@(activeClass)"
+                                        data-bs-target="#@sliderId"
+                                        data-bs-slide-to="@i"
+                                        @Html.Raw(ariaCurrent)
+                                        aria-label="Go to slide @(i + 1) of @slideCount"></button>
+                            </li>
+                        }
+                    </ol>
+
                     <button type="button"
-                            class="carousel-play-pause"
-                            data-carousel-id="@sliderId">
-                        <i class="fa-regular fa-circle-pause" aria-hidden="true"></i>
-                        <span class="carousel-play-pause-label">Pause carousel</span>
+                            class="image-carousel__toggle carousel-play-pause"
+                            data-carousel-id="@sliderId"
+                            aria-label="Pause carousel">
+                        <svg class="image-carousel__icon image-carousel__icon--pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <rect x="6" y="5" width="4" height="14" fill="currentColor"/>
+                            <rect x="14" y="5" width="4" height="14" fill="currentColor"/>
+                        </svg>
+                        <svg class="image-carousel__icon image-carousel__icon--play" viewBox="0 0 24 24" aria-hidden="true" focusable="false" hidden>
+                            <path d="M6 4 L20 12 L6 20 Z" fill="currentColor"/>
+                        </svg>
                     </button>
                 </div>
 
-                <button class="carousel-control-prev" type="button" data-bs-target="#@sliderId" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous slide</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#@sliderId" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next slide</span>
+                <button type="button"
+                        class="image-carousel__arrow image-carousel__arrow--next"
+                        data-bs-target="#@sliderId"
+                        data-bs-slide="next"
+                        aria-label="Next slide">
+                    <svg class="image-carousel__icon-chevron" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M9 6 L15 12 L9 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="miter"/>
+                    </svg>
                 </button>
 
             </div>

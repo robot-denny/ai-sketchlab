@@ -16,6 +16,7 @@
 
 .DS_Store
 .idea
+.claude/agent-memory/
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)

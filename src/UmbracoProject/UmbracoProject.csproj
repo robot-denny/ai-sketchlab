@@ -12,12 +12,17 @@
     <PackageReference Include="Umbraco.AI" Version="1.9.0" />
     <PackageReference Include="Umbraco.AI.Agent" Version="1.8.0" />
     <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.0-alpha5" />
+    <!-- TODO: Re-add Umbraco.AI.Agent.Deploy once a build compatible with Umbraco.AI.Agent 1.8.0 ships.
+         beta1 throws MissingMethodException on AIAgent.ContextIds; beta2 references the unpublished
+         Umbraco.AI.Agent.Core 1.8.1. Until then, agents must be recreated manually per Cloud environment. -->
     <PackageReference Include="Umbraco.AI.Agent.UI" Version="1.0.0-alpha5" />
     <PackageReference Include="Umbraco.AI.AGUI" Version="1.8.0" />
     <PackageReference Include="Umbraco.AI.Anthropic" Version="1.3.0" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="1.0.0-beta3" />
     <PackageReference Include="Umbraco.AI.Google" Version="1.1.5" />
     <PackageReference Include="Umbraco.AI.OpenAI" Version="1.2.0" />
     <PackageReference Include="Umbraco.AI.Prompt" Version="1.8.0" />
+    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="1.0.0-beta1" />
     <PackageReference Include="Umbraco.AI.Search" Version="1.0.0-beta3" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.1.0" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.0.0" />

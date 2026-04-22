@@ -17,6 +17,7 @@
 .DS_Store
 .idea
 .claude/agent-memory/
+.claude/scheduled_tasks.lock
 
 
 # User-specific files (MonoDevelop/Xamarin Studio)

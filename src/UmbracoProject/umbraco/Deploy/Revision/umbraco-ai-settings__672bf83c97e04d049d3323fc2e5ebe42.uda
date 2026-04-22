@@ -1,0 +1,16 @@
+{
+  "Name": "umb://umbraco-ai-settings/672bf83c97e04d049d3323fc2e5ebe42",
+  "DefaultChatProfileUdi": "umb://umbraco-ai-profile/8bc9aabc4fff4d9681a58a06f554893b",
+  "DefaultEmbeddingProfileUdi": "umb://umbraco-ai-profile/bfcc69a87b464598abc27ac55e3f3c13",
+  "Udi": "umb://umbraco-ai-settings/672bf83c97e04d049d3323fc2e5ebe42",
+  "Dependencies": [
+    {
+      "Udi": "umb://umbraco-ai-profile/8bc9aabc4fff4d9681a58a06f554893b"
+    },
+    {
+      "Udi": "umb://umbraco-ai-profile/bfcc69a87b464598abc27ac55e3f3c13"
+    }
+  ],
+  "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AISettingsArtifact",
+  "__version": "17.0.2"
+}

@@ -1,0 +1,37 @@
+{
+  "Name": "Summarize",
+  "Alias": "summarize",
+  "Description": "Summarize the current content to be shorter and more concise.",
+  "Instructions": "Summarize the following content in a single, concise blurb that captures the key points:\n\n{{currentValue}}\n\nContent that is more than paragraph should be reduced to a paragraph. Content that is a paragraph should be cut in half. \nReturn just the result. ",
+  "ProfileUdi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83",
+  "ContextIds": [
+    "1d2c0e55-ffab-48db-92a3-d6d589af4f80"
+  ],
+  "Tags": [],
+  "IsActive": true,
+  "IncludeEntityContext": true,
+  "OptionCount": 3,
+  "Scope": {
+    "AllowRules": [
+      {
+        "PropertyEditorUiAliases": [
+          "Umb.PropertyEditorUi.TextBox",
+          "Umb.PropertyEditorUi.TextArea",
+          "Umb.PropertyEditorUi.Tiptap",
+          "Umb.PropertyEditorUi.MarkdownEditor"
+        ],
+        "PropertyAliases": null,
+        "ContentTypeAliases": null
+      }
+    ],
+    "DenyRules": []
+  },
+  "Udi": "umb://umbraco-ai-prompt/ed8aef69aa27438aa2a9872dfe0e4dfe",
+  "Dependencies": [
+    {
+      "Udi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83"
+    }
+  ],
+  "__type": "Umbraco.AI.Prompt.Deploy,Umbraco.AI.Prompt.Deploy.Artifacts.AIPromptArtifact",
+  "__version": "17.0.2"
+}

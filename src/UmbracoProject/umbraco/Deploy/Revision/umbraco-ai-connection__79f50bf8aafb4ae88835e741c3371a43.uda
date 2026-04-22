@@ -1,0 +1,14 @@
+{
+  "Name": "Anthropic Dev",
+  "Alias": "anthropic-dev",
+  "ProviderId": "anthropic",
+  "Settings": {
+    "apiKey": "$Anthropic:ApiKey",
+    "endpoint": "https://api.anthropic.com"
+  },
+  "IsActive": true,
+  "Udi": "umb://umbraco-ai-connection/79f50bf8aafb4ae88835e741c3371a43",
+  "Dependencies": [],
+  "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIConnectionArtifact",
+  "__version": "17.0.2"
+}

@@ -1,0 +1,18 @@
+{
+  "Name": "default-embedding",
+  "Alias": "openai-embeddings",
+  "Capability": 1,
+  "ModelProviderId": "openai",
+  "ModelModelId": "text-embedding-3-small",
+  "ConnectionUdi": "umb://umbraco-ai-connection/a3599365553d4b958bcae0422b3c8e1c",
+  "Settings": {},
+  "Tags": [],
+  "Udi": "umb://umbraco-ai-profile/bfcc69a87b464598abc27ac55e3f3c13",
+  "Dependencies": [
+    {
+      "Udi": "umb://umbraco-ai-connection/a3599365553d4b958bcae0422b3c8e1c"
+    }
+  ],
+  "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
+  "__version": "17.0.2"
+}

@@ -1,0 +1,14 @@
+{
+  "Name": "OpenAI (Embeddings)",
+  "Alias": "openai-embeddings",
+  "ProviderId": "openai",
+  "Settings": {
+    "apiKey": "$OpenAI:ApiKey",
+    "endpoint": "https://api.openai.com/v1"
+  },
+  "IsActive": true,
+  "Udi": "umb://umbraco-ai-connection/a3599365553d4b958bcae0422b3c8e1c",
+  "Dependencies": [],
+  "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIConnectionArtifact",
+  "__version": "17.0.2"
+}

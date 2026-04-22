@@ -13,57 +13,160 @@ const __dirname = dirname(__filename);
 
 const compositionDisplayName = 'Section Navigation Controls';
 const propertyAlias = 'showSectionNavigation';
+const API_BASE = process.env.URL || 'https://localhost:44367';
+
+// ==============================
+// Shared API Helpers (rule #4: refresh tokens)
+//
+// The @umbraco/playwright-testhelpers `umbracoApi` fixture fails mid-run with
+// "Error refreshing access token." because auth.setup.ts obtains a
+// client_credentials token (which never returns a refresh_token) and the
+// testhelpers tries to rotate it anyway. Using direct API calls with a
+// freshToken() helper — same pattern as contentSectionRows.spec.ts — avoids
+// the broken refresh path entirely.
+// ==============================
+
+let _token: string;
+let _tokenTimestamp = 0;
+const TOKEN_TTL = 250_000;
+
+async function freshToken(): Promise<string> {
+  if (_token && Date.now() - _tokenTimestamp < TOKEN_TTL) return _token;
+  const resp = await fetch(
+    `${API_BASE}/umbraco/management/api/v1/security/back-office/token`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: process.env.UMBRACO_CLIENT_ID!,
+        client_secret: process.env.UMBRACO_CLIENT_SECRET!,
+      }).toString(),
+    }
+  );
+  if (!resp.ok) throw new Error(`Auth failed: ${resp.status}`);
+  _token = ((await resp.json()) as any).access_token;
+  _tokenTimestamp = Date.now();
+  return _token;
+}
+
+async function apiFetch(token: string, method: string, path: string, body?: any) {
+  return fetch(`${API_BASE}/umbraco/management/api/v1${path}`, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+    },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  });
+}
 
 /**
- * Workaround for a bug in @umbraco/playwright-testhelpers TreeApiHelper.recurseChildren:
- * it short-circuits on the first child with hasChildren=true, so siblings after a folder
- * are never checked. We dynamically find the Compositions folder by name and search its
- * children directly instead. (Rule #1: never hardcode UUIDs; Rule #7: resilient lookups)
+ * Walks the document-type tree for the Compositions folder and returns the
+ * full document-type payload for the named composition (or null if absent).
+ *
+ * Replaces a previous @umbraco/playwright-testhelpers-based implementation
+ * (kept around the same shape) to avoid the fixture's refresh-token bug.
+ * Also replaces a workaround for a testhelpers TreeApiHelper.recurseChildren
+ * short-circuit — walking the Compositions folder directly sidesteps that bug
+ * too. (Rule #1: never hardcode UUIDs; Rule #7: resilient lookups)
  */
-async function findCompositionByName(umbracoApi: any, name: string) {
-  const rootResp = await umbracoApi.documentType.getAllAtRoot();
-  const rootData = await rootResp.json();
-  const rootItems = rootData.items ?? [];
-  const compositionsFolder = rootItems.find((r: any) => r.name === 'Compositions');
-  if (!compositionsFolder) return false;
+async function findCompositionByName(name: string): Promise<any | null> {
+  const token = await freshToken();
 
-  const children = await umbracoApi.documentType.getChildren(compositionsFolder.id);
-  const match = children.find((c: any) => c.name === name);
-  if (!match) return false;
-  return await umbracoApi.documentType.get(match.id);
+  const rootResp = await apiFetch(token, 'GET', '/tree/document-type/root?skip=0&take=100');
+  if (!rootResp.ok) return null;
+  const rootData = (await rootResp.json()) as any;
+  const compositionsFolder = (rootData.items ?? []).find((r: any) => r.name === 'Compositions');
+  if (!compositionsFolder) return null;
+
+  const childrenResp = await apiFetch(
+    token,
+    'GET',
+    `/tree/document-type/children?parentId=${compositionsFolder.id}&skip=0&take=100`
+  );
+  if (!childrenResp.ok) return null;
+  const childrenData = (await childrenResp.json()) as any;
+
+  const match = (childrenData.items ?? []).find((c: any) => c.name === name);
+  if (!match) return null;
+
+  const dtResp = await apiFetch(token, 'GET', `/document-type/${match.id}`);
+  if (!dtResp.ok) return null;
+  return await dtResp.json();
+}
+
+/**
+ * Fetches a document-type by display name by walking the doc-type tree. Checks
+ * root-level entries first, then descends one level into each folder (page
+ * types like "Content" and "Documentation" live under a "Content Models"
+ * folder; elements live under other folders). Rule #1: never hardcode UUIDs.
+ */
+async function getDocumentTypeByName(name: string): Promise<any | null> {
+  const token = await freshToken();
+
+  const rootResp = await apiFetch(token, 'GET', '/tree/document-type/root?skip=0&take=100');
+  if (!rootResp.ok) return null;
+  const rootData = (await rootResp.json()) as any;
+  const rootItems = rootData.items ?? [];
+
+  // Check root first
+  const rootMatch = rootItems.find((r: any) => r.name === name);
+  if (rootMatch) {
+    const dtResp = await apiFetch(token, 'GET', `/document-type/${rootMatch.id}`);
+    if (dtResp.ok) return await dtResp.json();
+  }
+
+  // Descend into each folder looking for the named doc-type
+  for (const rootItem of rootItems) {
+    if (!rootItem.hasChildren) continue;
+    const childrenResp = await apiFetch(
+      token,
+      'GET',
+      `/tree/document-type/children?parentId=${rootItem.id}&skip=0&take=100`
+    );
+    if (!childrenResp.ok) continue;
+    const childrenData = (await childrenResp.json()) as any;
+    const childMatch = (childrenData.items ?? []).find((c: any) => c.name === name);
+    if (!childMatch) continue;
+    const dtResp = await apiFetch(token, 'GET', `/document-type/${childMatch.id}`);
+    if (dtResp.ok) return await dtResp.json();
+  }
+
+  return null;
 }
 
 test.describe('Section Navigation Controls — Document Type Setup', () => {
 
-  test('sectionNavigationControls composition document type exists', async ({ umbracoApi }) => {
-    const docType = await findCompositionByName(umbracoApi, compositionDisplayName);
+  test('sectionNavigationControls composition document type exists', async () => {
+    const docType = await findCompositionByName(compositionDisplayName);
     expect(docType, `"${compositionDisplayName}" document type should exist`).toBeTruthy();
   });
 
-  test('composition has showSectionNavigation boolean property', async ({ umbracoApi }) => {
-    const docType = await findCompositionByName(umbracoApi, compositionDisplayName);
+  test('composition has showSectionNavigation boolean property', async () => {
+    const docType = await findCompositionByName(compositionDisplayName);
     expect(docType, `"${compositionDisplayName}" document type should exist`).toBeTruthy();
 
     const aliases = (docType.properties ?? []).map((p: any) => p.alias);
     expect(aliases, `Should have a "${propertyAlias}" property`).toContain(propertyAlias);
   });
 
-  test('content document type includes sectionNavigationControls composition', async ({ umbracoApi }) => {
-    const composition = await findCompositionByName(umbracoApi, compositionDisplayName);
+  test('content document type includes sectionNavigationControls composition', async () => {
+    const composition = await findCompositionByName(compositionDisplayName);
     expect(composition, `"${compositionDisplayName}" must exist first`).toBeTruthy();
 
-    const contentType = await umbracoApi.documentType.getByName('Content');
+    const contentType = await getDocumentTypeByName('Content');
     expect(contentType, '"Content" document type should exist').toBeTruthy();
 
     const compositionIds = (contentType.compositions ?? []).map((c: any) => c.documentType?.id);
     expect(compositionIds, `"Content" should compose "${compositionDisplayName}"`).toContain(composition.id);
   });
 
-  test('documentation document type includes sectionNavigationControls composition', async ({ umbracoApi }) => {
-    const composition = await findCompositionByName(umbracoApi, compositionDisplayName);
+  test('documentation document type includes sectionNavigationControls composition', async () => {
+    const composition = await findCompositionByName(compositionDisplayName);
     expect(composition, `"${compositionDisplayName}" must exist first`).toBeTruthy();
 
-    const docType = await umbracoApi.documentType.getByName('Documentation');
+    const docType = await getDocumentTypeByName('Documentation');
     expect(docType, '"Documentation" document type should exist').toBeTruthy();
 
     const compositionIds = (docType.compositions ?? []).map((c: any) => c.documentType?.id);
@@ -230,50 +333,8 @@ test.describe('Section Navigation — CSS (Step 4)', () => {
 
 // ============================
 // Step 5: Browser E2E Tests
+// (freshToken / apiFetch defined at top of file — shared with setup tests.)
 // ============================
-
-const API_BASE = process.env.URL || 'https://localhost:44367';
-
-let _token: string;
-let _tokenTimestamp = 0;
-const TOKEN_TTL = 250_000; // refresh well before 299s expiry
-
-/** Get a fresh API token, reusing cached one if still valid (rule #4) */
-async function freshToken(): Promise<string> {
-  if (_token && Date.now() - _tokenTimestamp < TOKEN_TTL) return _token;
-  const resp = await fetch(
-    `${API_BASE}/umbraco/management/api/v1/security/back-office/token`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: process.env.UMBRACO_CLIENT_ID!,
-        client_secret: process.env.UMBRACO_CLIENT_SECRET!,
-      }).toString(),
-    }
-  );
-  if (!resp.ok) throw new Error(`Auth failed: ${resp.status}`);
-  _token = ((await resp.json()) as any).access_token;
-  _tokenTimestamp = Date.now();
-  return _token;
-}
-
-async function apiFetch(
-  token: string,
-  method: string,
-  path: string,
-  body?: any
-) {
-  return fetch(`${API_BASE}/umbraco/management/api/v1${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
-    },
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  });
-}
 
 interface CreatePageOpts {
   name: string;

@@ -66,6 +66,24 @@ async function getDocumentPath(token: string, docId: string): Promise<string> {
 }
 
 /**
+ * Checks whether a document has no authored section rows — either the
+ * sectionRows property is absent entirely, or its Block List contentData is
+ * empty. Used to find a trustworthy "clean" page for negative-control tests:
+ * picking pageIds[1] in tree order is fragile because real editor content
+ * (e.g. the About page) frequently lands in that slot with section rows
+ * already authored on it.
+ */
+async function isPageWithoutSectionRows(token: string, docId: string): Promise<boolean> {
+  const resp = await apiFetch(token, 'GET', `/document/${docId}`);
+  if (!resp.ok) return false;
+  const doc = (await resp.json()) as any;
+  const entry = (doc.values ?? []).find((v: any) => v.alias === 'sectionRows');
+  if (!entry) return true;
+  const contentData = entry.value?.contentData ?? [];
+  return contentData.length === 0;
+}
+
+/**
  * Walk the document tree to find a page whose document type is one of the
  * section-row-enabled types (Content, Article, Documentation).
  * Returns up to `limit` page IDs.
@@ -338,7 +356,7 @@ test.describe('Content Section Row — Browser E2E', () => {
     let token = await freshToken();
 
     // 1. Find pages by document type (Content/Article/Documentation have sectionRows via composition)
-    const pageIds = await findPagesByDocType(token, 2);
+    const pageIds = await findPagesByDocType(token, 20);
     if (pageIds.length === 0) {
       throw new Error(
         'No Content/Article/Documentation page found in the document tree. ' +
@@ -346,8 +364,34 @@ test.describe('Content Section Row — Browser E2E', () => {
       );
     }
     targetDocId = pageIds[0];
-    // Use a different page (or same one) for the "clean" test
-    const cleanPageId = pageIds.length > 1 ? pageIds[1] : pageIds[0];
+
+    // Pick a "clean" page whose authored sectionRows is empty *and* that has
+    // a public URL (i.e. is actually published). The previous heuristic blindly
+    // used pageIds[1], but real editor content frequently lands there (e.g.
+    // the About page on this instance) with section rows already authored,
+    // and unpublished pages have no URL for `page.goto(...)` to navigate to.
+    let cleanPageId: string | undefined;
+    let cleanCandidateUrl: string | undefined;
+    for (const candidateId of pageIds) {
+      if (candidateId === targetDocId) continue;
+      token = await freshToken();
+      if (!(await isPageWithoutSectionRows(token, candidateId))) continue;
+      try {
+        cleanCandidateUrl = await getDocumentPath(token, candidateId);
+        cleanPageId = candidateId;
+        break;
+      } catch {
+        // Unpublished or missing URL — skip and keep searching.
+      }
+    }
+    if (!cleanPageId || !cleanCandidateUrl) {
+      throw new Error(
+        'No published Content/Article/Documentation page without authored ' +
+          'section rows could be found to serve as the negative-control ' +
+          `"clean" page. Searched ${pageIds.length} candidate(s). Create one ` +
+          'empty page to restore this test.'
+      );
+    }
 
     // 2. Read the full document and save original state
     token = await freshToken();
@@ -364,9 +408,8 @@ test.describe('Content Section Row — Browser E2E', () => {
     );
     originalSectionRows = JSON.parse(JSON.stringify(sectionRowsEntry?.value ?? null));
 
-    // 3. Get clean page URL for "no section rows" test
-    token = await freshToken();
-    cleanPageUrl = await getDocumentPath(token, cleanPageId);
+    // 3. Clean page URL was resolved during candidate selection above.
+    cleanPageUrl = cleanCandidateUrl;
 
     // 4. Find Rich Text element type for inner block content
     token = await freshToken();

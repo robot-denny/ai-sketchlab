@@ -43,9 +43,11 @@ For E2E tests, see the **Testing** section below.
 
 **Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.2.2, Umbraco.Forms 17.1.2, Umbraco.Deploy.Cloud 17.0.1, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.4.
+**Key NuGet packages**: Umbraco.Cms 17.3.0, Umbraco.Forms 17.1.2, Umbraco.Deploy.Cloud 17.0.2, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
 
-**AI packages**: Umbraco.AI 1.6.0, Umbraco.AI.Agent 1.5.0, Umbraco.AI.Agent.Copilot 1.0.0-alpha5 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0-alpha4 (shared chat UI components), Umbraco.AI.AGUI 1.5.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.2.2, Umbraco.AI.Google 1.1.4, Umbraco.AI.OpenAI 1.1.3, Umbraco.AI.Prompt 1.5.0.
+**AI packages**: Umbraco.AI 1.9.0, Umbraco.AI.Agent 1.8.0, Umbraco.AI.Agent.Copilot 1.0.0-alpha5 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0-alpha5 (shared chat UI components), Umbraco.AI.AGUI 1.8.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.0, Umbraco.AI.Google 1.1.5, Umbraco.AI.OpenAI 1.2.0, Umbraco.AI.Prompt 1.8.0.
+
+**Search packages** (beta — destined to replace legacy Examine search in v18): Umbraco.Cms.Search.Core 1.0.0-beta.4, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.4, Umbraco.Cms.Search.BackOffice 1.0.0-beta.4, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.4, Umbraco.AI.Search 1.0.0-beta3.
 
 ## AI & Copilot
 
@@ -57,6 +59,57 @@ The backoffice includes an **AI Copilot** that can generate and edit content dir
 - **Contexts**: Define data access boundaries (e.g., brand voice guidelines)
 
 The **Umbraco MCP server** enables Claude Code to interact with backoffice content. Connection settings are in `.env` with tool collections for `document`, `media`, `document-type`, and `data-type`.
+
+## Search
+
+The site search at [src/UmbracoProject/Views/search.cshtml](src/UmbracoProject/Views/search.cshtml) uses the new **Umbraco.Cms.Search** framework (destined to replace the legacy Examine-backed `IPublishedContentQuery.Search()` API in v18) with **Umbraco.AI.Search** layered on top for semantic/vector search.
+
+### Architecture
+
+Three packages cooperate at runtime, registered via [src/UmbracoProject/SearchComposer.cs](src/UmbracoProject/SearchComposer.cs):
+
+- **`Umbraco.Cms.Search.Core`** — provides the `ISearcher` / `ISearcherResolver` abstractions used by the Razor view. Doesn't do indexing itself; it's the façade that routes queries to a registered provider.
+- **`Umbraco.Cms.Search.Provider.Examine`** — Lucene/keyword provider. Used in the backoffice and as a safety net for short, exact-match queries (author names, "contact", etc.) where pure-vector search underperforms.
+- **`Umbraco.AI.Search`** — vector/semantic search on top of Core. Calls the configured embedding model to chunk + embed documents on publish and to embed the query at search time.
+
+The public `/search` page is wired to the AI searcher; the Examine provider stays registered for hybrid fallback and for the backoffice search UI.
+
+### Configuration
+
+- **Embedding profile**: `default-embedding` (alias `openai-embeddings`) — OpenAI `text-embedding-3-small`, 512-dim. Set as the **default embedding profile** under `Settings → AI → Settings` in the backoffice. Without a default embedding profile, the AI index rebuild silently completes with 0 documents.
+- **Searcher alias**: `UmbAI_Search` — pass this to `ISearcherResolver.GetSearcher(...)` and `ISearcher.SearchAsync(indexAlias: ...)`.
+- **OpenAI API key**: stored in `appsettings.Development.json` under `OpenAI:ApiKey` (gitignored). The backoffice AI connection references it as `$OpenAI:ApiKey` — **never paste the raw key into the connection form** (it would be encrypted into the DB and break on Data Protection key rotation).
+- **Tuning values**: `Umbraco:AI:Search` block in [appsettings.json](src/UmbracoProject/appsettings.json) — `ChunkSize: 512`, `ChunkOverlap: 50`, `DefaultTopK: 50`, `MinScore: 0.3`.
+
+### Rebuilding the index
+
+Trigger a full rebuild from the backoffice: **`Settings → Search`** → click the rebuild icon on the `UmbAI_Search` row. On the demo site this finishes in < 1 minute and produces ~3–4 vector chunks per published document (~115 chunks total across 33 documents).
+
+**Always verify the document count is non-zero after a rebuild** — the rebuild API returns 200 even when misconfigured (e.g., no default embedding profile).
+
+### Umbraco Cloud deploys
+
+The embedding index state is **local to each environment**. After deploying to Cloud:
+
+1. Set `OpenAI:ApiKey` in that environment's app settings (Development, Staging, Live — each has its own).
+2. Log into that environment's backoffice and rebuild the `UmbAI_Search` index once via `Settings → Search`.
+3. Verify the document count > 0 before promoting further.
+
+Deploys do not replicate the vector index; skipping the rebuild leaves `/search` returning empty results on that environment.
+
+### Pinned package versions (beta — expect breaking changes in v18)
+
+| Package | Pinned version |
+|---------|---------------|
+| Umbraco.Cms.Search.Core | 1.0.0-beta.3 |
+| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.3 |
+| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 |
+| Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 |
+| Umbraco.AI.Search | 1.0.0-beta3 |
+
+**Do not float these versions.** `Umbraco.AI.Search 1.0.0-beta3` is binary-compiled against `Umbraco.Cms.Search.Core 1.0.0-beta.3`. NuGet's declared range allows beta.4, but `IndexMetadata` changed signatures in beta.4 and the call throws `MissingMethodException` the moment you open `Settings → Search`. Keep all four `Cms.Search.*` packages pinned at `beta.3` until a newer `Umbraco.AI.Search` ships compiled against `Cms.Search.Core beta.4+`.
+
+**Upgrade path**: These packages are destined to replace the legacy Examine search in Umbraco v18. When upgrading to v18, expect API-breaking changes (the betas are not stable) — revisit the composer registration, the `ISearcher` call in [search.cshtml](src/UmbracoProject/Views/search.cshtml), and the versions table above as part of the v18 upgrade PR.
 
 ## Modifying Umbraco Content from Claude Code
 

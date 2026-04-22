@@ -39,9 +39,9 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ---
 
-### Step 1 — Pre-flight: pick pinned versions and create branch
+### Step 1 — Pre-flight: pick pinned versions and create branch ✅ DONE
 
-> **Prompt**: Implement Step 1 of `_plans/umbraco-ai-search.md`. Create branch `claude/feature/umbraco-ai-search` off `master`. Then query the NuGet feed for the latest beta versions of `Umbraco.Cms.Search.Core`, `Umbraco.Cms.Search.Provider.Examine`, `Umbraco.Cms.Search.BackOffice`, `Umbraco.Cms.Search.DeliveryApi`, and `Umbraco.AI.Search` that are compatible with Umbraco 17.2.x. Record the exact versions inline in this plan (edit the table under "What to build") so every subsequent step uses the same set. Do NOT install packages yet.
+> **Prompt**: Implement Step 1 of `_plans/umbraco-ai-search.md`. Create branch `claude/feature/umbraco-ai-search` off `master`. Then query the NuGet feed for the latest beta versions of `Umbraco.Cms.Search.Core`, `Umbraco.Cms.Search.Provider.Examine`, `Umbraco.Cms.Search.BackOffice`, `Umbraco.Cms.Search.DeliveryApi`, and `Umbraco.AI.Search` that are compatible with Umbraco 17.3.x. Record the exact versions inline in this plan (edit the table under "What to build") so every subsequent step uses the same set. Do NOT install packages yet.
 
 **What to build**: a versions table recorded in this plan and a new branch. No code changes yet.
 
@@ -61,11 +61,15 @@ After running, edit this table in the plan:
 
 | Package | Pinned version |
 |---------|---------------|
-| Umbraco.Cms.Search.Core | _(fill in)_ |
-| Umbraco.Cms.Search.Provider.Examine | _(fill in)_ |
-| Umbraco.Cms.Search.BackOffice | _(fill in)_ |
-| Umbraco.Cms.Search.DeliveryApi | _(fill in)_ |
-| Umbraco.AI.Search | _(fill in)_ |
+| Umbraco.Cms.Search.Core | 1.0.0-beta.3 |
+| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.3 |
+| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 |
+| Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 |
+| Umbraco.AI.Search | 1.0.0-beta3 |
+
+Versions confirmed 2026-04-21 via `dotnet package search ... --prerelease --exact-match` and NuGet catalog dependency inspection. All five packages target `net10.0` and depend on `Umbraco.Cms.* >= 17.0.0` (compatible with the project's 17.3.0). `Umbraco.AI.Search 1.0.0-beta3` transitively requires `Umbraco.AI.Startup [1.5.0, 1.999.999)` — aligned with the project's existing `Umbraco.AI 1.9.0` stack. Note the inconsistent version format: the `Umbraco.Cms.Search.*` packages use `-beta.3` (dot) while `Umbraco.AI.Search` uses `-beta3` (no dot); both are correct SemVer 2.0 pre-release labels as published.
+
+**Downgrade note (2026-04-21, Step 5 runtime failure)**: Originally pinned `Umbraco.Cms.Search.*` at `1.0.0-beta.4`, but `Umbraco.AI.Search 1.0.0-beta3` is binary-compiled against `beta.3` — beta.4 changed the `IndexMetadata` constructor signature, triggering `MissingMethodException: Void Umbraco.Cms.Search.Core.Models.Indexing.IndexMetadata..ctor(Int64, Umbraco.Cms.Search.Core.Models.Indexing.HealthStatus)` the moment you visit `Settings → Search` in the backoffice. NuGet's declared range allows beta.4 (`[1.0.0-beta.3, 1.999.999)`) but the assembly was built against beta.3 and the dep-range floor wasn't bumped. Downgraded all four `Cms.Search.*` packages to `1.0.0-beta.3`. Revisit once a newer `Umbraco.AI.Search` ships compiled against `Cms.Search.Core beta.4+`.
 
 **Validation**:
 - [Automated]: `git branch --show-current` prints `claude/feature/umbraco-ai-search`
@@ -73,7 +77,9 @@ After running, edit this table in the plan:
 
 ---
 
-### Step 2 — Install NuGet packages
+### Step 2 — Install NuGet packages ✅ DONE
+
+All five packages are already referenced in [src/UmbracoProject/UmbracoProject.csproj](../src/UmbracoProject/UmbracoProject.csproj) at the pinned versions from Step 1.
 
 > **Prompt**: Implement Step 2 of `_plans/umbraco-ai-search.md`. Using the pinned versions recorded in the table under Step 1, add the five `Umbraco.Cms.Search.*` and `Umbraco.AI.Search` packages to `src/UmbracoProject/UmbracoProject.csproj`. Run `dotnet restore` then `dotnet build` from `src/UmbracoProject`. Do not run the app yet — this step only verifies packages resolve and the project compiles with them referenced (but not wired up).
 
@@ -151,16 +157,21 @@ public class SearchComposer : IComposer
 
 **What to do** (manual, in the backoffice at `Settings → AI`):
 
-1. **AI Connection**: Create (or reuse) an OpenAI connection. Store the OpenAI API key in `appsettings.Development.json` under `OpenAI:ApiKey` (follow the existing pattern used for `Anthropic:ApiKey` — see [CLAUDE.md](../CLAUDE.md) "AI & Copilot" section).
+1. **AI Connection**: Create (or reuse) an OpenAI connection. Store the OpenAI API key in `appsettings.Development.json` under `OpenAI:ApiKey` (follow the existing pattern used for `Anthropic:ApiKey` — see [CLAUDE.md](../CLAUDE.md) "AI & Copilot" section). **In the connection form, paste `$OpenAI:ApiKey` as the API Key value** — Umbraco.AI resolves `$Section:Key` references against `appsettings.*.json` at call time; do not paste the raw key (it would be encrypted into the DB and break whenever Data Protection keys rotate).
 2. **Embedding Profile**: Create a new embedding profile using the OpenAI connection, model `text-embedding-3-small`. Name it `default-embedding` (or similar — record the actual name).
-3. **Default search profile**: Under `Settings → Search` (provided by `Umbraco.Cms.Search.BackOffice`), set the embedding profile as the default for AI search.
-4. **Rebuild index**: Trigger a full rebuild from the backoffice search dashboard. Wait for it to complete (time depends on content volume — demo site should be < 1 minute).
+3. **Assign as default embedding profile**: Under `Settings → AI → Settings`, set the embedding profile above as the **default embedding profile**. *Without this, the `UmbAI_Search` rebuild completes silently with 0 documents — the indexer has no profile to call.* API equivalent: `PUT /umbraco/ai/management/api/v1/settings` with `defaultEmbeddingProfileId` set to the profile's id.
+4. **Rebuild index**: Trigger a full rebuild from the backoffice search dashboard (`Settings → Search` → click the rebuild icon on the `UmbAI_Search` row). On a demo-size site, finishes in a few seconds and populates ~3–4 vector chunks per published document.
 
-**Completion notes** (fill in after doing this step):
-- OpenAI connection name: `_(fill in)_`
-- Embedding profile name: `_(fill in)_`
-- Searcher alias used by AI.Search: `_(fill in — likely UmbAI_Search)_`
-- Index rebuild duration: `_(fill in)_`
+**Completion notes** (confirmed 2026-04-22):
+- OpenAI connection name: `OpenAI` (API key field set to `$OpenAI:ApiKey` reference, not raw key)
+- Embedding profile: name `default-embedding`, alias `openai-embeddings`, id `bfcc69a8-7b46-4598-abc2-7ac55e3f3c13`, model `text-embedding-3-small`
+- Searcher alias used by AI.Search: `UmbAI_Search`
+- Index rebuild result: **115 vector chunks** from 33 published documents (≈ 3–4 chunks per doc at `ChunkSize: 512`), completes in < 1 minute
+
+**Gotchas we hit and what to watch for:**
+- **Data Protection key loss on laptop migration**: the previous laptop's encrypted Anthropic connection secret was unrecoverable after migrating — `~/.aspnet/DataProtection-Keys/` didn't come across. Fix was to delete + re-create the Anthropic connection with `$Anthropic:ApiKey` as the value. **Always store AI connection keys as `$Section:Key` references, never as raw keys.** That way a lost key ring only requires re-pointing the reference, not re-keying the provider.
+- **Package version mismatch (binary, not NuGet)**: `Umbraco.AI.Search 1.0.0-beta3` is compiled against `Umbraco.Cms.Search.Core 1.0.0-beta.3`. NuGet's declared range allows beta.4 but `IndexMetadata` changed signatures and the call explodes with `MissingMethodException` the moment you open `Settings → Search`. Keep `Cms.Search.*` pinned at beta.3 until AI.Search ships a newer build. See Step 1 versions table.
+- **"Rebuild" with no default embedding profile silently succeeds with 0 docs.** The fatal misconfiguration has no error anywhere in the log — the UI/API both return 200 and the index count stays at 0. Always verify `UmbAI_Search` document count > 0 after a rebuild.
 
 **Validation**:
 - [Manual]: Backoffice `Settings → Search` dashboard shows the AI index with a non-zero document count

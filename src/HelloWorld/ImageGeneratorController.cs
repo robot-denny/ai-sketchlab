@@ -1,8 +1,10 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Web.Common.Authorization;
@@ -19,19 +21,22 @@ public class ImageGeneratorController : ControllerBase
     private readonly IContentTypeService _contentTypeService;
     private readonly IConfiguration _configuration;
     private readonly PaletteService _paletteService;
+    private readonly ILogger<ImageGeneratorController> _logger;
 
     public ImageGeneratorController(
         IWebHostEnvironment env,
         IContentService contentService,
         IContentTypeService contentTypeService,
         IConfiguration configuration,
-        PaletteService paletteService)
+        PaletteService paletteService,
+        ILogger<ImageGeneratorController> logger)
     {
         _env = env;
         _contentService = contentService;
         _contentTypeService = contentTypeService;
         _configuration = configuration;
         _paletteService = paletteService;
+        _logger = logger;
     }
 
     private string RepoRoot => Path.GetFullPath(Path.Combine(_env.ContentRootPath, "..", ".."));
@@ -105,10 +110,25 @@ public class ImageGeneratorController : ControllerBase
         await System.IO.File.WriteAllTextAsync(paletteTmpFile, paletteJson);
         args += $" --palette-json-file \"{paletteTmpFile}\"";
 
-        var nodeBinPath = _configuration["ImageGenerator:NodeBinPath"];
+        var configuredNodeBinPath = _configuration["ImageGenerator:NodeBinPath"];
+        var nodeBinPath = configuredNodeBinPath;
         var npxPath = "npx";
+
         if (!string.IsNullOrEmpty(nodeBinPath))
-            npxPath = Path.Combine(nodeBinPath, "npx");
+        {
+            var candidate = Path.Combine(nodeBinPath, "npx");
+            if (System.IO.File.Exists(candidate))
+            {
+                npxPath = candidate;
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "ImageGenerator:NodeBinPath '{NodeBinPath}' does not contain an 'npx' binary; falling back to 'npx' on PATH.",
+                    nodeBinPath);
+                nodeBinPath = null;
+            }
+        }
 
         var psi = new ProcessStartInfo(npxPath)
         {
@@ -126,7 +146,23 @@ public class ImageGeneratorController : ControllerBase
             psi.Environment["PATH"] = $"{nodeBinPath}:{currentPath}";
         }
 
-        using var process = Process.Start(psi);
+        Process? process;
+        try
+        {
+            process = Process.Start(psi);
+        }
+        catch (Win32Exception ex)
+        {
+            System.IO.File.Delete(paletteTmpFile);
+            _logger.LogError(ex,
+                "Failed to launch image generator CLI using '{NpxPath}' (NodeBinPath='{ConfiguredNodeBinPath}')",
+                npxPath, configuredNodeBinPath ?? "(unset)");
+            return (-1,
+                $"Failed to launch image generator: {ex.Message}. " +
+                $"Check ImageGenerator:NodeBinPath in appsettings.Development.json " +
+                $"(configured: '{configuredNodeBinPath ?? "(unset — using PATH)"}').");
+        }
+
         if (process == null)
         {
             System.IO.File.Delete(paletteTmpFile);
@@ -148,6 +184,7 @@ public class ImageGeneratorController : ControllerBase
         }
         finally
         {
+            process.Dispose();
             System.IO.File.Delete(paletteTmpFile);
         }
     }

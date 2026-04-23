@@ -546,6 +546,8 @@ Scenario: Invalid credentials produce a clear error
 | Dashboard contains batch generation controls | `tests/e2e/imageGenerator/dashboard.spec.ts:L105` | Covered |
 | Articles API endpoint returns data | `tests/e2e/imageGenerator/dashboard.spec.ts:L112` | Covered |
 | Palettes API returns CMS-sourced config | `tests/e2e/imageGenerator/dashboard.spec.ts:L123` | Covered |
+| Editor generates an image for one article from the dashboard | `tests/e2e/imageGenerator/dashboard.spec.ts:L142` | Covered |
+| Generate endpoint returns structured error on CLI failure | `tests/e2e/imageGenerator/dashboard.spec.ts:L174` | Covered |
 | Palette transfer between environments | -- | Not covered (manual) |
 | Batch mode skips articles with existing images | -- | Not covered |
 | --force regenerates existing images | -- | Not covered |

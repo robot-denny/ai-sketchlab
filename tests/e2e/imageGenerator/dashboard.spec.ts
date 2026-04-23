@@ -135,4 +135,59 @@ test.describe('Image Generator Dashboard', () => {
     // Entries should be an object (may have 0+ category entries)
     expect(typeof config.entries).toBe('object');
   });
+
+  // Exercises the full controller → CLI → Umbraco pipeline. Would have caught the
+  // stale NodeBinPath / Process.Start Win32Exception regression, because neither a
+  // missing node binary nor an unhandled exception can produce success: true.
+  test('generate endpoint succeeds end-to-end for an existing article', async () => {
+    test.setTimeout(120_000);
+
+    const token = await freshToken();
+
+    const articlesResp = await fetch(`${API_BASE}/umbraco/api/image-generator/articles`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    expect(articlesResp.ok).toBeTruthy();
+    const articles = (await articlesResp.json()) as Array<{ id: string; name: string }>;
+    expect(articles.length).toBeGreaterThan(0);
+    const articleId = articles[0].id;
+
+    const generateResp = await fetch(
+      `${API_BASE}/umbraco/api/image-generator/generate/${articleId}?force=true`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    expect(generateResp.ok).toBeTruthy();
+    const result = (await generateResp.json()) as { success: boolean; output: string };
+    expect(result.success).toBe(true);
+    expect(typeof result.output).toBe('string');
+    expect(result.output.length).toBeGreaterThan(0);
+    // Standard CLI completion line from the generator's batch summary
+    expect(result.output).toMatch(/Done:|generated/i);
+  });
+
+  // Pins the { success, output } error-shape contract. If a future change starts
+  // throwing out of the controller (like the unhandled Win32Exception we just
+  // fixed) the response will no longer be 200 with a body, and this test fails.
+  test('generate endpoint returns structured error for a non-existent article', async () => {
+    test.setTimeout(60_000);
+
+    const token = await freshToken();
+    const bogusId = '00000000-0000-0000-0000-000000000000';
+
+    const resp = await fetch(
+      `${API_BASE}/umbraco/api/image-generator/generate/${bogusId}`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    expect(resp.ok).toBeTruthy();
+    const result = (await resp.json()) as { success: boolean; output: string };
+    expect(result.success).toBe(false);
+    expect(typeof result.output).toBe('string');
+    expect(result.output.length).toBeGreaterThan(0);
+  });
 });

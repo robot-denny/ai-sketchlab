@@ -274,15 +274,19 @@ Without `UMBRACO_LIVE_*` entries, `/check-uda` degrades gracefully to git-only m
 
 ### When local media breaks
 
-If `wwwroot/media/<hash>/<filename>` is missing but the local DB references it (visible as a 404 in the browser or a broken image in the backoffice), pull the binary from Live:
+The usual cause is skipping the media restore after a partial content restore: local DB now points to `/media/<hash>/<filename>` paths whose binaries live on Live but not on disk. To heal:
 
 ```bash
-# After setting UMBRACO_LIVE_URL in .env
-curl -sk "$UMBRACO_LIVE_URL/media/<hash>/<filename>" \
-  -o "src/UmbracoProject/wwwroot/media/<hash>/<filename>"
+npm run media:sync                  # pull every missing binary from $UMBRACO_LIVE_URL
+npm run media:sync -- --dry-run     # report what would change, don't write
+npm run media:sync -- --source=<url>   # use a different source environment
 ```
 
-Works as long as Live has the same media record at that URL. The long-term fix is always to do the Cloud-side media restore — this is a quick patch.
+The script walks the local media tree, finds every record whose `umbracoFile.src` points at a file not on disk, and downloads each from the source env at the same path. Safe to run anytime — idempotent, only writes missing files. Exits 2 if any record's binary is missing from the source too (e.g., locally-created media that was never pushed up).
+
+Source: [scripts/media-sync/src/cli.ts](scripts/media-sync/src/cli.ts). Requires `UMBRACO_LIVE_URL` in `.env`.
+
+The "right" fix is always to do the matching media restore from the Cloud Deploy dashboard — `media:sync` is the safety net when that step got skipped.
 
 ### The generator produces media the same way
 

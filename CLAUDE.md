@@ -256,6 +256,38 @@ Root-cause summary: mechanism (1) was the biggest contributor historically (51 e
 
 Without `UMBRACO_LIVE_*` entries, `/check-uda` degrades gracefully to git-only mode with a yellow warning.
 
+## Media files
+
+**Umbraco Cloud is the source of truth for media binaries.** `src/UmbracoProject/wwwroot/media/` is gitignored — binaries are never committed. This is the Cloud-native pattern: schema flows through git (.uda files), content flows through Cloud Deploy, and media flows through Cloud's media transfer. It scales cleanly across multiple authors because nobody has to remember to "commit the image they just uploaded".
+
+### Local development workflow
+
+**Fresh clone:** `dotnet run` starts with an empty local media folder. Existing articles will render with broken images until media is restored from Cloud.
+
+**Restoring content from Cloud to local:**
+
+1. In the local backoffice, open **Settings → Deploy** and do a content restore from the target Cloud environment (typically Live).
+2. In that same dashboard, also do a **media restore** for the same environment. This is the step that's easy to forget — content restore pulls document records (including the media picker references like `/media/<hash>/<name>.png`), but **does not** pull the media binaries.
+3. Verify: browse the restored articles. If `mainImage` fields show broken links, step 2 was skipped.
+
+**Authoring:** Create and edit media in the Cloud backoffice (Live or a shared non-prod environment). Use the Cloud Deploy dashboard to transfer media between environments in either direction. Do not commit `wwwroot/media/` changes — the gitignore rule will block them, but don't bypass it.
+
+### When local media breaks
+
+If `wwwroot/media/<hash>/<filename>` is missing but the local DB references it (visible as a 404 in the browser or a broken image in the backoffice), pull the binary from Live:
+
+```bash
+# After setting UMBRACO_LIVE_URL in .env
+curl -sk "$UMBRACO_LIVE_URL/media/<hash>/<filename>" \
+  -o "src/UmbracoProject/wwwroot/media/<hash>/<filename>"
+```
+
+Works as long as Live has the same media record at that URL. The long-term fix is always to do the Cloud-side media restore — this is a quick patch.
+
+### The generator produces media the same way
+
+The image generator CLI ([scripts/image-generator/src/umbraco-api.ts](scripts/image-generator/src/umbraco-api.ts)) calls the same Management API endpoints as a backoffice upload: `POST /temporary-file` followed by `POST /media`. The generated files land in local `wwwroot/media/<hash>/`, get picked up by the local DB, and need to be pushed to Cloud via a standard media transfer if they're needed on other environments.
+
 ## Testing
 
 ### E2E Tests (Playwright)

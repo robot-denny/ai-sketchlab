@@ -393,8 +393,9 @@ healthchecksdb
 **/wwwroot/umbraco/views/
 
 # Umbraco Media Files
-# Media is committed to git for local development (starter site public assets only)
-# **/wwwroot/media
+# Cloud is the source of truth for media binaries. Do not commit them to git.
+# See CLAUDE.md → "Media files" for the restore workflow.
+**/wwwroot/media
 
 # Umbraco Models Builder out of date flag file
 **/umbraco/models/ood.flag

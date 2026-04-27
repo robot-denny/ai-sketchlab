@@ -53,7 +53,8 @@
     string eyebrow  = Get(Model, "Eyebrow");
     string dek      = Get(Model, "Dek");
     string pattern  = Get(Model, "Pattern");
-    var crumbs      = GetT<System.Collections.Generic.IEnumerable<(string label, string url)>>(Model, "Crumbs");
+    System.Collections.Generic.IEnumerable<(string label, string url)> crumbs =
+        GetT<System.Collections.Generic.IEnumerable<(string label, string url)>>(Model, "Crumbs");
 
     string patternClass = pattern switch
     {

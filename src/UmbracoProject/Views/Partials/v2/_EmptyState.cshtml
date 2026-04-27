@@ -35,7 +35,8 @@
 @{
     string headline = Get(Model, "Headline");
     string body     = Get(Model, "Body");
-    var actions     = GetT<System.Collections.Generic.IEnumerable<(string label, string url, bool primary)>>(Model, "Actions");
+    System.Collections.Generic.IEnumerable<(string label, string url, bool primary)> actions =
+        GetT<System.Collections.Generic.IEnumerable<(string label, string url, bool primary)>>(Model, "Actions");
 
     if (string.IsNullOrWhiteSpace(headline)) { return; }
 }

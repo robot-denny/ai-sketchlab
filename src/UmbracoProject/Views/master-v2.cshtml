@@ -26,6 +26,7 @@
     <link href="/assets/css/vs2015.css" rel="stylesheet" asp-append-version="true" />
     <link href="/assets/css/highlightjs-copy.min.css" rel="stylesheet" asp-append-version="true" />
     <link href="/assets/css/swiffy-slider.min.css" rel="stylesheet" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     @await Html.CachedPartialAsync("~/Views/Partials/v2/_SiteHead.cshtml", model: Model, cacheTimeout: TimeSpan.FromMinutes(60))

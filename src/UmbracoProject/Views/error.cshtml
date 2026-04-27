@@ -1,20 +1,38 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Error>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Error>
 
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
+
+    var headline = !string.IsNullOrWhiteSpace(Model.Title)
+        ? Model.Title
+        : "The page <em>isn't here.</em>";
+
+    var dek = !string.IsNullOrWhiteSpace(Model.Subtitle)
+        ? Model.Subtitle
+        : "Either we moved it, never wrote it, or you followed a link that pre-dates the rename.";
+
+    var actions = new System.Collections.Generic.List<(string label, string url, bool primary)>
+    {
+        ("← Back to the publication", "/", true),
+        ("Search essays", "/search", false)
+    };
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@section Styles {
+    <link href="/assets/css/listings.css" rel="stylesheet" asp-append-version="true" />
+}
 
-<article>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                @Html.GetBlockListHtml(Model.ContentRows)
-            </div>
-        </div>
-    </div>
-</article>
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = headline,
+    Eyebrow = "404 · Not found",
+    Dek = dek
+})
+
+@await Html.PartialAsync("~/Views/Partials/v2/_EmptyState.cshtml", new
+{
+    Headline = "Find your way back",
+    Actions = actions
+})

@@ -241,6 +241,18 @@ The Deploy dashboard treats any entity where `umbracoExists !== fileExists` as d
 
 Root-cause summary: mechanism (1) was the biggest contributor historically (51 entities of drift from day one). Mechanisms (2)–(4) are ongoing risks that `/check-uda` is designed to catch before push.
 
+### Importing pending schema on a Cloud environment
+
+If `/check-uda` reports `pending` (file exists, DB missing) or `mismatch` (signatures diverged) entries on Live — and content transfers from local to Live get stuck as a result — the fix is **not** the Deploy dashboard's "Update Umbraco Schema from data files" button. On Cloud-managed environments that button only refreshes the comparison view; the per-row dropdown on Live offers only **Create** (export DB → file) and **Delete** (remove file). There is no UI-driven "import file → DB" action on Cloud.
+
+Schema imports on Cloud run during **app startup** via Deploy's bootstrapper, not via the dashboard. Canonical fix:
+
+1. **Restart the Live environment** from the Umbraco Cloud portal (Project → Live → Restart). The bootstrapper picks up any pending `.uda` files and imports them on boot.
+2. Re-run `/check-uda` to confirm drift is zero.
+3. If drift persists, push an empty commit (`git commit --allow-empty -m "chore: nudge Cloud"`) to force a full deploy build, then check the Cloud Activity Log for the build's schema-import step. Errors there reveal the actual artifact that won't deploy.
+
+Reproduced 2026-04-27: Phase 0 of Package C added a new data type, composition, 12 dictionary keys, and modified 7 doc types. Files reached Live's git but the post-push restart didn't run the import (cause unconfirmed). Drift cleared instantly on a manual restart from the Cloud portal — the dashboard's bulk "Update" button reported "operation completed" but had moved nothing.
+
 ### Enabling Live-drift detection in `/check-uda`
 
 `/check-uda` can optionally query Live's Deploy Management API to catch drift that pure git diffing misses. To enable:

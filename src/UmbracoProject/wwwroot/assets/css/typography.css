@@ -391,6 +391,18 @@ kbd {
   font-family: var(--font-mono);
 }
 
+/* ── Rich text / Markdown ─────────────────────────────────────── */
+
+/* TinyMCE and Markdig both wrap single-line <li> content in a <p>,
+   which inherits the global paragraph margins and creates extra
+   space inside list items. :only-child collapses that case to look
+   like inline text while leaving multi-paragraph list items
+   (with their natural spacing) alone. */
+.richtext li > p:only-child,
+.markdown-content li > p:only-child {
+  margin: 0;
+}
+
 /* ── UI: Navigation ────────────────────────────────────────────── */
 
 #mainNav {

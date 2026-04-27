@@ -1,0 +1,33 @@
+/* ================================================================
+   Design system — v2 hybrid token extras
+   ----------------------------------------------------------------
+   Append-only. typography.css already declares the warm-stone
+   palette, Bootstrap aliases, and Clean Blog link rules. This file
+   adds ONLY what typography.css doesn't have yet:
+
+     - the Dark Constructivism imagery sub-palette (--dc-*)
+     - the four pattern url() tokens used by site-chrome.css
+
+   Load order:  styles.css → typography.css → tokens-extras.css
+   ================================================================ */
+
+:root {
+  /* ── Dark Constructivism (imagery layer) ─────────────────────
+     Compressed dark value range for generated hero imagery.
+     Used in hero / banner imagery only — never as UI surface.   */
+  --dc-obsidian: #101014;
+  --dc-anthracite: #1A1A1E;
+  --dc-graphite: #202026;
+  --dc-charcoal: #252530;
+  --dc-slate: #2D2D38;
+  --dc-signal: #C23D2E;
+
+  /* ── Pattern tokens ─────────────────────────────────────────
+     Static-asset paths. Patterns live under wwwroot/assets/
+     so they are tracked in git (wwwroot/media is ignored — that
+     tree is owned by Umbraco Cloud Deploy).                    */
+  --pattern-stochastic: url('/assets/patterns/stochastic-grid.svg');
+  --pattern-woven-dark: url('/assets/patterns/woven-lines.svg');
+  --pattern-scatter:    url('/assets/patterns/scatter-left.svg');
+  --pattern-scatter-dark: url('/assets/patterns/scatter-left-dark.svg');
+}

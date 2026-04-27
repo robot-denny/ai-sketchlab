@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — The Human Signal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .contact{padding:72px 32px 96px;max-width:780px;margin:0 auto;display:grid;gap:40px}
+  .contact .intro{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.25rem;line-height:1.5;color:var(--text-primary);margin:0;max-width:48ch}
+
+  form.c-form{display:grid;gap:24px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field label{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
+  .field .req{color:var(--accent-primary);margin-left:4px}
+  .field input,.field textarea{font-family:var(--font-body);font-size:16px;line-height:1.5;padding:12px 14px;background:var(--surface-primary);border:1px solid var(--border-medium);color:var(--text-primary);border-radius:0;transition:border-color var(--ease-micro)}
+  .field input:focus,.field textarea:focus{outline:2px solid var(--accent-primary);outline-offset:2px;border-color:var(--accent-primary)}
+  .field textarea{min-height:180px;resize:vertical;font-family:var(--font-body)}
+  .field .hint{font-family:var(--font-body);font-size:13px;color:var(--text-secondary)}
+
+  .submit{display:flex;align-items:center;gap:16px;margin-top:8px}
+  .btn{font-family:var(--font-body);font-weight:600;font-size:14px;letter-spacing:.04em;text-transform:uppercase;padding:12px 24px;background:var(--text-primary);color:var(--surface-primary);border:0;cursor:pointer;transition:background var(--ease-micro)}
+  .btn:hover{background:var(--accent-primary)}
+  .submit .nb{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--text-secondary)}
+
+  .alt{padding:32px;background:var(--surface-secondary);background-image:var(--pattern-stochastic);background-size:220px 220px;border:1px solid var(--border-light)}
+  .alt h3{font-family:var(--font-display);font-weight:400;font-size:1.375rem;margin:0 0 10px}
+  .alt p{font-family:var(--font-body);font-size:14.5px;line-height:1.55;color:var(--text-secondary);margin:0 0 8px;max-width:46ch}
+  .alt a{color:var(--accent-secondary)}
+</style></head><body>
+
+<header class="site-head">
+  <h1 class="wordmark"><a href="D-hybrid.html">AI <em>Sketch</em> Lab</a></h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="D-blog.html">The Human Signal</a>
+    <a href="D-about.html">About</a>
+    <a href="#">Ella</a>
+    <a href="D-authors.html">Authors</a>
+    <a href="D-search.html">Search</a>
+  </nav>
+</header>
+
+<section class="page-head">
+  <div class="inner">
+    <p class="eye">Get in touch</p>
+    <h1>Write to the <em>lab.</em></h1>
+    <p class="dek">Questions, essays you'd like us to read, rebuttals, corrections — all welcome. We answer most messages within a week.</p>
+    <div class="rule" aria-hidden="true"></div>
+  </div>
+</section>
+
+<main class="contact">
+  <p class="intro">This form goes to Dennis. If it's urgent (it probably isn't), say so in the subject line and it will jump the queue.</p>
+
+  <form class="c-form" onsubmit="event.preventDefault();alert('Mock form — no submission.')">
+    <div class="field">
+      <label for="f-name">Name<span class="req">*</span></label>
+      <input id="f-name" type="text" required>
+    </div>
+    <div class="field">
+      <label for="f-email">Email<span class="req">*</span></label>
+      <input id="f-email" type="email" required>
+      <span class="hint">We won't add you to anything. No newsletter exists.</span>
+    </div>
+    <div class="field">
+      <label for="f-subject">Subject<span class="req">*</span></label>
+      <input id="f-subject" type="text" required>
+    </div>
+    <div class="field">
+      <label for="f-message">Message<span class="req">*</span></label>
+      <textarea id="f-message" required></textarea>
+    </div>
+    <div class="submit">
+      <button type="submit" class="btn">Send</button>
+      <span class="nb">Usually answered within a week</span>
+    </div>
+  </form>
+
+  <aside class="alt">
+    <h3>Other ways to reach us</h3>
+    <p>For press or partnership inquiries: <a href="mailto:press@aisketchlab.com">press@aisketchlab.com</a></p>
+    <p>For typos and corrections on specific essays, the footer link on each article is the fastest path.</p>
+  </aside>
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col"><div class="fm">AI <em>Sketch</em> Lab</div><p>Notes on the human impact of AI, from an AI Sketch Lab.</p></div>
+    <div class="col"><h4>Publication</h4><a href="D-blog.html">The Human Signal</a><a href="D-blog.html">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+</body></html>

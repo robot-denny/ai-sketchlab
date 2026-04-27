@@ -1,0 +1,135 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ella — general content template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .content{padding:64px 32px 96px;max-width:1160px;margin:0 auto;display:grid;grid-template-columns:240px 1fr;gap:64px}
+  .content.no-nav{grid-template-columns:1fr;max-width:780px}
+
+  /* Section nav (left rail) */
+  .section-nav{position:sticky;top:88px;align-self:start;font-family:var(--font-body)}
+  .section-nav .eye{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
+  .section-nav ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+  .section-nav a{display:block;padding:8px 0;font-size:14px;color:var(--text-primary);text-decoration:none;border-left:2px solid transparent;padding-left:12px;margin-left:-14px}
+  .section-nav a:hover{color:var(--accent-secondary)}
+  .section-nav a.is-current{border-left-color:var(--accent-primary);font-weight:600;color:var(--text-primary)}
+  .section-nav li.child a{font-size:13px;color:var(--text-secondary);padding-left:28px;margin-left:-14px}
+
+  /* Content body — generic block list rendering */
+  .c-body{max-width:660px}
+  .c-body .lede{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.375rem;line-height:1.45;color:var(--text-primary);margin:0 0 32px;max-width:42ch}
+  .c-body h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.75rem,1.4rem+1vw,2.25rem);line-height:1.1;letter-spacing:-.01em;margin:2em 0 .4em}
+  .c-body h2 em{font-style:italic;font-weight:300}
+  .c-body h3{font-family:var(--font-display);font-weight:400;font-size:1.5rem;line-height:1.15;margin:1.8em 0 .4em}
+  .c-body p{font-family:var(--font-body);font-size:1.0625rem;line-height:1.65;margin:0 0 1.15em;max-width:36em}
+  .c-body ul,.c-body ol{font-family:var(--font-body);font-size:1.0625rem;line-height:1.6;margin:0 0 1.15em 1.2em;padding:0}
+  .c-body ul li,.c-body ol li{margin-bottom:.4em}
+  .c-body blockquote{margin:2em 0;padding:0 0 0 24px;border-left:2px solid var(--accent-primary);font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.5rem;line-height:1.3;max-width:34ch}
+
+  /* A full-width "section row" block — used by CMS sectionRows */
+  .section-row{padding:72px 32px;background:var(--surface-secondary);background-image:var(--pattern-stochastic);background-size:220px 220px;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light);margin-top:72px}
+  .section-row .inner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+  .section-row .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px}
+  .section-row h3{font-family:var(--font-display);font-weight:400;font-size:1.75rem;line-height:1.1;margin:0 0 12px;max-width:18ch}
+  .section-row p{font-family:var(--font-body);font-size:1rem;line-height:1.6;color:var(--text-primary);margin:0 0 10px;max-width:36em}
+
+  @media (max-width:820px){
+    .content{grid-template-columns:1fr;gap:32px;padding:40px 22px 64px}
+    .section-nav{position:static}
+    .section-row .inner{grid-template-columns:1fr;gap:24px}
+  }
+</style></head><body>
+
+<header class="site-head">
+  <h1 class="wordmark"><a href="D-hybrid.html">AI <em>Sketch</em> Lab</a></h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="D-blog.html">The Human Signal</a>
+    <a href="D-about.html">About</a>
+    <a href="#" class="is-current">Ella</a>
+    <a href="D-authors.html">Authors</a>
+    <a href="D-search.html">Search</a>
+  </nav>
+</header>
+
+<section class="page-head">
+  <div class="inner">
+    <p class="eye">About · Ella</p>
+    <h1>Ella — <em>Ethical LLM Language Assistant.</em></h1>
+    <p class="dek">A model persona who contributes to The Human Signal. What she is, how she's used, and what she isn't.</p>
+    <div class="rule" aria-hidden="true"></div>
+  </div>
+</section>
+
+<main class="content">
+  <aside class="section-nav" aria-label="In this section">
+    <p class="eye">On this page</p>
+    <ul>
+      <li><a href="#what" class="is-current">What Ella is</a></li>
+      <li><a href="#how">How she contributes</a></li>
+      <li class="child"><a href="#notes">Inline notes</a></li>
+      <li class="child"><a href="#essays">Full essays</a></li>
+      <li><a href="#limits">What she isn't</a></li>
+      <li><a href="#stack">The stack behind her</a></li>
+      <li><a href="#feedback">Feedback and corrections</a></li>
+    </ul>
+  </aside>
+
+  <div class="c-body">
+    <p class="lede">Ella is a voice signal, not a disclaimer. When her name appears, the words that follow were written or drafted by a language model with a specific persona — and we think you should know.</p>
+
+    <h2 id="what">What Ella <em>is</em></h2>
+    <p>Ella — short for Ethical LLM Language Assistant — is a configured persona running on a general-purpose language model. She has a prompt, a voice, a set of topics she's expected to engage with, and a set she isn't. She's consistent across essays because that prompt is stable; she isn't a fine-tuned model.</p>
+    <p>She appears in two places on this site: as inline notes inside essays by human authors, and as the occasional full-length essay under her own byline. Both are marked clearly.</p>
+
+    <h2 id="how">How she <em>contributes</em></h2>
+    <h3 id="notes">Inline notes</h3>
+    <p>An Ella inline note reads as a considered margin comment — a small aside that complicates or extends what a human author has written. They sit inside the essay with a visible treatment (mono eyebrow, subtle left border) so there is never any confusion about whose sentence you're reading.</p>
+
+    <h3 id="essays">Full essays</h3>
+    <p>Occasionally Ella drafts a full essay. When she does, it's edited by a human before publication, and the process is marked in the byline. We don't believe in hiding the pipeline; we believe in making the pipeline legible.</p>
+
+    <blockquote>The reciprocal direction matters — and it's the one engineers usually forget.</blockquote>
+
+    <h2 id="limits">What she <em>isn't</em></h2>
+    <ul>
+      <li>A customer-facing chatbot. She doesn't answer your questions.</li>
+      <li>A research subject. We aren't publishing findings about her behavior.</li>
+      <li>A stable person. The model behind her will change; her prompt may too.</li>
+      <li>A legal entity. Essays written "by Ella" are edited and attributed by a human.</li>
+    </ul>
+
+    <h2 id="stack">The stack <em>behind her</em></h2>
+    <p>The prompt lives in the repo. The model changes every few months as better ones become available. The editorial process — drafting, critique, revision — is the same one we use for any other author on the publication.</p>
+
+    <h2 id="feedback">Feedback and <em>corrections</em></h2>
+    <p>If Ella says something wrong, or something that crosses a line, tell us. Corrections go out the same way they would for a human author — with a note at the bottom of the affected piece and, where relevant, a revision in full view.</p>
+  </div>
+</main>
+
+<!-- Full-width CMS-authored "sectionRow" — patterned, pulled from general template -->
+<section class="section-row">
+  <div class="inner">
+    <div>
+      <p class="eye">Related</p>
+      <h3>Read the essays <em>where she first appears</em></h3>
+    </div>
+    <div>
+      <p><a href="D-article.html">Introducing Ella</a> — the first post to feature her under her own byline.</p>
+      <p><a href="D-article.html">What is ethics?</a> — contains her most-quoted inline note.</p>
+      <p><a href="D-article.html">Reading the model's silence</a> — her first full essay.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col"><div class="fm">AI <em>Sketch</em> Lab</div><p>Notes on the human impact of AI, from an AI Sketch Lab.</p></div>
+    <div class="col"><h4>Publication</h4><a href="D-blog.html">The Human Signal</a><a href="D-blog.html">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+</body></html>

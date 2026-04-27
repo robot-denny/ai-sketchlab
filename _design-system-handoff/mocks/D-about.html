@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About — AI Sketch Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--surface-primary);color:var(--text-primary)}
+  img{max-width:100%;display:block}
+
+  /* Compact masthead (shared) */
+  .site-head{border-bottom:1px solid var(--border-light);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--surface-primary);position:sticky;top:0;z-index:20}
+  .wordmark{font-family:var(--font-display);font-weight:500;font-size:22px;letter-spacing:-.015em;margin:0}
+  .wordmark em{font-style:italic;font-weight:400}
+  .wordmark a{color:inherit;text-decoration:none}
+  .site-nav{display:flex;gap:22px;align-items:center}
+  .site-nav a{font-family:var(--font-body);font-weight:400;font-size:14px;color:var(--text-primary);text-decoration:none;letter-spacing:.01em}
+  .site-nav a.is-current{font-weight:600;border-bottom:1px solid var(--text-primary)}
+
+  /* ── Hero — E3: Warm anchor, dark field note ─────────────
+     Title leads in full editorial weight; a short red rule
+     pairs with an italic dek. Below, a two-col row places
+     body copy next to a compact dark "field note" carrying
+     the secondary quote. */
+  .about-hero{padding:88px 32px 24px;max-width:1080px;margin:0 auto}
+  .about-hero .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-secondary);margin:0 0 20px}
+  .about-hero h1{font-family:var(--font-display);font-weight:400;font-size:clamp(2.75rem,2rem+3vw,4.5rem);line-height:1;letter-spacing:-.02em;margin:0 0 20px;max-width:16ch;color:var(--text-primary)}
+  .about-hero h1 em{font-style:italic;font-weight:300}
+  .about-hero .rule{width:80px;height:2px;background:var(--accent-primary);margin:0 0 24px}
+  .about-hero .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.375rem,1.15rem+.6vw,1.625rem);line-height:1.35;color:var(--text-secondary);max-width:38ch;margin:0}
+
+  /* Two-col hero bottom: prose left, dark field note right */
+  .about-hero-bottom{display:grid;grid-template-columns:1fr 420px;gap:48px;max-width:1080px;margin:56px auto 0;padding:0 32px;align-items:end}
+  .about-hero-bottom .desc{font-family:var(--font-body);font-size:1.0625rem;line-height:1.65;color:var(--text-primary);max-width:42ch;margin:0}
+  .about-hero-bottom .meta{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-tertiary);margin:18px 0 0}
+  .field-note{position:relative;background:var(--dc-anthracite);color:var(--text-on-dark);padding:32px 32px 38px;overflow:hidden}
+  .field-note .glyph{position:absolute;right:-5%;top:-18%;font-family:var(--font-display);font-weight:300;font-size:320px;line-height:.8;color:var(--dc-slate);letter-spacing:-.05em;opacity:.85}
+  .field-note .sig{position:absolute;right:0;top:0;bottom:0;width:2px;background:var(--dc-signal)}
+  .field-note .eye{font-family:var(--font-mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-on-dark-secondary);margin:0 0 14px;position:relative;z-index:1}
+  .field-note blockquote{margin:0 0 12px;font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.375rem;line-height:1.25;color:var(--text-on-dark);max-width:20ch;position:relative;z-index:1}
+  .field-note cite{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dc-slate);font-style:normal;position:relative;z-index:1}
+
+  /* ── Body — a long-form manifesto, reading width ─────────── */
+  .about-body{padding:112px 32px 48px;max-width:780px;margin:0 auto}
+  .about-body .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-secondary);margin:0 0 14px}
+  .about-body h2{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,1.6rem+1.6vw,2.75rem);line-height:1.08;letter-spacing:-.015em;margin:0 0 20px;max-width:18ch}
+  .about-body h2 em{font-style:italic;font-weight:300}
+  .about-body h3{font-family:var(--font-display);font-weight:400;font-size:1.75rem;line-height:1.1;letter-spacing:-.01em;margin:2.5em 0 .5em}
+  .about-body h3 em{font-style:italic;font-weight:300}
+  .about-body p{font-family:var(--font-body);font-size:1.125rem;line-height:1.65;color:var(--text-primary);margin:0 0 1.2em;max-width:36em}
+  .about-body .lede{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.5rem;line-height:1.4;color:var(--text-primary);max-width:32ch;margin:0 0 32px}
+
+  /* ── Two-column: Who it's for / What it isn't ─────────────── */
+  .split{max-width:1040px;margin:56px auto 0;padding:56px 32px;border-top:1px solid var(--border-light);display:grid;grid-template-columns:1fr 1fr;gap:64px}
+  .split .col .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 14px}
+  .split .col h3{font-family:var(--font-display);font-weight:400;font-size:1.625rem;line-height:1.15;letter-spacing:-.01em;margin:0 0 16px}
+  .split ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px}
+  .split li{font-family:var(--font-body);font-size:15px;line-height:1.55;color:var(--text-secondary);padding-left:20px;position:relative}
+  .split li::before{content:"";position:absolute;left:0;top:.65em;width:10px;height:1px;background:var(--text-secondary)}
+  .split .no li::before{background:var(--accent-primary)}
+
+  /* ── Author strip (Dennis) ────────────────────────────────── */
+  .author{max-width:1040px;margin:0 auto;padding:56px 32px;border-top:1px solid var(--border-light);display:grid;grid-template-columns:180px 1fr;gap:40px;align-items:start}
+  .author .avatar{width:160px;height:160px;background:var(--surface-tertiary);overflow:hidden;border-radius:50%}
+  .author .avatar img{width:100%;height:100%;object-fit:cover}
+  .author .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px}
+  .author h3{font-family:var(--font-display);font-weight:400;font-size:2rem;line-height:1.1;letter-spacing:-.01em;margin:0 0 6px}
+  .author .role{font-family:var(--font-body);font-size:14px;color:var(--text-secondary);margin:0 0 18px;letter-spacing:.02em}
+  .author p{font-family:var(--font-body);font-size:1.0625rem;line-height:1.6;color:var(--text-primary);margin:0 0 1em;max-width:36em}
+
+  /* Footer (shared) */
+  .foot{margin-top:48px;padding:56px 32px 40px;border-top:1px solid var(--border-light);background:var(--surface-secondary)}
+  .foot-inner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;align-items:start}
+  .foot h4{font-family:var(--font-body);font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--text-secondary);margin:0 0 10px}
+  .foot .fm{font-family:var(--font-display);font-weight:500;font-size:26px;letter-spacing:-.015em;margin:0 0 8px}
+  .foot .fm em{font-style:italic;font-weight:400}
+  .foot .col p,.foot .col a{font-family:var(--font-body);font-size:13px;line-height:1.6;color:var(--text-secondary);display:block;text-decoration:none}
+  .colophon{grid-column:1/-1;padding-top:32px;margin-top:24px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
+
+  @media (max-width:900px){
+    .about-hero{padding:56px 22px 16px}
+    .about-hero-bottom{grid-template-columns:1fr;gap:32px;padding:0 22px;margin-top:40px}
+    .field-note{padding:28px 28px 32px}
+    .field-note .glyph{font-size:240px}
+    .split{grid-template-columns:1fr;gap:32px;padding:40px 22px}
+    .author{grid-template-columns:1fr;padding:40px 22px;gap:20px}
+    .author .avatar{width:120px;height:120px}
+    .foot-inner{grid-template-columns:1fr;gap:28px}
+    .about-body{padding:64px 22px 32px}
+    .site-head{padding:14px 20px;gap:14px}
+    .site-nav{gap:14px}
+  }
+</style></head><body>
+
+<header class="site-head">
+  <h1 class="wordmark"><a href="D-hybrid.html">AI <em>Sketch</em> Lab</a></h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="D-hybrid.html">The Human Signal</a>
+    <a href="D-about.html" class="is-current">About</a>
+    <a href="#">Ella</a>
+    <a href="#">Archive</a>
+  </nav>
+</header>
+
+<!-- E3 HERO: warm anchor + dark field note -->
+<section class="about-hero" aria-labelledby="about-heading">
+  <p class="eye">About · AI Sketch Lab</p>
+  <h1 id="about-heading">A lab is where experiments go to <em>fail quickly</em> and with dignity.</h1>
+  <div class="rule" aria-hidden="true"></div>
+  <p class="dek">Less a website than a thought experiment that got out of hand — a sketch lab for thinking about how AI affects the people who live with it.</p>
+</section>
+<div class="about-hero-bottom">
+  <div>
+    <p class="desc">The Human Signal is a publication about working with — and being worked on by — language models. It's run as a lab notebook.</p>
+    <p class="meta">Written by Dennis Kardys · Housed at Diagram</p>
+  </div>
+  <aside class="field-note">
+    <div class="glyph" aria-hidden="true">А</div>
+    <div class="sig" aria-hidden="true"></div>
+    <p class="eye">Field note</p>
+    <blockquote>Ethics is what you owe the people affected by your choices when you can't see them.</blockquote>
+    <cite>— from “What is ethics?”</cite>
+  </aside>
+</div>
+
+<!-- MANIFESTO BODY -->
+<article class="about-body">
+  <p class="eye">What this is</p>
+  <h2>A sketch lab, not a <em>product page</em>.</h2>
+  <p class="lede">A lab is the space between a napkin and a spec — quick enough to disagree with tomorrow, slow enough that the disagreement is worth something.</p>
+
+  <p>The Human Signal is a publication about working with — and being worked on by — language models. It's run as a lab notebook: dated entries, inline notes from Ella, and essays that treat their own provisional-ness as a feature. Every page here is simultaneously a finished artifact and a piece of evidence.</p>
+
+  <p>I started writing it to describe what an AI Sketch Lab would do. The writing turned out to be the lab. That's fine.</p>
+
+  <h3>What the lab does</h3>
+  <p>Thinks out loud. Makes tools it uses on itself. Publishes when something feels worth reading, not when a schedule says so. Keeps Ella — an experimental assistant — close to the writing, in the margins, where her voice can be heard without replacing anyone's.</p>
+
+  <h3>What it doesn't</h3>
+  <p>Sell anything. Gate anything behind a signup. Pretend that AI is either a miracle or a catastrophe. Use stock imagery. Treat ethics as a checklist or a brand.</p>
+</article>
+
+<!-- WHO + WHAT IT ISN'T -->
+<section class="split">
+  <div class="col">
+    <p class="eye">Who it's for</p>
+    <h3>The people the writing expects.</h3>
+    <ul>
+      <li>Designers and engineers working with language models day-to-day</li>
+      <li>The Umbraco community, thinking about CMS + AI</li>
+      <li>Colleagues and peers curious about ethical AI in practice</li>
+      <li>Anyone skeptical of AI marketing but still curious about the work</li>
+    </ul>
+  </div>
+  <div class="col no">
+    <p class="eye">What it's not</p>
+    <h3>The conversations we won't be having.</h3>
+    <ul>
+      <li>AGI arrival timelines</li>
+      <li>Benchmark leaderboards</li>
+      <li>"Here's how to prompt better" listicles</li>
+      <li>Vendor-vs-vendor model comparisons</li>
+    </ul>
+  </div>
+</section>
+
+<!-- AUTHOR -->
+<section class="author" aria-labelledby="author-heading">
+  <div class="avatar"><img src="assets/dkardys-headshot.jpg" alt="Dennis Kardys"/></div>
+  <div>
+    <p class="eye">Written by</p>
+    <h3 id="author-heading">Dennis Kardys</h3>
+    <p class="role">Head of Design &amp; Development · Diagram</p>
+    <p>A former developer turned essayist, writing at the intersection of software and the people who live with it. The Human Signal is his working notebook — an AI Sketch Lab housed inside the Diagram studio.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col">
+      <div class="fm">AI <em>Sketch</em> Lab</div>
+      <p>Notes on the human impact of AI, from an AI Sketch Lab.</p>
+    </div>
+    <div class="col"><h4>Publication</h4><a href="#">The Human Signal</a><a href="#">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+
+</body></html>

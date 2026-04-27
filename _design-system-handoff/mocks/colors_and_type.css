@@ -1,0 +1,251 @@
+/* ================================================================
+   Diagram Design System — Colors & Type
+   Extracted from: umbraco-17-demo-site typography.css (The Human Signal)
+   Base: Bootstrap 5 + Clean Blog + design-system overrides.
+   ================================================================ */
+
+:root {
+  /* ── Font Stacks ───────────────────────────────────────────── */
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* ── Text (warm stone) ─────────────────────────────────────── */
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary: #78716C;
+  --text-on-dark: #F0EDE8;
+  --text-on-dark-secondary: #A8A29E;
+
+  /* ── Surfaces ──────────────────────────────────────────────── */
+  --surface-primary: #FFFCF9;
+  --surface-secondary: #F5F0EB;
+  --surface-tertiary: #EDE8E3;
+  --surface-dark: #1A1A1E;
+  --surface-dark-elevated: #252530;
+  --surface-overlay: rgba(26, 26, 30, 0.6);
+
+  /* ── Dark Constructivism (imagery layer) ──────────────────────
+     A compressed dark value range for generated hero imagery.
+     Used ONLY in hero/banner imagery — never as UI surface.
+     The jump from one step to the next is ~2% luminance; in
+     darkness, that small shift does the compositional work.    */
+  --dc-obsidian: #101014;   /* deepest plane                   */
+  --dc-anthracite: #1A1A1E; /* base field (== --surface-dark)  */
+  --dc-graphite: #202026;   /* overlapping plane               */
+  --dc-charcoal: #252530;   /* elevated plane / highlight edge */
+  --dc-slate: #2D2D38;      /* rare — top of the range         */
+  --dc-signal: #C23D2E;     /* signal red accent (wedge/line)  */
+
+  /* ── Accent palette ────────────────────────────────────────── */
+  --accent-primary: #C23D2E;            /* signal red */
+  --accent-primary-hover: #A83428;
+  --accent-primary-subtle: rgba(194, 61, 46, 0.08);
+  --accent-primary-light: #E8ADA7;
+  --accent-secondary: #8B6B4A;          /* warm bronze */
+  --accent-secondary-hover: #6E5339;
+  --accent-tertiary: #4A6B6E;           /* quiet teal */
+
+  /* ── Status ────────────────────────────────────────────────── */
+  --status-success: #3D7A4A;
+  --status-warning: #B8860B;
+  --status-error: #C23D2E;
+  --status-info: #4A6B6E;
+
+  /* ── Borders ───────────────────────────────────────────────── */
+  --border-light: #E0DAD4;
+  --border-medium: #C4BCB4;
+  --border-dark: #3A3A42;
+  --border-accent: var(--accent-primary);
+
+  /* ── Links ─────────────────────────────────────────────────── */
+  --site-link-color: #8B6B4A;
+  --site-link-hover-color: #6E5339;
+
+  /* ── Spacing scale (tied to 18px base html) ────────────────── */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 8rem;
+
+  /* ── Easing ────────────────────────────────────────────────── */
+  --ease-micro: 150ms ease;
+  --ease-standard: 250ms ease-out;
+  --ease-emphasis: 350ms ease-out;
+
+  /* ── Base body ─────────────────────────────────────────────── */
+  --bs-body-color: var(--text-primary);
+  --bs-body-bg: var(--surface-primary);
+  --bs-body-line-height: 1.6;
+  --bs-body-font-family: var(--font-body);
+}
+
+/* Base sizes — html is 18px (not 16!) */
+html { font-size: 18px; }
+
+body {
+  color: var(--text-primary);
+  background-color: var(--surface-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* ── Headings ──────────────────────────────────────────────── */
+h1, .h1, h2, .h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.1;
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}
+h1, .h1 { font-size: clamp(2rem, 1.5rem + 2.5vw, 3rem); letter-spacing: -0.015em; }
+h2, .h2 { font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.25rem); letter-spacing: -0.01em; }
+
+/* h3 default is a serif display heading (matches .h1/.h2). For the sans-serif
+   uppercase eyebrow, apply the .eyebrow class explicitly. This avoids
+   clobbering authored <h3> elements inside articles, post previews, etc. */
+h3, .h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.375rem, 1.2rem + 0.7vw, 1.625rem);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  margin: 0 0 0.5rem;
+}
+h3.eyebrow, .h3.eyebrow, .eyebrow {
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--text-secondary);
+}
+h4, .h4 {
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-size: clamp(1.125rem, 1rem + 0.3vw, 1.25rem);
+  line-height: 1.3;
+  margin: 0 0 0.5rem;
+}
+h5, .h5 { font-family: var(--font-body); font-weight: 600; font-size: 1.1rem; line-height: 1.35; letter-spacing: 0.015em; margin: 0 0 0.5rem; }
+h6, .h6 { font-family: var(--font-body); font-weight: 600; font-size: 1rem; line-height: 1.4; margin: 0 0 0.5rem; }
+
+/* Display sizes */
+.display-1 { font-size: clamp(2.5rem, 2rem + 4vw, 5rem); font-weight: 300; line-height: 1.2; font-family: var(--font-display); }
+.display-4 { font-size: clamp(2rem, 1.5rem + 3vw, 3.5rem); font-weight: 300; line-height: 1.2; font-family: var(--font-display); }
+
+/* Body text */
+p { margin: 0 0 1rem; }
+.lead { font-size: 1.25rem; font-weight: 300; line-height: 1.55; }
+
+/* Overline */
+.overline {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+/* Blockquote (editorial pull) */
+blockquote, .blockquote {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--text-primary);
+  border-left: 3px solid var(--text-secondary);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
+.pull-quote {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.3;
+  text-align: center;
+  margin: 3rem auto;
+  max-width: 36em;
+}
+
+.caption {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* Article meta */
+.post-meta, .article-meta {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+}
+
+/* Code */
+code, pre, kbd { font-family: var(--font-mono); }
+code {
+  font-size: 0.875em;
+  background: var(--surface-tertiary);
+  padding: 0.125em 0.375em;
+  color: var(--text-primary);
+}
+pre {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  background: var(--surface-dark);
+  color: var(--text-on-dark);
+  padding: 1em;
+}
+pre code { background: transparent; padding: 0; color: inherit; }
+
+/* Links */
+a {
+  color: var(--site-link-color);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+  text-decoration-skip-ink: auto;
+  transition: color var(--ease-micro), text-decoration-thickness var(--ease-micro);
+}
+a:hover { color: var(--site-link-hover-color); text-decoration-thickness: 2px; }
+a:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; text-decoration: none; }
+
+/* AI-authored content treatment */
+.ai-authored {
+  letter-spacing: 0.005em;
+  border-left: 2px solid var(--text-tertiary);
+  padding-left: 1.5rem;
+}
+.ai-authored h1, .ai-authored .h1, .ai-authored h2, .ai-authored .h2 {
+  font-family: var(--font-body);
+  font-weight: 300;
+  letter-spacing: 0;
+}
+.ai-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* On-dark context */
+.on-dark,
+.on-dark h1, .on-dark h2, .on-dark h3, .on-dark h4, .on-dark h5, .on-dark h6,
+.on-dark p, .on-dark li { color: var(--text-on-dark); }
+.on-dark h1, .on-dark h2, .on-dark h3, .on-dark h4 { text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.on-dark a { color: var(--text-on-dark); text-decoration-color: rgba(240,237,232,.5); }

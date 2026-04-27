@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What is ethics? — The Human Signal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--surface-primary);color:var(--text-primary)}
+  img{max-width:100%;display:block}
+
+  /* Compact masthead (shared with home) */
+  .site-head{border-bottom:1px solid var(--border-light);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--surface-primary);position:sticky;top:0;z-index:20}
+  .wordmark{font-family:var(--font-display);font-weight:500;font-size:22px;letter-spacing:-.015em;margin:0}
+  .wordmark em{font-style:italic;font-weight:400}
+  .wordmark a{color:inherit;text-decoration:none}
+  .site-nav{display:flex;gap:22px;align-items:center}
+  .site-nav a{font-family:var(--font-body);font-weight:400;font-size:14px;color:var(--text-primary);text-decoration:none;letter-spacing:.01em}
+  .site-nav a.is-current{font-weight:600;border-bottom:1px solid var(--text-primary)}
+
+  /* Article header — editorial, typography carries */
+  .back{padding:28px 32px 0;max-width:780px;margin:0 auto}
+  .back a{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+  .back a:hover{color:var(--text-primary)}
+
+  .art-head{padding:32px 32px 56px;max-width:780px;margin:0 auto}
+  .art-head .kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-secondary);margin:0 0 16px}
+  .art-head h1{font-family:var(--font-display);font-weight:400;font-size:clamp(2.5rem,1.8rem+2.8vw,4.25rem);line-height:1.02;letter-spacing:-.02em;margin:0 0 20px;max-width:18ch}
+  .art-head h1 em{font-style:italic;font-weight:300}
+  .art-head .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.25rem,1.1rem+.5vw,1.625rem);line-height:1.35;color:var(--text-secondary);margin:0 0 28px;max-width:38ch}
+  .art-head .byline{display:flex;gap:18px;align-items:baseline;font-family:var(--font-body);font-size:13px;color:var(--text-secondary);letter-spacing:.02em}
+  .art-head .byline b{font-family:var(--font-body);font-weight:600;color:var(--text-primary)}
+  .art-head .byline .sep{color:var(--text-tertiary)}
+
+  /* Hero image — optional, full-bleed within the read column */
+  .art-hero{position:relative;aspect-ratio:16/9;background:var(--surface-tertiary);overflow:hidden;margin:0 0 8px}
+  .art-hero img{width:100%;height:100%;object-fit:cover}
+  .art-hero .cap{margin:10px 0 0;padding:0 32px;max-width:780px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--text-tertiary)}
+
+  /* Body — 36em reading width */
+  .art-body{padding:48px 32px 80px;max-width:780px;margin:0 auto}
+  .art-body p{font-family:var(--font-body);font-size:1.125rem;line-height:1.65;color:var(--text-primary);margin:0 0 1.2em;max-width:36em}
+  .art-body h3{font-family:var(--font-display);font-weight:400;font-size:2rem;line-height:1.1;letter-spacing:-.01em;margin:2em 0 .5em;max-width:24ch}
+  .art-body h3 em{font-style:italic;font-weight:300}
+
+  /* Pull quote */
+  .art-body blockquote{margin:2em 0;padding:0 0 0 28px;border-left:2px solid var(--accent-primary);font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.5rem,1.3rem+.6vw,1.875rem);line-height:1.25;color:var(--text-primary);max-width:34ch}
+
+  /* Ella / AI inline note — Plex Mono-as-information, subtle */
+  .ella{margin:2em 0;padding:20px 24px;background:var(--surface-secondary);border-left:2px solid var(--text-tertiary)}
+  .ella .eye{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+  .ella .eye::before{content:"";width:6px;height:6px;background:var(--text-tertiary);border-radius:50%}
+  .ella p{font-family:var(--font-body);font-weight:300;font-size:1rem;line-height:1.6;color:var(--text-primary);margin:0;max-width:34em}
+
+  /* Next up — light footer navigation */
+  .next{border-top:1px solid var(--border-light);padding:48px 32px;max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .next .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px}
+  .next h4{font-family:var(--font-display);font-weight:400;font-size:1.625rem;line-height:1.15;letter-spacing:-.01em;margin:0 0 8px}
+  .next h4 em{font-style:italic;font-weight:300}
+  .next p{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.0625rem;line-height:1.4;color:var(--text-secondary);margin:0;max-width:34ch}
+
+  /* Footer (shared) */
+  .foot{padding:56px 32px 40px;border-top:1px solid var(--border-light);background:var(--surface-secondary)}
+  .foot-inner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;align-items:start}
+  .foot h4{font-family:var(--font-body);font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--text-secondary);margin:0 0 10px}
+  .foot .fm{font-family:var(--font-display);font-weight:500;font-size:26px;letter-spacing:-.015em;margin:0 0 8px}
+  .foot .fm em{font-style:italic;font-weight:400}
+  .foot .col p,.foot .col a{font-family:var(--font-body);font-size:13px;line-height:1.6;color:var(--text-secondary);display:block;text-decoration:none}
+  .colophon{grid-column:1/-1;padding-top:32px;margin-top:24px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
+
+  @media (max-width:760px){
+    .site-head{padding:14px 20px;gap:14px}
+    .site-nav{gap:14px}
+    .back,.art-head,.art-body{padding-left:22px;padding-right:22px}
+    .next{grid-template-columns:1fr;padding:36px 22px}
+    .foot-inner{grid-template-columns:1fr;gap:28px}
+  }
+</style></head><body>
+
+<header class="site-head">
+  <h1 class="wordmark"><a href="index.html?option=d">AI <em>Sketch</em> Lab</a></h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="D-hybrid.html" class="is-current">The Human Signal</a>
+    <a href="D-about.html">About</a>
+    <a href="#">Ella</a>
+    <a href="#">Archive</a>
+  </nav>
+</header>
+
+<div class="back"><a href="D-hybrid.html">← The Human Signal</a></div>
+
+<article>
+  <header class="art-head">
+    <p class="kicker">02 · Essay · Ethics</p>
+    <h1>What is <em>ethics?</em></h1>
+    <p class="dek">And why do most conversations about it collapse before they begin?</p>
+    <div class="byline">
+      <span>By <b>Dennis Kardys</b></span><span class="sep">·</span>
+      <span>April 2, 2026</span><span class="sep">·</span>
+      <span>8 min read</span>
+    </div>
+  </header>
+
+  <figure class="art-hero">
+    <img src="assets/ethics-article.png" alt="" />
+  </figure>
+
+  <div class="art-body">
+    <p>Most conversations about AI ethics fail in the same place: the second sentence. Someone says "ethics" and someone else hears "rules," and the thread is already unspooled. The two people aren't disagreeing about ethics. They're using the same word for two different things, and neither has noticed.</p>
+
+    <h3>A working definition</h3>
+    <p>Ethics is what you owe the people affected by your choices when you can't see them. That's the whole thing. Everything else — frameworks, principles, audits — is a scaffold around that one obligation. Scaffolds matter; they're how the obligation gets built out in practice. But they're not the obligation itself, and mistaking one for the other is how ethics conversations collapse.</p>
+
+    <blockquote>Ethics is what you owe the people affected by your choices when you can't see them.</blockquote>
+
+    <p>If that sentence feels unfinished, good. It should. Most of the hard work is in the second half — "the people affected by your choices when you can't see them" does most of the lifting, and the part we're worst at.</p>
+
+    <aside class="ella" aria-label="A note from Ella">
+      <p class="eye">Written by Ella · inline note</p>
+      <p>I'd add: ethics is also what the model owes you. The reciprocal direction matters — and it's the one engineers usually forget. A system designed around one-way obligation produces one-way relationships.</p>
+    </aside>
+
+    <h3>Why the thread unspools</h3>
+    <p>When someone hears "ethics" and translates it to "rules," they aren't misreading you — they're importing a whole history of the word's use in their field. For lawyers, ethics is compliance. For philosophers, it's a branch of inquiry. For engineers, too often, it's a checklist attached to a review meeting. None of those are wrong; they're all partial.</p>
+
+    <p>The useful move is not to correct the translation. It's to ask what <em>your</em> field's default translation costs you — what obligations get elided when ethics means "the rules we followed" instead of "the people we owed."</p>
+  </div>
+</article>
+
+<!-- Next up -->
+<section class="next" aria-labelledby="next-heading">
+  <div>
+    <p class="eye" id="next-heading">Previously</p>
+    <h4>What's in a <em>name?</em></h4>
+    <p>Naming a lab is naming the work you expect to do there.</p>
+  </div>
+  <div>
+    <p class="eye">Next</p>
+    <h4>Being built <em>while building</em></h4>
+    <p>The site you're reading is the lab notebook for its own construction.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col">
+      <div class="fm">AI <em>Sketch</em> Lab</div>
+      <p>Notes on the human impact of AI, from an AI Sketch Lab.</p>
+    </div>
+    <div class="col"><h4>Publication</h4><a href="#">The Human Signal</a><a href="#">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+
+</body></html>

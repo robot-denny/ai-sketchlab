@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Not found — The Human Signal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .nf{min-height:calc(100vh - 72px - 260px);display:grid;grid-template-columns:1fr 1fr;max-width:1160px;margin:0 auto;padding:0 32px;align-items:stretch}
+  .nf-left{padding:96px 48px 96px 0;display:flex;flex-direction:column;justify-content:center;gap:20px;border-right:1px solid var(--border-light)}
+  .nf-left .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);margin:0}
+  .nf-left h1{font-family:var(--font-display);font-weight:400;font-size:clamp(3rem,2rem+3.5vw,5rem);line-height:.98;letter-spacing:-.025em;margin:0;max-width:18ch}
+  .nf-left h1 em{font-style:italic;font-weight:300}
+  .nf-left .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.25rem;line-height:1.45;color:var(--text-secondary);margin:8px 0 0;max-width:38ch}
+  .nf-left .actions{display:flex;gap:20px;margin-top:14px;font-family:var(--font-body);font-size:14px;letter-spacing:.02em}
+  .nf-left .actions a{color:var(--accent-secondary);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+  .nf-left .actions a:hover{text-decoration-thickness:2px}
+
+  .nf-right{position:relative;background:var(--dc-anthracite);background-image:var(--pattern-woven-dark);background-size:240px 240px;overflow:hidden;min-height:520px}
+  .nf-right .wedge{position:absolute;inset:0;background:linear-gradient(118deg,transparent 55%,var(--dc-graphite) 55% 72%,transparent 72%)}
+  .nf-right .line{position:absolute;top:12%;bottom:18%;right:18%;width:2px;background:var(--accent-primary)}
+  .nf-right .glyph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:300;font-size:clamp(14rem, calc(12rem + 8vw), 22rem);color:var(--dc-charcoal);letter-spacing:-.06em;user-select:none;line-height:1}
+  .nf-right .glyph em{font-style:italic;font-weight:300;color:var(--dc-slate)}
+  .nf-right .code{position:absolute;top:24px;left:28px;font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-on-dark);opacity:.6}
+
+  @media (max-width:820px){
+    .nf{grid-template-columns:1fr}
+    .nf-left{padding:56px 0;border-right:0;border-bottom:1px solid var(--border-light)}
+    .nf-right{min-height:340px}
+  }
+</style></head><body>
+
+<header class="site-head">
+  <h1 class="wordmark"><a href="D-hybrid.html">AI <em>Sketch</em> Lab</a></h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="D-blog.html">The Human Signal</a>
+    <a href="D-about.html">About</a>
+    <a href="#">Ella</a>
+    <a href="D-authors.html">Authors</a>
+    <a href="D-search.html">Search</a>
+  </nav>
+</header>
+
+<main class="nf">
+  <section class="nf-left">
+    <p class="eye">404 · Not found</p>
+    <h1>The page <em>isn't here.</em></h1>
+    <p class="dek">Either we moved it, never wrote it, or you followed a link that pre-dates the rename. The lab notebook is a little uneven that way.</p>
+    <div class="actions">
+      <a href="D-hybrid.html">← Back to the signal</a>
+      <a href="D-search.html">Search essays</a>
+      <a href="D-blog.html">Archive</a>
+    </div>
+  </section>
+  <section class="nf-right" aria-hidden="true">
+    <span class="code">Signal lost · retry</span>
+    <div class="wedge"></div>
+    <div class="line"></div>
+    <div class="glyph">4<em>0</em>4</div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col"><div class="fm">AI <em>Sketch</em> Lab</div><p>Notes on the human impact of AI, from an AI Sketch Lab.</p></div>
+    <div class="col"><h4>Publication</h4><a href="D-blog.html">The Human Signal</a><a href="D-blog.html">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+</body></html>

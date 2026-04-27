@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home — v2 hybrid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--surface-primary);color:var(--text-primary)}
+  img{max-width:100%;display:block}
+  .nb{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
+
+  /* ── Pattern tokens ─────────────────────────────────────── */
+  :root{
+    --pattern-stochastic: url('assets/patterns/stochastic-grid.svg');
+    --pattern-woven-dark: url('assets/patterns/woven-lines.svg');
+    --pattern-scatter: url('assets/patterns/scatter-left.svg');
+  }
+
+  /* ── Compact site head (lives on every page) ─────────────── */
+  .site-head{border-bottom:1px solid var(--border-light);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--surface-primary);position:sticky;top:0;z-index:20}
+  .wordmark{font-family:var(--font-display);font-weight:500;font-size:22px;letter-spacing:-.015em;margin:0}
+  .wordmark em{font-style:italic;font-weight:400}
+  .site-nav{display:flex;gap:22px;align-items:center}
+  .site-nav a{font-family:var(--font-body);font-weight:400;font-size:14px;color:var(--text-primary);text-decoration:none;letter-spacing:.01em}
+  .site-nav a.is-current{font-weight:600;border-bottom:1px solid var(--text-primary)}
+
+  /* ── Hero (classical editorial, typographic) ─────────────── */
+  .hero{padding:112px 32px 92px;text-align:center;border-bottom:1px solid var(--border-light);position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;inset:0;background-image:var(--pattern-scatter);background-size:cover;background-position:left center;background-repeat:no-repeat;opacity:.55;mask-image:linear-gradient(90deg,#000 0%,#000 42%,transparent 85%);-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 42%,transparent 85%);pointer-events:none}
+  .hero > *{position:relative;z-index:1}
+  .hero .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 22px}
+  .hero h1{font-family:var(--font-display);font-weight:400;font-size:clamp(3rem,2rem+4vw,5.5rem);line-height:1.02;letter-spacing:-.02em;margin:0 auto 18px;max-width:14ch}
+  .hero h1 em{font-style:italic;font-weight:300}
+  .hero .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.1rem,1rem+.4vw,1.375rem);line-height:1.45;color:var(--text-secondary);max-width:46ch;margin:0 auto}
+  .hero .rule{width:48px;height:1px;background:var(--accent-primary);margin:34px auto 0}
+
+  /* ── The Latest — featured + 3-across grid (borrowed from B) ─ */
+  .latest{padding:72px 32px 24px;max-width:1160px;margin:0 auto}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:24px;border-bottom:1px solid var(--border-light);padding-bottom:14px;margin-bottom:32px}
+  .section-head .h{font-family:var(--font-display);font-weight:400;font-size:26px;margin:0;letter-spacing:-.01em}
+  .section-head .m{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
+
+  /* Featured entry — asymmetric, image left, copy right */
+  .feature{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;padding-bottom:48px;margin-bottom:48px;border-bottom:1px solid var(--border-light)}
+  .feature .thumb{aspect-ratio:5/4;background:var(--surface-tertiary);position:relative;overflow:hidden}
+  .feature .thumb img{width:100%;height:100%;object-fit:cover}
+  .feature .num{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:var(--accent-secondary);margin:0 0 18px}
+  .feature h2{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,1.5rem+1.8vw,3.25rem);line-height:1.05;letter-spacing:-.015em;margin:0 0 16px;max-width:18ch}
+  .feature h2 em{font-style:italic;font-weight:300}
+  .feature .sub{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.125rem,1rem+.4vw,1.375rem);line-height:1.45;color:var(--text-secondary);margin:0 0 20px;max-width:36ch}
+  .feature .meta{font-family:var(--font-body);font-size:13px;letter-spacing:.03em;color:var(--text-secondary)}
+
+  /* 3-across recent grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px 40px}
+  .entry{display:flex;flex-direction:column;gap:12px}
+  .entry .thumb{aspect-ratio:4/3;background:var(--surface-tertiary);position:relative;overflow:hidden}
+  .entry .thumb img{width:100%;height:100%;object-fit:cover}
+  .entry .num{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--accent-secondary);margin:8px 0 0}
+  .entry h3{font-family:var(--font-display);font-weight:400;font-size:1.625rem;line-height:1.1;letter-spacing:-.01em;margin:0}
+  .entry h3 em{font-style:italic;font-weight:300}
+  .entry .sub{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.0625rem;line-height:1.45;color:var(--text-secondary);margin:0;max-width:38ch}
+  .entry .meta{font-family:var(--font-body);font-size:12px;letter-spacing:.03em;color:var(--text-secondary)}
+
+  .archive-link{margin:56px 0 0;text-align:center}
+  .archive-link a{font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-primary);text-decoration:underline;text-underline-offset:.35em}
+
+  /* ── DC MOMENT — canonical: dc-pull (minimal, warm surface) ──
+     Only one DC variant per page, placed between Latest and Manifesto.
+     Echoes the article page's pull-quote treatment (left rule, signal red). */
+  .dc-pull{padding:96px 32px 48px;max-width:900px;margin:0 auto;position:relative}
+  .dc-pull::before{content:"";position:absolute;left:32px;top:96px;width:2px;height:calc(100% - 120px);background:var(--accent-primary)}
+  .dc-pull .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-primary);margin:0 0 18px;padding-left:26px}
+  .dc-pull blockquote{font-family:var(--font-display);font-weight:300;font-style:italic;font-size:clamp(1.75rem,1.2rem+2vw,2.75rem);line-height:1.2;color:var(--text-primary);margin:0;padding-left:26px;max-width:26ch}
+  .dc-pull cite{display:block;margin:18px 0 0 26px;font-family:var(--font-body);font-style:normal;font-size:13px;letter-spacing:.03em;color:var(--text-secondary)}
+
+  /* ── About / manifesto slot (stochastic grid on warm bleed) ── */
+  .manifesto{padding:96px 32px;background-color:var(--surface-secondary);background-image:var(--pattern-stochastic);background-size:220px 220px;background-repeat:repeat;border-top:1px solid var(--border-light);border-bottom:1px solid var(--border-light);margin-top:96px}
+  .manifesto-inner{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px}
+  .manifesto .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 14px}
+  .manifesto h3{font-family:var(--font-display);font-weight:400;font-size:clamp(1.625rem,1.3rem+1.1vw,2.25rem);line-height:1.12;margin:0 0 14px;letter-spacing:-.01em;max-width:20ch}
+  .manifesto p{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.125rem;line-height:1.5;color:var(--text-primary);margin:0 0 14px;max-width:36em}
+  .manifesto ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+  .manifesto li{font-family:var(--font-body);font-size:14.5px;line-height:1.55;color:var(--text-secondary);padding-left:18px;position:relative}
+  .manifesto li::before{content:"";position:absolute;left:0;top:.65em;width:8px;height:1px;background:var(--text-secondary)}
+
+  /* Footer */
+  .foot{padding:56px 32px 40px;background:var(--surface-primary)}
+  .foot-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;align-items:start}
+  .foot h4{font-family:var(--font-body);font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--text-secondary);margin:0 0 10px}
+  .foot .fm{font-family:var(--font-display);font-weight:500;font-size:26px;letter-spacing:-.015em;margin:0 0 8px}
+  .foot .fm em{font-style:italic;font-weight:400}
+  .foot .col p,.foot .col a{font-family:var(--font-body);font-size:13px;line-height:1.6;color:var(--text-secondary);display:block;text-decoration:none}
+  .colophon{grid-column:1/-1;padding-top:32px;margin-top:24px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
+
+  @media (max-width:820px){
+    .feature{grid-template-columns:1fr;gap:20px;padding-bottom:36px;margin-bottom:36px}
+    .grid{grid-template-columns:1fr;gap:32px}
+    .manifesto-inner{grid-template-columns:1fr;gap:32px}
+    .foot-inner{grid-template-columns:1fr;gap:28px}
+    .hero{padding:72px 22px 56px}
+    .site-head{padding:14px 22px;gap:14px}
+    .site-nav{gap:14px}
+    .latest{padding:48px 22px 16px}
+    .dc-pull{padding:64px 22px 24px}
+    .dc-pull::before{left:22px;top:64px;height:calc(100% - 88px)}
+  }
+</style></head><body>
+
+<!-- COMPACT SITE HEAD -->
+<header class="site-head">
+  <h1 class="wordmark">AI <em>Sketch</em> Lab</h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="#" class="is-current">The Human Signal</a>
+    <a href="#">About</a>
+    <a href="#">Ella</a>
+    <a href="#">Archive</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="eye">The Human Signal</p>
+  <h1>Notes on the <em>human</em> impact of AI.</h1>
+  <p class="dek">A reflective, unhurried publication about working with — and being worked on by — language models.</p>
+  <div class="rule" aria-hidden="true"></div>
+</section>
+
+<!-- THE LATEST -->
+<section class="latest" aria-labelledby="latest">
+  <header class="section-head"><h2 id="latest" class="h">The latest</h2><span class="m">Updated April 2026</span></header>
+
+  <!-- Featured entry -->
+  <article class="feature">
+    <a href="#" class="thumb" aria-hidden="true"><img src="assets/being-built.png" alt=""></a>
+    <div>
+      <p class="num">01 · Mar 12, 2026</p>
+      <h2>Being built <em>while building</em></h2>
+      <p class="sub">The site you're reading is the lab notebook for its own construction.</p>
+      <p class="meta">Posted by Dennis Kardys · 6 min read</p>
+    </div>
+  </article>
+
+  <!-- Recent 3 -->
+  <div class="grid">
+    <article class="entry">
+      <a href="#" class="thumb"><img src="assets/what-is-ethics.png" alt=""></a>
+      <p class="num">02 · Apr 2, 2026</p>
+      <h3>What is ethics?</h3>
+      <p class="sub">And why do most conversations about it collapse before they begin?</p>
+      <p class="meta">Posted by Dennis Kardys · 8 min read</p>
+    </article>
+    <article class="entry">
+      <a href="#" class="thumb"><img src="assets/whats-in-a-name.png" alt=""></a>
+      <p class="num">03 · Feb 28, 2026</p>
+      <h3>What's <em>in a name?</em></h3>
+      <p class="sub">Naming a lab is naming the work you expect to do there.</p>
+      <p class="meta">Posted by Dennis Kardys · 4 min read</p>
+    </article>
+    <article class="entry">
+      <a href="#" class="thumb"><img src="assets/introducing-ella.png" alt=""></a>
+      <p class="num">04 · Jan 18, 2026</p>
+      <h3>Introducing Ella</h3>
+      <p class="sub">An Ethical LLM Language Assistant. Or an attempt at one.</p>
+      <p class="meta">Posted by Dennis Kardys · 5 min read</p>
+    </article>
+  </div>
+
+  <p class="archive-link"><a href="#">Archive — all 11 essays</a></p>
+</section>
+
+<!-- DC MOMENT — canonical: dc-pull (echoes article-page callout treatment) -->
+<section class="dc-pull" aria-labelledby="pull">
+  <p class="eye">From the lab</p>
+  <blockquote id="pull">Ethics is what you owe the people affected by your choices when you can't see them.<cite>— from "What is ethics?"</cite></blockquote>
+</section>
+
+<!-- ABOUT / MANIFESTO -->
+<section class="manifesto" aria-labelledby="about">
+  <div class="manifesto-inner">
+    <div>
+      <p class="eye">What this is</p>
+      <h3 id="about">A lab is where experiments go to fail quickly and with dignity.</h3>
+      <p>Less a website than a thought experiment that got out of hand — a sketch lab for thinking about how AI affects the people who live with it.</p>
+    </div>
+    <div>
+      <p class="eye">Who it's for</p>
+      <ul>
+        <li>Designers and engineers working with language models</li>
+        <li>The Umbraco community, thinking about CMS + AI</li>
+        <li>Colleagues curious about ethical AI in practice</li>
+        <li>Anyone skeptical of AI marketing but still curious</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col">
+      <div class="fm">AI <em>Sketch</em> Lab</div>
+      <p>Notes on the human impact of AI, from an AI Sketch Lab.</p>
+    </div>
+    <div class="col"><h4>Publication</h4><a href="#">The Human Signal</a><a href="#">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+
+<script>
+  // Listen for DC variant changes from parent switcher
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'setDc' && ['strip','pull','teaser'].includes(e.data.value)) {
+      document.body.dataset.dc = e.data.value;
+    }
+  });
+  // Allow ?dc=strip|pull|teaser URL param
+  const p = new URLSearchParams(location.search).get('dc');
+  if (p && ['strip','pull','teaser'].includes(p)) document.body.dataset.dc = p;
+</script>
+
+</body></html>

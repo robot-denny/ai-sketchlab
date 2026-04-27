@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Empty states — The Human Signal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="colors_and_type.css">
+<link rel="stylesheet" href="_shared.css">
+<style>
+  .specimen{max-width:1040px;margin:0 auto;padding:48px 32px 96px}
+  .specimen-head{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary);margin:56px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
+  .specimen-head:first-child{margin-top:0}
+
+  /* ---------- Shared empty-state anatomy ---------- */
+  .empty-block{padding:56px 40px;text-align:center;border:1px solid var(--border-light);background:var(--surface-primary);display:grid;gap:14px;justify-items:center}
+  .empty-block .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-secondary);margin:0}
+  .empty-block h3{font-family:var(--font-display);font-weight:400;font-size:clamp(1.625rem,1.3rem+1vw,2rem);line-height:1.1;letter-spacing:-.01em;margin:0;max-width:22ch}
+  .empty-block h3 em{font-style:italic;font-weight:300}
+  .empty-block .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.125rem;line-height:1.45;color:var(--text-secondary);margin:0;max-width:42ch}
+  .empty-block .actions{display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;justify-content:center}
+  .empty-block .btn{font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:10px 20px;background:var(--text-primary);color:var(--surface-primary);border:0;cursor:pointer;text-decoration:none}
+  .empty-block .btn:hover{background:var(--accent-primary)}
+  .empty-block .btn.ghost{background:transparent;color:var(--text-primary);border:1px solid var(--border-medium)}
+  .empty-block .rule{width:36px;height:1px;background:var(--accent-primary);margin:4px 0 2px}
+
+  /* With pattern (warm surface variant) */
+  .empty-block.patterned{background:var(--surface-secondary);background-image:var(--pattern-stochastic);background-size:220px 220px;border-color:transparent}
+
+  /* Inline (for widgets inside other pages) */
+  .empty-inline{padding:28px 24px;border-left:2px solid var(--accent-primary);background:var(--surface-secondary);display:grid;gap:6px;max-width:540px}
+  .empty-inline .eye{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary);margin:0}
+  .empty-inline p{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.125rem;line-height:1.4;margin:0;color:var(--text-primary)}
+  .empty-inline a{font-family:var(--font-body);font-size:13px;color:var(--accent-secondary);margin-top:4px}
+
+  /* Dark DC variant — for search on hero or DC moments */
+  .empty-dc{padding:64px 40px;background:var(--dc-anthracite);background-image:var(--pattern-woven-dark);background-size:240px 240px;color:var(--text-on-dark);text-align:center;display:grid;gap:14px;justify-items:center;position:relative;overflow:hidden}
+  .empty-dc::before{content:"Я";position:absolute;right:-3%;top:-18%;font-family:var(--font-display);font-weight:300;font-size:22rem;color:var(--dc-charcoal);line-height:1;user-select:none;pointer-events:none}
+  .empty-dc .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(240,237,232,.7);margin:0;position:relative}
+  .empty-dc h3{font-family:var(--font-display);font-weight:400;font-size:2rem;line-height:1.1;margin:0;position:relative;max-width:22ch}
+  .empty-dc h3 em{font-style:italic;font-weight:300}
+  .empty-dc .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.125rem;color:rgba(240,237,232,.75);max-width:40ch;margin:0;position:relative}
+  .empty-dc .actions{position:relative}
+  .empty-dc .btn{background:var(--accent-primary);color:var(--text-on-dark)}
+  .empty-dc .btn:hover{background:var(--accent-primary-hover)}
+</style></head><body>
+
+<header class="site-head">
+  <h1 class="wordmark"><a href="D-hybrid.html">AI <em>Sketch</em> Lab</a></h1>
+  <nav class="site-nav" aria-label="Primary">
+    <a href="D-blog.html">The Human Signal</a>
+    <a href="D-about.html">About</a>
+    <a href="#">Ella</a>
+    <a href="D-authors.html">Authors</a>
+    <a href="D-search.html">Search</a>
+  </nav>
+</header>
+
+<section class="page-head">
+  <div class="inner">
+    <p class="eye">Pattern library</p>
+    <h1>Empty <em>states.</em></h1>
+    <p class="dek">Four shapes for the moments when a page has nothing to show. All reuse the v2 hybrid vocabulary — no illustrations, no mascots.</p>
+    <div class="rule" aria-hidden="true"></div>
+  </div>
+</section>
+
+<main class="specimen">
+
+  <p class="specimen-head">01 · Default — nothing here yet</p>
+  <div class="empty-block">
+    <p class="eye">No essays yet</p>
+    <div class="rule" aria-hidden="true"></div>
+    <h3>This section is <em>quiet</em> for now.</h3>
+    <p class="dek">Ella hasn't published under her own byline yet. When she does, it'll land here first.</p>
+    <div class="actions">
+      <a class="btn" href="D-blog.html">Read the archive</a>
+      <a class="btn ghost" href="D-about.html">Learn about Ella</a>
+    </div>
+  </div>
+
+  <p class="specimen-head">02 · Search — no results</p>
+  <div class="empty-block">
+    <p class="eye">0 results</p>
+    <div class="rule" aria-hidden="true"></div>
+    <h3>Nothing matches "<em>epistemic friction</em>."</h3>
+    <p class="dek">Try fewer words, a looser phrase, or let semantic search handle it — long natural-language queries work better than keyword strings here.</p>
+    <div class="actions">
+      <a class="btn ghost" href="D-search.html">Reset search</a>
+      <a class="btn ghost" href="D-blog.html">Browse archive</a>
+    </div>
+  </div>
+
+  <p class="specimen-head">03 · Inline — widget-scale (sidebar, author pages, tag pages)</p>
+  <div class="empty-inline">
+    <p class="eye">From Ella</p>
+    <p>No inline notes on this essay — Ella read it and had nothing to add.</p>
+  </div>
+
+  <p class="specimen-head">04 · DC moment — for hero or masthead scale</p>
+  <div class="empty-dc">
+    <p class="eye">Signal lost</p>
+    <h3>We couldn't <em>reach the archive.</em></h3>
+    <p class="dek">Something between your browser and ours is quiet. Try again in a moment, or head back to the signal.</p>
+    <div class="actions">
+      <a class="btn" href="D-hybrid.html">Try again</a>
+    </div>
+  </div>
+
+  <p class="specimen-head">05 · Patterned — for warm ambient surfaces</p>
+  <div class="empty-block patterned">
+    <p class="eye">Drafts</p>
+    <div class="rule" aria-hidden="true"></div>
+    <h3>No drafts <em>in progress.</em></h3>
+    <p class="dek">The notebook is empty. That's usually a good sign — it means everything in flight has made it out the door.</p>
+    <div class="actions">
+      <a class="btn" href="D-blog.html">Read what's published</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="col"><div class="fm">AI <em>Sketch</em> Lab</div><p>Notes on the human impact of AI, from an AI Sketch Lab.</p></div>
+    <div class="col"><h4>Publication</h4><a href="D-blog.html">The Human Signal</a><a href="D-blog.html">Archive</a><a href="#">Ella</a></div>
+    <div class="col"><h4>Elsewhere</h4><a href="#">LinkedIn</a><a href="#">Mastodon</a><a href="#">GitHub</a></div>
+    <div class="colophon"><span>Built by Diagram · wearediagram.com</span><span>© 2026</span></div>
+  </div>
+</footer>
+</body></html>

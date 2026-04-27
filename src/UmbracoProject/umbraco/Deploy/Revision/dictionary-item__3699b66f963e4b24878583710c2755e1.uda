@@ -1,0 +1,21 @@
+{
+  "Name": "umb://dictionary-item/3699b66f963e4b24878583710c2755e1",
+  "ItemKey": "Home.ArchiveLink",
+  "Translations": [
+    {
+      "Key": "3699b66f-963e-4b24-8785-83710c2755e1",
+      "Value": "Archive \u2014 all essays",
+      "LanguageIsoCode": "en-US"
+    }
+  ],
+  "Udi": "umb://dictionary-item/3699b66f963e4b24878583710c2755e1",
+  "Dependencies": [
+    {
+      "Udi": "umb://language/en-US",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DictionaryItemArtifact",
+  "__version": "17.0.2"
+}

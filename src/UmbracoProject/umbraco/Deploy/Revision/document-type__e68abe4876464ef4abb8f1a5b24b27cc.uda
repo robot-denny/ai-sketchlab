@@ -19,6 +19,14 @@
       "Alias": "content",
       "PropertyTypes": [
         {
+          "Key": "4207d7d4-aa05-4408-9fa3-88f91717ce44",
+          "Alias": "readingTime",
+          "DataType": "umb://data-type/f0bc4bfbb49940d6ba86058885a5178c",
+          "Description": "Computed at render time from word count. Placeholder field; not editable.",
+          "Name": "Reading Time",
+          "SortOrder": 35
+        },
+        {
           "Key": "4e300c2a-054e-44f8-8c13-7914b4ffc165",
           "Alias": "author",
           "DataType": "umb://data-type/13037248a9ad4490bd77399fd7913171",
@@ -62,10 +70,14 @@
       "Ordering": true
     },
     {
+      "Udi": "umb://data-type/f0bc4bfbb49940d6ba86058885a5178c",
+      "Ordering": true
+    },
+    {
       "Udi": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
       "Ordering": true
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.0.2"
 }

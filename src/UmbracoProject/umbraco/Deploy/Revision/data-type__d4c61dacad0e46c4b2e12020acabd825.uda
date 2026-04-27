@@ -1,0 +1,18 @@
+{
+  "Name": "[Dropdown] Page Head Pattern",
+  "EditorAlias": "Umbraco.DropDown.Flexible",
+  "EditorUiAlias": "Umb.PropertyEditorUi.Dropdown",
+  "DatabaseType": "Nvarchar",
+  "Configuration": {
+    "items": [
+      "none",
+      "scatter",
+      "stochastic"
+    ],
+    "multiple": false
+  },
+  "Udi": "umb://data-type/d4c61dacad0e46c4b2e12020acabd825",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.0.2"
+}

@@ -1,0 +1,43 @@
+{
+  "Name": "Page Head Pattern Controls",
+  "Alias": "pageHeadPatternControls",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-settings color-pink",
+  "Thumbnail": "folder.png",
+  "Description": "Adds a Page Head Pattern dropdown to doc types that route to _PageHead.cshtml.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "5843c17e-4c97-4a90-b9a7-fca4ce3add2e",
+      "Name": "Header",
+      "Alias": "header",
+      "PropertyTypes": [
+        {
+          "Key": "55c7e2f3-6d60-45e8-b7ad-50bb14c011f4",
+          "Alias": "pageHeadPattern",
+          "DataType": "umb://data-type/d4c61dacad0e46c4b2e12020acabd825",
+          "Name": "Page Head Pattern"
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d03e1062f895426298275f35caa93a42",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/d4c61dacad0e46c4b2e12020acabd825",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

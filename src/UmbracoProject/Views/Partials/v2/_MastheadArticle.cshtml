@@ -1,0 +1,97 @@
+@inherits UmbracoViewPage<Clean.Core.Models.ViewModels.PageHeaderViewModel>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@*
+    v2 hybrid — article masthead.
+    Source mock: D-article.html.
+
+    IMPORTANT — text-led, not image-as-background:
+        <div class="back">  ← "← back to publication" link
+        <article>
+          <header class="art-head">  ← kicker / h1 / dek / byline
+          <figure class="art-hero">  ← optional MainImage shown BELOW
+                                       the headline, framed inside the
+                                       reading column
+
+    MainImage is still required content (per MASTHEAD-DECISION.md
+    revision) and still feeds the blog listing thumbnail. On the
+    article DETAIL page it appears here as a hero figure under the
+    title rather than as a backdrop.
+
+    PageHeaderViewModel does NOT expose CurrentPage; we read the
+    surrounding content node via Umbraco.AssignedContentItem so we
+    can resolve the parent (ArticleList) link and any future
+    article-only fields without changing the controller / model.
+*@
+
+@{
+    string title    = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
+    string subtitle = Model.HasSubtitle ? Model.Subtitle : null;
+    var    date     = Model.ArticleDate;
+    string author   = Model.HasAuthor ? Model.AuthorName : null;
+    var    cats     = Model.Categories;
+
+    string heroUrl = Model.HasBackgroundImage
+        ? Model.BackgroundImage.GetCropUrl(1600, 900)
+        : null;
+
+    // Live content node for parent + future article fields.
+    var here = Umbraco.AssignedContentItem;
+    var parent = here?.Parent;
+}
+
+@if (parent != null)
+{
+    <div class="back">
+        <a href="@parent.Url()">← @parent.Name</a>
+    </div>
+}
+
+<article>
+    <header class="art-head">
+        @if (cats != null && cats.Any())
+        {
+            <p class="kicker">@cats.First().Name</p>
+        }
+
+        <h1>@Html.Raw(title)</h1>
+
+        @if (!string.IsNullOrWhiteSpace(subtitle))
+        {
+            <p class="dek">@subtitle</p>
+        }
+
+        <div class="byline">
+            @if (!string.IsNullOrWhiteSpace(author))
+            {
+                <span>@Umbraco.GetDictionaryValue("Article.By") <b>@author</b></span>
+                <span class="sep">·</span>
+            }
+            @if (date.HasValue)
+            {
+                <span>@date.Value.ToString("MMMM d, yyyy")</span>
+            }
+            @*  readingTime is NOT currently a field on the Article doc type
+                or any of its compositions. Surface it here only when Package C
+                adds the field to articleControls. Until then, the byline
+                naturally degrades to author + date.                            *@
+        </div>
+
+        @if (cats != null && cats.Any())
+        {
+            <div class="byline-tags mt-3">
+                @foreach (var category in cats.Select(x => x.Name).OrderBy(y => y))
+                {
+                    <span class="badge bg-light">@category</span>
+                }
+            </div>
+        }
+    </header>
+
+    @if (!string.IsNullOrWhiteSpace(heroUrl))
+    {
+        <figure class="art-hero">
+            <img src="@heroUrl" alt="" loading="lazy" />
+        </figure>
+    }
+</article>

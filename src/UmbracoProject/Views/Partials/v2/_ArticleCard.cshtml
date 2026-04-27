@@ -1,0 +1,67 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models
+
+@*
+    v2 hybrid — article card.
+    Used by Blog landing, Author detail, Topic/Tag, Search results,
+    related-articles widgets — anywhere the demo currently renders
+    article tiles.
+
+    Pass a single article node:
+        @await Html.PartialAsync("v2/_ArticleCard", article)
+
+    Reads standard Article fields (no schema changes):
+        mainImage     MediaWithCrops
+        articleDate   DateTime?
+        author        IEnumerable<Author>  (multi-content picker;
+                       same alias used by article.cshtml +
+                       latestArticlesRow.cshtml)
+        subtitle      string
+
+    readingTime is NOT on the Article doc type today — see
+    README-PACKAGE-B.md "Known gaps". The byline degrades to
+    author-only until Package C adds the field.
+
+    Class vocabulary matches D-blog.html .article-grid-card style;
+    keeps the existing Clean Blog typography hooks alive.
+*@
+
+@{
+    var a = Model;
+    if (a == null) { return; }
+
+    var img     = a.Value<MediaWithCrops>("mainImage");
+    var date    = a.Value<DateTime?>("articleDate");
+    var authors = a.Value<IEnumerable<ContentModels.Author>>("author");
+    var sub     = a.Value<string>("subtitle");
+
+    string author = null;
+    if (authors != null)
+    {
+        var names = authors.Select(au => au.Name).Where(n => !string.IsNullOrWhiteSpace(n));
+        if (names.Any()) { author = string.Join(", ", names); }
+    }
+}
+
+<article class="article-grid-card">
+    <a href="@a.Url()" class="card-thumb" aria-hidden="true">
+        @if (img != null)
+        {
+            <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
+        }
+    </a>
+    @if (date.HasValue)
+    {
+        <p class="card-num">@date.Value.ToString("MMM d, yyyy")</p>
+    }
+    <h3 class="card-title"><a href="@a.Url()">@a.Name</a></h3>
+    @if (!string.IsNullOrWhiteSpace(sub))
+    {
+        <p class="card-sub">@sub</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(author))
+    {
+        <p class="card-meta">Posted by @author</p>
+    }
+</article>

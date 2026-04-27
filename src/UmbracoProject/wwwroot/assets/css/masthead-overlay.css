@@ -1,0 +1,34 @@
+/* ================================================================
+   v2 hybrid — masthead overlay (Dark Constructivism)
+   ----------------------------------------------------------------
+   CSS-ONLY overlay applied to articles that retain the existing
+   image-led .masthead from pageHeader.cshtml. Per the masthead
+   decision, this is the cheap path for the Dark Constructivism
+   wedge / signal line — no Razor changes required.
+
+   IMPORTANT — opt-in via the .masthead--dc modifier so existing
+   pages using .masthead alone are unaffected. Add the modifier in
+   Package C when articles convert. v2 article DETAIL pages do NOT
+   use this — they emit the text-led _MastheadArticle layout. This
+   stylesheet exists for any article variant that keeps the legacy
+   image-as-background masthead during the migration window, or for
+   list / landing templates that opt into the masthead aesthetic.
+
+   Source mock: ui_kits/web/home/D-article.html (mocks the wedge
+                + signal line as decorative chrome on the masthead).
+   ================================================================ */
+
+.masthead.masthead--dc{position:relative;isolation:isolate;color:var(--text-on-dark)}
+.masthead.masthead--dc::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(16,16,20,.78) 0%,rgba(16,16,20,.55) 48%,rgba(16,16,20,.30) 100%);z-index:0;pointer-events:none}
+.masthead.masthead--dc::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--accent-primary);z-index:1;pointer-events:none}
+.masthead.masthead--dc > *{position:relative;z-index:2}
+.masthead.masthead--dc h1,
+.masthead.masthead--dc .subheading,
+.masthead.masthead--dc .meta,
+.masthead.masthead--dc .badge{color:var(--text-on-dark)}
+.masthead.masthead--dc .badge.bg-light{background:rgba(240,237,232,.12)!important;color:var(--text-on-dark)!important;border:1px solid rgba(240,237,232,.18)}
+
+/* The diagonal wedge — pseudo-element on a wrapper. We piggyback
+   on .container which always wraps the masthead's content. */
+.masthead.masthead--dc .container{position:relative}
+.masthead.masthead--dc .container::before{content:"";position:absolute;right:-8%;top:-32%;width:48%;height:160%;background:linear-gradient(120deg,transparent 0%,transparent 48%,rgba(194,61,46,.08) 49%,rgba(194,61,46,.18) 51%,transparent 52%,transparent 100%);transform:skewX(-18deg);pointer-events:none;z-index:0}

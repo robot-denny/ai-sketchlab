@@ -1,0 +1,41 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@*
+    v2 hybrid — compact sticky site head.
+    Replacement for mainNavigation.cshtml on v2-converted templates.
+    Keep mainNavigation.cshtml in place; templates opt in by including
+    THIS partial instead. Rendered classes: .site-head .wordmark .site-nav.
+
+    Source mock: every D-*.html under ui_kits/web/home/ — same head on
+    all 11 mocks.
+
+    Active-link rule: a top-nav link is "current" when the current page
+    is at or below that link's content node. The publication node
+    (ArticleList) is treated as ancestor for article pages too.
+*@
+
+@{
+    var homePage = Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
+    if (homePage == null) { return; }
+
+    var here = Model;
+    bool IsCurrent(IPublishedContent node)
+    {
+        if (here == null || node == null) { return false; }
+        return here.Id == node.Id || here.Path.Contains("," + node.Id + ",");
+    }
+}
+
+<header class="site-head">
+    <h1 class="wordmark">
+        <a href="@homePage.Url()">@Html.Raw(Umbraco.GetDictionaryValue("Site.Name"))</a>
+    </h1>
+    <nav class="site-nav" aria-label="@Umbraco.GetDictionaryValue("Navigation.MenuTitle")">
+        @foreach (var page in homePage.Children.Where(x => !x.Value<bool>("hideFromTopNavigation")))
+        {
+            var current = IsCurrent(page) ? "is-current" : null;
+            <a href="@page.Url()" class="@current">@page.Name</a>
+        }
+    </nav>
+</header>

@@ -1,0 +1,43 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@*
+    v2 hybrid — Home hero.
+    Source mock: D-hybrid.html <section class="hero">.
+
+    Text-led classical editorial hero. NO image slot — the Home
+    document type's MainImage property is intentionally not used here.
+    Decorative scatter pattern is applied via .hero::before in CSS.
+
+    Reads its eyebrow / h1 / dek from the Home node's existing fields:
+        Title (or Name)        → h1
+        Subtitle               → dek
+        + a literal eyebrow constant (publication name from dictionary)
+
+    If you want the eyebrow to be content-managed, expose a new field
+    on Home in Package C; for B, the dictionary key is the right call.
+*@
+
+@{
+    var home = Model.AncestorOrSelf<ContentModels.Home>() ?? Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
+    if (home == null) { return; }
+
+    string title    = !string.IsNullOrWhiteSpace(home.Value<string>("title"))
+                        ? home.Value<string>("title")
+                        : home.Name;
+    string subtitle = home.Value<string>("subtitle");
+    string eyebrow  = Umbraco.GetDictionaryValue("Home.HeroEyebrow") ?? Umbraco.GetDictionaryValue("Site.Name");
+}
+
+<section class="hero">
+    @if (!string.IsNullOrWhiteSpace(eyebrow))
+    {
+        <p class="eye">@eyebrow</p>
+    }
+    <h1>@Html.Raw(title)</h1>
+    @if (!string.IsNullOrWhiteSpace(subtitle))
+    {
+        <p class="dek">@subtitle</p>
+    }
+    <div class="rule" aria-hidden="true"></div>
+</section>

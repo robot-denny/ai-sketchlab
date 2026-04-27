@@ -1,0 +1,128 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models
+
+@*
+    v2 hybrid — "The Latest" home section.
+    Source mock: D-hybrid.html <section class="latest">.
+
+    Pulls articles from the Article List node under Home. Showing 4
+    most recent: index 0 → featured (asymmetric image-left/copy-right);
+    1..3 → 3-up grid; archive link at the bottom.
+
+    Field-name notes (verified against the Article doc type's
+    compositions — articleControls / mainImageControls / etc.):
+      - author is a multi-content picker → IEnumerable<Author>.
+        Established pattern in article.cshtml + latestArticlesRow.cshtml.
+      - readingTime does NOT exist on the doc type today. Out of scope
+        for B; see README-PACKAGE-B.md "Known gaps".
+      - MediaWithCrops lives in Umbraco.Cms.Core.Models — pulled in
+        via the @using above so the unqualified reference resolves
+        (Umbraco.Cms.Core.Models.PublishedContent is what's imported
+        globally via _ViewImports, which is a different namespace).
+*@
+
+@functions {
+    static string FormatAuthors(IEnumerable<ContentModels.Author> authors)
+    {
+        if (authors == null) { return null; }
+        var names = authors.Select(au => au.Name).Where(n => !string.IsNullOrWhiteSpace(n));
+        return names.Any() ? string.Join(", ", names) : null;
+    }
+}
+
+@{
+    var home = Model.AncestorOrSelf<ContentModels.Home>() ?? Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
+    if (home == null) { return; }
+
+    var articleList = home.FirstChild<ContentModels.ArticleList>();
+    if (articleList == null) { return; }
+
+    // Children<T>() already excludes unpublished items in the default
+    // delivery context; ordering matches latestArticlesRow.cshtml's
+    // convention (articleDate-only). Articles without articleDate
+    // sink to the end of the list.
+    var articles = articleList.Children<ContentModels.Article>()
+        .OrderByDescending(a => a.Value<DateTime?>("articleDate"))
+        .Take(4)
+        .ToList();
+
+    if (articles.Count == 0) { return; }
+
+    var featured = articles.First();
+    var rest = articles.Skip(1).ToList();
+
+    string sectionTitle = Umbraco.GetDictionaryValue("Home.LatestTitle") ?? "The latest";
+    string updatedLabel = $"Updated {DateTime.UtcNow:MMMM yyyy}";
+}
+
+<section class="latest" aria-labelledby="latest-h">
+    <header class="section-head">
+        <h2 id="latest-h" class="h">@sectionTitle</h2>
+        <span class="m">@updatedLabel</span>
+    </header>
+
+    <article class="feature">
+        <a href="@featured.Url()" class="thumb" aria-hidden="true">
+            @{ var fImg = featured.Value<MediaWithCrops>("mainImage"); }
+            @if (fImg != null)
+            {
+                <img src="@fImg.GetCropUrl(960, 768)" alt="" loading="lazy" />
+            }
+        </a>
+        <div>
+            @{
+                var fDate    = featured.Value<DateTime?>("articleDate");
+                var fAuthors = featured.Value<IEnumerable<ContentModels.Author>>("author");
+                var fAuthor  = FormatAuthors(fAuthors);
+                var fSub     = featured.Value<string>("subtitle");
+            }
+            <p class="num">01@(fDate.HasValue ? $" · {fDate.Value:MMM d, yyyy}" : "")</p>
+            <h2><a href="@featured.Url()">@featured.Name</a></h2>
+            @if (!string.IsNullOrWhiteSpace(fSub))
+            {
+                <p class="sub">@fSub</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(fAuthor))
+            {
+                <p class="meta">Posted by @fAuthor</p>
+            }
+        </div>
+    </article>
+
+    <div class="grid">
+        @{ int n = 1; }
+        @foreach (var a in rest)
+        {
+            n++;
+            var img     = a.Value<MediaWithCrops>("mainImage");
+            var date    = a.Value<DateTime?>("articleDate");
+            var authors = a.Value<IEnumerable<ContentModels.Author>>("author");
+            var author  = FormatAuthors(authors);
+            var sub     = a.Value<string>("subtitle");
+
+            <article class="entry">
+                <a href="@a.Url()" class="thumb">
+                    @if (img != null)
+                    {
+                        <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
+                    }
+                </a>
+                <p class="num">@n.ToString("00")@(date.HasValue ? $" · {date.Value:MMM d, yyyy}" : "")</p>
+                <h3><a href="@a.Url()">@a.Name</a></h3>
+                @if (!string.IsNullOrWhiteSpace(sub))
+                {
+                    <p class="sub">@sub</p>
+                }
+                @if (!string.IsNullOrWhiteSpace(author))
+                {
+                    <p class="meta">Posted by @author</p>
+                }
+            </article>
+        }
+    </div>
+
+    <p class="archive-link">
+        <a href="@articleList.Url()">@(Umbraco.GetDictionaryValue("Home.ArchiveLink") ?? "Archive — all essays")</a>
+    </p>
+</section>

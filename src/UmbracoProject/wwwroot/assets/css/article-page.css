@@ -1,0 +1,67 @@
+/* ================================================================
+   v2 hybrid — Article page
+   ----------------------------------------------------------------
+   Styles for _MastheadArticle and the article reading layout.
+   Loaded only on the converted article template.
+
+   Source mock: ui_kits/web/home/D-article.html
+   ----------------------------------------------------------------
+   IMPORTANT — these classes are NEW. They do NOT replace .masthead
+   from styles.css; the v2 article is text-led with an inline
+   .art-hero figure rather than a full-bleed image header. Existing
+   E2E test tests/e2e/header/siteHeader.spec.ts (which asserts
+   header.masthead padding) will not match v2 articles. Address in
+   Package C — see CLEAN-BLOG-INVENTORY.md.
+   ================================================================ */
+
+/* "Back to publication" rail */
+.back{padding:28px 32px 0;max-width:780px;margin:0 auto}
+.back a{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);text-decoration:none}
+.back a:hover{color:var(--text-primary)}
+
+/* Article header */
+.art-head{padding:32px 32px 56px;max-width:780px;margin:0 auto}
+.art-head .kicker{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-secondary);margin:0 0 16px}
+.art-head h1{font-family:var(--font-display);font-weight:400;font-size:clamp(2.5rem,calc(1.8rem + 2.8vw),4.25rem);line-height:1.02;letter-spacing:-.02em;margin:0 0 20px;max-width:18ch}
+.art-head h1 em{font-style:italic;font-weight:300}
+.art-head .dek{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.25rem,calc(1.1rem + .5vw),1.625rem);line-height:1.35;color:var(--text-secondary);margin:0 0 28px;max-width:38ch}
+.art-head .byline{display:flex;gap:14px;align-items:baseline;font-family:var(--font-body);font-size:13px;color:var(--text-secondary);letter-spacing:.02em;flex-wrap:wrap}
+.art-head .byline b{font-family:var(--font-body);font-weight:600;color:var(--text-primary)}
+.art-head .byline .sep{color:var(--text-tertiary)}
+.art-head .byline-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+
+/* Hero image — optional, full-bleed within the read column */
+.art-hero{position:relative;aspect-ratio:16/9;background:var(--surface-tertiary);overflow:hidden;margin:0 0 8px}
+.art-hero img{width:100%;height:100%;object-fit:cover}
+.art-hero figcaption{margin:10px auto 0;padding:0 32px;max-width:780px;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;color:var(--text-tertiary)}
+
+/* Article body (reading column) */
+.art-body{padding:48px 32px 80px;max-width:780px;margin:0 auto}
+.art-body p{font-family:var(--font-body);font-size:1.125rem;line-height:1.65;color:var(--text-primary);margin:0 0 1.2em;max-width:36em}
+.art-body h2,
+.art-body h3{font-family:var(--font-display);font-weight:400;line-height:1.1;letter-spacing:-.01em;margin:2em 0 .5em;max-width:24ch}
+.art-body h2{font-size:2.25rem}
+.art-body h3{font-size:2rem}
+.art-body h2 em,
+.art-body h3 em{font-style:italic;font-weight:300}
+.art-body blockquote{margin:2em 0;padding:0 0 0 28px;border-left:2px solid var(--accent-primary);font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.5rem,calc(1.3rem + .6vw),1.875rem);line-height:1.25;color:var(--text-primary);max-width:34ch}
+
+/* Inline note / Ella callout */
+.ella{margin:2em 0;padding:20px 24px;background:var(--surface-secondary);border-left:2px solid var(--text-tertiary)}
+.ella .eye{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.ella .eye::before{content:"";width:6px;height:6px;background:var(--text-tertiary);border-radius:50%}
+.ella p{font-family:var(--font-body);font-weight:300;font-size:1rem;line-height:1.6;color:var(--text-primary);margin:0;max-width:34em}
+
+/* Next-up footer nav */
+.next{border-top:1px solid var(--border-light);padding:48px 32px;max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.next .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px}
+.next h4{font-family:var(--font-display);font-weight:400;font-size:1.625rem;line-height:1.15;letter-spacing:-.01em;margin:0 0 8px}
+.next h4 em{font-style:italic;font-weight:300}
+.next h4 a{color:inherit;text-decoration:none}
+.next h4 a:hover{text-decoration:underline;text-underline-offset:.12em}
+.next p{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.0625rem;line-height:1.4;color:var(--text-secondary);margin:0;max-width:34ch}
+
+@media (max-width:760px){
+  .back,.art-head,.art-body{padding-left:22px;padding-right:22px}
+  .next{grid-template-columns:1fr;padding:36px 22px}
+}

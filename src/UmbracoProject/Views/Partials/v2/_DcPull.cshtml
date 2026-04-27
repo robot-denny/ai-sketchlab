@@ -1,0 +1,54 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<dynamic>
+
+@*
+    v2 hybrid — DC pull-quote ("From the lab").
+    Source mock: D-hybrid.html <section class="dc-pull">.
+
+    Pure presentation. Razor parameters (passed via Model anonymous
+    object, NOT ViewData):
+        Eyebrow string  optional — defaults to "From the lab".
+        Quote   string  required — the blockquote body.
+        Cite    string  optional — attribution line (rendered as <cite>).
+
+    Usage:
+        @await Html.PartialAsync("v2/_DcPull", new {
+            Eyebrow = "From the lab",
+            Quote = "Ethics is what you owe the people affected by your choices when you can't see them.",
+            Cite = "— from \"What is ethics?\""
+        })
+
+    For Home, populate from a content field on the Home doc type
+    (e.g. PullQuote / PullQuoteAttribution) when those are added in
+    Package C. For B, callers pass literals.
+*@
+
+@functions {
+    static string Get(dynamic m, string key)
+    {
+        if (m == null) { return null; }
+        var p = ((object)m).GetType().GetProperty(key);
+        return p?.GetValue(m) as string;
+    }
+}
+
+@{
+    string eyebrow = Get(Model, "Eyebrow")
+                     ?? Umbraco.GetDictionaryValue("Home.DcPullEyebrow")
+                     ?? "From the lab";
+    string quote   = Get(Model, "Quote");
+    string cite    = Get(Model, "Cite");
+}
+
+@if (!string.IsNullOrWhiteSpace(quote))
+{
+    <section class="dc-pull" aria-labelledby="dc-pull-h">
+        <p class="eye">@eyebrow</p>
+        <blockquote id="dc-pull-h">
+            @Html.Raw(quote)
+            @if (!string.IsNullOrWhiteSpace(cite))
+            {
+                <cite>@cite</cite>
+            }
+        </blockquote>
+    </section>
+}

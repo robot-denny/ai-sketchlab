@@ -1,0 +1,88 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+
+@*
+    v2 hybrid — Manifesto / About slot.
+    Source mock: D-hybrid.html <section class="manifesto">.
+
+    Two-column layout on a stochastic-pattern bleed surface. Reads
+    from PROPOSED Home fields — these are NOT on the Home doc type
+    today and need to be added in Package C (see README-PACKAGE-B
+    "Known gaps"). Until C ships the schema, the partial silently
+    renders nothing (the if-guard at the bottom).
+
+    Proposed Home fields (Package C will add to the doc type):
+        manifestoEyebrowLeft   string — small mono label, left col
+        manifestoTitle         string — h3
+        manifestoBody          rich text (or string)
+        manifestoEyebrowRight  string — small mono label, right col
+        manifestoAudience      multi-line / list — newline-separated
+                               OR an existing Umbraco list/repeater
+
+    Adjust the property aliases when Package C creates them; the
+    partial degrades gracefully when fields are absent.
+*@
+
+@{
+    var home = Model.AncestorOrSelf<ContentModels.Home>() ?? Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
+    if (home == null) { return; }
+
+    string eyebrowLeft  = home.Value<string>("manifestoEyebrowLeft");
+    string title        = home.Value<string>("manifestoTitle");
+    var    body         = home.Value<Umbraco.Cms.Core.Strings.IHtmlEncodedString>("manifestoBody");
+    string eyebrowRight = home.Value<string>("manifestoEyebrowRight");
+    string audienceRaw  = home.Value<string>("manifestoAudience");
+
+    var audience = string.IsNullOrWhiteSpace(audienceRaw)
+        ? new System.Collections.Generic.List<string>()
+        : audienceRaw.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim())
+            .Where(x => x.Length > 0)
+            .ToList();
+
+    bool hasLeft  = !string.IsNullOrWhiteSpace(title) || body != null || !string.IsNullOrWhiteSpace(eyebrowLeft);
+    bool hasRight = audience.Count > 0 || !string.IsNullOrWhiteSpace(eyebrowRight);
+}
+
+@if (hasLeft || hasRight)
+{
+    <section class="manifesto" aria-labelledby="manifesto-h">
+        <div class="manifesto-inner">
+            @if (hasLeft)
+            {
+                <div>
+                    @if (!string.IsNullOrWhiteSpace(eyebrowLeft))
+                    {
+                        <p class="eye">@eyebrowLeft</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(title))
+                    {
+                        <h3 id="manifesto-h">@title</h3>
+                    }
+                    @if (body != null)
+                    {
+                        @body
+                    }
+                </div>
+            }
+            @if (hasRight)
+            {
+                <div>
+                    @if (!string.IsNullOrWhiteSpace(eyebrowRight))
+                    {
+                        <p class="eye">@eyebrowRight</p>
+                    }
+                    @if (audience.Count > 0)
+                    {
+                        <ul>
+                            @foreach (var line in audience)
+                            {
+                                <li>@line</li>
+                            }
+                        </ul>
+                    }
+                </div>
+            }
+        </div>
+    </section>
+}

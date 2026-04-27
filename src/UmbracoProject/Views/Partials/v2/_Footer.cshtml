@@ -1,0 +1,81 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models
+
+@*
+    v2 hybrid — site footer.
+    Replacement for footer.cshtml on v2-converted templates.
+    Keep footer.cshtml in place; templates opt in by including THIS
+    partial instead. Rendered tag is <footer class="foot"> with the
+    same Home-node fields the existing footer uses (FooterDescription,
+    FooterNavigation, etc.) so no content migration is required.
+
+    Source mock: D-hybrid.html <footer class="foot">.
+*@
+
+@{
+    var home = Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
+    if (home == null) { return; }
+
+    var siteName    = Umbraco.GetDictionaryValue("Site.Name");
+    var description = home.FooterDescription;
+    var nav         = home.FooterNavigation;
+
+    // "Elsewhere" links — Home's footerControls composition exposes
+    // these under the alias `socialIconLinks` (see footer.cshtml /
+    // the Clean Starter Kit doc type). Falls back gracefully when
+    // the field is empty.
+    var social = home.Value<System.Collections.Generic.IEnumerable<Link>>("socialIconLinks");
+
+    var pubLabel    = Umbraco.GetDictionaryValue("Footer.PublicationHeading") ?? "Publication";
+    var elseLabel   = Umbraco.GetDictionaryValue("Footer.ElsewhereHeading")   ?? "Elsewhere";
+    var colophonL   = Umbraco.GetDictionaryValue("Footer.ColophonLeft");
+    var colophonR   = Umbraco.GetDictionaryValue("Footer.ColophonRight")
+                       ?? $"© {DateTime.UtcNow.Year}";
+}
+
+<footer class="foot">
+    <div class="foot-inner">
+        <div class="col">
+            <div class="fm">@Html.Raw(siteName)</div>
+            @if (description != null && !string.IsNullOrWhiteSpace(description.ToString()))
+            {
+                <p>@description</p>
+            }
+        </div>
+
+        @if (nav != null && nav.Any())
+        {
+            <div class="col">
+                <h4>@pubLabel</h4>
+                @foreach (var link in nav)
+                {
+                    <a href="@link.Url"
+                       target="@link.Target"
+                       rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)">@link.Name</a>
+                }
+            </div>
+        }
+
+        @if (social != null && social.Any())
+        {
+            <div class="col">
+                <h4>@elseLabel</h4>
+                @foreach (var link in social)
+                {
+                    <a href="@link.Url"
+                       target="@link.Target"
+                       rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)">@link.Name</a>
+                }
+            </div>
+        }
+
+        <div class="colophon">
+            @if (!string.IsNullOrWhiteSpace(colophonL))
+            {
+                <span>@colophonL</span>
+            }
+            <span>@colophonR</span>
+        </div>
+    </div>
+</footer>

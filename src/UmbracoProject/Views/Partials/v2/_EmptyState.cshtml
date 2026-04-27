@@ -1,0 +1,61 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<dynamic>
+
+@*
+    v2 hybrid — empty state.
+    Source mock: D-empty.html.
+
+    Used when a listing has no items — empty topic page, empty search
+    result, empty author archive, generic 404 inner content.
+
+    Razor parameters (passed via Model anonymous object, NOT ViewData):
+        Headline string  required — the message ("Nothing here yet.").
+        Body     string  optional — short explanatory paragraph.
+        Actions  IEnumerable<(string label, string url, bool primary)>
+                          optional — call-to-action links/buttons.
+
+    Renders inside .wrap-narrow so callers don't need to handle width.
+*@
+
+@functions {
+    static string Get(dynamic m, string key)
+    {
+        if (m == null) { return null; }
+        var p = ((object)m).GetType().GetProperty(key);
+        return p?.GetValue(m) as string;
+    }
+
+    static T GetT<T>(dynamic m, string key) where T : class
+    {
+        if (m == null) { return null; }
+        var p = ((object)m).GetType().GetProperty(key);
+        return p?.GetValue(m) as T;
+    }
+}
+
+@{
+    string headline = Get(Model, "Headline");
+    string body     = Get(Model, "Body");
+    var actions     = GetT<System.Collections.Generic.IEnumerable<(string label, string url, bool primary)>>(Model, "Actions");
+
+    if (string.IsNullOrWhiteSpace(headline)) { return; }
+}
+
+<section class="empty-state">
+    <div class="wrap-narrow">
+        <h2>@headline</h2>
+        @if (!string.IsNullOrWhiteSpace(body))
+        {
+            <p class="dek">@Html.Raw(body)</p>
+        }
+        @if (actions != null && actions.Any())
+        {
+            <div class="actions">
+                @foreach (var act in actions)
+                {
+                    var cls = act.primary ? "btn btn-primary" : "btn btn-link";
+                    <a class="@cls" href="@act.url">@act.label</a>
+                }
+            </div>
+        }
+    </div>
+</section>

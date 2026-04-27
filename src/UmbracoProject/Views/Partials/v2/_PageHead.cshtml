@@ -1,0 +1,95 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<dynamic>
+
+@*
+    v2 hybrid — text-led page header.
+    Used on every secondary page (Blog list, Authors, Author detail,
+    Contact, Content, Search, Topic/Tag, 404, Empty states).
+    NOT used on Article pages — those keep _MastheadArticle.cshtml.
+    NOT used on Home — see _HeroHome.cshtml.
+
+    Razor parameters (no .uda schema changes in Package B):
+        Title    string   required — the h1. Plain text; <em>…</em> permitted.
+        Eyebrow  string   optional — small mono/uppercase line above h1.
+        Dek      string   optional — italic display subtitle.
+        Pattern  string   optional — "scatter" | "stochastic" | null.
+        Crumbs   IEnumerable<(string label, string url)> optional —
+                          renders a breadcrumb row (used by D-tag.html).
+
+    Source mocks: D-blog.html, D-authors.html, D-author.html,
+    D-contact.html, D-content.html, D-search.html, D-tag.html,
+    D-404.html, D-empty.html.
+
+    Usage examples:
+        @await Html.PartialAsync("v2/_PageHead", new {
+            Title = "The Human Signal",
+            Eyebrow = "Field notes",
+            Dek = "A reflective publication on AI and the people who live with it.",
+            Pattern = "scatter"
+        })
+
+    NOTE — parameters arrive as the `Model` (an anonymous object
+    bound by Html.Partial / Html.PartialAsync). NOT via ViewData.
+    Reading from ViewData["Title"] would silently render empty.
+*@
+
+@functions {
+    static string Get(dynamic m, string key)
+    {
+        if (m == null) { return null; }
+        var p = ((object)m).GetType().GetProperty(key);
+        return p?.GetValue(m) as string;
+    }
+
+    static T GetT<T>(dynamic m, string key) where T : class
+    {
+        if (m == null) { return null; }
+        var p = ((object)m).GetType().GetProperty(key);
+        return p?.GetValue(m) as T;
+    }
+}
+
+@{
+    string title    = Get(Model, "Title") ?? "";
+    string eyebrow  = Get(Model, "Eyebrow");
+    string dek      = Get(Model, "Dek");
+    string pattern  = Get(Model, "Pattern");
+    var crumbs      = GetT<System.Collections.Generic.IEnumerable<(string label, string url)>>(Model, "Crumbs");
+
+    string patternClass = pattern switch
+    {
+        "scatter"    => "has-pattern-scatter",
+        "stochastic" => "has-pattern-stochastic",
+        _            => null
+    };
+}
+
+<section class="page-head @patternClass">
+    <div class="inner">
+        @if (crumbs != null && crumbs.Any())
+        {
+            <nav class="page-head-crumbs" aria-label="Breadcrumb">
+                @foreach (var c in crumbs)
+                {
+                    if (string.IsNullOrEmpty(c.url))
+                    {
+                        <span>@c.label</span>
+                    }
+                    else
+                    {
+                        <a href="@c.url">@c.label</a>
+                    }
+                }
+            </nav>
+        }
+        @if (!string.IsNullOrWhiteSpace(eyebrow))
+        {
+            <p class="eye">@eyebrow</p>
+        }
+        <h1>@Html.Raw(title)</h1>
+        @if (!string.IsNullOrWhiteSpace(dek))
+        {
+            <p class="dek">@Html.Raw(dek)</p>
+        }
+        <div class="rule" aria-hidden="true"></div>
+    </div>
+</section>

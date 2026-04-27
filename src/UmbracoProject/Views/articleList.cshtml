@@ -1,23 +1,75 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ArticleList>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ArticleList>
 
-@using Clean.Core.Models.ViewModels
+@using Clean.Core.Helpers
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using UmbracoProject.Helpers
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
+
+    const int defaultPageSize = 12;
+    var pageSize   = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "size", defaultPageSize);
+    var pageNumber = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "page", 1);
+
+    var allArticles = Model.Children<ContentModels.Article>()
+        .Where(a => a.IsVisible())
+        .OrderByDescending(a => a.ArticleDate)
+        .ToList();
+
+    var totalItemCount = allArticles.Count;
+    var pageOfArticles = allArticles
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+
+    string countLabel;
+    if (totalItemCount == 0)
+    {
+        countLabel = "No essays yet";
+    }
+    else
+    {
+        var unit = totalItemCount == 1 ? "essay" : "essays";
+        var minYear = allArticles.Min(a => a.ArticleDate.Year);
+        var maxYear = allArticles.Max(a => a.ArticleDate.Year);
+        var range = minYear == maxYear ? maxYear.ToString() : $"{minYear}–{maxYear}";
+        countLabel = $"{totalItemCount} {unit} · {range}";
+    }
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@section Styles {
+    <link href="/assets/css/listings.css" rel="stylesheet" asp-append-version="true" />
+}
 
-@if (Model.ContentRows != null)
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
 {
-    <article>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-md-10 mx-auto">
-                    @Html.GetBlockListHtml(Model.ContentRows)
-                </div>
-            </div>
+    Title = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name,
+    Eyebrow = "Archive",
+    Dek = Model.Subtitle,
+    Pattern = Model.PageHeadPattern()
+})
+
+<div class="filters">
+    <div class="filters-inner">
+        <div class="spacer"></div>
+        <span class="count">@countLabel</span>
+    </div>
+</div>
+
+<main class="archive-page">
+    @foreach (var yearGroup in pageOfArticles.GroupBy(a => a.ArticleDate.Year).OrderByDescending(g => g.Key))
+    {
+        <h2 class="year">@yearGroup.Key</h2>
+        <div class="entries">
+            @foreach (var article in yearGroup)
+            {
+                @await Html.PartialAsync("~/Views/Partials/v2/_ArticleCard.cshtml", article)
+            }
         </div>
-    </article>
-}
+    }
+
+    @if (totalItemCount > pageSize)
+    {
+        @await Component.InvokeAsync("Pagination", new { totalItems = totalItemCount, url = Model.Url(), pageNumber = pageNumber, pageSize = pageSize })
+    }
+</main>

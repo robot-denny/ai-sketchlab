@@ -1,10 +1,10 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Contact>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Contact>
 
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using UmbracoProject.Helpers
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
     var submitted = false;
     if (bool.TryParse(TempData["Success"]?.ToString() ?? "", out var success))
     {
@@ -12,36 +12,34 @@
     }
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = Model.Name,
+    Eyebrow = Model.Title,
+    Dek = Model.Subtitle,
+    Pattern = Model.PageHeadPattern()
+})
 
-<main class="mb-4">
-    <div class="container px-4 px-lg-5">
-        <div class="row gx-4 gx-lg-5 justify-content-center">
-            <div class="col-md-10 col-lg-8 col-xl-7">
-                @if(submitted)
-                {
-
-                    @if (success)
-                    {
-                        @Model.SuccessMessage
-                    }
-                    else
-                    {
-                        @Model.ErrorMessage
-                    }
-                }
-                else
-                {
-                    @Model.InstructionMessage
-                    <div class="my-5">
-                        @if (Model.Form != null)
-                        {
-                            @await Component.InvokeAsync("RenderForm", new { formId = Model.Form })
-                        }
-                    </div>
-
-                }
-            </div>
+<main class="wrap-narrow my-5">
+    @if (submitted)
+    {
+        @if (success)
+        {
+            @Model.SuccessMessage
+        }
+        else
+        {
+            @Model.ErrorMessage
+        }
+    }
+    else
+    {
+        @Model.InstructionMessage
+        <div class="my-5">
+            @if (Model.Form != null)
+            {
+                @await Component.InvokeAsync("RenderForm", new { formId = Model.Form })
+            }
         </div>
-    </div>
+    }
 </main>

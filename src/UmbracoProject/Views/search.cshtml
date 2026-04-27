@@ -1,7 +1,6 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Search>
 
 @using System.Net
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 @using Microsoft.Extensions.Caching.Memory
 @using Microsoft.Extensions.Options
@@ -11,6 +10,7 @@
 @using Umbraco.Cms.Core.Models
 @using Clean.Core.Extensions
 @using Umbraco.Cms.Search.Core.Services
+@using UmbracoProject.Helpers
 @using SearchCoreConstants = Umbraco.Cms.Search.Core.Constants
 @inject Umbraco.Cms.Core.IPublishedContentQuery publishedContentQuery
 @inject ISearcherResolver searcherResolver
@@ -18,7 +18,7 @@
 @inject IOptions<AIVectorSearchOptions> searchOptions
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
     var searchQuery = Context.Request.Query["q"].ToString();
     var docTypesToIgnore = new[] { Category.ModelTypeAlias, CategoryList.ModelTypeAlias, Error.ModelTypeAlias, Search.ModelTypeAlias, XMlsitemap.ModelTypeAlias };
 
@@ -26,114 +26,118 @@
     // can drop a few without leaving the user short. Driven from Umbraco:AI:Search:DefaultTopK
     // (see appsettings.json) so both the AI provider and the view stay in sync.
     var take = Math.Max(20, searchOptions.Value.DefaultTopK);
+
+    IReadOnlyList<IPublishedContent> results = Array.Empty<IPublishedContent>();
+    bool isShortQuery = false;
+
+    if (!string.IsNullOrWhiteSpace(searchQuery))
+    {
+        async Task<IReadOnlyList<IPublishedContent>> RunSearchAsync(string indexAlias)
+        {
+            var s = searcherResolver.GetSearcher(indexAlias);
+            if (s == null) return Array.Empty<IPublishedContent>();
+            var r = await s.SearchAsync(indexAlias: indexAlias, query: searchQuery, skip: 0, take: take);
+            return (r?.Documents ?? Enumerable.Empty<Umbraco.Cms.Search.Core.Models.Searching.Document>())
+                .Where(d => d.ObjectType == UmbracoObjectTypes.Document)
+                .Select(d => publishedContentQuery.Content(d.Id))
+                .Where(c => c != null && !docTypesToIgnore.Contains(c.ContentType.Alias))
+                .Take(20)
+                .ToList();
+        }
+
+        // Short, keyword-style queries (1–2 tokens, e.g. author names, "contact", "sitemap")
+        // are poor semantic candidates and pure-vector search underperforms on them.
+        // Skip the embedding round-trip and go straight to Examine for those; the AI
+        // flow is reserved for longer, natural-language queries.
+        var tokenCount = searchQuery.Split(new[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        isShortQuery = tokenCount <= 2;
+
+        // Cache key is the normalized (trimmed, lower-cased) query. 5-minute TTL
+        // collapses repeat-traffic bursts onto a single embedding call while staying
+        // fresh enough for a demo/content site with low publish frequency.
+        var cacheKey = $"search:results:{(isShortQuery ? "kw" : "ai")}:{searchQuery.ToLowerInvariant().Trim()}";
+        results = await memoryCache.GetOrCreateAsync(cacheKey, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+
+            if (isShortQuery)
+            {
+                return await RunSearchAsync(SearchCoreConstants.IndexAliases.PublishedContent);
+            }
+
+            // AI semantic searcher first; fall back to Examine if vector search returns nothing.
+            var aiResults = await RunSearchAsync(AISearchConstants.IndexAliases.Search);
+            return aiResults.Count > 0
+                ? aiResults
+                : await RunSearchAsync(SearchCoreConstants.IndexAliases.PublishedContent);
+        }) ?? new List<IPublishedContent>();
+    }
+
+    var hasQuery = !string.IsNullOrWhiteSpace(searchQuery);
+    var resultCount = results.Count;
+    // Encode the user's query before reflecting it back to the page.
+    // StripHtml alone does NOT neutralize attribute-based XSS vectors (e.g. onerror=)
+    // because those payloads contain no tags for StripHtml to remove.
+    var encodedQuery = WebUtility.HtmlEncode(searchQuery.StripHtml());
+
+    var headTitle = hasQuery
+        ? $"Results for <em>{encodedQuery}</em>"
+        : (!string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : "Find an <em>essay.</em>");
+
+    var headDek = !string.IsNullOrWhiteSpace(Model.Subtitle)
+        ? Model.Subtitle
+        : "Short queries run keyword matching. Longer natural-language queries run semantic search — the AI does the lifting.";
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@section Styles {
+    <link href="/assets/css/listings.css" rel="stylesheet" asp-append-version="true" />
+}
 
-<div class="container">
-    <form action="@Model.Url()" method="GET" id="search">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                <div class="form-group controls">
-                    <label for="search-q" class="visually-hidden">@Umbraco.GetDictionaryValue("Search.Placeholder")</label>
-                    <input type="text" id="search-q" class="form-control col-xs-6" placeholder="@Umbraco.GetDictionaryValue("Search.Placeholder")" name="q" value="@searchQuery" />
-                </div>
-            </div>
-            <div class="col-lg-8 col-md-10 mx-auto my-3">
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary search-button float-end">@Umbraco.GetDictionaryValue("Search.SearchButton") <i class="fa fa-search" aria-hidden="true"></i></button>
-                </div>
-            </div>
-            <div class="col-lg-8 col-md-10 mx-auto" role="status" aria-live="polite" aria-atomic="true">
-                @if (!string.IsNullOrWhiteSpace(searchQuery))
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = headTitle,
+    Eyebrow = "Search",
+    Dek = headDek,
+    Pattern = Model.PageHeadPattern()
+})
+
+<main class="search-wrap">
+    <form class="s-form" action="@Model.Url()" method="GET" id="search">
+        <label class="visually-hidden" for="search-q">@Umbraco.GetDictionaryValue("Search.Placeholder")</label>
+        <input type="text" id="search-q" name="q" value="@searchQuery" placeholder="@Umbraco.GetDictionaryValue("Search.Placeholder")" />
+        <button type="submit">@Umbraco.GetDictionaryValue("Search.SearchButton")</button>
+    </form>
+
+    @if (hasQuery)
+    {
+        <div class="s-meta" role="status" aria-live="polite" aria-atomic="true">
+            <span>@Html.Raw(string.Format(Umbraco.GetDictionaryValue("Search.Results"), resultCount, encodedQuery))</span>
+            <span class="mode">Mode · <b>@(isShortQuery ? "Keyword" : "AI semantic")</b></span>
+        </div>
+
+        if (resultCount > 0)
+        {
+            <div class="results" role="list">
+                @foreach (var result in results)
                 {
-                    async Task<IReadOnlyList<IPublishedContent>> RunSearchAsync(string indexAlias)
-                    {
-                        var s = searcherResolver.GetSearcher(indexAlias);
-                        if (s == null) return Array.Empty<IPublishedContent>();
-                        var r = await s.SearchAsync(indexAlias: indexAlias, query: searchQuery, skip: 0, take: take);
-                        return (r?.Documents ?? Enumerable.Empty<Umbraco.Cms.Search.Core.Models.Searching.Document>())
-                            .Where(d => d.ObjectType == UmbracoObjectTypes.Document)
-                            .Select(d => publishedContentQuery.Content(d.Id))
-                            .Where(c => c != null && !docTypesToIgnore.Contains(c.ContentType.Alias))
-                            .Take(20)
-                            .ToList();
-                    }
-
-                    // Short, keyword-style queries (1–2 tokens, e.g. author names, "contact", "sitemap")
-                    // are poor semantic candidates and pure-vector search underperforms on them.
-                    // Skip the embedding round-trip and go straight to Examine for those; the AI
-                    // flow is reserved for longer, natural-language queries.
-                    var tokenCount = searchQuery.Split(new[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
-                    var isShortQuery = tokenCount <= 2;
-
-                    // Cache key is the normalized (trimmed, lower-cased) query. 5-minute TTL
-                    // collapses repeat-traffic bursts onto a single embedding call while staying
-                    // fresh enough for a demo/content site with low publish frequency.
-                    var cacheKey = $"search:results:{(isShortQuery ? "kw" : "ai")}:{searchQuery.ToLowerInvariant().Trim()}";
-                    var results = await memoryCache.GetOrCreateAsync(cacheKey, async entry =>
-                    {
-                        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-
-                        if (isShortQuery)
-                        {
-                            return await RunSearchAsync(SearchCoreConstants.IndexAliases.PublishedContent);
-                        }
-
-                        // AI semantic searcher first; fall back to Examine if vector search returns nothing.
-                        var aiResults = await RunSearchAsync(AISearchConstants.IndexAliases.Search);
-                        return aiResults.Count > 0
-                            ? aiResults
-                            : await RunSearchAsync(SearchCoreConstants.IndexAliases.PublishedContent);
-                    }) ?? new List<IPublishedContent>();
-
-                    long resultCount = results.Count;
-                    // Encode the user's query before passing it to the dictionary's format string.
-                    // StripHtml alone does NOT neutralize attribute-based XSS vectors (e.g. onerror=)
-                    // because those payloads contain no tags for StripHtml to remove.
-                    var encodedQuery = WebUtility.HtmlEncode(searchQuery.StripHtml());
-                    <p>@Html.Raw(string.Format(Umbraco.GetDictionaryValue("Search.Results"), resultCount, encodedQuery))</p>
-                    if (resultCount > 0)
-                    {
-                        foreach (var result in results)
-                        {
-                            // Hoist property reads so HasProperty/HasValue/Value aren't evaluated
-                            // twice per property per result.
-                            var titleValue = result.HasProperty("title") && result.HasValue("title") ? result.Value<string>("title") : null;
-                            var subtitleValue = result.HasProperty("subtitle") && result.HasValue("subtitle") ? result.Value<string>("subtitle") : null;
-                            <div class="post-preview">
-                                <a href="@result.Url()">
-                                    <h2 class="post-title">
-                                        @(!string.IsNullOrWhiteSpace(titleValue) ? titleValue : result.Name)
-                                    </h2>
-                                    @if (!string.IsNullOrWhiteSpace(subtitleValue))
-                                    {
-                                        <p class="post-subtitle">@subtitleValue</p>
-                                    }
-                                </a>
-                                @if (result is IArticleControls article && ((result.HasProperty("author") && result.HasValue("author"))
-                               || (result.HasProperty("articleDate") && result.HasValue("articleDate") && result.Value<DateTime>("articleDate") > DateTime.MinValue)))
-                                {
-                                    var authors = article.Author;
-                                    var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
-                                    <p class="post-meta">
-                                        @Umbraco.GetDictionaryValue("Article.Posted")
-                                        @Umbraco.GetDictionaryValue("Article.By")@Html.Raw("&nbsp;")@authorNames
-
-                                        @if (article.ArticleDate != null && article.ArticleDate > DateTime.MinValue)
-                                        {
-                                            @Umbraco.GetDictionaryValue("Article.On")
-
-                                            @:&nbsp;@(article.ArticleDate.ToString("MMMM dd, yyyy"))
-                                        }
-                                    </p>
-                                }
-                            </div>
-                        }
-                        <hr>
-                    }
+                    <div role="listitem">
+                        @await Html.PartialAsync("~/Views/Partials/v2/_ArticleCard.cshtml", result)
+                    </div>
                 }
             </div>
-        </div>
-    </form>
-</div>
+        }
+        else
+        {
+            @await Html.PartialAsync("~/Views/Partials/v2/_EmptyState.cshtml", new
+            {
+                Headline = $"No matches for “{encodedQuery}”",
+                Body = "Try a shorter or simpler query, or browse the archive for inspiration.",
+                Actions = new System.Collections.Generic.List<(string label, string url, bool primary)>
+                {
+                    ("Browse the archive", "/", true),
+                    ("Clear search", Model.Url(), false)
+                }
+            })
+        }
+    }
+</main>

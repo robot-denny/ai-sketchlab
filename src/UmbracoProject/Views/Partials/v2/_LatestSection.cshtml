@@ -1,6 +1,8 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 @using Umbraco.Cms.Core.Models
+@using UmbracoProject.Helpers
+@inject Microsoft.Extensions.Caching.Memory.IMemoryCache MemoryCache
 
 @*
     v2 hybrid — "The Latest" home section.
@@ -76,8 +78,9 @@
                 var fAuthors = featured.Value<IEnumerable<ContentModels.Author>>("author");
                 var fAuthor  = FormatAuthors(fAuthors);
                 var fSub     = featured.Value<string>("subtitle");
+                var fReading = ReadingTime.Estimate(featured, MemoryCache);
             }
-            <p class="num">01@(fDate.HasValue ? $" · {fDate.Value:MMM d, yyyy}" : "")</p>
+            <p class="num">01@(fDate.HasValue ? $" · {fDate.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(fReading) ? $" · {fReading}" : "")</p>
             <h2><a href="@featured.Url()">@featured.Name</a></h2>
             @if (!string.IsNullOrWhiteSpace(fSub))
             {
@@ -100,6 +103,7 @@
             var authors = a.Value<IEnumerable<ContentModels.Author>>("author");
             var author  = FormatAuthors(authors);
             var sub     = a.Value<string>("subtitle");
+            var reading = ReadingTime.Estimate(a, MemoryCache);
 
             <article class="entry">
                 <a href="@a.Url()" class="thumb">
@@ -108,7 +112,7 @@
                         <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
                     }
                 </a>
-                <p class="num">@n.ToString("00")@(date.HasValue ? $" · {date.Value:MMM d, yyyy}" : "")</p>
+                <p class="num">@n.ToString("00")@(date.HasValue ? $" · {date.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(reading) ? $" · {reading}" : "")</p>
                 <h3><a href="@a.Url()">@a.Name</a></h3>
                 @if (!string.IsNullOrWhiteSpace(sub))
                 {

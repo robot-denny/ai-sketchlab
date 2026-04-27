@@ -1,5 +1,7 @@
 @inherits UmbracoViewPage<Clean.Core.Models.ViewModels.PageHeaderViewModel>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using UmbracoProject.Helpers
+@inject Microsoft.Extensions.Caching.Memory.IMemoryCache MemoryCache
 
 @*
     v2 hybrid — article masthead.
@@ -38,6 +40,8 @@
     // Live content node for parent + future article fields.
     var here = Umbraco.AssignedContentItem;
     var parent = here?.Parent;
+
+    string readingTime = ReadingTime.Estimate(here, MemoryCache);
 }
 
 @if (parent != null)
@@ -71,10 +75,11 @@
             {
                 <span>@date.Value.ToString("MMMM d, yyyy")</span>
             }
-            @*  readingTime is NOT currently a field on the Article doc type
-                or any of its compositions. Surface it here only when Package C
-                adds the field to articleControls. Until then, the byline
-                naturally degrades to author + date.                            *@
+            @if (!string.IsNullOrWhiteSpace(readingTime))
+            {
+                <span class="sep">·</span>
+                <span>@readingTime</span>
+            }
         </div>
 
         @if (cats != null && cats.Any())

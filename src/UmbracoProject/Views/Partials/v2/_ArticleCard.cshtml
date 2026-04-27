@@ -1,6 +1,8 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 @using Umbraco.Cms.Core.Models
+@using UmbracoProject.Helpers
+@inject Microsoft.Extensions.Caching.Memory.IMemoryCache MemoryCache
 
 @*
     v2 hybrid — article card.
@@ -42,6 +44,8 @@
         var names = authors.Select(au => au.Name).Where(n => !string.IsNullOrWhiteSpace(n));
         if (names.Any()) { author = string.Join(", ", names); }
     }
+
+    string readingTime = ReadingTime.Estimate(a, MemoryCache);
 }
 
 <article class="article-grid-card">
@@ -51,9 +55,22 @@
             <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
         }
     </a>
-    @if (date.HasValue)
+    @if (date.HasValue || !string.IsNullOrWhiteSpace(readingTime))
     {
-        <p class="card-num">@date.Value.ToString("MMM d, yyyy")</p>
+        <p class="card-num">
+            @if (date.HasValue)
+            {
+                @date.Value.ToString("MMM d, yyyy")
+            }
+            @if (date.HasValue && !string.IsNullOrWhiteSpace(readingTime))
+            {
+                <span> · </span>
+            }
+            @if (!string.IsNullOrWhiteSpace(readingTime))
+            {
+                @readingTime
+            }
+        </p>
     }
     <h3 class="card-title"><a href="@a.Url()">@a.Name</a></h3>
     @if (!string.IsNullOrWhiteSpace(sub))

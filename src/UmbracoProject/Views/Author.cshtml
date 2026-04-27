@@ -1,33 +1,72 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Author>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Author>
 
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Extensions
 
 @{
-    Layout = "master.cshtml";
-    var authorListPage = Model.Parent as AuthorList;
+    Layout = "master-v2.cshtml";
+
+    var authorListPage = Model.Parent as ContentModels.AuthorList;
+
+    var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
+    var role = Model.Subtitle;
+    var bio = Model.MetaDescription;
+
+    var articleList = Umbraco.ContentAtRoot().DescendantsOrSelf<ContentModels.ArticleList>().FirstOrDefault();
+    var authoredArticles = (articleList?.Children<ContentModels.Article>()
+            .Where(a => a.IsVisible() && a.Author?.Any(p => p.Id == Model.Id) == true)
+            .OrderByDescending(a => a.ArticleDate)
+            ?? Enumerable.Empty<ContentModels.Article>())
+        .ToList();
 }
 
+@section Styles {
+    <link href="/assets/css/listings.css" rel="stylesheet" asp-append-version="true" />
+    <link href="/assets/css/authors-page.css" rel="stylesheet" asp-append-version="true" />
+}
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, authorListPage?.MainImage, null, null))
+@if (authorListPage != null)
+{
+    <div class="back"><a href="@authorListPage.Url()">← @authorListPage.Name</a></div>
+}
 
-<article>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-
-                <div class="row clearfix">
-                    <div class="col-md-4 column mx-auto">
-                        @if (Model.MainImage != null)
-                        {
-                            <img src="@Model.MainImage.GetCropUrl(400)" alt="@Model.Name" class="w-100">
-                        }
-                        <p class="caption">@Model.Name</p>
-                    </div>
-                </div>
-
-                @Html.GetBlockListHtml(Model.ContentRows)
-            </div>
-        </div>
+<section class="author-head">
+    <div class="headshot">
+        @if (Model.MainImage != null)
+        {
+            <img src="@Model.MainImage.GetCropUrl(480, 480)" alt="@Model.Name" />
+        }
     </div>
-</article>
+    <div>
+        <p class="eye">Author</p>
+        <h1>@Html.Raw(heading)</h1>
+        @if (!string.IsNullOrWhiteSpace(role))
+        {
+            <p class="role">@role</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(bio))
+        {
+            <p class="bio">@bio</p>
+        }
+        @if (Model.ContentRows != null && Model.ContentRows.Any())
+        {
+            @Html.GetBlockListHtml(Model.ContentRows)
+        }
+    </div>
+</section>
+
+@if (authoredArticles.Any())
+{
+    <main class="author-articles">
+        <header class="section-head">
+            <h2>Essays by @Model.Name</h2>
+            <span class="m">@authoredArticles.Count @(authoredArticles.Count == 1 ? "essay" : "essays")</span>
+        </header>
+        <div class="entries">
+            @foreach (var article in authoredArticles)
+            {
+                @await Html.PartialAsync("~/Views/Partials/v2/_ArticleCard.cshtml", article)
+            }
+        </div>
+    </main>
+}

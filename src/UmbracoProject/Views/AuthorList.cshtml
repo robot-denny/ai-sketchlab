@@ -1,12 +1,23 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.AuthorList>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.AuthorList>
 
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using UmbracoProject.Helpers
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@section Styles {
+    <link href="/assets/css/listings.css" rel="stylesheet" asp-append-version="true" />
+    <link href="/assets/css/authors-page.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name,
+    Eyebrow = "Contributors",
+    Dek = Model.Subtitle,
+    Pattern = Model.PageHeadPattern()
+})
 
 @await Html.PartialAsync("~/Views/Partials/authors.cshtml")

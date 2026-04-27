@@ -1,60 +1,85 @@
-﻿
 @inherits UmbracoViewPage
 
 @using Clean.Core.Helpers
-@using Clean.Core.Models.ViewModels;
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 @using Umbraco.Extensions
 
+@*
+    v2 hybrid — Authors grid.
+    Renders the .authors-grid / .a-card layout from D-authors.html.
+    Used by AuthorList.cshtml.
+
+    Per-author card maps Umbraco fields:
+        eyebrow → literal "Author"
+        h2      → author.Name (or author.Title if set)
+        role    → author.Subtitle  (acts as the .role line)
+        bio     → author.MetaDescription
+        count   → number of Articles whose `author` picker references this node
+*@
+
 @{
-    AuthorList authorList = Umbraco.ContentAtRoot().DescendantsOrSelf<AuthorList>().FirstOrDefault();
-    int modelId = Model.Id;
+    var authorList = Umbraco.ContentAtRoot().DescendantsOrSelf<ContentModels.AuthorList>().FirstOrDefault();
+    var modelId = Model.Id;
     var isAuthorListPage = modelId == authorList?.Id;
     var fallbackPageSize = isAuthorListPage ? 10 : 3;
 
     var pageSize = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "size", fallbackPageSize);
     var pageNumber = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "page", 1);
-    var allAuthors = authorList?.Children<Author>().Where(x => x.IsVisible()) ?? Enumerable.Empty<Author>();
+    var allAuthors = authorList?.Children<ContentModels.Author>().Where(x => x.IsVisible()) ?? Enumerable.Empty<ContentModels.Author>();
     var pageOfAuthors = allAuthors.Skip((pageNumber - 1) * pageSize).Take(pageSize);
     var totalItemCount = allAuthors.Count();
-    var pageCount = totalItemCount > 0 ? Math.Ceiling((double)totalItemCount / pageSize) : 1;
 
+    var articleList = Umbraco.ContentAtRoot().DescendantsOrSelf<ContentModels.ArticleList>().FirstOrDefault();
+    var allArticles = articleList?.Children<ContentModels.Article>().Where(x => x.IsVisible()) ?? Enumerable.Empty<ContentModels.Article>();
+
+    int CountArticlesBy(ContentModels.Author author)
+    {
+        return allArticles.Count(a => a.Author?.Any(p => p.Id == author.Id) == true);
+    }
+
+    string CardHeading(ContentModels.Author author)
+    {
+        return !string.IsNullOrWhiteSpace(author.Title) ? author.Title : author.Name;
+    }
 }
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8 col-md-10 mx-auto">
-            <div class="container-fluid">
-                <div class="row">
-                    @foreach (var author in pageOfAuthors)
-                    {
-                        <div class="col-4 mx-auto">
-                            <div class="card">
-                                <header>
-                                    @if (author.MainImage != null)
-                                    {
-                                        <img src="@(author.MainImage.Url())" alt="@author.Name" class="w-100" />
-                                    }
-                                </header>
-                                <div class="card-body">
-                                    <div class="content-left text-start my-auto py-4">
-                                        <h2 class="card-title">@author.Name</h2>
-                                        <p class="card-description">@author.MetaDescription</p>
-                                        <a href="@author.Url()" class="text-primary">
-                                            @Umbraco.GetDictionaryValue("Author.ReadMore")
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
+<main class="authors-grid">
+    @foreach (var author in pageOfAuthors)
+    {
+        var url = author.Url();
+        var headingHtml = CardHeading(author);
+        var role = author.Subtitle;
+        var bio = author.MetaDescription;
+        var essayCount = CountArticlesBy(author);
 
-            @if (isAuthorListPage)
-            {
-                @await Component.InvokeAsync("Pagination", new { totalItems = totalItemCount, url = Model.Url(), pageNumber = pageNumber, pageSize = pageSize })
-            }
-        </div>
-    </div>
-</div>
+        <article class="a-card">
+            <a href="@url" class="headshot" aria-hidden="true">
+                @if (author.MainImage != null)
+                {
+                    <img src="@author.MainImage.GetCropUrl(320, 320)" alt="@author.Name" loading="lazy" />
+                }
+            </a>
+            <div>
+                <p class="eye">Author</p>
+                <h2><a href="@url">@Html.Raw(headingHtml)</a></h2>
+                @if (!string.IsNullOrWhiteSpace(role))
+                {
+                    <p class="role">@role</p>
+                }
+                @if (!string.IsNullOrWhiteSpace(bio))
+                {
+                    <p>@bio</p>
+                }
+                @if (essayCount > 0)
+                {
+                    <p class="count">@essayCount @(essayCount == 1 ? "essay" : "essays")</p>
+                }
+            </div>
+        </article>
+    }
+</main>
+
+@if (isAuthorListPage && totalItemCount > pageSize)
+{
+    @await Component.InvokeAsync("Pagination", new { totalItems = totalItemCount, url = Model.Url(), pageNumber = pageNumber, pageSize = pageSize })
+}

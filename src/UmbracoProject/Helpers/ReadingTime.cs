@@ -1,9 +1,9 @@
-using System.Text.Encodings.Web;
+using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Html;
 using Microsoft.Extensions.Caching.Memory;
 using Umbraco.Cms.Core.Models.Blocks;
 using Umbraco.Cms.Core.Models.PublishedContent;
+using Umbraco.Cms.Core.Strings;
 using Umbraco.Extensions;
 
 namespace UmbracoProject.Helpers;
@@ -53,19 +53,40 @@ public static class ReadingTime
         return total;
     }
 
-    private static string? ToText(object? value) => value switch
+    private static string? ToText(object? value)
     {
-        null => null,
-        string s => s,
-        IHtmlContent html => HtmlToString(html),
-        _ => null
-    };
+        if (value is null) return null;
+        if (value is string s) return s;
 
-    private static string HtmlToString(IHtmlContent html)
-    {
-        using var sw = new StringWriter();
-        html.WriteTo(sw, HtmlEncoder.Default);
-        return sw.ToString();
+        if (value is BlockListModel blocks)
+        {
+            var sb = new StringBuilder();
+            foreach (var item in blocks)
+            {
+                if (item?.Content == null) continue;
+                foreach (var prop in item.Content.Properties)
+                {
+                    var t = ToText(prop.GetValue());
+                    if (!string.IsNullOrWhiteSpace(t)) sb.Append(' ').Append(t);
+                }
+            }
+            return sb.ToString();
+        }
+
+        // Skip IPublishedContent / IPublishedElement values (e.g. an `author` content
+        // picker). Their ToString() returns the type name, not anything content-bearing.
+        if (value is IPublishedContent or IPublishedElement) return null;
+
+        // Umbraco's rich text values are IHtmlEncodedString — ToString() returns the
+        // markup; the Microsoft IHtmlContent.WriteTo path emits a placeholder, so we
+        // intentionally prefer ToString().
+        if (value is IHtmlEncodedString) return value.ToString();
+
+        // Duck-type: Umbraco 14+ RichTextEditorValue exposes a Markup string property.
+        var markupProp = value.GetType().GetProperty("Markup");
+        if (markupProp?.GetValue(value) is string markup) return markup;
+
+        return null;
     }
 
     private static int CountWords(string content)

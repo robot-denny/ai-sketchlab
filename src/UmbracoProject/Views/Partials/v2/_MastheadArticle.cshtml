@@ -40,7 +40,12 @@
 <header class="art-head">
     @if (cats != null && cats.Any())
     {
-        <p class="kicker">@cats.First().Name</p>
+        var categoryNames = cats
+            .Select(c => c.Name)
+            .Where(n => !string.IsNullOrWhiteSpace(n))
+            .Distinct()
+            .OrderBy(n => n);
+        <p class="kicker">@string.Join(" · ", categoryNames)</p>
     }
 
     <h1>@Html.Raw(title)</h1>
@@ -66,16 +71,6 @@
             <span>@readingTime</span>
         }
     </div>
-
-    @if (cats != null && cats.Any())
-    {
-        <div class="byline-tags mt-3">
-            @foreach (var category in cats.Select(x => x.Name).OrderBy(y => y))
-            {
-                <span class="badge bg-light">@category</span>
-            }
-        </div>
-    }
 </header>
 
 @if (!string.IsNullOrWhiteSpace(heroUrl))

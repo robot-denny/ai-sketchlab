@@ -1,23 +1,26 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Home>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Home>
 
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
+
+    var pullQuote = Model.Value<string>("pullQuote");
+    var pullQuoteAttribution = Model.Value<string>("pullQuoteAttribution");
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@section Styles {
+    <link href="/assets/css/home-sections.css" rel="stylesheet" asp-append-version="true" />
+}
 
-@if (Model.ContentRows != null)
+@await Html.PartialAsync("~/Views/Partials/v2/_HeroHome.cshtml", Model)
+@await Html.PartialAsync("~/Views/Partials/v2/_LatestSection.cshtml", Model)
+@await Html.PartialAsync("~/Views/Partials/v2/_DcPull.cshtml", new { Quote = pullQuote, Cite = pullQuoteAttribution })
+@await Html.PartialAsync("~/Views/Partials/v2/_Manifesto.cshtml", Model)
+
+@if (Model.ContentRows != null && Model.ContentRows.Any())
 {
-    <article>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 col-md-10 mx-auto">
-                    @Html.GetBlockListHtml(Model.ContentRows)
-                </div>
-            </div>
-        </div>
-    </article>
+    <section class="wrap-narrow">
+        @Html.GetBlockListHtml(Model.ContentRows)
+    </section>
 }

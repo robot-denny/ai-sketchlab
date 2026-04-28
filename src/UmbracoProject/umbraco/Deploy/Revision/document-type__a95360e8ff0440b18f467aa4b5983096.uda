@@ -26,6 +26,7 @@
   },
   "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
   "CompositionContentTypes": [
+    "umb://document-type/813d07b1e6f8456f8b884adc07f53f87",
     "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",
     "umb://document-type/9090575e290c458591a4b72ec30ff41f",
     "umb://document-type/b1c27e8c169242ad9701c87f12716ee7",
@@ -55,6 +56,10 @@
     {
       "Udi": "umb://document-type/7b2f3de2c7ab449288e8c6bb02eaa6a3",
       "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://document-type/813d07b1e6f8456f8b884adc07f53f87",
+      "Ordering": true
     },
     {
       "Udi": "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",

@@ -11543,7 +11543,6 @@ header.masthead .site-heading .h1 {
 .article-grid-card {
   border-radius: 0;
   overflow: hidden;
-  border: 1px solid var(--border-light);
   transition: box-shadow var(--ease-standard, 250ms ease-out), transform var(--ease-standard, 250ms ease-out);
 }
 

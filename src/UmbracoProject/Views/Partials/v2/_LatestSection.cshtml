@@ -81,7 +81,7 @@
                 var fReading = ReadingTime.Estimate(featured, MemoryCache);
             }
             <p class="num">01@(fDate.HasValue ? $" · {fDate.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(fReading) ? $" · {fReading}" : "")</p>
-            <h2><a href="@featured.Url()">@featured.Name</a></h2>
+            <h2><a href="@featured.Url()">@(!string.IsNullOrWhiteSpace(featured.Title) ? featured.Title : featured.Name)</a></h2>
             @if (!string.IsNullOrWhiteSpace(fSub))
             {
                 <p class="sub">@fSub</p>
@@ -113,7 +113,7 @@
                     }
                 </a>
                 <p class="num">@n.ToString("00")@(date.HasValue ? $" · {date.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(reading) ? $" · {reading}" : "")</p>
-                <h3><a href="@a.Url()">@a.Name</a></h3>
+                <h3><a href="@a.Url()">@(!string.IsNullOrWhiteSpace(a.Title) ? a.Title : a.Name)</a></h3>
                 @if (!string.IsNullOrWhiteSpace(sub))
                 {
                     <p class="sub">@sub</p>

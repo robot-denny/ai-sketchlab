@@ -37,6 +37,8 @@
     var date    = a.Value<DateTime?>("articleDate");
     var authors = a.Value<IEnumerable<ContentModels.Author>>("author");
     var sub     = a.Value<string>("subtitle");
+    var title   = a.Value<string>("title");
+    var heading = !string.IsNullOrWhiteSpace(title) ? title : a.Name;
 
     string author = null;
     if (authors != null)
@@ -72,7 +74,7 @@
             }
         </p>
     }
-    <h3 class="card-title"><a href="@a.Url()">@a.Name</a></h3>
+    <h3 class="card-title"><a href="@a.Url()">@heading</a></h3>
     @if (!string.IsNullOrWhiteSpace(sub))
     {
         <p class="card-sub">@sub</p>

@@ -65,7 +65,7 @@ test.describe('Link Styles — Default Links', () => {
 test.describe('Link Styles — Header Navigation', () => {
   test('header nav links have no underline and retain existing colors', async ({ page }) => {
     await page.goto('/');
-    const navLink = page.locator('#mainNav .nav-link').first();
+    const navLink = page.locator('.site-head .site-nav a').first();
     await expect(navLink).toBeVisible();
 
     const textDecoration = await navLink.evaluate((el) => getComputedStyle(el).textDecorationLine);

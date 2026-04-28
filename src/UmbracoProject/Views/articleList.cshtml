@@ -5,7 +5,7 @@
 @using UmbracoProject.Helpers
 
 @{
-    Layout = "master-v2.cshtml";
+    Layout = "master.cshtml";
 
     const int defaultPageSize = 12;
     var pageSize   = QueryStringHelper.GetIntFromQueryString(Context.Request.Query, "size", defaultPageSize);

@@ -4,7 +4,7 @@
 @using UmbracoProject.Helpers
 
 @{
-    Layout = "master-v2.cshtml";
+    Layout = "master.cshtml";
     var showSectionNavigation = Model.Value<bool>("showSectionNavigation");
     var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
     var eyebrow = Model.Parent?.Name;

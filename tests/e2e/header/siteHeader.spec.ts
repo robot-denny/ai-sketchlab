@@ -92,7 +92,6 @@ async function findFirstArticleUrl(
   homeId: string,
   articleDtId: string
 ): Promise<string> {
-  // Walk Home's children, then their children, looking for an article page.
   const queue: string[] = [homeId];
   const visited = new Set<string>();
   while (queue.length) {
@@ -117,13 +116,13 @@ async function findFirstArticleUrl(
 }
 
 // ==============================
-// Section 1: CSS File Content Tests
+// Section 1: CSS File Content (v2 .site-head in site-chrome.css)
 // ==============================
 
 test.describe('Site Header — CSS Structure', () => {
   const cssPath = resolve(
     __dirname,
-    '../../../src/UmbracoProject/wwwroot/assets/css/styles.css'
+    '../../../src/UmbracoProject/wwwroot/assets/css/site-chrome.css'
   );
   let css: string;
 
@@ -131,41 +130,26 @@ test.describe('Site Header — CSS Structure', () => {
     css = readFileSync(cssPath, 'utf-8');
   });
 
-  test('#mainNav uses position: sticky (not absolute)', () => {
-    // The base #mainNav rule should use sticky positioning
-    expect(css).toMatch(/#mainNav\s*\{[^}]*position:\s*sticky/);
-    // Should NOT contain position: absolute in the base #mainNav rule
-    const baseRule = css.match(/#mainNav\s*\{[^}]*\}/)?.[0] ?? '';
-    expect(baseRule).not.toMatch(/position:\s*absolute/);
+  test('.site-head uses position: sticky', () => {
+    expect(css).toMatch(/\.site-head\s*\{[^}]*position:\s*sticky/);
   });
 
-  test('#mainNav has --surface-primary background', () => {
-    const baseRule = css.match(/#mainNav\s*\{[^}]*\}/)?.[0] ?? '';
-    expect(baseRule).toMatch(/background-color:\s*var\(--surface-primary/);
+  test('.site-head uses --surface-primary background', () => {
+    expect(css).toMatch(/\.site-head\s*\{[^}]*background:\s*var\(--surface-primary/);
   });
 
-  test('#mainNav does not contain .is-fixed rules', () => {
-    expect(css).not.toMatch(/#mainNav\.is-fixed/);
+  test('.site-head has no scroll-toggled visibility classes', () => {
+    expect(css).not.toMatch(/\.site-head\.is-fixed/);
+    expect(css).not.toMatch(/\.site-head\.is-visible/);
   });
 
-  test('#mainNav does not contain .is-visible rules', () => {
-    expect(css).not.toMatch(/#mainNav\.is-visible/);
-  });
-
-  test('desktop nav link color uses --text-primary (not --text-on-dark)', () => {
-    // Find the desktop media query section for #mainNav nav links
-    // The nav-link color should reference --text-primary, not --text-on-dark
-    const desktopNavLinkPattern = /@media\s*\(\s*min-width:\s*992px\s*\)[^]*?#mainNav\s+\.navbar-nav[^}]*color:\s*var\(--text-primary/;
-    expect(css).toMatch(desktopNavLinkPattern);
-  });
-
-  test('masthead padding-top does not include 57px compensation', () => {
-    expect(css).not.toMatch(/header\.masthead\s*\{[^}]*\+\s*57px/);
+  test('.site-head .site-nav links use --text-primary', () => {
+    expect(css).toMatch(/\.site-head\s+\.site-nav\s+a\s*\{[^}]*color:\s*var\(--text-primary/);
   });
 });
 
 // ==============================
-// Section 2: JavaScript File Content Tests
+// Section 2: JavaScript File Content
 // ==============================
 
 test.describe('Site Header — JavaScript', () => {
@@ -194,7 +178,7 @@ test.describe('Site Header — JavaScript', () => {
 });
 
 // ==============================
-// Section 3: Browser E2E Tests
+// Section 3: Browser E2E Tests (.site-head)
 // ==============================
 
 let homeDocId: string;
@@ -207,7 +191,6 @@ test.describe('Site Header — Browser E2E', () => {
   test.beforeAll(async () => {
     const token = await freshToken();
 
-    // Find Home page dynamically (rule #1: never hardcode UUIDs)
     const rootResp = await apiFetch(token, 'GET', '/tree/document/root?skip=0&take=100');
     if (!rootResp.ok) throw new Error(`GET doc tree root failed: ${rootResp.status}`);
     const rootData = (await rootResp.json()) as any;
@@ -218,12 +201,8 @@ test.describe('Site Header — Browser E2E', () => {
     if (!homeItem) throw new Error('Home page not found in document tree root');
     homeDocId = homeItem.id;
 
-    // Get published URL (rule #2: never hardcode URL slugs)
     homeDocUrl = await getDocumentPath(token, homeDocId);
 
-    // Look up an Article doc type, then find a published Article page
-    // somewhere under Home. Used by the .art-head overlap test (the v2
-    // article masthead replaces the legacy header.masthead element).
     const articleDtId = await findArticleDocTypeId(token);
     articleDocUrl = await findFirstArticleUrl(token, homeDocId, articleDtId);
   });
@@ -231,9 +210,9 @@ test.describe('Site Header — Browser E2E', () => {
   test('desktop (1200x800): header background is --surface-primary', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
-    const nav = page.locator('#mainNav');
-    await expect(nav).toBeVisible();
-    const bg = await nav.evaluate((el) =>
+    const head = page.locator('.site-head');
+    await expect(head).toBeVisible();
+    const bg = await head.evaluate((el) =>
       window.getComputedStyle(el).backgroundColor
     );
     expect(bg).toBe('rgb(255, 252, 249)');
@@ -242,8 +221,8 @@ test.describe('Site Header — Browser E2E', () => {
   test('desktop (1200x800): header has bottom border', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
-    const nav = page.locator('#mainNav');
-    const border = await nav.evaluate((el) => {
+    const head = page.locator('.site-head');
+    const border = await head.evaluate((el) => {
       const style = window.getComputedStyle(el);
       return `${style.borderBottomWidth} ${style.borderBottomStyle}`;
     });
@@ -253,7 +232,7 @@ test.describe('Site Header — Browser E2E', () => {
   test('desktop (1200x800): nav link text color is --text-primary', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
-    const navLink = page.locator('#mainNav .nav-link').first();
+    const navLink = page.locator('.site-head .site-nav a').first();
     await expect(navLink).toBeVisible();
     const color = await navLink.evaluate((el) =>
       window.getComputedStyle(el).color
@@ -264,17 +243,14 @@ test.describe('Site Header — Browser E2E', () => {
   test('desktop (1200x800): header position is sticky', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
-    const nav = page.locator('#mainNav');
-    const position = await nav.evaluate((el) =>
+    const head = page.locator('.site-head');
+    const position = await head.evaluate((el) =>
       window.getComputedStyle(el).position
     );
     expect(position).toBe('sticky');
   });
 
   test('desktop (1200x800): article head top is at or below site head bottom (no overlap)', async ({ page }) => {
-    // Phase 7: articles use the v2 .site-head + .art-head chrome, not the
-    // legacy #mainNav + header.masthead pair. The overlap invariant still
-    // applies — just against the v2 selectors.
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(articleDocUrl);
     const siteHead = page.locator('.site-head');
@@ -285,7 +261,6 @@ test.describe('Site Header — Browser E2E', () => {
     expect(siteHeadBox).toBeTruthy();
     expect(artHeadBox).toBeTruthy();
 
-    // .art-head top should be at or below .site-head bottom (tolerance of 1px)
     expect(artHeadBox!.y).toBeGreaterThanOrEqual(siteHeadBox!.y + siteHeadBox!.height - 1);
   });
 
@@ -293,18 +268,15 @@ test.describe('Site Header — Browser E2E', () => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
 
-    // Scroll down 500px
     await page.evaluate(() => window.scrollBy(0, 500));
-    await page.waitForTimeout(300); // wait for any transitions to settle
+    await page.waitForTimeout(300);
 
-    const nav = page.locator('#mainNav');
-    const box = await nav.boundingBox();
+    const head = page.locator('.site-head');
+    const box = await head.boundingBox();
     expect(box).toBeTruthy();
-    // Sticky header should be at the top of the viewport (y ~ 0)
     expect(box!.y).toBeLessThanOrEqual(2);
 
-    // Background should still be white (no flash to transparent)
-    const bg = await nav.evaluate((el) =>
+    const bg = await head.evaluate((el) =>
       window.getComputedStyle(el).backgroundColor
     );
     expect(bg).toBe('rgb(255, 252, 249)');
@@ -317,15 +289,14 @@ test.describe('Site Header — Browser E2E', () => {
     await page.evaluate(() => window.scrollBy(0, 500));
     await page.waitForTimeout(300);
 
-    const nav = page.locator('#mainNav');
-    const opacity = await nav.evaluate((el) =>
+    const head = page.locator('.site-head');
+    const opacity = await head.evaluate((el) =>
       window.getComputedStyle(el).opacity
     );
     expect(opacity).toBe('1');
 
-    // Should not have scroll-triggered classes
-    const hasFixed = await nav.evaluate((el) => el.classList.contains('is-fixed'));
-    const hasVisible = await nav.evaluate((el) => el.classList.contains('is-visible'));
+    const hasFixed = await head.evaluate((el) => el.classList.contains('is-fixed'));
+    const hasVisible = await head.evaluate((el) => el.classList.contains('is-visible'));
     expect(hasFixed).toBe(false);
     expect(hasVisible).toBe(false);
   });
@@ -333,26 +304,26 @@ test.describe('Site Header — Browser E2E', () => {
   test('mobile (390x844): header background is --surface-primary', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(homeDocUrl);
-    const nav = page.locator('#mainNav');
-    await expect(nav).toBeVisible();
-    const bg = await nav.evaluate((el) =>
+    const head = page.locator('.site-head');
+    await expect(head).toBeVisible();
+    const bg = await head.evaluate((el) =>
       window.getComputedStyle(el).backgroundColor
     );
     expect(bg).toBe('rgb(255, 252, 249)');
   });
 
-  test('mobile (390x844): nav toggler is visible', async ({ page }) => {
+  test('mobile (390x844): nav links remain visible (no toggle in v2 chrome)', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(homeDocUrl);
-    const toggler = page.locator('#mainNav .navbar-toggler');
-    await expect(toggler).toBeVisible();
+    const navLink = page.locator('.site-head .site-nav a').first();
+    await expect(navLink).toBeVisible();
   });
 
   test('mobile (390x844): header position is sticky', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(homeDocUrl);
-    const nav = page.locator('#mainNav');
-    const position = await nav.evaluate((el) =>
+    const head = page.locator('.site-head');
+    const position = await head.evaluate((el) =>
       window.getComputedStyle(el).position
     );
     expect(position).toBe('sticky');

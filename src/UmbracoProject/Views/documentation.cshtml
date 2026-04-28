@@ -5,7 +5,7 @@
 @using Markdig
 
 @{
-    Layout = "master-v2.cshtml";
+    Layout = "master.cshtml";
     var markdownPipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
     var showSectionNavigation = Model.Value<bool>("showSectionNavigation");
     var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;

@@ -18,7 +18,7 @@
 @inject IOptions<AIVectorSearchOptions> searchOptions
 
 @{
-    Layout = "master-v2.cshtml";
+    Layout = "master.cshtml";
     var searchQuery = Context.Request.Query["q"].ToString();
     var docTypesToIgnore = new[] { Category.ModelTypeAlias, CategoryList.ModelTypeAlias, Error.ModelTypeAlias, Search.ModelTypeAlias, XMlsitemap.ModelTypeAlias };
 

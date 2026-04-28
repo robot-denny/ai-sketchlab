@@ -6,7 +6,7 @@
 @using Clean.Core.Extensions
 
 @{
-    Layout = "master-v2.cshtml";
+    Layout = "master.cshtml";
 
     var authors = Model.Author;
     var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";

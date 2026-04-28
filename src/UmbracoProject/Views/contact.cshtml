@@ -4,7 +4,7 @@
 @using UmbracoProject.Helpers
 
 @{
-    Layout = "master-v2.cshtml";
+    Layout = "master.cshtml";
     var submitted = false;
     if (bool.TryParse(TempData["Success"]?.ToString() ?? "", out var success))
     {

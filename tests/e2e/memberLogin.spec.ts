@@ -74,8 +74,11 @@ test.describe('Member Login — Page Structure', () => {
   });
 
   test('page header is rendered', async ({ page }) => {
+    // The v2 master template renders an <h1 class="wordmark"> in the
+    // sticky site head. The Login template's own page heading is the
+    // <h1> emitted by v2/_PageHead, scoped under .page-head.
     await page.goto(LOGIN_PAGE);
-    const heading = page.locator('h1');
+    const heading = page.locator('.page-head h1');
     await expect(heading).toBeVisible();
   });
 

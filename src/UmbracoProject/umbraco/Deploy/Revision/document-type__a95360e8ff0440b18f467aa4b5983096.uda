@@ -33,10 +33,31 @@
     "umb://document-type/ce869f5cd4104a3e85729593e49101c6",
     "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d"
   ],
-  "PropertyGroups": [],
+  "PropertyGroups": [
+    {
+      "Key": "b1234567-89ab-4cde-9f01-23456789abcd",
+      "Name": "Site",
+      "SortOrder": 1,
+      "Type": 1,
+      "Alias": "site",
+      "PropertyTypes": [
+        {
+          "Key": "c2345678-9abc-4def-9012-3456789abcde",
+          "Alias": "siteLogo",
+          "DataType": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
+          "Description": "Logo image displayed in the site header (supports PNG, SVG, and other image formats). Set once here \u2014 appears site-wide.",
+          "Name": "Site Logo"
+        }
+      ]
+    }
+  ],
   "PropertyTypes": [],
   "Udi": "umb://document-type/a95360e8ff0440b18f467aa4b5983096",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
+      "Ordering": true
+    },
     {
       "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
       "Ordering": true

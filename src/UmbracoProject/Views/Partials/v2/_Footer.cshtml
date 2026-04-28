@@ -17,9 +17,10 @@
     var home = Umbraco.ContentAtRoot().OfType<ContentModels.Home>().FirstOrDefault();
     if (home == null) { return; }
 
-    var siteName    = Umbraco.GetDictionaryValue("Site.Name");
+    var siteName    = Umbraco.GetDictionaryValue("Navigation.SiteName");
     var description = home.FooterDescription;
     var nav         = home.FooterNavigation;
+    var footerLogo  = home.FooterLogo;
 
     // "Elsewhere" links — Home's footerControls composition exposes
     // these under the alias `socialIconLinks` (see footer.cshtml /
@@ -37,7 +38,18 @@
 <footer class="foot">
     <div class="foot-inner">
         <div class="col">
-            <div class="fm">@Html.Raw(siteName)</div>
+            <div class="fm">
+                <a href="@home.Url()">
+                    @if (footerLogo != null)
+                    {
+                        <img src="@footerLogo.Url()" alt="@siteName" class="footer-logo" />
+                    }
+                    else
+                    {
+                        @Html.Raw(siteName)
+                    }
+                </a>
+            </div>
             @if (description != null && !string.IsNullOrWhiteSpace(description.ToString()))
             {
                 <p>@description</p>

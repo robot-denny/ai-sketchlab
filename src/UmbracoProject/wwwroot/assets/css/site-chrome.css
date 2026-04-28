@@ -22,7 +22,8 @@
 .site-head{border-bottom:1px solid var(--border-light);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:var(--surface-primary);position:sticky;top:0;z-index:20}
 .site-head .wordmark{font-family:var(--font-display);font-weight:500;font-size:22px;letter-spacing:-.015em;margin:0}
 .site-head .wordmark em{font-style:italic;font-weight:400}
-.site-head .wordmark a{color:inherit;text-decoration:none}
+.site-head .wordmark a{color:inherit;text-decoration:none;display:inline-flex;align-items:center}
+.site-head .wordmark .site-logo{height:32px;width:auto;max-width:200px;display:block}
 .site-head .site-nav{display:flex;gap:22px;align-items:center}
 .site-head .site-nav a{font-family:var(--font-body);font-weight:400;font-size:14px;color:var(--text-primary);text-decoration:none;letter-spacing:.01em}
 .site-head .site-nav a.is-current{font-weight:600;border-bottom:1px solid var(--text-primary)}
@@ -51,6 +52,8 @@
 .foot h4{font-family:var(--font-body);font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--text-secondary);margin:0 0 10px}
 .foot .fm{font-family:var(--font-display);font-weight:500;font-size:26px;letter-spacing:-.015em;margin:0 0 8px}
 .foot .fm em{font-style:italic;font-weight:400}
+.foot .fm a{color:inherit;text-decoration:none;display:inline-flex;align-items:center}
+.foot .fm .footer-logo{width:130px;max-width:130px;height:auto;max-height:80px;display:block}
 .foot .col p,.foot .col a{font-family:var(--font-body);font-size:13px;line-height:1.6;color:var(--text-secondary);display:block;text-decoration:none}
 .foot .colophon{grid-column:1/-1;padding-top:32px;margin-top:24px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
 

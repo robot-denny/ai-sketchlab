@@ -1,4 +1,4 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Article>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Article>
 
 @using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
@@ -6,28 +6,56 @@
 @using Clean.Core.Extensions
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
+
     var authors = Model.Author;
     var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
+
+    var parent = Model.Parent;
+
+    ContentModels.Article previous = null;
+    ContentModels.Article next = null;
+    if (parent != null)
+    {
+        var siblings = parent.Children<ContentModels.Article>()
+            .Where(a => a.IsVisible())
+            .OrderBy(a => a.ArticleDate)
+            .ToList();
+        var idx = siblings.FindIndex(a => a.Id == Model.Id);
+        if (idx >= 0)
+        {
+            if (idx > 0) { previous = siblings[idx - 1]; }
+            if (idx < siblings.Count - 1) { next = siblings[idx + 1]; }
+        }
+    }
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage, authorNames, Model.ArticleDate, Model.Categories))
+@section Styles {
+    <link href="/assets/css/article-page.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@if (parent != null)
+{
+    <div class="back">
+        <a href="@parent.Url()">← @parent.Name</a>
+    </div>
+}
 
 <article>
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-10 mx-auto">
-                @Html.GetBlockListHtml(Model.ContentRows)
-                @if (Model.HasValue("postNotes"))
-                {
-                    <div class="post-notes">
-                        <strong>Post Notes:</strong>
-                        @Model.PostNotes
-                    </div>
-                }
+    @await Html.PartialAsync("~/Views/Partials/v2/_MastheadArticle.cshtml",
+        new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage, authorNames, Model.ArticleDate, Model.Categories))
+
+    <div class="art-body">
+        @Html.GetBlockListHtml(Model.ContentRows)
+        @if (Model.HasValue("postNotes"))
+        {
+            <div class="post-notes">
+                <strong>Post Notes:</strong>
+                @Model.PostNotes
             </div>
-        </div>
+        }
     </div>
+
     @if (Model.HasValue("sectionRows"))
     {
         var rows = Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("sectionRows");
@@ -37,3 +65,38 @@
         }
     }
 </article>
+
+@if (previous != null || next != null)
+{
+    <section class="next" aria-labelledby="next-heading">
+        <div>
+            @if (previous != null)
+            {
+                <p class="eye" id="next-heading">Previously</p>
+                <h4><a href="@previous.Url()">@previous.Name</a></h4>
+                @if (!string.IsNullOrWhiteSpace(previous.Subtitle))
+                {
+                    <p>@previous.Subtitle</p>
+                }
+            }
+        </div>
+        <div>
+            @if (next != null)
+            {
+                @if (previous == null)
+                {
+                    <p class="eye" id="next-heading">Next</p>
+                }
+                else
+                {
+                    <p class="eye">Next</p>
+                }
+                <h4><a href="@next.Url()">@next.Name</a></h4>
+                @if (!string.IsNullOrWhiteSpace(next.Subtitle))
+                {
+                    <p>@next.Subtitle</p>
+                }
+            }
+        </div>
+    </section>
+}

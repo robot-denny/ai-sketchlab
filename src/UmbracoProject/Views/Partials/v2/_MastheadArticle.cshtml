@@ -7,23 +7,17 @@
     v2 hybrid — article masthead.
     Source mock: D-article.html.
 
-    IMPORTANT — text-led, not image-as-background:
-        <div class="back">  ← "← back to publication" link
-        <article>
-          <header class="art-head">  ← kicker / h1 / dek / byline
-          <figure class="art-hero">  ← optional MainImage shown BELOW
-                                       the headline, framed inside the
-                                       reading column
+    Emits the head + hero contents that live INSIDE <article>.
+    The caller (article.cshtml) owns:
+        <div class="back">  ← rendered above <article>
+        <article>           ← wraps masthead + body
+            … this partial …
+            <div class="art-body">…</div>
+        </article>
 
-    MainImage is still required content (per MASTHEAD-DECISION.md
-    revision) and still feeds the blog listing thumbnail. On the
-    article DETAIL page it appears here as a hero figure under the
-    title rather than as a backdrop.
-
-    PageHeaderViewModel does NOT expose CurrentPage; we read the
-    surrounding content node via Umbraco.AssignedContentItem so we
-    can resolve the parent (ArticleList) link and any future
-    article-only fields without changing the controller / model.
+    MainImage is rendered as an inline <figure class="art-hero">
+    below the headline rather than a full-bleed background — the
+    article detail layout is text-led.
 *@
 
 @{
@@ -37,66 +31,56 @@
         ? Model.BackgroundImage.GetCropUrl(1600, 900)
         : null;
 
-    // Live content node for parent + future article fields.
+    // Live content node — used to compute reading time without
+    // changing the PageHeaderViewModel contract.
     var here = Umbraco.AssignedContentItem;
-    var parent = here?.Parent;
-
     string readingTime = ReadingTime.Estimate(here, MemoryCache);
 }
 
-@if (parent != null)
-{
-    <div class="back">
-        <a href="@parent.Url()">← @parent.Name</a>
+<header class="art-head">
+    @if (cats != null && cats.Any())
+    {
+        <p class="kicker">@cats.First().Name</p>
+    }
+
+    <h1>@Html.Raw(title)</h1>
+
+    @if (!string.IsNullOrWhiteSpace(subtitle))
+    {
+        <p class="dek">@subtitle</p>
+    }
+
+    <div class="byline">
+        @if (!string.IsNullOrWhiteSpace(author))
+        {
+            <span>@Umbraco.GetDictionaryValue("Article.By") <b>@author</b></span>
+            <span class="sep">·</span>
+        }
+        @if (date.HasValue)
+        {
+            <span>@date.Value.ToString("MMMM d, yyyy")</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(readingTime))
+        {
+            <span class="sep">·</span>
+            <span>@readingTime</span>
+        }
     </div>
-}
 
-<article>
-    <header class="art-head">
-        @if (cats != null && cats.Any())
-        {
-            <p class="kicker">@cats.First().Name</p>
-        }
-
-        <h1>@Html.Raw(title)</h1>
-
-        @if (!string.IsNullOrWhiteSpace(subtitle))
-        {
-            <p class="dek">@subtitle</p>
-        }
-
-        <div class="byline">
-            @if (!string.IsNullOrWhiteSpace(author))
+    @if (cats != null && cats.Any())
+    {
+        <div class="byline-tags mt-3">
+            @foreach (var category in cats.Select(x => x.Name).OrderBy(y => y))
             {
-                <span>@Umbraco.GetDictionaryValue("Article.By") <b>@author</b></span>
-                <span class="sep">·</span>
-            }
-            @if (date.HasValue)
-            {
-                <span>@date.Value.ToString("MMMM d, yyyy")</span>
-            }
-            @if (!string.IsNullOrWhiteSpace(readingTime))
-            {
-                <span class="sep">·</span>
-                <span>@readingTime</span>
+                <span class="badge bg-light">@category</span>
             }
         </div>
-
-        @if (cats != null && cats.Any())
-        {
-            <div class="byline-tags mt-3">
-                @foreach (var category in cats.Select(x => x.Name).OrderBy(y => y))
-                {
-                    <span class="badge bg-light">@category</span>
-                }
-            </div>
-        }
-    </header>
-
-    @if (!string.IsNullOrWhiteSpace(heroUrl))
-    {
-        <figure class="art-hero">
-            <img src="@heroUrl" alt="" loading="lazy" />
-        </figure>
     }
-</article>
+</header>
+
+@if (!string.IsNullOrWhiteSpace(heroUrl))
+{
+    <figure class="art-hero">
+        <img src="@heroUrl" alt="" loading="lazy" />
+    </figure>
+}

@@ -63,6 +63,59 @@ async function getDocumentPath(token: string, docId: string): Promise<string> {
   return url;
 }
 
+/** Find the Article document-type id (rule #1: never hardcode UUIDs). */
+async function findArticleDocTypeId(token: string): Promise<string> {
+  const dtRootResp = await apiFetch(token, 'GET', '/tree/document-type/root?skip=0&take=100');
+  if (!dtRootResp.ok) throw new Error(`GET doc type tree root failed: ${dtRootResp.status}`);
+  const dtRoot = (await dtRootResp.json()) as any;
+
+  const pages = (dtRoot.items ?? []).find((d: any) => d.name === 'Pages');
+  if (!pages) throw new Error('"Pages" doc type folder not found');
+
+  const pagesChildrenResp = await apiFetch(
+    token,
+    'GET',
+    `/tree/document-type/children?parentId=${pages.id}&skip=0&take=100`
+  );
+  if (!pagesChildrenResp.ok)
+    throw new Error(`GET Pages children failed: ${pagesChildrenResp.status}`);
+  const pagesChildren = (await pagesChildrenResp.json()) as any;
+
+  const articleDt = (pagesChildren.items ?? []).find((d: any) => d.name === 'Article');
+  if (!articleDt) throw new Error('"Article" document type not found under Pages');
+  return articleDt.id;
+}
+
+/** Walk the doc tree under homeId to find a published Article page; return its URL. */
+async function findFirstArticleUrl(
+  token: string,
+  homeId: string,
+  articleDtId: string
+): Promise<string> {
+  // Walk Home's children, then their children, looking for an article page.
+  const queue: string[] = [homeId];
+  const visited = new Set<string>();
+  while (queue.length) {
+    const parentId = queue.shift()!;
+    if (visited.has(parentId)) continue;
+    visited.add(parentId);
+    const resp = await apiFetch(
+      token,
+      'GET',
+      `/tree/document/children?parentId=${parentId}&skip=0&take=100`
+    );
+    if (!resp.ok) continue;
+    const data = (await resp.json()) as any;
+    for (const item of data.items ?? []) {
+      if (item.documentType?.id === articleDtId) {
+        return await getDocumentPath(token, item.id);
+      }
+      if (item.hasChildren) queue.push(item.id);
+    }
+  }
+  throw new Error('No Article page found in the document tree under Home');
+}
+
 // ==============================
 // Section 1: CSS File Content Tests
 // ==============================
@@ -146,6 +199,7 @@ test.describe('Site Header — JavaScript', () => {
 
 let homeDocId: string;
 let homeDocUrl: string;
+let articleDocUrl: string;
 
 test.describe('Site Header — Browser E2E', () => {
   test.describe.configure({ mode: 'serial' });
@@ -166,6 +220,12 @@ test.describe('Site Header — Browser E2E', () => {
 
     // Get published URL (rule #2: never hardcode URL slugs)
     homeDocUrl = await getDocumentPath(token, homeDocId);
+
+    // Look up an Article doc type, then find a published Article page
+    // somewhere under Home. Used by the .art-head overlap test (the v2
+    // article masthead replaces the legacy header.masthead element).
+    const articleDtId = await findArticleDocTypeId(token);
+    articleDocUrl = await findFirstArticleUrl(token, homeDocId, articleDtId);
   });
 
   test('desktop (1200x800): header background is --surface-primary', async ({ page }) => {
@@ -211,19 +271,22 @@ test.describe('Site Header — Browser E2E', () => {
     expect(position).toBe('sticky');
   });
 
-  test('desktop (1200x800): masthead top is at or below header bottom (no overlap)', async ({ page }) => {
+  test('desktop (1200x800): article head top is at or below site head bottom (no overlap)', async ({ page }) => {
+    // Phase 7: articles use the v2 .site-head + .art-head chrome, not the
+    // legacy #mainNav + header.masthead pair. The overlap invariant still
+    // applies — just against the v2 selectors.
     await page.setViewportSize({ width: 1200, height: 800 });
-    await page.goto(homeDocUrl);
-    const nav = page.locator('#mainNav');
-    const masthead = page.locator('header.masthead');
+    await page.goto(articleDocUrl);
+    const siteHead = page.locator('.site-head');
+    const artHead = page.locator('.art-head');
 
-    const navBox = await nav.boundingBox();
-    const mastheadBox = await masthead.boundingBox();
-    expect(navBox).toBeTruthy();
-    expect(mastheadBox).toBeTruthy();
+    const siteHeadBox = await siteHead.boundingBox();
+    const artHeadBox = await artHead.boundingBox();
+    expect(siteHeadBox).toBeTruthy();
+    expect(artHeadBox).toBeTruthy();
 
-    // Masthead top should be at or below the nav bottom (tolerance of 1px)
-    expect(mastheadBox!.y).toBeGreaterThanOrEqual(navBox!.y + navBox!.height - 1);
+    // .art-head top should be at or below .site-head bottom (tolerance of 1px)
+    expect(artHeadBox!.y).toBeGreaterThanOrEqual(siteHeadBox!.y + siteHeadBox!.height - 1);
   });
 
   test('desktop (1200x800): header remains visible after scrolling 500px', async ({ page }) => {

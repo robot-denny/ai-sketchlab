@@ -265,25 +265,19 @@ test.describe('Section Navigation — Partial View (Step 2)', () => {
       /IPublishedContent/
     );
 
-    // Must have desktop and mobile containers
-    expect(content, 'Should have a desktop container').toContain('section-nav-desktop');
-    expect(content, 'Should have a mobile container').toContain('section-nav-mobile');
-
-    // Must have the nav element with section-nav class
-    expect(content, 'Should have a nav.section-nav element').toContain('section-nav');
-
-    // Must have the mobile toggle with Bootstrap collapse
-    expect(content, 'Should have a collapse toggle button').toContain('data-bs-toggle="collapse"');
-    expect(content, 'Should target sectionNavList').toContain('sectionNavList');
+    // Must emit the v2 .section-nav aside
+    expect(content, 'Should render an <aside class="section-nav">').toMatch(
+      /<aside[^>]*class="section-nav"/
+    );
 
     // Must use IsVisible() for filtering
     expect(content, 'Should filter by IsVisible()').toMatch(/IsVisible\(\)/);
 
-    // Must have active class logic
-    expect(content, 'Should have active class logic').toContain('active');
+    // Must emit the v2 active-link modifier
+    expect(content, 'Should have is-current class for active links').toContain('is-current');
 
-    // Must have children list
-    expect(content, 'Should have section-nav-children class').toContain('section-nav-children');
+    // Must emit the v2 child-link modifier
+    expect(content, 'Should have li.child for nested children').toMatch(/class="child"/);
 
     // Must have suppression logic (render nothing when no items)
     expect(content, 'Should have early return for empty nav').toMatch(/return/);
@@ -297,37 +291,38 @@ test.describe('Section Navigation — Partial View (Step 2)', () => {
 test.describe('Section Navigation — CSS (Step 4)', () => {
   const cssPath = resolve(
     __dirname,
-    '../../src/UmbracoProject/wwwroot/assets/css/styles.css'
+    '../../src/UmbracoProject/wwwroot/assets/css/site-chrome.css'
   );
 
-  test('styles.css contains section-nav base styles', async () => {
+  test('site-chrome.css contains section-nav base styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
     expect(css, 'Should have .section-nav base rule').toMatch(/\.section-nav\s*\{/);
     expect(css, 'Should have .section-nav ul rule').toMatch(/\.section-nav\s+ul/);
   });
 
-  test('styles.css contains nav-link and active state styles', async () => {
+  test('site-chrome.css contains link and is-current state styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have nav-link rule').toMatch(/\.section-nav\s+\.nav-link/);
-    expect(css, 'Should have active nav-link rule').toMatch(/\.section-nav\s+\.nav-link\.active/);
+    expect(css, 'Should have .section-nav a rule').toMatch(/\.section-nav\s+a/);
+    expect(css, 'Should have .section-nav a.is-current rule').toMatch(/\.section-nav\s+a\.is-current/);
   });
 
-  test('styles.css contains section-nav-children styles', async () => {
+  test('site-chrome.css contains child indent styles', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav-children rule').toMatch(/\.section-nav-children/);
+    expect(css, 'Should have .section-nav li.child rule').toMatch(/\.section-nav\s+li\.child/);
   });
 
-  test('styles.css contains mobile toggle styles', async () => {
+  test('site-chrome.css contains .content grid layout', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav-toggle rule').toMatch(/\.section-nav-toggle/);
-    expect(css, 'Should have chevron rotation').toMatch(/\.fa-chevron-down/);
+    expect(css, 'Should have .content grid rule').toMatch(/\.content\s*\{/);
+    expect(css, 'Should have .content.no-nav single-column rule').toMatch(/\.content\.no-nav/);
   });
 
-  test('styles.css contains responsive desktop/mobile breakpoints', async () => {
+  test('site-chrome.css makes section-nav static at narrow viewports', async () => {
     const css = readFileSync(cssPath, 'utf-8');
-    expect(css, 'Should have .section-nav-desktop rule').toMatch(/\.section-nav-desktop/);
-    expect(css, 'Should have .section-nav-mobile rule').toMatch(/\.section-nav-mobile/);
-    expect(css, 'Should have 992px media query').toMatch(/@media\s*\([^)]*992px/);
+    expect(css, 'Should have a narrow-viewport media query').toMatch(/@media\s*\([^)]*820px/);
+    expect(css, 'Should set .section-nav to position:static at narrow widths').toMatch(
+      /\.section-nav\s*\{[^}]*position\s*:\s*static/
+    );
   });
 });
 
@@ -614,12 +609,12 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     await expect(page.locator('.section-nav')).toBeAttached();
   });
 
-  // 3. Current page link has .active class (scoped to desktop to avoid duplicate matches)
-  test('current page link has active class', async ({ page }) => {
+  // 3. Current page link has .is-current class
+  test('current page link has is-current class', async ({ page }) => {
     await page.goto(childAUrl);
-    const activeLink = page.locator('.section-nav-desktop .nav-link.active');
-    await expect(activeLink).toBeVisible();
-    await expect(activeLink).toContainText('Section Child A');
+    const currentLink = page.locator('.section-nav a.is-current');
+    await expect(currentLink).toBeVisible();
+    await expect(currentLink).toContainText('Section Child A');
   });
 
   // 4. Sibling page appears in list
@@ -635,73 +630,35 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     expect(navText).not.toContain('SN Hidden');
   });
 
-  // 6. Grandchild appears in .section-nav-children (scoped to desktop)
-  test('grandchild appears indented in section-nav-children', async ({
-    page,
-  }) => {
+  // 6. Grandchild appears as a li.child entry
+  test('grandchild appears indented as li.child', async ({ page }) => {
     await page.goto(childAUrl);
-    await expect(page.locator('.section-nav-desktop .section-nav-children')).toContainText(
-      'SN Grandchild'
-    );
+    await expect(page.locator('.section-nav li.child')).toContainText('SN Grandchild');
   });
 
-  // 7. Desktop viewport: sidebar visible alongside content
-  test('desktop: sidebar column visible alongside content', async ({
-    page,
-  }) => {
+  // 7. Desktop viewport: section-nav visible alongside content (sticky rail)
+  test('desktop: section-nav visible alongside content', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(childAUrl);
-    await expect(page.locator('.section-nav-desktop')).toBeVisible();
+    await expect(page.locator('.section-nav')).toBeVisible();
+    // Two-column .content grid is in effect at desktop widths.
+    const position = await page
+      .locator('.section-nav')
+      .evaluate((el) => getComputedStyle(el).position);
+    expect(position).toBe('sticky');
   });
 
-  // 8. Mobile viewport: desktop nav hidden, toggle visible
-  test('mobile: desktop nav hidden, toggle button visible', async ({
-    page,
-  }) => {
+  // 8. Mobile viewport: section-nav still visible (static, stacked above body)
+  test('mobile: section-nav visible and statically positioned', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto(childAUrl);
-    await expect(page.locator('.section-nav-desktop')).not.toBeVisible();
-    await expect(page.locator('.section-nav-toggle')).toBeVisible();
+    const sectionNav = page.locator('.section-nav');
+    await expect(sectionNav).toBeVisible();
+    const position = await sectionNav.evaluate((el) => getComputedStyle(el).position);
+    expect(position).toBe('static');
   });
 
-  // 9. Click toggle → nav list visible
-  test('mobile: click toggle shows nav list', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto(childAUrl);
-    await page.locator('.section-nav-toggle').click();
-    await expect(page.locator('#sectionNavList')).toBeVisible();
-  });
-
-  // 10. Click toggle again → nav list hidden
-  test('mobile: click toggle again hides nav list', async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto(childAUrl);
-    const toggle = page.locator('.section-nav-toggle');
-    await toggle.click();
-    // Wait for opening animation to complete before second click
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await page.locator('#sectionNavList.collapse.show').waitFor();
-    await toggle.click();
-    await expect(page.locator('#sectionNavList')).not.toBeVisible();
-  });
-
-  // 11. Toggle aria-expanded reflects state
-  test('mobile: toggle aria-expanded reflects correct state', async ({
-    page,
-  }) => {
-    await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto(childAUrl);
-    const toggle = page.locator('.section-nav-toggle');
-    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    await toggle.click();
-    // Wait for collapse animation to complete before second click
-    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await page.locator('#sectionNavList.collapse.show').waitFor();
-    await toggle.click();
-    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
-  });
-
-  // 12. No visible siblings/children → no section nav
+  // 9. No visible siblings/children → no section nav
   test('no section nav when only visible item is current page', async ({
     page,
   }) => {

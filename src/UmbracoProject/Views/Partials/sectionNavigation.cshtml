@@ -13,49 +13,24 @@
     }
 }
 
-<nav class="section-nav">
-    @* Desktop view (visible ≥992px) *@
-    <div class="section-nav-desktop">
-        @{ await RenderNavList(false); }
-    </div>
-
-    @* Mobile view (visible <992px) *@
-    <div class="section-nav-mobile">
-        <button class="section-nav-toggle" data-bs-toggle="collapse" data-bs-target="#sectionNavList" aria-expanded="false" aria-controls="sectionNavList">
-            In this Section <i class="fas fa-chevron-down"></i>
-        </button>
-        <div class="collapse" id="sectionNavList">
-            @{ await RenderNavList(true); }
-        </div>
-    </div>
-</nav>
-
-@functions {
-    private async Task RenderNavList(bool isMobile)
-    {
-        var siblings = Model.Parent?.Children.Where(x => x.IsVisible()).ToList()
-                       ?? new List<IPublishedContent>();
-        var children = Model.Children.Where(x => x.IsVisible()).ToList();
-
-        <ul>
-            @foreach (var sibling in siblings)
+<aside class="section-nav" aria-label="In this section">
+    <p class="eye">On this page</p>
+    <ul>
+        @foreach (var sibling in siblings)
+        {
+            var isActive = sibling.Id == Model.Id;
+            <li>
+                <a class="@(isActive ? "is-current" : null)" href="@sibling.Url()">@sibling.Name</a>
+            </li>
+            if (isActive && children.Any())
             {
-                var isActive = sibling.Id == Model.Id;
-                <li>
-                    <a class="nav-link@(isActive ? " active" : "")" href="@sibling.Url()">@sibling.Name</a>
-                    @if (isActive && children.Any())
-                    {
-                        <ul class="section-nav-children">
-                            @foreach (var child in children)
-                            {
-                                <li>
-                                    <a class="nav-link" href="@child.Url()">@child.Name</a>
-                                </li>
-                            }
-                        </ul>
-                    }
-                </li>
+                foreach (var child in children)
+                {
+                    <li class="child">
+                        <a href="@child.Url()">@child.Name</a>
+                    </li>
+                }
             }
-        </ul>
-    }
-}
+        }
+    </ul>
+</aside>

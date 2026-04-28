@@ -1,44 +1,38 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Content>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Content>
 
-@using Clean.Core.Models.ViewModels
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
-
+@using UmbracoProject.Helpers
 
 @{
-    Layout = "master.cshtml";
+    Layout = "master-v2.cshtml";
     var showSectionNavigation = Model.Value<bool>("showSectionNavigation");
+    var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
+    var eyebrow = Model.Parent?.Name;
 }
 
-@await Html.PartialAsync("~/Views/Partials/pageHeader.cshtml", new PageHeaderViewModel(Model.Name, Model.Title, Model.Subtitle, Model.MainImage))
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = heading,
+    Eyebrow = eyebrow,
+    Dek = Model.Subtitle,
+    Pattern = Model.PageHeadPattern()
+})
 
-<article>
-    <div class="container">
-        @if (showSectionNavigation)
-        {
-            <div class="row">
-                <div class="col-lg-3">
-                    @await Html.PartialAsync("~/Views/Partials/sectionNavigation.cshtml", Model)
-                </div>
-                <div class="col-lg-9">
-                    @Html.GetBlockListHtml(Model.ContentRows)
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="row">
-                <div class="col-lg-8 col-md-10 mx-auto">
-                    @Html.GetBlockListHtml(Model.ContentRows)
-                </div>
-            </div>
-        }
-    </div>
-    @if (Model.HasValue("sectionRows"))
+<main class="content@(showSectionNavigation ? "" : " no-nav")">
+    @if (showSectionNavigation)
     {
-        var rows = Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("sectionRows");
-        foreach (var row in rows)
-        {
-            @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
-        }
+        @await Html.PartialAsync("~/Views/Partials/sectionNavigation.cshtml", Model)
     }
-</article>
+    <div class="c-body">
+        @Html.GetBlockListHtml(Model.ContentRows)
+    </div>
+</main>
+
+@if (Model.HasValue("sectionRows"))
+{
+    var rows = Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("sectionRows");
+    foreach (var row in rows)
+    {
+        @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+    }
+}

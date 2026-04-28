@@ -11543,16 +11543,6 @@ header.masthead .site-heading .h1 {
 .article-grid-card {
   border-radius: 0;
   overflow: hidden;
-  transition: box-shadow var(--ease-standard, 250ms ease-out), transform var(--ease-standard, 250ms ease-out);
-}
-
-.article-grid-card:hover {
-  box-shadow: 0 2px 12px rgba(26, 26, 30, 0.08);
-}
-
-.article-grid-card:active {
-  transform: translateY(1px);
-  box-shadow: none;
 }
 
 /* Image hover scale within clipped card */

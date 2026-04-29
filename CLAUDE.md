@@ -425,12 +425,15 @@ Use the `/cms-image` command to generate and publish images.
 
 ## Generative Skills
 
-Two creative skills from [anthropics/skills](https://github.com/anthropics/skills) for generating decorative hero visuals:
+Three skills from [anthropics/skills](https://github.com/anthropics/skills) are used in this project:
 
-- `/algorithmic-art` — Interactive p5.js generative art. Outputs self-contained HTML with seed navigation and parameter controls. Export PNG via the built-in download button.
+- `/algorithmic-art` — Interactive p5.js generative art for decorative hero visuals. Outputs self-contained HTML with seed navigation and parameter controls. Export PNG via the built-in download button.
 - `/canvas-design` — Static PNG visual design with curated typography. Requires fonts (see `skills/README.md` for fetch instructions).
+- `frontend-design` — Refined UI design exploration (used during the image-carousel-captions-controls work; see [_plans/shipped/image-carousel-captions-controls.md](_plans/shipped/image-carousel-captions-controls.md) Step 3 for an example invocation).
 
-Assets live in `skills/`. Outputs go to `skills/output/` (gitignored). See `skills/README.md` for full documentation.
+`/algorithmic-art` and `/canvas-design` assets live in [skills/](skills/); outputs go to `skills/output/` (gitignored). See [skills/README.md](skills/README.md) for full documentation.
+
+`frontend-design` is installed at [.agents/skills/frontend-design/](.agents/skills/frontend-design/) (the Anthropic skills convention) with a symlink at `.claude/skills/frontend-design` so Claude Code discovers it. Hash tracked in [skills-lock.json](skills-lock.json).
 
 ## Project Planning
 

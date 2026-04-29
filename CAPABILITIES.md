@@ -3,7 +3,7 @@
 > **My Source of truth** for what I've tested with MCP integration and Umbraco AI.
 > This file should be kept in sync with the [Capabilities page](https://umbraco-17-demo-site.useast01.umbraco.io/capabilities/) in the Umbraco backoffice.
 
-**Last Updated:** 2026-04-21
+**Last Updated:** 2026-04-28
 
 ---
 
@@ -29,6 +29,7 @@
 | Bulk content operations via MCP | ✅ | Updated SEO fields across all blog articles in a single workflow |
 | Block List editor configuration (add/remove block types) | ✅ | Alert Banner element type registered in Block List data type via MCP |
 | Dynamic category resolution from backoffice (no hardcoding) | ✅ | Commit `d30aa50` — categories pulled from category list via Management API |
+| Large-scale schema rollout with `.uda` drift management | ✅ | Package C design-system rollout introduced 1 new data type, 1 new composition, 12 dictionary keys, and modified ~7 existing doc types across 9 phases. `/check-uda` used to detect drift before each push; one Live restart (per the documented "import pending schema" canonical fix) cleared a stuck import. Net: zero conflicts merged |
 
 ### AI Content Generation (Copilot)
 
@@ -43,6 +44,7 @@
 | Image alt text generation prompt | ✅ | Backoffice Settings > AI > Prompts — generates descriptive alt text for selected images |
 | SEO content agent | ✅ | Backoffice Settings > AI > Agents — dedicated agent for generating SEO titles, descriptions, and keywords |
 | CMS editor support agent | ✅ | Backoffice Settings > AI > Agents — support agent that helps train editors how to navigate and use Umbraco |
+| AI configuration auto-serializes to `.uda` for Cloud deploy | ✅ | Commit `2801c20` — `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` packages serialize Connections, Contexts, Guardrails, Chat Profiles, Embedding Profiles, Prompts, and Settings to `umbraco-ai-*.uda` artifacts on save. Secret references stay as placeholders (`$OpenAI:ApiKey` etc.); raw keys never enter the artifact stream |
 
 ### MCP + AI Agent Orchestration
 
@@ -75,7 +77,7 @@
 
 ### Development Workflow
 
-End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Five features have travelled this pipeline so far (see `_features/`): `section-navigation`, `alert-banner-icons`, `image-carousel-captions-controls`, `image-generator`, `site-header`.
+End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Six features have travelled this pipeline so far (see `_features/`): `section-navigation`, `alert-banner-icons`, `image-carousel-captions-controls`, `image-generator`, `site-header`, `umbraco-ai-search`. Shipped specs and plans are archived under `_specs/shipped/` and `_plans/shipped/` so the top-level lists reflect only active work.
 
 | Stage | Command | Artifact | Notes |
 |---|---|---|---|
@@ -92,6 +94,11 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | Section navigation sidebar (desktop `col-lg-3` + mobile "In this Section" Bootstrap collapse toggle) | ✅ | Commits `1f750a9`, `0da9ebe` — `sectionNavigationControls` composition doc type added to `content` and `documentation` types via Management API scripts |
 | Article list grid view display mode (editor-selectable list vs grid, `displayMode` dropdown on `latestArticlesRow` block) | ✅ | Commit `ede1bcf` — Bootstrap grid rendering, 24-test E2E suite |
 | Updated site footer (multi-column layout, branding, link groups, CSS custom properties) | ✅ | Commit `8239aca` — new `footer.cshtml` partial, new document type for footer content, E2E suite |
+| Site-wide design-system overhaul ("v2 chrome" rollout) | ✅ | Phased rollout via parallel `master-v2.cshtml` layout. Foundation (`c5c4ae9`), v2 partials (`1107aa3`), Phase 0 schema + helpers (`b9b11ca`), then per-template cutover: articleList (`0b10638`), search (`7c203b4`), content/documentation + section-nav (`a3b87db`), article (`8d82dce`), home (`2287375`), final retire of legacy chrome and `master-v2 → master` rename (`2443d31`). Page-by-page browser verification at desktop and 390px-narrow against locked HTML mocks |
+| Schema additions for v2 chrome | ✅ | New `pageHeadPatternControls` composition (Page Head Pattern dropdown: none/scatter/stochastic) applied to 6 doc types; new Home fields (`manifestoTitle`, `manifestoBody`, `manifestoEyebrowLeft/Right`, `manifestoAudience`, `pullQuote`, `pullQuoteAttribution`); `[Dropdown] Page Head Pattern` data type. All distributed via MCP and `.uda` files |
+| Reading-time helper computed from word count | ✅ | `src/UmbracoProject/Helpers/ReadingTime.cs` — iterates `BlockListModel` rows, strips HTML, divides by 225 wpm, floor of 1 minute. Per-request `IMemoryCache` keyed on `article.Id + UpdateDate.Ticks`. Wired into `_MastheadArticle`, `_LatestSection`, `_ArticleCard` partials |
+| Editorial dictionary keys for chrome strings | ✅ | 12 new dictionary keys seeded for v2 chrome (`Home.HeroEyebrow`, `Home.LatestTitle`, `Footer.PublicationHeading`, `Article.By`, `Navigation.MenuTitle`, etc.) — managed under Translation in the backoffice |
+| E2E selector retargeting alongside template cutover | ✅ | `siteHeader.spec.ts`, `sectionNavigation.spec.ts`, `linkStyles.spec.ts`, `updatedFooter.spec.ts` retargeted phase-by-phase from legacy markup (`header.masthead`, `#mainNav`, `.section-nav-desktop`) to v2 class vocabulary (`.site-head`, `.site-nav`, `.section-nav`, `.foot`, `.page-head`, `.art-head`) |
 
 ### Procedural Image Generation
 
@@ -104,6 +111,19 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | `[BlockList] Category Palettes` data type with per-category color blocks | ✅ | Commit `98ee79f` — Block List of category→(primary/mid/deep) hex colors using Eye Dropper color picker |
 | Batch image generation + upload to Umbraco media library via Management API | ✅ | CLI `--batch` flag; backoffice dashboard batch mode |
 | End-to-end pipeline: generate → upload media → assign mainImage property | ✅ | CLI orchestrates metadata fetch, canvas render, media upload, and property assignment |
+
+### Site Search
+
+Public-site search at `/search` runs on the new `Umbraco.Cms.Search` framework (destined to replace the legacy Examine-backed `IPublishedContentQuery.Search()` API in Umbraco v18) with `Umbraco.AI.Search` layered on top for vector/semantic search. Examine stays registered as a hybrid keyword-fallback and as the backoffice search provider.
+
+| Capability | Status | Notes |
+|---|---|---|
+| Hybrid keyword + semantic search at `/search` | ✅ | Commit `e192ffc` — `Umbraco.Cms.Search.Provider.Examine` (keyword) + `Umbraco.AI.Search` (vector) registered side-by-side; OpenAI `text-embedding-3-small` 512-dim embeddings; documents auto-chunked + embedded on publish |
+| Semantic recall on paraphrased queries | ✅ | Pages surface on conceptually-related queries that don't share keywords (e.g. paraphrased "how do I get started" matches relevant content even without those literal words). Quality on the demo content set was stronger than expected |
+| System pages excluded from results | ✅ | Search page, Error, XMLSitemap, Category/CategoryList pages filtered out at render time |
+| Article results render author + publish date | ✅ | Article-typed results render a "Posted by {author} on {date}" line; non-article results omit it |
+| Vector index rebuild from backoffice | ✅ | `Settings → Search → UmbAI_Search` row → rebuild icon. ~3–4 vector chunks per published document on the demo site, ~115 chunks total across 33 documents; under 1 minute end-to-end |
+| Replaces legacy `IPublishedContentQuery.Search()` | ✅ | Public `/search` route no longer calls Examine directly; the `ISearcher`/`ISearcherResolver` façade routes to the AI provider with Examine as keyword fallback |
 
 ### E2E Testing
 
@@ -131,6 +151,13 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | Limitation | Details |
 |---|---|
 | `/doctor` static check may report false warnings | MCP environment variables work at runtime despite warnings |
+
+### AI Schema Deploy & Search Index
+
+| Limitation | Details |
+|---|---|
+| AI agents do not auto-deploy to Cloud | `Umbraco.AI.Agent.Deploy` is intentionally not installed — beta1 throws `MissingMethodException` on `AIAgent.ContextIds`, beta2 depends on the unpublished `Umbraco.AI.Agent.Core 1.8.1`. Agents are recreated manually in each Cloud environment after the chat profiles deploy via `.uda` |
+| Vector search index does not replicate across environments | The `UmbAI_Search` index is per-environment. After every Cloud deploy that affects content or AI configuration, rebuild the index via `Settings → Search` on that environment before promoting further |
 
 ---
 
@@ -176,3 +203,9 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | 2026-03-31 | Updated Capabilities tracker with AI prompts/agents, code-review, check-uda, grid view, footer | — |
 | 2026-04-21 | Consolidated "TDD Block Development Workflow" and "Feature Planning Workflow" tables into a single "Development Workflow" section; added `/plan` and `/feature` to Custom Commands; swapped table headers from "Evidence" to "Notes" and status cells to ✅ | — |
 | 2026-04-21 | Captured migration of image-generator palette storage from JSON file to CMS content: new "Site Settings" document type, `[BlockList] Category Palettes` data type, `PaletteService` reads published content; dashboard palette editor removed in favour of standard Umbraco content editor | `c30de0b`, `a3b3ebc`, `1f0bb56`, `98ee79f` |
+| 2026-04-21 | Drafted plan to replace legacy Examine search with `Umbraco.Cms.Search` + `Umbraco.AI.Search` semantic layer | `84aeb60` |
+| 2026-04-21 | Installed `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy`; AI Connections, Contexts, Profiles, Prompts, and Settings now auto-serialize as `umbraco-ai-*.uda` artifacts for Cloud schema deploy | `2801c20` |
+| 2026-04-22 | Migrated `/search` to hybrid keyword + semantic search using OpenAI `text-embedding-3-small` embeddings; first feature drafted directly via `/feature` (no preceding `/spec`) | `e192ffc` |
+| 2026-04-23–04-27 | Design-system v2 rollout (Package C) — 9 phases, parallel `master-v2.cshtml` chrome converted page-by-page (error → contact → authors → articleList → search → content/documentation → article → home), legacy partials retired in Phase 9 with `master-v2 → master` rename. Added `pageHeadPatternControls` composition, `ReadingTime` helper, Home manifesto/pull-quote fields, 12 dictionary keys. `/check-uda` used to detect drift across phases; one Live restart needed to import a stuck schema bundle | `c5c4ae9`, `1107aa3`, `b9b11ca`, `0b10638`, `7c203b4`, `a3b87db`, `8d82dce`, `2287375`, `2443d31` |
+| 2026-04-28 | Cleanup pass: archived shipped specs/plans into `_specs/shipped/` and `_plans/shipped/`, refreshed CLAUDE.md (consolidated pinned-betas, updated package list and Node path, fixed Cms.Search version), renamed `_specs/template.md` → `_specs/_template.md` | `5d3f636` |
+| 2026-04-28 | Updated Capabilities tracker with site search, AI deploy, design-system v2 rollout, schema-rollout-with-`/check-uda`, and AI deploy / vector index limitations | — |

@@ -9,7 +9,8 @@
     "test:e2e:debug": "playwright test --debug",
     "test:unit": "tsx --test tests/image-generator/**/*.test.ts",
     "generate:images": "tsx scripts/image-generator/src/cli.ts",
-    "media:sync": "tsx scripts/media-sync/src/cli.ts"
+    "media:sync": "tsx scripts/media-sync/src/cli.ts",
+    "clean:reports": "rm -rf playwright-report test-results"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.95",

@@ -1,0 +1,32 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# C# / Razor
+[*.{cs,cshtml,csx}]
+indent_size = 4
+csharp_new_line_before_open_brace = all
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_predefined_type_for_member_access = true:suggestion
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_space_after_comma = true
+csharp_space_around_binary_operators = before_and_after
+
+# TypeScript / JavaScript / JSON / HTML / CSS
+[*.{ts,tsx,js,jsx,json,html,css,scss}]
+indent_size = 2
+
+# Markdown — trailing whitespace is meaningful (two spaces = line break)
+[*.md]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# .NET tooling defaults
+[*.{sln,csproj,props,targets}]
+end_of_line = crlf
+indent_size = 2

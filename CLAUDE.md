@@ -451,6 +451,18 @@ Assets live in `skills/`. Outputs go to `skills/output/` (gitignored). See `skil
 
 Git push to Umbraco Cloud triggers the build pipeline — the `.umbraco` file at the repo root tells Cloud which `.csproj` to build. No separate CI/CD is configured. Environment-specific config is in `appsettings.{Development,Staging,Production}.json`.
 
+## Formatting
+
+Mechanical formatting rules live in [.editorconfig](.editorconfig) — every modern editor honors them at save time, no extra tooling required (covers indentation, line endings, trailing whitespace, final newline, C# Allman braces, C# predefined-type keywords, C# spacing around operators / commas / control-flow keywords). The conventions below cover what `.editorconfig` can't express:
+
+- **Comment marker spacing**: space after `//`, `#`, `/*` (`// note`, not `//note`).
+- **String interpolation over concatenation** for simple cases: `$"Hello {name}"` in C#, `` `Hello ${name}` `` in TS. Don't convert complex multi-expression concats.
+- **Variable declarations**: match the file's dominant style. C# in this codebase uses `var` widely — don't mix in explicit types in `var`-dominant files (or vice versa).
+- **Import grouping**: stdlib → third-party → local, alphabetical within each group. Only remove imports that are demonstrably unused — risky in C# due to DI / model-binding / source generators, safer in TS.
+- **Braces**: C# uses Allman (enforced by `.editorconfig`). Single-line guards like `if (x == null) return null;` are idiomatic in this codebase — don't expand them. TS uses K&R per JS/TS community convention.
+
+There is no automated formatter wired up (no `dotnet format` pre-commit hook, no Prettier / ESLint config). The combination of `.editorconfig` (auto-enforced at save) and these guidelines (Claude-aware when authoring) is the project's current formatting strategy.
+
 ## Conventions
 
 - Views inherit from `UmbracoViewPage<ContentType>` where `ContentType` is an auto-generated model

@@ -10,7 +10,8 @@ const __dirname = dirname(__filename);
 
 export const STORAGE_STATE = join(__dirname, 'tests/e2e/.auth/user.json');
 
-// CRITICAL: testhelpers read auth tokens from this env var
+// CRITICAL: testhelpers read auth tokens from this exact env-var name.
+// "STAGE" (not STATE) is an upstream typo in @umbraco/playwright-testhelpers — don't "fix" it.
 process.env.STORAGE_STAGE_PATH = STORAGE_STATE;
 
 export default defineConfig({

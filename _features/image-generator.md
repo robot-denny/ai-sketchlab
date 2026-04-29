@@ -2,7 +2,7 @@
 
 CMS editors and developers can generate unique abstract featured images for blog articles using the article's own metadata -- title, word count, and categories -- as creative input. Each image is a deterministic flow-field pattern: the same article always produces the same image, and different articles produce visibly different images. Images can be generated one at a time or in batch, from a CLI tool or from the Umbraco backoffice. Category color palettes are managed as CMS content so they transfer between environments with standard Umbraco Deploy.
 
-**Source spec**: `_specs/image-generator/image-generator.md`
+**Source spec**: `_specs/shipped/image-generator/image-generator.md`
 **Last verified**: 2026-04-09
 
 ---

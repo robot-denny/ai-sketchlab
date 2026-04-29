@@ -1,6 +1,6 @@
 # Plan: Article List Grid View
 
-**Spec**: `_specs/article-list-grid-view.md`
+**Spec**: `_specs/shipped/article-list-grid-view.md`
 **Branch**: `claude/feature/article-list-grid-view`
 
 ## Context
@@ -30,7 +30,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 1 — Add `displayMode` property to `articleList` document type
 
-> **Prompt**: Implement Step 1 of `_plans/article-list-grid-view.md`. Write a Node.js script at `scripts/add-article-list-display-mode.js` that uses the Umbraco Management API to add a `displayMode` dropdown property (options: `list`, `grid`) to the `articleList` document type. Run the script to verify it succeeds.
+> **Prompt**: Implement Step 1 of `_plans/shipped/article-list-grid-view.md`. Write a Node.js script at `scripts/add-article-list-display-mode.js` that uses the Umbraco Management API to add a `displayMode` dropdown property (options: `list`, `grid`) to the `articleList` document type. Run the script to verify it succeeds.
 
 **What to build**: `scripts/add-article-list-display-mode.js`
 
@@ -53,7 +53,7 @@ The script (single process to avoid token expiry):
 
 ### Step 2 — Update `latestArticlesRow.cshtml` to branch on display mode
 
-> **Prompt**: Implement Step 2 of `_plans/article-list-grid-view.md`. Update `src/UmbracoProject/Views/Partials/blocklist/Components/latestArticlesRow.cshtml` to read `displayMode` from the linked article list page and render either the existing list or the new grid card layout. Run `dotnet build` from `src/UmbracoProject` to confirm no Razor errors.
+> **Prompt**: Implement Step 2 of `_plans/shipped/article-list-grid-view.md`. Update `src/UmbracoProject/Views/Partials/blocklist/Components/latestArticlesRow.cshtml` to read `displayMode` from the linked article list page and render either the existing list or the new grid card layout. Run `dotnet build` from `src/UmbracoProject` to confirm no Razor errors.
 
 **File to modify**: `src/UmbracoProject/Views/Partials/blocklist/Components/latestArticlesRow.cshtml`
 
@@ -78,7 +78,7 @@ In grid mode, **do not** render the `Pagination` component or the block author a
 
 ### Step 3 — Add CSS for grid card layout
 
-> **Prompt**: Implement Step 3 of `_plans/article-list-grid-view.md`. Append CSS for the article grid card layout to `src/UmbracoProject/wwwroot/assets/css/styles.css`.
+> **Prompt**: Implement Step 3 of `_plans/shipped/article-list-grid-view.md`. Append CSS for the article grid card layout to `src/UmbracoProject/wwwroot/assets/css/styles.css`.
 
 Append to the end of `src/UmbracoProject/wwwroot/assets/css/styles.css`:
 
@@ -118,7 +118,7 @@ Append to the end of `src/UmbracoProject/wwwroot/assets/css/styles.css`:
 
 ### Step 4 — Write E2E tests
 
-> **Prompt**: Implement Step 4 of `_plans/article-list-grid-view.md`. Write the Playwright E2E test file at `tests/e2e/articleListGridView.spec.ts`. Tests must create all test data via the Management API in `beforeAll`, cover the acceptance criteria, and clean up in `afterAll`. Run the tests to confirm they pass.
+> **Prompt**: Implement Step 4 of `_plans/shipped/article-list-grid-view.md`. Write the Playwright E2E test file at `tests/e2e/articleListGridView.spec.ts`. Tests must create all test data via the Management API in `beforeAll`, cover the acceptance criteria, and clean up in `afterAll`. Run the tests to confirm they pass.
 
 **File**: `tests/e2e/articleListGridView.spec.ts`
 

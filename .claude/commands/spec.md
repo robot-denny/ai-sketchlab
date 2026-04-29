@@ -56,7 +56,7 @@ Before making any content, switch to a new Git branch using the `branch_name` de
 
 ## Step 4. Draft the spec content
 
-Create a markdown spec document that Plan mode can use directly and save it in the _specs folder using the `feature_slug`. Use the exact structure as defined in the spec template file here: @_specs/template.md. Do not add technical implementation details such as code examples.
+Create a markdown spec document that Plan mode can use directly and save it in the _specs folder using the `feature_slug`. Use the exact structure as defined in the spec template file here: @_specs/_template.md. Do not add technical implementation details such as code examples.
 
 After writing the Acceptance Criteria section, use the **Example Mapping** technique from BDD to derive draft scenarios:
 - Treat each acceptance criterion as a **Rule** (blue card)

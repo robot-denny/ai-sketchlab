@@ -2,8 +2,8 @@
 
 CMS editors can add optional captions to individual slides in an Image Carousel Row and toggle whether captions are displayed for the whole carousel. Carousel controls (pagination, play/pause, prev/next) sit below the image area in a refined, accessible layout — with prev/next arrows adapting to viewport width so they never obscure the imagery on wide screens.
 
-**Source spec**: `_specs/image-carousel-captions-controls.md`
-**Plan**: `_plans/image-carousel-captions-controls.md`
+**Source spec**: `_specs/shipped/image-carousel-captions-controls.md`
+**Plan**: `_plans/shipped/image-carousel-captions-controls.md`
 **Design notes**: `_plans/notes/image-carousel-controls-design.md`
 **Last verified**: 2026-04-13
 
@@ -225,7 +225,7 @@ Scenario: Arrow remains legible against bright imagery on a narrow viewport
 
 ## Test Coverage
 
-All automated tests live in `tests/e2e/blocks/imageCarousel.spec.ts`. Manual entries indicate behaviours validated in Step 9 of `_plans/image-carousel-captions-controls.md`.
+All automated tests live in `tests/e2e/blocks/imageCarousel.spec.ts`. Manual entries indicate behaviours validated in Step 9 of `_plans/shipped/image-carousel-captions-controls.md`.
 
 | Scenario | Test name (or note) | Status |
 |----------|---------------------|--------|

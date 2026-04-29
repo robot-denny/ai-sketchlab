@@ -1,6 +1,6 @@
 # Plan: Image Generator Palette Storage
 
-**Spec**: `_specs/image-generator/palette-storage.md`
+**Spec**: `_specs/shipped/image-generator/palette-storage.md`
 **Branch**: `claude/feature/metadata-image-generator` (existing)
 
 ## Context
@@ -61,7 +61,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 1 — Schema Setup via Management API Script
 
-> **Prompt**: Implement Step 1 of `_plans/palette-storage.md`. Create a Node.js Management API script at `scripts/setup-palette-storage.mjs` that creates the Umbraco schema for CMS-based palette storage and seeds the initial content. The script must authenticate via `.env` credentials, then:
+> **Prompt**: Implement Step 1 of `_plans/shipped/palette-storage.md`. Create a Node.js Management API script at `scripts/setup-palette-storage.mjs` that creates the Umbraco schema for CMS-based palette storage and seeds the initial content. The script must authenticate via `.env` credentials, then:
 >
 > 1. Create an `[EyeDropper] Palette Color` data type (`Umb.PropertyEditorUi.EyeDropper` / `Umbraco.Plain.String`)
 > 2. Create a `[ContentPicker] Single Category` data type — `Umbraco.MultiNodeTreePicker` / `Umb.PropertyEditorUi.ContentPicker` with `maxNumber: 1` and a dynamic root start node scoped to the Categories list (Home `dcf18a51-6919-4cf8-89d1-36b94ce4d963` → NearestDescendantOrSelf of `CategoryList` `539869ea-4f0d-4c3b-80b1-aaa80a1c16e6`)
@@ -90,7 +90,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 2 — TypeScript Palette Reader (TDD)
 
-> **Prompt**: Implement Step 2 of `_plans/palette-storage.md`. Write unit tests first, then implement a TypeScript module that reads palette configuration from the Umbraco "Image Generator Settings" document (created in Step 1). The module goes in `scripts/image-generator/src/palette-reader.ts` with tests in `tests/image-generator/palette-reader.test.ts`.
+> **Prompt**: Implement Step 2 of `_plans/shipped/palette-storage.md`. Write unit tests first, then implement a TypeScript module that reads palette configuration from the Umbraco "Image Generator Settings" document (created in Step 1). The module goes in `scripts/image-generator/src/palette-reader.ts` with tests in `tests/image-generator/palette-reader.test.ts`.
 >
 > **Test first** — write tests covering:
 > - `hexToRgb("#008cc8")` returns `[0, 140, 200]`, edge cases like `"#000000"`, `"#ffffff"`
@@ -124,7 +124,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 3 — CLI Integration
 
-> **Prompt**: Implement Step 3 of `_plans/palette-storage.md`. Modify the CLI entry point (`scripts/image-generator/src/cli.ts`) to support palette configuration from the CMS instead of only from a JSON file. Changes:
+> **Prompt**: Implement Step 3 of `_plans/shipped/palette-storage.md`. Modify the CLI entry point (`scripts/image-generator/src/cli.ts`) to support palette configuration from the CMS instead of only from a JSON file. Changes:
 >
 > 1. Add a `--palette-json <json>` CLI argument that accepts a JSON string in `PaletteConfig` format. When provided, this is the palette source (used when the C# controller invokes the CLI).
 > 2. Add a `--palette-from-api` CLI flag that fetches the palette from the Umbraco Management API using `fetchPaletteConfigFromApi()` from `scripts/image-generator/src/palette-reader.ts`.
@@ -149,7 +149,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 4 — C# Palette Service and Controller Refactor
 
-> **Prompt**: Implement Step 4 of `_plans/palette-storage.md`. Create a C# service that reads palette configuration from Umbraco content, and update `ImageGeneratorController` to use it instead of `palettes.json`.
+> **Prompt**: Implement Step 4 of `_plans/shipped/palette-storage.md`. Create a C# service that reads palette configuration from Umbraco content, and update `ImageGeneratorController` to use it instead of `palettes.json`.
 >
 > **Create `src/HelloWorld/PaletteService.cs`**:
 > - Injectable service registered in DI
@@ -184,7 +184,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 5 — Dashboard Simplification
 
-> **Prompt**: Implement Step 5 of `_plans/palette-storage.md`. Simplify the Image Generator dashboard (`src/HelloWorld/Client/src/imageGenerator/dashboard.element.ts`) by removing the palette editor section. Palette management is now done through the "Image Generator Settings" content node in the Umbraco content tree.
+> **Prompt**: Implement Step 5 of `_plans/shipped/palette-storage.md`. Simplify the Image Generator dashboard (`src/HelloWorld/Client/src/imageGenerator/dashboard.element.ts`) by removing the palette editor section. Palette management is now done through the "Image Generator Settings" content node in the Umbraco content tree.
 >
 > **Remove from the dashboard**:
 > - The entire `#renderPaletteEditor()` method and the `<uui-box headline="Category Colors">` section
@@ -223,7 +223,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 6 — Tests and Cleanup
 
-> **Prompt**: Implement Step 6 of `_plans/palette-storage.md`. Add E2E and integration tests for the palette storage feature, and clean up any remaining references.
+> **Prompt**: Implement Step 6 of `_plans/shipped/palette-storage.md`. Add E2E and integration tests for the palette storage feature, and clean up any remaining references.
 >
 > **Unit tests** (`tests/image-generator/palette-reader.test.ts` — extend if needed from Step 2):
 > - Verify `fetchPaletteConfigFromApi()` returns correct data when hitting a running Umbraco instance (integration test, marked with a skip flag for CI)

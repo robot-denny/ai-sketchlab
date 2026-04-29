@@ -43,17 +43,29 @@ For E2E tests, see the **Testing** section below.
 
 **Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.3.0, Umbraco.Forms 17.1.2, Umbraco.Deploy.Cloud 17.0.2, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
+**Key NuGet packages**: Umbraco.Cms 17.3.0, Umbraco.Cms.DevelopmentMode.Backoffice 17.3.0, Umbraco.Cloud.Cms 17.1.0, Umbraco.Cloud.StorageProviders.AzureBlob 17.0.0, Umbraco.Forms 17.1.2, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.0.2, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
 
 **AI packages**: Umbraco.AI 1.9.0, Umbraco.AI.Agent 1.8.0, Umbraco.AI.Agent.Copilot 1.0.0-alpha5 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0-alpha5 (shared chat UI components), Umbraco.AI.AGUI 1.8.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.0, Umbraco.AI.Google 1.1.5, Umbraco.AI.OpenAI 1.2.0, Umbraco.AI.Prompt 1.8.0.
 
-**AI Deploy packages** (beta — serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.0-beta3, Umbraco.AI.Prompt.Deploy 1.0.0-beta1. Auto-registered — no composer code required.
+**AI Deploy packages** (beta — serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.0-beta3, Umbraco.AI.Prompt.Deploy 1.0.0-beta1. Auto-registered — no composer code required. `Umbraco.AI.Agent.Deploy` is intentionally **not installed**; agents stay DB-only and are recreated manually per Cloud environment. See **Pinned betas** below for the version constraints.
 
-**`Umbraco.AI.Agent.Deploy` is intentionally NOT installed.** Its `beta1` build round-trips save successfully but produces agent `.uda` artifacts that fail on re-hydrate (an Umbraco bug — reproduced locally, all other AI entity types work correctly). Its `beta2` build throws on agent save because it depends on an unpublished `Umbraco.AI.Agent.Core 1.8.1`. Until a compatible build ships, **agents stay DB-only and must be recreated manually in each Cloud environment** alongside the vector index rebuild.
+**Search packages** (beta — destined to replace legacy Examine search in v18): Umbraco.Cms.Search.Core 1.0.0-beta.3, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.3, Umbraco.Cms.Search.BackOffice 1.0.0-beta.3, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.3, Umbraco.AI.Search 1.0.0-beta3. See **Pinned betas** below for the version constraints.
 
-**Do not upgrade `Umbraco.AI.Prompt.Deploy` to `1.0.0-beta2` either.** It has the same unpublished-`*.Core 1.8.1`-dependency problem — `dotnet restore` succeeds but the site fails to start. Stay on `beta1`. (`Umbraco.AI.Deploy` core is fine on `beta3`.) Same pin-exact-versions posture as the `Cms.Search.*` betas below.
+## Pinned betas — do not float
 
-**Search packages** (beta — destined to replace legacy Examine search in v18): Umbraco.Cms.Search.Core 1.0.0-beta.4, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.4, Umbraco.Cms.Search.BackOffice 1.0.0-beta.4, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.4, Umbraco.AI.Search 1.0.0-beta3.
+Several beta packages have known compatibility traps. Don't let NuGet float them within their declared version ranges; pin exact versions until stable releases ship.
+
+| Package | Pinned version | Why pinned |
+|---|---|---|
+| Umbraco.Cms.Search.Core | 1.0.0-beta.3 | `IndexMetadata` signature changed in beta.4; `Umbraco.AI.Search 1.0.0-beta3` is binary-compiled against beta.3. Opening **Settings → Search** throws `MissingMethodException` if Core floats. |
+| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.3 | Must match Core beta.3. |
+| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 | Must match Core beta.3. |
+| Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 | Must match Core beta.3. |
+| Umbraco.AI.Search | 1.0.0-beta3 | Compiled against `Cms.Search.Core` beta.3 (see above). |
+| Umbraco.AI.Prompt.Deploy | 1.0.0-beta1 | beta2 references the unpublished `Umbraco.AI.Agent.Core 1.8.1` — `dotnet restore` succeeds but the site fails to start. (`Umbraco.AI.Deploy` itself is fine on beta3.) |
+| Umbraco.AI.Agent.Deploy | **not installed** | beta1 throws `MissingMethodException` on `AIAgent.ContextIds`; beta2 depends on the unpublished `Umbraco.AI.Agent.Core 1.8.1`. The practical fallout: AI agents don't deploy alongside prompts/connections/profiles, so they stay DB-only and must be recreated manually in each Cloud environment alongside the vector index rebuild. Tracking comment: [UmbracoProject.csproj:14-16](src/UmbracoProject/UmbracoProject.csproj#L14-L16). |
+
+**v18 upgrade path**: Both `Cms.Search.*` and `AI.Search` are destined to replace the legacy Examine-backed `IPublishedContentQuery.Search()` API in Umbraco v18. Expect API-breaking changes — revisit composer registration in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs), the `ISearcher` call in [search.cshtml](src/UmbracoProject/Views/search.cshtml), and this table as part of the v18 upgrade PR.
 
 ## AI & Copilot
 
@@ -63,6 +75,8 @@ The backoffice includes an **AI Copilot** that can generate and edit content dir
 - **Chat Profile**: Links an AI connection to a specific model
 - **Agent**: Links a chat profile and defines the agent's role. **Permissions must be set on the agent** to allow content editing (scope controls which document types/properties it can modify).
 - **Contexts**: Define data access boundaries (e.g., brand voice guidelines)
+
+What's been validated end-to-end with MCP + AI is tracked in [CAPABILITIES.md](CAPABILITIES.md), which mirrors the **Capabilities** page in the backoffice.
 
 The **Umbraco MCP server** enables Claude Code to interact with backoffice content. Connection settings are in `.env` with tool collections for `document`, `media`, `document-type`, and `data-type`.
 
@@ -126,19 +140,9 @@ After deploying to Cloud:
 
 Deploys do not replicate the vector index; skipping the rebuild leaves `/search` returning empty results on that environment.
 
-### Pinned package versions (beta — expect breaking changes in v18)
+### Pinned versions
 
-| Package | Pinned version |
-|---------|---------------|
-| Umbraco.Cms.Search.Core | 1.0.0-beta.3 |
-| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.3 |
-| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 |
-| Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 |
-| Umbraco.AI.Search | 1.0.0-beta3 |
-
-**Do not float these versions.** `Umbraco.AI.Search 1.0.0-beta3` is binary-compiled against `Umbraco.Cms.Search.Core 1.0.0-beta.3`. NuGet's declared range allows beta.4, but `IndexMetadata` changed signatures in beta.4 and the call throws `MissingMethodException` the moment you open `Settings → Search`. Keep all four `Cms.Search.*` packages pinned at `beta.3` until a newer `Umbraco.AI.Search` ships compiled against `Cms.Search.Core beta.4+`.
-
-**Upgrade path**: These packages are destined to replace the legacy Examine search in Umbraco v18. When upgrading to v18, expect API-breaking changes (the betas are not stable) — revisit the composer registration, the `ISearcher` call in [search.cshtml](src/UmbracoProject/Views/search.cshtml), and the versions table above as part of the v18 upgrade PR.
+Version constraints for `Cms.Search.*` and `AI.Search` live in **Pinned betas — do not float** near the top of this file, alongside the other beta-package pinning rules.
 
 ## Modifying Umbraco Content from Claude Code
 
@@ -312,7 +316,7 @@ Tests live in `tests/e2e/`. The test runner and dependencies are in the root `pa
 
 ```bash
 # Node is managed via nvm — prefix commands with PATH if node isn't in your shell PATH
-PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx playwright test
+PATH="/Users/dkardys/.nvm/versions/node/v22.22.2/bin:$PATH" npx playwright test
 
 # Run with visual UI (great for debugging)
 PATH="..." npx playwright test --ui
@@ -428,11 +432,6 @@ Two creative skills from [anthropics/skills](https://github.com/anthropics/skill
 
 Assets live in `skills/`. Outputs go to `skills/output/` (gitignored). See `skills/README.md` for full documentation.
 
-## Additional Scripts
-
-- `scripts/add-article-list-display-mode.cjs` — utility for adding article list display modes
-- `scripts/add-section-nav-property.cjs` — utility for adding section navigation properties
-
 ## Project Planning
 
 - `_specs/` — feature specification documents (initial requirements, design rationale, open questions — the "why")
@@ -457,7 +456,7 @@ Git push to Umbraco Cloud triggers the build pipeline — the `.umbraco` file at
 - Views inherit from `UmbracoViewPage<ContentType>` where `ContentType` is an auto-generated model
 - `_ViewImports.cshtml` imports `Umbraco.Cms.Web.Common.PublishedModels`, `Umbraco.Extensions`, and ASP.NET tag helpers
 - The `.env` file contains Umbraco MCP server connection settings for local development
-- `appsettings.Development.json` is **gitignored** — it contains the Anthropic API key. Each developer must create their own with their credentials.
+- `appsettings.Development.json` is **gitignored** — it contains the Anthropic and OpenAI API keys (and any other per-developer secrets). Each developer must create their own with their credentials.
 - `umbraco-cloud.json` is managed by Umbraco Cloud — do not manually edit
 
 ## Claude Code Plugins

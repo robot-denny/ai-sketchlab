@@ -1,6 +1,6 @@
 # Plan: Generative Skills Integration
 
-**Spec**: `_specs/generative-skills.md`
+**Spec**: `_specs/shipped/generative-skills.md`
 **Branch**: `claude/feature/generative-skills`
 
 ## Context
@@ -9,7 +9,7 @@ Two Anthropic generative creative skills — Algorithmic Art (interactive p5.js)
 
 The project already has a flow-field image generator at `scripts/image-generator/` with a `/cms-image` slash command at `.claude/commands/cms-image.md`. This new work is complementary — the existing generator is deterministic/metadata-driven, while these skills are creative/philosophy-driven.
 
-Looking ahead, the image generator's backoffice integration (see `_plans/palette-storage.md`) provides a template for how these skills could eventually be surfaced to CMS editors: a settings document type for configuration (e.g., style presets, target pages), a backoffice dashboard or entity action for triggering generation, and a C# service that invokes the CLI and uploads the result to the media library. This phase focuses on the CLI/slash-command foundation; a future phase would add the backoffice layer following that same pattern.
+Looking ahead, the image generator's backoffice integration (see `_plans/shipped/palette-storage.md`) provides a template for how these skills could eventually be surfaced to CMS editors: a settings document type for configuration (e.g., style presets, target pages), a backoffice dashboard or entity action for triggering generation, and a C# service that invokes the CLI and uploads the result to the media library. This phase focuses on the CLI/slash-command foundation; a future phase would add the backoffice layer following that same pattern.
 
 ---
 
@@ -21,7 +21,7 @@ Looking ahead, the image generator's backoffice integration (see `_plans/palette
 - **Slash commands, not plugin installation**: The skills are wired as `.claude/commands/` slash commands that embed the SKILL.md instructions directly (adapted for this project's paths and output conventions). This avoids needing the Claude Code CLI plugin system and keeps everything self-contained.
 - **PNG as primary canvas-design output**: The SKILL.md supports both PDF and PNG; the slash command instructs Claude to produce PNG for web use as hero images.
 - **Remove Anthropic branding from viewer template**: The downloaded `viewer.html` will be modified to strip the Anthropic-specific branding (colors, fonts, logo references) so outputs are neutral and ready for use as site hero images. The interactive sidebar structure (seed navigation, parameter sliders, download button) is kept — only the brand identity is removed. This is done in Step 2 after downloading the original.
-- **Future CMS integration pattern**: Following the same architecture as the image generator's backoffice integration (`_plans/palette-storage.md`), a future phase could add: (1) a "Generative Skills Settings" document type for storing style presets and configuration, (2) a backoffice dashboard or entity action for editors to trigger generation, (3) a C# service that invokes the skills CLI and uploads results to the media library. This phase builds only the CLI/slash-command foundation.
+- **Future CMS integration pattern**: Following the same architecture as the image generator's backoffice integration (`_plans/shipped/palette-storage.md`), a future phase could add: (1) a "Generative Skills Settings" document type for storing style presets and configuration, (2) a backoffice dashboard or entity action for editors to trigger generation, (3) a C# service that invokes the skills CLI and uploads results to the media library. This phase builds only the CLI/slash-command foundation.
 
 ---
 
@@ -34,7 +34,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 1 — Fetch assets and create directory structure
 
-> **Prompt**: Implement Step 1 of `_plans/generative-skills.md`. Create the `skills/` directory structure, download the Algorithmic Art and Canvas Design skill assets from the anthropics/skills GitHub repo using raw URLs, update `.gitignore` to exclude `skills/output/` and `skills/canvas-design/canvas-fonts/`, create `scripts/fetch-canvas-fonts.sh` (a shell script that fetches fonts from GitHub), and create `skills/README.md` documenting the setup. Do NOT download fonts yet — just create the fetch script. Verify the structure with `ls -R skills/` and confirm gitignore works with `git status`.
+> **Prompt**: Implement Step 1 of `_plans/shipped/generative-skills.md`. Create the `skills/` directory structure, download the Algorithmic Art and Canvas Design skill assets from the anthropics/skills GitHub repo using raw URLs, update `.gitignore` to exclude `skills/output/` and `skills/canvas-design/canvas-fonts/`, create `scripts/fetch-canvas-fonts.sh` (a shell script that fetches fonts from GitHub), and create `skills/README.md` documenting the setup. Do NOT download fonts yet — just create the fetch script. Verify the structure with `ls -R skills/` and confirm gitignore works with `git status`.
 
 **What to build**:
 
@@ -77,7 +77,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
    - How to fetch canvas-design fonts: `./scripts/fetch-canvas-fonts.sh`
    - The experiment workflow for each skill
    - How to use generated PNGs as hero images (upload to Umbraco media library)
-   - Future integration notes: points to `_plans/palette-storage.md` as the pattern for eventual backoffice integration
+   - Future integration notes: points to `_plans/shipped/palette-storage.md` as the pattern for eventual backoffice integration
 
 6. Add a `.gitkeep` to `skills/output/algorithmic-art/` and `skills/output/canvas-design/` so the empty directories are tracked, then immediately gitignore the contents.
 
@@ -90,7 +90,7 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ### Step 2 — Create the `/algorithmic-art` slash command
 
-> **Prompt**: Implement Step 2 of `_plans/generative-skills.md`. Two tasks: (A) Modify the downloaded `skills/algorithmic-art/templates/viewer.html` to remove Anthropic-specific branding — replace Anthropic color variables, Poppins/Lora Google Fonts, and any logo/brand references with neutral alternatives, while keeping the full interactive sidebar structure (seed navigation, parameter sliders, action buttons, download PNG). (B) Create `.claude/commands/algorithmic-art.md` — a slash command that invokes the Algorithmic Art skill. The command should accept an optional description argument, follow the two-phase philosophy-then-code workflow from `skills/algorithmic-art/SKILL.md`, and write outputs to `skills/output/algorithmic-art/`. Study the existing `/cms-image` command at `.claude/commands/cms-image.md` for the frontmatter format. Read `skills/algorithmic-art/SKILL.md` in full to understand the complete workflow before writing the command.
+> **Prompt**: Implement Step 2 of `_plans/shipped/generative-skills.md`. Two tasks: (A) Modify the downloaded `skills/algorithmic-art/templates/viewer.html` to remove Anthropic-specific branding — replace Anthropic color variables, Poppins/Lora Google Fonts, and any logo/brand references with neutral alternatives, while keeping the full interactive sidebar structure (seed navigation, parameter sliders, action buttons, download PNG). (B) Create `.claude/commands/algorithmic-art.md` — a slash command that invokes the Algorithmic Art skill. The command should accept an optional description argument, follow the two-phase philosophy-then-code workflow from `skills/algorithmic-art/SKILL.md`, and write outputs to `skills/output/algorithmic-art/`. Study the existing `/cms-image` command at `.claude/commands/cms-image.md` for the frontmatter format. Read `skills/algorithmic-art/SKILL.md` in full to understand the complete workflow before writing the command.
 
 **What to build**:
 
@@ -125,7 +125,7 @@ The command should embed the key creative instructions from the SKILL.md (the ph
 
 ### Step 3 — Create the `/canvas-design` slash command
 
-> **Prompt**: Implement Step 3 of `_plans/generative-skills.md`. Create `.claude/commands/canvas-design.md` — a slash command that invokes the Canvas Design skill. The command should accept an optional description argument, follow the two-phase philosophy-then-canvas workflow from `skills/canvas-design/SKILL.md`, and write PNG output to `skills/output/canvas-design/`. Study the existing `/cms-image` command at `.claude/commands/cms-image.md` for the frontmatter format. Read `skills/canvas-design/SKILL.md` in full to understand the complete workflow before writing the command.
+> **Prompt**: Implement Step 3 of `_plans/shipped/generative-skills.md`. Create `.claude/commands/canvas-design.md` — a slash command that invokes the Canvas Design skill. The command should accept an optional description argument, follow the two-phase philosophy-then-canvas workflow from `skills/canvas-design/SKILL.md`, and write PNG output to `skills/output/canvas-design/`. Study the existing `/cms-image` command at `.claude/commands/cms-image.md` for the frontmatter format. Read `skills/canvas-design/SKILL.md` in full to understand the complete workflow before writing the command.
 
 **What to build**:
 
@@ -154,7 +154,7 @@ The command should embed the key creative instructions from the SKILL.md (the ph
 
 ### Step 4 — Update CLAUDE.md and verify end-to-end
 
-> **Prompt**: Implement Step 4 of `_plans/generative-skills.md`. Add a "Generative Skills" section to `CLAUDE.md` (after the "Image Generator" section) that briefly documents the `skills/` directory, the two slash commands (`/algorithmic-art` and `/canvas-design`), and how generated PNGs can be used as hero images. Keep it concise — 10-15 lines max. Then do a final verification: confirm all files exist, gitignore rules work, and the directory structure matches the spec.
+> **Prompt**: Implement Step 4 of `_plans/shipped/generative-skills.md`. Add a "Generative Skills" section to `CLAUDE.md` (after the "Image Generator" section) that briefly documents the `skills/` directory, the two slash commands (`/algorithmic-art` and `/canvas-design`), and how generated PNGs can be used as hero images. Keep it concise — 10-15 lines max. Then do a final verification: confirm all files exist, gitignore rules work, and the directory structure matches the spec.
 
 **What to build**:
 

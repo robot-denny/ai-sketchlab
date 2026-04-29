@@ -2,7 +2,7 @@
 
 Visitors can search the site's content from the `/search` page by typing a query and pressing the search button. Results show the page title, optional subtitle, and — for articles — the author and publish date, linking directly to each matching page. Search combines keyword matching with semantic understanding so that paraphrased queries ("how do I get started with this site") surface relevant pages even when none of the query's words appear on the page.
 
-**Source spec**: _(none — plan drafted directly from conversation 2026-04-21; see `_plans/umbraco-ai-search.md`)_
+**Source spec**: _(none — plan drafted directly from conversation 2026-04-21; see `_plans/shipped/umbraco-ai-search.md`)_
 **Last verified**: 2026-04-22
 
 ---
@@ -191,4 +191,4 @@ Scenario: A freshly deployed environment has an empty index until rebuilt
 
 ## Revision Notes
 
-- 2026-04-22: Initial feature doc, created retroactively after Step 7 of `_plans/umbraco-ai-search.md` shipped the AI-backed search. Scenarios reflect current behavior of [src/UmbracoProject/Views/search.cshtml](src/UmbracoProject/Views/search.cshtml) and test assertions in [tests/e2e/search.spec.ts](tests/e2e/search.spec.ts).
+- 2026-04-22: Initial feature doc, created retroactively after Step 7 of `_plans/shipped/umbraco-ai-search.md` shipped the AI-backed search. Scenarios reflect current behavior of [src/UmbracoProject/Views/search.cshtml](src/UmbracoProject/Views/search.cshtml) and test assertions in [tests/e2e/search.spec.ts](tests/e2e/search.spec.ts).

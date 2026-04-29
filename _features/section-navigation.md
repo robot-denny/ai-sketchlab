@@ -2,7 +2,7 @@
 
 Section navigation is a contextual sidebar that helps visitors orient themselves within a section of the site. CMS editors can enable it per page, and when active it shows the current page's siblings and child pages, highlighting the current page. On smaller screens the sidebar collapses into an expandable "In this Section" toggle so the navigation is accessible without consuming screen space.
 
-**Source spec**: `_specs/section-navigation.md`
+**Source spec**: `_specs/shipped/section-navigation.md`
 **Last verified**: 2026-04-09
 
 ---

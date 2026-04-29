@@ -29,7 +29,7 @@ Creates or updates a feature doc in `_features/` that:
 
 Determine mode and feature slug from `$ARGUMENTS`:
 
-- **Spec path** (contains `/` or ends in `.md`, starts with `_specs`): Create a new feature doc. Extract slug from filename (e.g., `_specs/section-navigation.md` → slug `section-navigation`).
+- **Spec path** (contains `/` or ends in `.md`, starts with `_specs`): Create a new feature doc. Extract slug from filename (e.g., `_specs/shipped/section-navigation.md` → slug `section-navigation`).
 - **Feature name** (no path separators, no `.md`): Look for existing `_features/{name}.md`. If found, update it. If not, look for `_specs/{name}.md` and create from that.
 - **`update` directive** (starts with `update`): Update the existing feature doc at the path that follows.
 

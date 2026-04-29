@@ -27,7 +27,7 @@ Each converted template switches its `Layout` to a new `Views/master-v2.cshtml` 
 
 ### Phase 0 — Foundation: layout, helpers, schema, dictionary
 
-> **Prompt:** Implement Phase 0 of `_plans/package-c.md`. Create `Views/master-v2.cshtml`, the `ReadingTime` helper, the `pageHeadPatternControls` composition (via MCP), add `readingTime` to `articleControls` only as a placeholder hidden field (so existing PageHeaderViewModel callers can reference it), and seed all 12 new dictionary keys. Run `dotnet build` to confirm.
+> **Prompt:** Implement Phase 0 of `_plans/shipped/package-c.md`. Create `Views/master-v2.cshtml`, the `ReadingTime` helper, the `pageHeadPatternControls` composition (via MCP), add `readingTime` to `articleControls` only as a placeholder hidden field (so existing PageHeaderViewModel callers can reference it), and seed all 12 new dictionary keys. Run `dotnet build` to confirm.
 
 What ships:
 
@@ -71,7 +71,7 @@ What ships:
 
 ### Phase 1 — Convert `error.cshtml` (404)
 
-> **Prompt:** Implement Phase 1 of `_plans/package-c.md`. Convert `error.cshtml` to use master-v2.cshtml + `v2/_PageHead.cshtml` + `v2/_EmptyState.cshtml`. Match the layout of `_design-system-handoff/mocks/D-404.html`. Restart Umbraco and load any 404 path to verify visually.
+> **Prompt:** Implement Phase 1 of `_plans/shipped/package-c.md`. Convert `error.cshtml` to use master-v2.cshtml + `v2/_PageHead.cshtml` + `v2/_EmptyState.cshtml`. Match the layout of `_design-system-handoff/mocks/D-404.html`. Restart Umbraco and load any 404 path to verify visually.
 
 Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
@@ -83,7 +83,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 2 — Convert `contact.cshtml`
 
-> **Prompt:** Implement Phase 2 of `_plans/package-c.md`. Convert `contact.cshtml` to master-v2 + `_PageHead`. Keep the existing Umbraco Forms `RenderForm` ViewComponent integration intact. Wrap form output in `.wrap-narrow`. Match `_design-system-handoff/mocks/D-contact.html`.
+> **Prompt:** Implement Phase 2 of `_plans/shipped/package-c.md`. Convert `contact.cshtml` to master-v2 + `_PageHead`. Keep the existing Umbraco Forms `RenderForm` ViewComponent integration intact. Wrap form output in `.wrap-narrow`. Match `_design-system-handoff/mocks/D-contact.html`.
 
 **File:** `src/UmbracoProject/Views/contact.cshtml` — switch Layout, replace pageHeader with `_PageHead` (pull eyebrow/dek from `Model.Title` / `Model.Subtitle`, pattern from `Model.PageHeadPattern()`), wrap the `RenderForm` ViewComponent invocation in `<div class="wrap-narrow">…</div>`. Bootstrap form controls keep working (Bootstrap CSS still loads via styles.css).
 
@@ -93,7 +93,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 3 — Convert `AuthorList.cshtml` + `Author.cshtml`
 
-> **Prompt:** Implement Phase 3 of `_plans/package-c.md`. Convert both Author templates to master-v2 + `_PageHead`. AuthorList renders an authors grid; Author detail renders bio + a list of that author's articles using `v2/_ArticleCard.cshtml`. Match `_design-system-handoff/mocks/D-authors.html` and `_design-system-handoff/mocks/D-author.html`.
+> **Prompt:** Implement Phase 3 of `_plans/shipped/package-c.md`. Convert both Author templates to master-v2 + `_PageHead`. AuthorList renders an authors grid; Author detail renders bio + a list of that author's articles using `v2/_ArticleCard.cshtml`. Match `_design-system-handoff/mocks/D-authors.html` and `_design-system-handoff/mocks/D-author.html`.
 
 **Files:**
 - `src/UmbracoProject/Views/AuthorList.cshtml` — Layout switch, `_PageHead`, then iterate authors using existing `Views/Partials/authors.cshtml` (rewrite that partial too, into the v2 grid markup from D-authors.html).
@@ -106,7 +106,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 4 — Convert `articleList.cshtml` (Blog landing)
 
-> **Prompt:** Implement Phase 4 of `_plans/package-c.md`. Convert `articleList.cshtml` to master-v2 + `_PageHead` + `.archive-page` grid using `v2/_ArticleCard.cshtml`. Group articles by year (h2.year). Wire pagination to render `.pager` markup. Match `_design-system-handoff/mocks/D-blog.html`. The `.filters` bar is out of scope for this phase (no category-filter doc type yet) — render only the count.
+> **Prompt:** Implement Phase 4 of `_plans/shipped/package-c.md`. Convert `articleList.cshtml` to master-v2 + `_PageHead` + `.archive-page` grid using `v2/_ArticleCard.cshtml`. Group articles by year (h2.year). Wire pagination to render `.pager` markup. Match `_design-system-handoff/mocks/D-blog.html`. The `.filters` bar is out of scope for this phase (no category-filter doc type yet) — render only the count.
 
 **Files:**
 - `src/UmbracoProject/Views/articleList.cshtml` — full rewrite. Layout switch. `_PageHead`. Existing pagination infra (`Components/Pagination`) keeps working — just style its rendered output to match `.pager`.
@@ -118,7 +118,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 5 — Convert `search.cshtml`
 
-> **Prompt:** Implement Phase 5 of `_plans/package-c.md`. Convert `search.cshtml` to master-v2 + `_PageHead` + listings. Render results as `_ArticleCard`. When zero results, render `_EmptyState`. Keep the Umbraco AI Search `ISearcher` integration intact. Match `_design-system-handoff/mocks/D-search.html`.
+> **Prompt:** Implement Phase 5 of `_plans/shipped/package-c.md`. Convert `search.cshtml` to master-v2 + `_PageHead` + listings. Render results as `_ArticleCard`. When zero results, render `_EmptyState`. Keep the Umbraco AI Search `ISearcher` integration intact. Match `_design-system-handoff/mocks/D-search.html`.
 
 **File:** `src/UmbracoProject/Views/search.cshtml` — preserve `ISearcherResolver.GetSearcher(...)` / `SearchAsync(indexAlias: "UmbAI_Search", ...)` logic from current implementation. Layout switch + `_PageHead` (eyebrow "Search", h1 "Results for {query}"). Iterate results, render `_ArticleCard` per Article result. Pagination via existing Pagination component.
 
@@ -128,7 +128,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 6 — Convert `content.cshtml` + `documentation.cshtml` + section-nav refactor
 
-> **Prompt:** Implement Phase 6 of `_plans/package-c.md`. Convert both Content templates to master-v2 + `_PageHead`, wrap body in the new `.content` grid with the `.section-nav` aside (when enabled), and rewrite `Views/Partials/sectionNavigation.cshtml` to emit the v2 class vocabulary. Match `_design-system-handoff/mocks/D-content.html`. Append `.section-nav` styles to `wwwroot/assets/css/site-chrome.css`. Update `tests/e2e/sectionNavigation.spec.ts` selectors.
+> **Prompt:** Implement Phase 6 of `_plans/shipped/package-c.md`. Convert both Content templates to master-v2 + `_PageHead`, wrap body in the new `.content` grid with the `.section-nav` aside (when enabled), and rewrite `Views/Partials/sectionNavigation.cshtml` to emit the v2 class vocabulary. Match `_design-system-handoff/mocks/D-content.html`. Append `.section-nav` styles to `wwwroot/assets/css/site-chrome.css`. Update `tests/e2e/sectionNavigation.spec.ts` selectors.
 
 **Files:**
 - `src/UmbracoProject/Views/content.cshtml` and `src/UmbracoProject/Views/documentation.cshtml` — Layout switch, `_PageHead`, then wrap body in `<main class="content[ no-nav]"><aside class="section-nav">… (when `showSectionNavigation`)<div class="c-body">@Html.GetBlockListHtml(Model.ContentRows)</div></main>`.
@@ -142,7 +142,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 7 — Convert `article.cshtml` + retarget `siteHeader.spec.ts`
 
-> **Prompt:** Implement Phase 7 of `_plans/package-c.md`. Convert `article.cshtml` to master-v2 + `v2/_MastheadArticle.cshtml`. Wrap article body in `.art-body` with the v2 typography. Add the "Next up" footer block when sibling articles exist. Retarget `tests/e2e/header/siteHeader.spec.ts` from `header.masthead` to `.art-head`. Match `_design-system-handoff/mocks/D-article.html`.
+> **Prompt:** Implement Phase 7 of `_plans/shipped/package-c.md`. Convert `article.cshtml` to master-v2 + `v2/_MastheadArticle.cshtml`. Wrap article body in `.art-body` with the v2 typography. Add the "Next up" footer block when sibling articles exist. Retarget `tests/e2e/header/siteHeader.spec.ts` from `header.masthead` to `.art-head`. Match `_design-system-handoff/mocks/D-article.html`.
 
 **Files:**
 - `src/UmbracoProject/Views/article.cshtml` — Layout switch. Replace `pageHeader` partial call with `v2/_MastheadArticle` (PageHeaderViewModel contract is unchanged). Wrap `Html.GetBlockListHtml(Model.ContentRows)` in `<div class="art-body">…</div>`. Append `.next` block when `Model.Parent.Children` has Articles before/after the current one (use `articleDate` ordering).
@@ -154,7 +154,7 @@ Lowest risk — no content-model coupling, validates the v2 chrome end-to-end.
 
 ### Phase 8 — Convert `home.cshtml` + Home schema additions
 
-> **Prompt:** Implement Phase 8 of `_plans/package-c.md`. Add the Home doc-type fields needed by `_Manifesto` and `_DcPull` (manifesto* + optional pullQuote*) via MCP, then convert `home.cshtml` to render `_HeroHome` + `_LatestSection` + `_DcPull` + `_Manifesto` + master-v2 chrome. Match `_design-system-handoff/mocks/D-hybrid.html`. Verify ArticleList exists as a child of Home in the content tree.
+> **Prompt:** Implement Phase 8 of `_plans/shipped/package-c.md`. Add the Home doc-type fields needed by `_Manifesto` and `_DcPull` (manifesto* + optional pullQuote*) via MCP, then convert `home.cshtml` to render `_HeroHome` + `_LatestSection` + `_DcPull` + `_Manifesto` + master-v2 chrome. Match `_design-system-handoff/mocks/D-hybrid.html`. Verify ArticleList exists as a child of Home in the content tree.
 
 **Schema (MCP):**
 
@@ -180,7 +180,7 @@ Add to the `Home` doc type (or a new `homeContentControls` composition applied o
 
 ### Phase 9 — Cleanup: delete legacy partials, retire/port remaining tests
 
-> **Prompt:** Implement Phase 9 of `_plans/package-c.md`. Delete `master.cshtml`, rename `master-v2.cshtml` → `master.cshtml`, delete `mainNavigation.cshtml`, `pageHeader.cshtml`, `footer.cshtml`. Update every template's `Layout = "master-v2.cshtml"` back to `Layout = "master.cshtml"`. Port or retire `tests/e2e/footer/updatedFooter.spec.ts` and any remaining selectors locked to legacy chrome. Run the full Playwright suite.
+> **Prompt:** Implement Phase 9 of `_plans/shipped/package-c.md`. Delete `master.cshtml`, rename `master-v2.cshtml` → `master.cshtml`, delete `mainNavigation.cshtml`, `pageHeader.cshtml`, `footer.cshtml`. Update every template's `Layout = "master-v2.cshtml"` back to `Layout = "master.cshtml"`. Port or retire `tests/e2e/footer/updatedFooter.spec.ts` and any remaining selectors locked to legacy chrome. Run the full Playwright suite.
 
 **Files removed:**
 - `src/UmbracoProject/Views/master.cshtml`

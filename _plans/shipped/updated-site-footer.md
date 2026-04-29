@@ -5,7 +5,7 @@
 The current footer (`src/UmbracoProject/Views/Partials/footer.cshtml`) renders social icon links and copyright text in a centered layout. The spec calls for a redesigned footer matching the Figma design with: a Diagram logo image, a rich text description, and a footer navigation menu — all managed in Umbraco CMS. Desktop shows logo+text left / menu right; narrow screens stack menu → logo → text, all centered.
 
 **Branch**: `claude/feature/updated-site-footer`
-**Spec**: `_specs/updated-site-footer.md`
+**Spec**: `_specs/shipped/updated-site-footer.md`
 **Figma**: Footer file, nodes 1:6 (widescreen) and 1:51 (narrow)
 
 ---

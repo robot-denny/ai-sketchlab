@@ -2,7 +2,7 @@
 
 Alert banners display a contextual icon alongside their content so that visitors can immediately recognize the severity of the message. Each alert level -- emergency, warning, and informational -- shows a distinct default icon. CMS editors can override the default icon by choosing from a curated dropdown, giving them control over visual communication without needing to edit templates.
 
-**Source spec**: `_specs/alert-banner-icons.md`
+**Source spec**: `_specs/shipped/alert-banner-icons.md`
 **Last verified**: 2026-04-09
 
 ---

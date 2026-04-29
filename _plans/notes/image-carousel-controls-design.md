@@ -1,6 +1,6 @@
 # Image Carousel Controls — Design Notes
 
-> Output of the Step 3 `frontend-design` exploration for [_plans/image-carousel-captions-controls.md](../image-carousel-captions-controls.md). These decisions feed Step 6 (CSS RED) and Step 7 (CSS GREEN). No production code is touched in this step.
+> Output of the Step 3 `frontend-design` exploration for [_plans/shipped/image-carousel-captions-controls.md](../image-carousel-captions-controls.md). These decisions feed Step 6 (CSS RED) and Step 7 (CSS GREEN). No production code is touched in this step.
 
 ## Concept
 

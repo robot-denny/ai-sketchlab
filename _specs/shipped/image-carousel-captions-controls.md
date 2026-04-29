@@ -2,7 +2,7 @@
 
 > This spec captures initial requirements and design rationale for this iteration. For **current system behavior**, see `_features/image-carousel-captions-controls.md`.
 >
-> Historical records of the initial Bootstrap carousel build remain in `_specs/image-carousel-block.md` and `_plans/image-carousel-block.md`.
+> Historical records of the initial Bootstrap carousel build remain in `_specs/shipped/image-carousel-block.md` and `_plans/shipped/image-carousel-block.md`.
 
 branch: claude/feature/image-carousel-captions-controls
 figma_component (if used): n/a

@@ -1,6 +1,6 @@
 # Plan: Section Navigation Feature
 
-**Spec**: `_specs/section-navigation.md`
+**Spec**: `_specs/shipped/section-navigation.md`
 **Branch**: `claude/feature/section-navigation`
 
 ## Context
@@ -29,7 +29,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 1 — Add `showSectionNavigation` property to document types
 
-> **Prompt**: Implement Step 1 of `_plans/section-navigation.md`. Write a Node.js script at `scripts/add-section-nav-property.js` that uses the Umbraco Management API to create a new `sectionNavigationControls` composition document type with a `showSectionNavigation` boolean property, then adds that composition to the `content` and `documentation` document types. Run the script to verify it succeeds.
+> **Prompt**: Implement Step 1 of `_plans/shipped/section-navigation.md`. Write a Node.js script at `scripts/add-section-nav-property.js` that uses the Umbraco Management API to create a new `sectionNavigationControls` composition document type with a `showSectionNavigation` boolean property, then adds that composition to the `content` and `documentation` document types. Run the script to verify it succeeds.
 
 **What to build**: `scripts/add-section-nav-property.js`
 
@@ -47,7 +47,7 @@ The script (single process to avoid token expiry):
 
 ### Step 2 — Create `sectionNavigation.cshtml` partial
 
-> **Prompt**: Implement Step 2 of `_plans/section-navigation.md`. Create the Razor partial `src/UmbracoProject/Views/Partials/sectionNavigation.cshtml` for section navigation. Then run `dotnet build` from `src/UmbracoProject` to confirm no Razor errors.
+> **Prompt**: Implement Step 2 of `_plans/shipped/section-navigation.md`. Create the Razor partial `src/UmbracoProject/Views/Partials/sectionNavigation.cshtml` for section navigation. Then run `dotnet build` from `src/UmbracoProject` to confirm no Razor errors.
 
 **File**: `src/UmbracoProject/Views/Partials/sectionNavigation.cshtml`
 
@@ -72,7 +72,7 @@ Logic:
 
 ### Step 3 — Update `content.cshtml` and `documentation.cshtml`
 
-> **Prompt**: Implement Step 3 of `_plans/section-navigation.md`. Update `src/UmbracoProject/Views/content.cshtml` and `src/UmbracoProject/Views/documentation.cshtml` to conditionally render a two-column layout when `showSectionNavigation` is true. Then run `dotnet build` to confirm no errors.
+> **Prompt**: Implement Step 3 of `_plans/shipped/section-navigation.md`. Update `src/UmbracoProject/Views/content.cshtml` and `src/UmbracoProject/Views/documentation.cshtml` to conditionally render a two-column layout when `showSectionNavigation` is true. Then run `dotnet build` to confirm no errors.
 
 **Files to modify**:
 - `src/UmbracoProject/Views/content.cshtml`
@@ -108,7 +108,7 @@ Use `PartialAsync` (not `CachedPartialAsync`) — section nav is page-specific.
 
 ### Step 4 — Add CSS for section navigation
 
-> **Prompt**: Implement Step 4 of `_plans/section-navigation.md`. Append CSS for the section navigation sidebar and mobile toggle to `src/UmbracoProject/wwwroot/assets/css/styles.css`.
+> **Prompt**: Implement Step 4 of `_plans/shipped/section-navigation.md`. Append CSS for the section navigation sidebar and mobile toggle to `src/UmbracoProject/wwwroot/assets/css/styles.css`.
 
 Append to end of `src/UmbracoProject/wwwroot/assets/css/styles.css`:
 
@@ -209,7 +209,7 @@ Append to end of `src/UmbracoProject/wwwroot/assets/css/styles.css`:
 
 ### Step 5 — Write E2E tests
 
-> **Prompt**: Implement Step 5 of `_plans/section-navigation.md`. Write the Playwright E2E test file at `tests/e2e/sectionNavigation.spec.ts`. The tests should create their own test content via the Management API in `beforeAll`, run all acceptance criteria checks, then clean up in `afterAll`. Run the tests to confirm they pass.
+> **Prompt**: Implement Step 5 of `_plans/shipped/section-navigation.md`. Write the Playwright E2E test file at `tests/e2e/sectionNavigation.spec.ts`. The tests should create their own test content via the Management API in `beforeAll`, run all acceptance criteria checks, then clean up in `afterAll`. Run the tests to confirm they pass.
 
 **File**: `tests/e2e/sectionNavigation.spec.ts`
 

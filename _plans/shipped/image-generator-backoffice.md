@@ -1,6 +1,6 @@
 # Plan: Image Generator Backoffice Integration
 
-**Spec**: `_specs/image-generator/image-generator.md`
+**Spec**: `_specs/shipped/image-generator/image-generator.md`
 **Branch**: `claude/feature/metadata-image-generator` (existing)
 
 ## Context
@@ -28,7 +28,7 @@ The CLI-based image generator is fully implemented (Steps 1–7 of the original 
 | `scripts/image-generator/src/generator.ts` | Modify | Pass loaded palette config to `getCategoryPalette` |
 | `scripts/image-generator/config/palettes.json` | Create | Persistent palette config (initially seeded from hardcoded defaults) |
 | `tests/image-generator/palette.test.ts` | Modify | Add merge and config-loading tests |
-| `_specs/image-generator/image-generator.md` | Modify | Update multi-category edge case to "merge" |
+| `_specs/shipped/image-generator/image-generator.md` | Modify | Update multi-category edge case to "merge" |
 | `src/HelloWorld/ImageGeneratorController.cs` | Create | C# API: palette CRUD + generation trigger + article list |
 | `src/HelloWorld/Client/src/imageGenerator/dashboard.element.ts` | Create | Lit dashboard component (palette editor + generators) |
 | `src/HelloWorld/Client/src/imageGenerator/manifest.ts` | Create | Dashboard manifest (Settings section) |
@@ -46,7 +46,7 @@ Each step is an independent prompt for a new context window.
 
 ### Step 0 — Update spec + fix multi-category edge case in palette.ts
 
-> **Prompt**: Implement Step 0 of `_plans/image-generator-backoffice.md`. (1) In `_specs/image-generator/image-generator.md`, change the edge case line "Article has multiple categories — use the first matching palette" to "Article has multiple categories — merge all matching palettes into a single combined color pool; the renderer cycles through all merged colors." (2) In `scripts/image-generator/src/palette.ts`, update `getCategoryPalette()` to merge all matching palettes (concatenate them) instead of returning the first match. Update `tests/image-generator/palette.test.ts` to cover merge behavior. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/palette.test.ts` to confirm GREEN.
+> **Prompt**: Implement Step 0 of `_plans/shipped/image-generator-backoffice.md`. (1) In `_specs/shipped/image-generator/image-generator.md`, change the edge case line "Article has multiple categories — use the first matching palette" to "Article has multiple categories — merge all matching palettes into a single combined color pool; the renderer cycles through all merged colors." (2) In `scripts/image-generator/src/palette.ts`, update `getCategoryPalette()` to merge all matching palettes (concatenate them) instead of returning the first match. Update `tests/image-generator/palette.test.ts` to cover merge behavior. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/palette.test.ts` to confirm GREEN.
 
 **Changes to `palette.ts`**:
 ```typescript
@@ -78,7 +78,7 @@ export interface PaletteConfig {
 
 ### Step 1 — Create palette config file and update CLI to load it
 
-> **Prompt**: Implement Step 1 of `_plans/image-generator-backoffice.md`. Create `scripts/image-generator/config/palettes.json` seeded from the hardcoded defaults. Add `loadPaletteConfig(configPath)` to `palette.ts` that reads and parses this file, falling back to hardcoded defaults if the file doesn't exist. Update `generator.ts` to load the config at call time and pass it to `getCategoryPalette`. Update `cli.ts` to pass the config path (derived from the script's `__dirname`). Run unit tests to confirm everything still passes.
+> **Prompt**: Implement Step 1 of `_plans/shipped/image-generator-backoffice.md`. Create `scripts/image-generator/config/palettes.json` seeded from the hardcoded defaults. Add `loadPaletteConfig(configPath)` to `palette.ts` that reads and parses this file, falling back to hardcoded defaults if the file doesn't exist. Update `generator.ts` to load the config at call time and pass it to `getCategoryPalette`. Update `cli.ts` to pass the config path (derived from the script's `__dirname`). Run unit tests to confirm everything still passes.
 
 **`scripts/image-generator/config/palettes.json`** (initial seed):
 ```json
@@ -124,7 +124,7 @@ export function generateImage(metadata: ArticleMetadata, options?: GeneratorOpti
 
 ### Step 2 — C# API Controller
 
-> **Prompt**: Implement Step 2 of `_plans/image-generator-backoffice.md`. Add `ImageGeneratorController.cs` to `src/HelloWorld/`. It must be an Umbraco API controller with backoffice authorization. Implement four endpoints: GET/PUT palettes (reads/writes `scripts/image-generator/config/palettes.json`), GET articles (returns name+id for all "article" document type content), and POST generate/{documentId}?force=true + POST generate/batch (both spawn the CLI). Build with `dotnet build src/UmbracoProject` and verify the endpoints are reachable at `https://localhost:44367/umbraco/api/image-generator/palettes`.
+> **Prompt**: Implement Step 2 of `_plans/shipped/image-generator-backoffice.md`. Add `ImageGeneratorController.cs` to `src/HelloWorld/`. It must be an Umbraco API controller with backoffice authorization. Implement four endpoints: GET/PUT palettes (reads/writes `scripts/image-generator/config/palettes.json`), GET articles (returns name+id for all "article" document type content), and POST generate/{documentId}?force=true + POST generate/batch (both spawn the CLI). Build with `dotnet build src/UmbracoProject` and verify the endpoints are reachable at `https://localhost:44367/umbraco/api/image-generator/palettes`.
 
 **File**: `src/HelloWorld/ImageGeneratorController.cs`
 
@@ -191,7 +191,7 @@ private async Task<(int exitCode, string output)> RunCli(string args)
 
 ### Step 3 — Image Generator Dashboard (Lit component)
 
-> **Prompt**: Implement Step 3 of `_plans/image-generator-backoffice.md`. Before writing code, invoke the `umbraco-dashboard` skill for the correct Umbraco 17 dashboard patterns. Then create `src/HelloWorld/Client/src/imageGenerator/dashboard.element.ts` and `manifest.ts`. The dashboard has three `<uui-box>` sections: Category Palette Editor, Single Article Generator, and Batch Generator. Register it in the Settings section. Update `bundle.manifests.ts`. Run `cd src/HelloWorld/Client && npm run build` then `dotnet build src/UmbracoProject`.
+> **Prompt**: Implement Step 3 of `_plans/shipped/image-generator-backoffice.md`. Before writing code, invoke the `umbraco-dashboard` skill for the correct Umbraco 17 dashboard patterns. Then create `src/HelloWorld/Client/src/imageGenerator/dashboard.element.ts` and `manifest.ts`. The dashboard has three `<uui-box>` sections: Category Palette Editor, Single Article Generator, and Batch Generator. Register it in the Settings section. Update `bundle.manifests.ts`. Run `cd src/HelloWorld/Client && npm run build` then `dotnet build src/UmbracoProject`.
 
 **`manifest.ts`**:
 ```typescript
@@ -266,7 +266,7 @@ const rgbToHex = ([r, g, b]: number[]) =>
 
 ### Step 4 — Property Action on mainImage
 
-> **Prompt**: Implement Step 4 of `_plans/image-generator-backoffice.md`. Before writing code, invoke the `umbraco-property-action` skill for Umbraco 17 property action patterns. Create `src/HelloWorld/Client/src/propertyActions/generateImage.element.ts` and `manifest.ts`. The action appears on `Umbraco.MediaPicker3` properties. When triggered, it reads the document ID from workspace context, calls POST `/umbraco/api/image-generator/generate/{id}`, shows a loading notification, and on success shows a success notification with instructions to reload the property. Update `bundle.manifests.ts` and rebuild.
+> **Prompt**: Implement Step 4 of `_plans/shipped/image-generator-backoffice.md`. Before writing code, invoke the `umbraco-property-action` skill for Umbraco 17 property action patterns. Create `src/HelloWorld/Client/src/propertyActions/generateImage.element.ts` and `manifest.ts`. The action appears on `Umbraco.MediaPicker3` properties. When triggered, it reads the document ID from workspace context, calls POST `/umbraco/api/image-generator/generate/{id}`, shows a loading notification, and on success shows a success notification with instructions to reload the property. Update `bundle.manifests.ts` and rebuild.
 
 **`manifest.ts`**:
 ```typescript
@@ -314,7 +314,7 @@ async execute() {
 
 ### Step 5 — Build, wire up, and verify end-to-end
 
-> **Prompt**: Implement Step 5 of `_plans/image-generator-backoffice.md`. Update `bundle.manifests.ts` to import the new imageGenerator and propertyActions manifests. Run `cd src/HelloWorld/Client && npm run build`. Run `dotnet build src/UmbracoProject`. Start the site with `dotnet run`. Verify: (a) Settings section shows "Image Generator" tab; (b) palette editor loads and saves color changes; (c) single-article generator triggers and shows a success notification; (d) batch generator runs and shows summary; (e) on an article edit page, the mainImage property shows a "Generate Image" action that triggers generation.
+> **Prompt**: Implement Step 5 of `_plans/shipped/image-generator-backoffice.md`. Update `bundle.manifests.ts` to import the new imageGenerator and propertyActions manifests. Run `cd src/HelloWorld/Client && npm run build`. Run `dotnet build src/UmbracoProject`. Start the site with `dotnet run`. Verify: (a) Settings section shows "Image Generator" tab; (b) palette editor loads and saves color changes; (c) single-article generator triggers and shows a success notification; (d) batch generator runs and shows summary; (e) on an article edit page, the mainImage property shows a "Generate Image" action that triggers generation.
 
 **`bundle.manifests.ts`** final:
 ```typescript

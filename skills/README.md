@@ -65,4 +65,4 @@ skills/
 
 ## Future Integration
 
-The existing image generator (`scripts/image-generator/`) already has a backoffice integration pattern (see `_plans/palette-storage.md`). A future phase could follow the same architecture to surface these skills to CMS editors: a settings document type, a backoffice dashboard for triggering generation, and a C# service for uploading results to the media library.
+The existing image generator (`scripts/image-generator/`) already has a backoffice integration pattern (see `_plans/shipped/palette-storage.md`). A future phase could follow the same architecture to surface these skills to CMS editors: a settings document type, a backoffice dashboard for triggering generation, and a C# service for uploading results to the media library.

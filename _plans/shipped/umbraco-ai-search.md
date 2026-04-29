@@ -41,7 +41,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 1 — Pre-flight: pick pinned versions and create branch ✅ DONE
 
-> **Prompt**: Implement Step 1 of `_plans/umbraco-ai-search.md`. Create branch `claude/feature/umbraco-ai-search` off `master`. Then query the NuGet feed for the latest beta versions of `Umbraco.Cms.Search.Core`, `Umbraco.Cms.Search.Provider.Examine`, `Umbraco.Cms.Search.BackOffice`, `Umbraco.Cms.Search.DeliveryApi`, and `Umbraco.AI.Search` that are compatible with Umbraco 17.3.x. Record the exact versions inline in this plan (edit the table under "What to build") so every subsequent step uses the same set. Do NOT install packages yet.
+> **Prompt**: Implement Step 1 of `_plans/shipped/umbraco-ai-search.md`. Create branch `claude/feature/umbraco-ai-search` off `master`. Then query the NuGet feed for the latest beta versions of `Umbraco.Cms.Search.Core`, `Umbraco.Cms.Search.Provider.Examine`, `Umbraco.Cms.Search.BackOffice`, `Umbraco.Cms.Search.DeliveryApi`, and `Umbraco.AI.Search` that are compatible with Umbraco 17.3.x. Record the exact versions inline in this plan (edit the table under "What to build") so every subsequent step uses the same set. Do NOT install packages yet.
 
 **What to build**: a versions table recorded in this plan and a new branch. No code changes yet.
 
@@ -81,7 +81,7 @@ Versions confirmed 2026-04-21 via `dotnet package search ... --prerelease --exac
 
 All five packages are already referenced in [src/UmbracoProject/UmbracoProject.csproj](../src/UmbracoProject/UmbracoProject.csproj) at the pinned versions from Step 1.
 
-> **Prompt**: Implement Step 2 of `_plans/umbraco-ai-search.md`. Using the pinned versions recorded in the table under Step 1, add the five `Umbraco.Cms.Search.*` and `Umbraco.AI.Search` packages to `src/UmbracoProject/UmbracoProject.csproj`. Run `dotnet restore` then `dotnet build` from `src/UmbracoProject`. Do not run the app yet — this step only verifies packages resolve and the project compiles with them referenced (but not wired up).
+> **Prompt**: Implement Step 2 of `_plans/shipped/umbraco-ai-search.md`. Using the pinned versions recorded in the table under Step 1, add the five `Umbraco.Cms.Search.*` and `Umbraco.AI.Search` packages to `src/UmbracoProject/UmbracoProject.csproj`. Run `dotnet restore` then `dotnet build` from `src/UmbracoProject`. Do not run the app yet — this step only verifies packages resolve and the project compiles with them referenced (but not wired up).
 
 **What to build**: 5 new `<PackageReference>` entries in [src/UmbracoProject/UmbracoProject.csproj](../src/UmbracoProject/UmbracoProject.csproj), grouped with the existing `Umbraco.AI.*` block for readability.
 
@@ -93,7 +93,7 @@ All five packages are already referenced in [src/UmbracoProject/UmbracoProject.c
 
 ### Step 3 — Register search services via IComposer
 
-> **Prompt**: Implement Step 3 of `_plans/umbraco-ai-search.md`. Create `src/UmbracoProject/SearchComposer.cs` (namespace `UmbracoProject`) that implements `IComposer` and registers the search stack. Follow the existing pattern in [AssignMembersToPremiumRoleComposer.cs](../src/UmbracoProject/AssignMembersToPremiumRoleComposer.cs). Call `AddSearchCore()`, `AddExamineSearchProvider()`, `AddBackOfficeSearch()`, `AddDeliveryApiSearch()`, and the AI.Search registration (check the `Umbraco.AI.Search` package for the exact extension method name — likely `AddAiSearch()` or `AddAISearchProvider()`). Run `dotnet build` from `src/UmbracoProject`. Then run `dotnet run` briefly (kill after boot succeeds) to verify the composer executes without DI errors.
+> **Prompt**: Implement Step 3 of `_plans/shipped/umbraco-ai-search.md`. Create `src/UmbracoProject/SearchComposer.cs` (namespace `UmbracoProject`) that implements `IComposer` and registers the search stack. Follow the existing pattern in [AssignMembersToPremiumRoleComposer.cs](../src/UmbracoProject/AssignMembersToPremiumRoleComposer.cs). Call `AddSearchCore()`, `AddExamineSearchProvider()`, `AddBackOfficeSearch()`, `AddDeliveryApiSearch()`, and the AI.Search registration (check the `Umbraco.AI.Search` package for the exact extension method name — likely `AddAiSearch()` or `AddAISearchProvider()`). Run `dotnet build` from `src/UmbracoProject`. Then run `dotnet run` briefly (kill after boot succeeds) to verify the composer executes without DI errors.
 
 **What to build**: `src/UmbracoProject/SearchComposer.cs`.
 
@@ -125,7 +125,7 @@ public class SearchComposer : IComposer
 
 ### Step 4 — Add `Umbraco:AI:Search` config block
 
-> **Prompt**: Implement Step 4 of `_plans/umbraco-ai-search.md`. Edit [src/UmbracoProject/appsettings.json](../src/UmbracoProject/appsettings.json) to add an `AI.Search` section under the existing `Umbraco` root. Use `ChunkSize: 512`, `ChunkOverlap: 50`, `DefaultTopK: 50`, `MinScore: 0.3`. Do NOT put API keys here — those go in `appsettings.Development.json` (gitignored). Run `dotnet build`, then boot the app briefly and confirm no configuration-binding errors in the log.
+> **Prompt**: Implement Step 4 of `_plans/shipped/umbraco-ai-search.md`. Edit [src/UmbracoProject/appsettings.json](../src/UmbracoProject/appsettings.json) to add an `AI.Search` section under the existing `Umbraco` root. Use `ChunkSize: 512`, `ChunkOverlap: 50`, `DefaultTopK: 50`, `MinScore: 0.3`. Do NOT put API keys here — those go in `appsettings.Development.json` (gitignored). Run `dotnet build`, then boot the app briefly and confirm no configuration-binding errors in the log.
 
 **What to build**: update [appsettings.json](../src/UmbracoProject/appsettings.json):
 ```json
@@ -153,7 +153,7 @@ public class SearchComposer : IComposer
 
 ### Step 5 — Configure embedding profile in the backoffice (manual)
 
-> **Prompt**: Implement Step 5 of `_plans/umbraco-ai-search.md`. This is a manual backoffice configuration step — no code changes. Start the app with `dotnet run`, log into the backoffice, and configure the embedding profile. Record the resulting **connection name, embedding profile name, and default-search-profile alias** in the "Completion notes" subsection below so later steps and the feature doc can reference them.
+> **Prompt**: Implement Step 5 of `_plans/shipped/umbraco-ai-search.md`. This is a manual backoffice configuration step — no code changes. Start the app with `dotnet run`, log into the backoffice, and configure the embedding profile. Record the resulting **connection name, embedding profile name, and default-search-profile alias** in the "Completion notes" subsection below so later steps and the feature doc can reference them.
 
 **What to do** (manual, in the backoffice at `Settings → AI`):
 
@@ -181,7 +181,7 @@ public class SearchComposer : IComposer
 
 ### Step 6 — Write characterization + capability E2E tests (RED for capability, GREEN for characterization)
 
-> **Prompt**: Implement Step 6 of `_plans/umbraco-ai-search.md`. Create `tests/e2e/search.spec.ts` with **characterization tests** asserting the existing `/search` page contract (tests should currently pass against the legacy Examine-backed view) plus **one new capability test** asserting a paraphrased query returns at least one result (this test will be RED until Step 7 rewires the view to AI search). Follow the patterns in [tests/e2e/sectionNavigation.spec.ts](../tests/e2e/sectionNavigation.spec.ts) for dotenv loading and the testhelpers import style. Run the tests against the currently-running app: `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx playwright test tests/e2e/search.spec.ts`. Confirm: characterization tests PASS, capability test FAILS with a clear reason (e.g. "no results returned for paraphrased query").
+> **Prompt**: Implement Step 6 of `_plans/shipped/umbraco-ai-search.md`. Create `tests/e2e/search.spec.ts` with **characterization tests** asserting the existing `/search` page contract (tests should currently pass against the legacy Examine-backed view) plus **one new capability test** asserting a paraphrased query returns at least one result (this test will be RED until Step 7 rewires the view to AI search). Follow the patterns in [tests/e2e/sectionNavigation.spec.ts](../tests/e2e/sectionNavigation.spec.ts) for dotenv loading and the testhelpers import style. Run the tests against the currently-running app: `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx playwright test tests/e2e/search.spec.ts`. Confirm: characterization tests PASS, capability test FAILS with a clear reason (e.g. "no results returned for paraphrased query").
 
 **What to build**: `tests/e2e/search.spec.ts`.
 
@@ -205,7 +205,7 @@ Scenarios to cover:
 
 ### Step 7 — Rewrite search.cshtml to use ISearcher (test-GREEN milestone)
 
-> **Prompt**: Implement Step 7 of `_plans/umbraco-ai-search.md`. Rewrite [src/UmbracoProject/Views/search.cshtml](../src/UmbracoProject/Views/search.cshtml) to use the new `ISearcherResolver`/`ISearcher` API from `Umbraco.Cms.Search.Core`. Inject `ISearcherResolver` and `IPublishedContentQuery`. Call the AI searcher recorded in Step 5's completion notes (alias likely `UmbAI_Search`) via `SearchAsync(indexAlias, query, culture: Model.GetCultureFromDomains(), skip: 0, take: 20)`. Convert each result ID back to `IPublishedContent` via `publishedContentQuery.Content(result.Id)`. Filter out the system doc types (`Category`, `CategoryList`, `Error`, `Search`, `XMlsitemap`) — prefer a server-side filter parameter if the `ISearcher` API supports it; otherwise keep the LINQ `.Where(...)` filter after resolution. Preserve the existing page layout (PageHeaderViewModel, dictionary labels, `.post-preview` markup, author/date rendering via `IArticleControls`). After the rewrite, run the full E2E suite from Step 6 and confirm ALL 6 tests are GREEN: `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx playwright test tests/e2e/search.spec.ts`.
+> **Prompt**: Implement Step 7 of `_plans/shipped/umbraco-ai-search.md`. Rewrite [src/UmbracoProject/Views/search.cshtml](../src/UmbracoProject/Views/search.cshtml) to use the new `ISearcherResolver`/`ISearcher` API from `Umbraco.Cms.Search.Core`. Inject `ISearcherResolver` and `IPublishedContentQuery`. Call the AI searcher recorded in Step 5's completion notes (alias likely `UmbAI_Search`) via `SearchAsync(indexAlias, query, culture: Model.GetCultureFromDomains(), skip: 0, take: 20)`. Convert each result ID back to `IPublishedContent` via `publishedContentQuery.Content(result.Id)`. Filter out the system doc types (`Category`, `CategoryList`, `Error`, `Search`, `XMlsitemap`) — prefer a server-side filter parameter if the `ISearcher` API supports it; otherwise keep the LINQ `.Where(...)` filter after resolution. Preserve the existing page layout (PageHeaderViewModel, dictionary labels, `.post-preview` markup, author/date rendering via `IArticleControls`). After the rewrite, run the full E2E suite from Step 6 and confirm ALL 6 tests are GREEN: `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx playwright test tests/e2e/search.spec.ts`.
 
 **Files to modify**:
 - [src/UmbracoProject/Views/search.cshtml](../src/UmbracoProject/Views/search.cshtml) — only this file changes
@@ -242,7 +242,7 @@ Key code shape:
 
 ### Step 8 — Document the migration in CLAUDE.md
 
-> **Prompt**: Implement Step 8 of `_plans/umbraco-ai-search.md`. Add a new `## Search` section to [CLAUDE.md](../CLAUDE.md) between the "AI & Copilot" section and "Modifying Umbraco Content from Claude Code". The section should document: (1) the search architecture (Umbraco.Cms.Search.Core + Examine provider + AI.Search), (2) how to rebuild the index (`Settings → Search` in backoffice), (3) the embedding profile name and default searcher alias (pull from Step 5's completion notes), (4) per-environment index rebuild requirement on Umbraco Cloud deploys, and (5) pinned package versions + upgrade path note (these are beta — expect breaking changes in v18). Do not edit any other section. Do not add a README.md.
+> **Prompt**: Implement Step 8 of `_plans/shipped/umbraco-ai-search.md`. Add a new `## Search` section to [CLAUDE.md](../CLAUDE.md) between the "AI & Copilot" section and "Modifying Umbraco Content from Claude Code". The section should document: (1) the search architecture (Umbraco.Cms.Search.Core + Examine provider + AI.Search), (2) how to rebuild the index (`Settings → Search` in backoffice), (3) the embedding profile name and default searcher alias (pull from Step 5's completion notes), (4) per-environment index rebuild requirement on Umbraco Cloud deploys, and (5) pinned package versions + upgrade path note (these are beta — expect breaking changes in v18). Do not edit any other section. Do not add a README.md.
 
 **What to build**: one new `## Search` section in [CLAUDE.md](../CLAUDE.md).
 

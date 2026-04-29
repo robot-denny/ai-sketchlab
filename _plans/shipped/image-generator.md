@@ -1,11 +1,11 @@
 # Plan: Metadata-Driven Image Generator
 
-**Spec**: `_specs/image-generator/image-generator.md`
+**Spec**: `_specs/shipped/image-generator/image-generator.md`
 **Branch**: `claude/feature/metadata-image-generator`
 
 ## Context
 
-Articles need unique featured images derived from their metadata. Rather than stock photos or AI-generated art, each image is a deterministic abstract flow field pattern seeded by the article's title, node ID, word count, and categories. The Python reference at `_specs/image-generator/flow_field_generator.py` provides the algorithm to port. Images are generated via CLI, uploaded to the Umbraco media library, and assigned as the article's `mainImage`.
+Articles need unique featured images derived from their metadata. Rather than stock photos or AI-generated art, each image is a deterministic abstract flow field pattern seeded by the article's title, node ID, word count, and categories. The Python reference at `_specs/shipped/image-generator/flow_field_generator.py` provides the algorithm to port. Images are generated via CLI, uploaded to the Umbraco media library, and assigned as the article's `mainImage`.
 
 ---
 
@@ -34,7 +34,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 1 — Install dependencies and scaffold project structure
 
-> **Prompt**: Implement Step 1 of `_plans/image-generator.md`. Install dependencies, un-gitignore the image generator path, create the directory structure and shared type definitions. Run `npm install` to verify.
+> **Prompt**: Implement Step 1 of `_plans/shipped/image-generator.md`. Install dependencies, un-gitignore the image generator path, create the directory structure and shared type definitions. Run `npm install` to verify.
 
 **What to build**:
 
@@ -104,7 +104,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 2 — Seed derivation, palette mapping, and word count extraction (RED then GREEN)
 
-> **Prompt**: Implement Step 2 of `_plans/image-generator.md`. Write tests first (RED), then implement seed derivation, palette mapping, and word count extraction (GREEN). Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/seed.test.ts tests/image-generator/palette.test.ts tests/image-generator/word-count.test.ts` to verify.
+> **Prompt**: Implement Step 2 of `_plans/shipped/image-generator.md`. Write tests first (RED), then implement seed derivation, palette mapping, and word count extraction (GREEN). Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/seed.test.ts tests/image-generator/palette.test.ts tests/image-generator/word-count.test.ts` to verify.
 
 **Tests first**:
 
@@ -145,7 +145,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 3 — Noise, flow field, and particle simulation (RED then GREEN)
 
-> **Prompt**: Implement Step 3 of `_plans/image-generator.md`. Write tests first for noise generation and particle simulation, then implement by porting from `_specs/image-generator/flow_field_generator.py`. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/flow-field.test.ts` to verify.
+> **Prompt**: Implement Step 3 of `_plans/shipped/image-generator.md`. Write tests first for noise generation and particle simulation, then implement by porting from `_specs/shipped/image-generator/flow_field_generator.py`. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/flow-field.test.ts` to verify.
 
 **Tests first** (`tests/image-generator/flow-field.test.ts`):
 - `SimpleNoise(seed).noise(x, y)` returns values in [-1, 1] range
@@ -180,7 +180,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 4 — Canvas renderer and end-to-end generator (RED then GREEN)
 
-> **Prompt**: Implement Step 4 of `_plans/image-generator.md`. Write tests for the renderer and the orchestrating generator, then implement. The renderer uses `@napi-rs/canvas` to draw particle trails as a PNG. The generator wires everything together: metadata → seed/palette → flow field → particles → PNG buffer. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/renderer.test.ts tests/image-generator/generator.test.ts` to verify.
+> **Prompt**: Implement Step 4 of `_plans/shipped/image-generator.md`. Write tests for the renderer and the orchestrating generator, then implement. The renderer uses `@napi-rs/canvas` to draw particle trails as a PNG. The generator wires everything together: metadata → seed/palette → flow field → particles → PNG buffer. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/renderer.test.ts tests/image-generator/generator.test.ts` to verify.
 
 **Tests first**:
 
@@ -219,7 +219,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 5 — Umbraco API integration
 
-> **Prompt**: Implement Step 5 of `_plans/image-generator.md`. Create the Umbraco API integration module that fetches article metadata, resolves categories, computes word counts, uploads images to the media library, and assigns them as `mainImage`. Test manually against the running Umbraco instance. Follow patterns from `scripts/add-section-nav-property.cjs` for auth and HTTP helpers.
+> **Prompt**: Implement Step 5 of `_plans/shipped/image-generator.md`. Create the Umbraco API integration module that fetches article metadata, resolves categories, computes word counts, uploads images to the media library, and assigns them as `mainImage`. Test manually against the running Umbraco instance. Follow patterns from `scripts/add-section-nav-property.cjs` for auth and HTTP helpers.
 
 **File**: `scripts/image-generator/src/umbraco-api.ts`
 
@@ -269,7 +269,7 @@ The step heading is a ready-to-use prompt you can paste into a new chat.
 
 ### Step 6 — CLI entry point
 
-> **Prompt**: Implement Step 6 of `_plans/image-generator.md`. Create the CLI entry point that ties together the generator and Umbraco API integration. Support single-article mode, batch mode, --force flag, and --local-only for preview. Test against running Umbraco.
+> **Prompt**: Implement Step 6 of `_plans/shipped/image-generator.md`. Create the CLI entry point that ties together the generator and Umbraco API integration. Support single-article mode, batch mode, --force flag, and --local-only for preview. Test against running Umbraco.
 
 **File**: `scripts/image-generator/src/cli.ts`
 
@@ -319,7 +319,7 @@ npx tsx scripts/image-generator/src/cli.ts --name "Article Title" --local-only -
 
 ### Step 7 — Integration test
 
-> **Prompt**: Implement Step 7 of `_plans/image-generator.md`. Write an integration test that validates the full pipeline: generate an image for a known article, verify determinism, and confirm the image can be uploaded and assigned. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/integration.test.ts` to verify.
+> **Prompt**: Implement Step 7 of `_plans/shipped/image-generator.md`. Write an integration test that validates the full pipeline: generate an image for a known article, verify determinism, and confirm the image can be uploaded and assigned. Run `PATH="/Users/dkardys/.nvm/versions/node/v18.19.0/bin:$PATH" npx tsx --test tests/image-generator/integration.test.ts` to verify.
 
 **File**: `tests/image-generator/integration.test.ts`
 

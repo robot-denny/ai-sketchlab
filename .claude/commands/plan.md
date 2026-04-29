@@ -20,7 +20,7 @@ Turn the spec (or description) above into a saved plan file in `_plans/` that:
 
 Determine if `$ARGUMENTS` is a path to an existing spec file or a plain description:
 
-- **If it looks like a file path** (contains `/` or ends in `.md`): read the file and use its contents as the feature spec. Extract `feature_title` and `feature_slug` from the filename (e.g. `_specs/section-navigation.md` → slug `section-navigation`, title `Section Navigation`).
+- **If it looks like a file path** (contains `/` or ends in `.md`): read the file and use its contents as the feature spec. Extract `feature_title` and `feature_slug` from the filename (e.g. `_specs/shipped/section-navigation.md` → slug `section-navigation`, title `Section Navigation`).
 - **If it is a description**: treat it as the full spec. Derive `feature_slug` (lowercase, kebab-case, max 40 chars) and `feature_title` (Title Case) from it.
 
 ## Step 2 — Understand the codebase context

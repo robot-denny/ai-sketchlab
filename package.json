@@ -10,7 +10,8 @@
     "test:unit": "tsx --test tests/image-generator/**/*.test.ts",
     "generate:images": "tsx scripts/image-generator/src/cli.ts",
     "media:sync": "tsx scripts/media-sync/src/cli.ts",
-    "clean:reports": "rm -rf playwright-report test-results"
+    "clean:reports": "rm -rf playwright-report test-results",
+    "check:lockout": "sqlite3 -header src/UmbracoProject/umbraco/Data/Umbraco.sqlite.db 'SELECT id, userName, userNoConsole, failedLoginAttempts, lastLockoutDate FROM umbracoUser WHERE id IN (1, 2, 3);'"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^0.1.95",

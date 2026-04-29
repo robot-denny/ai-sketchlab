@@ -76,7 +76,7 @@ The backoffice includes an **AI Copilot** that can generate and edit content dir
 - **Agent**: Links a chat profile and defines the agent's role. **Permissions must be set on the agent** to allow content editing (scope controls which document types/properties it can modify).
 - **Contexts**: Define data access boundaries (e.g., brand voice guidelines)
 
-What's been validated end-to-end with MCP + AI is tracked in [CAPABILITIES.md](CAPABILITIES.md), which mirrors the **Capabilities** page in the backoffice.
+What's been validated end-to-end with MCP + AI is tracked in [docs/capabilities.md](docs/capabilities.md), which mirrors the **Capabilities** page in the backoffice.
 
 The **Umbraco MCP server** enables Claude Code to interact with backoffice content. Connection settings are in `.env` with tool collections for `document`, `media`, `document-type`, and `data-type`.
 

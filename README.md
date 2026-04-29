@@ -166,7 +166,7 @@ Below is an overview and description of the different parts contained within thi
 ├── .gitignore                            
 ├── .umbraco                                        (Umbraco Project settings used by Umbraco Cloud to build, run and maintain the project in the git repository)
 ├── NuGet.config                            
-└── Readme.md                                       (This file)
+└── README.md                                       (This file)
 ...
 ```
 

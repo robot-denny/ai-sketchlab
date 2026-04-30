@@ -1,0 +1,64 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.StyleGuidePage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using UmbracoProject.Helpers
+
+@{
+    Layout = "master.cshtml";
+    var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
+    var summary = Model.BrandSummary?.ToString();
+    var hasSummary = !string.IsNullOrWhiteSpace(summary);
+}
+
+@section Styles {
+    <link href="/assets/css/styleguide.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = heading,
+    Eyebrow = "Living style guide",
+    Dek = Model.Subtitle,
+    Pattern = Model.PageHeadPattern()
+})
+
+<article class="styleguide wrap-narrow my-5">
+    <nav class="styleguide__nav" aria-label="Style guide sections">
+        <p class="overline">On this page</p>
+        <ol>
+            <li><a href="#brand-summary">Brand summary</a></li>
+            <li><a href="#color-palette">Color palette</a></li>
+            <li><a href="#typography">Typography</a></li>
+            <li><a href="#general-elements">General elements</a></li>
+            <li><a href="#components-reference">Components reference</a></li>
+        </ol>
+    </nav>
+
+    <section id="brand-summary" data-styleguide-section="brand-summary" class="styleguide__section">
+        <h2>Brand summary</h2>
+        @if (hasSummary)
+        {
+            <div class="styleguide__brand-summary">@Model.BrandSummary</div>
+        }
+    </section>
+
+    <section id="color-palette" data-styleguide-section="color-palette" class="styleguide__section">
+        <h2>Color palette</h2>
+        <p class="caption">Tokens are read live from <code>typography.css</code>. Add a <code>/**umb_swatch:LABEL*/</code> comment above any token to surface it here.</p>
+        @await Html.PartialAsync("StyleGuide/_ColorPalette")
+    </section>
+
+    <section id="typography" data-styleguide-section="typography" class="styleguide__section">
+        <h2>Typography</h2>
+        @await Html.PartialAsync("StyleGuide/_Typography")
+    </section>
+
+    <section id="general-elements" data-styleguide-section="general-elements" class="styleguide__section">
+        <h2>General elements</h2>
+        @await Html.PartialAsync("StyleGuide/_GeneralElements")
+    </section>
+
+    <section id="components-reference" data-styleguide-section="components-reference" class="styleguide__section">
+        <h2>Components reference</h2>
+        <p>See the <a href="/styleguide/components">components page</a> for live examples of each block.</p>
+    </section>
+</article>

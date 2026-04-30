@@ -1,0 +1,21 @@
+{
+  "Name": "Style Guide Page",
+  "Alias": "styleGuidePage",
+  "File": "umb://template-file/styleGuidePage.cshtml",
+  "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+  "Udi": "umb://template/a4f8c1b27d3e4f9a8b6c1e2f3a4b5c6d",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/styleGuidePage.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.0.2"
+}

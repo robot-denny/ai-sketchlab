@@ -1,11 +1,9 @@
 # Feature: Living Style Guide
 
-> **Draft** — These scenarios have not yet been verified against an implementation. They will be refined during planning and verified after implementation.
-
 A `/styleguide` page acts as a self-updating brand and design reference for site admins, content authors, and new contributors. Colors and typography render from the actual CSS so design-system changes propagate automatically. A child `/styleguide/components` page, assembled in the CMS using real Block List blocks, demonstrates each reusable content block by example.
 
 **Source spec**: `_specs/living-style-guide.md`
-**Last verified**: —
+**Last verified**: 2026-04-30 (E2E suite green — see [Test Coverage](#test-coverage) below)
 
 ---
 
@@ -141,19 +139,19 @@ Scenario: An unparseable token value is shown gracefully
 
 | Scenario | Test File | Status |
 |----------|-----------|--------|
-| Editing the brand summary updates the live page | — | Not covered |
-| An empty brand summary renders the section heading without a blank panel | — | Not covered |
-| A token annotated with a swatch caption appears as a swatch | — | Not covered |
-| A token without a swatch caption is excluded | — | Not covered |
-| Changing a token value updates the swatch on next page load | — | Not covered |
-| Heading examples render with live CSS | — | Not covered |
-| Editor-available text classes render with their actual styles | — | Not covered |
-| Updating a typography class in CSS is reflected in the styleguide | — | Not covered |
-| Links, buttons, lists, tables, and form controls are visible | — | Not covered |
-| Components page lists each block with a label, grouped by category | — | Not covered |
-| Styleguide links to the components page | — | Not covered |
-| No annotated tokens means an empty palette, not a broken page | — | Not covered |
-| An unparseable token value is shown gracefully | — | Not covered |
+| Editing the brand summary updates the live page | — | Manual QA — covered by the [verification section](../_plans/living-style-guide.md#verification) of the plan |
+| An empty brand summary renders the section heading without a blank panel | — | Not covered — `<section>` heading + `if (hasSummary)` guard exists in [styleGuidePage.cshtml:36-42](../src/UmbracoProject/Views/styleGuidePage.cshtml#L36-L42); no automated assertion yet |
+| A token annotated with a swatch caption appears as a swatch | [styleguide.spec.ts:210](../tests/e2e/styleguide.spec.ts#L210) | Covered |
+| A token without a swatch caption is excluded | [styleguide.spec.ts:210](../tests/e2e/styleguide.spec.ts#L210) (same test asserts `--space-md` absent) | Covered |
+| Changing a token value updates the swatch on next page load | — | Manual QA — implementation re-reads `typography.css` per request via [SwatchTokenParser.cs](../src/UmbracoProject/Helpers/SwatchTokenParser.cs); E2E mutation of fixture CSS skipped per plan |
+| Heading examples render with live CSS | [styleguide.spec.ts:256](../tests/e2e/styleguide.spec.ts#L256) | Covered |
+| Editor-available text classes render with their actual styles | [styleguide.spec.ts:256](../tests/e2e/styleguide.spec.ts#L256) (same test asserts `.lead`, `.overline`, `.blockquote`, `.caption`, `.pull-quote`) | Covered |
+| Updating a typography class in CSS is reflected in the styleguide | — | Manual QA — same rationale as the swatch-mutation scenario |
+| Links, buttons, lists, tables, and form controls are visible | [styleguide.spec.ts:266](../tests/e2e/styleguide.spec.ts#L266) | Covered |
+| Components page lists each block with a label, grouped by category | [styleguide-components.spec.ts:630](../tests/e2e/styleguide-components.spec.ts#L630) (section row order), [:636](../tests/e2e/styleguide-components.spec.ts#L636) (one label per block), [:657](../tests/e2e/styleguide-components.spec.ts#L657) (text), [:671](../tests/e2e/styleguide-components.spec.ts#L671) (media), [:681](../tests/e2e/styleguide-components.spec.ts#L681) (lists) | Covered |
+| Styleguide links to the components page | [styleguide.spec.ts:284](../tests/e2e/styleguide.spec.ts#L284) (link visible), [styleguide-components.spec.ts:693](../tests/e2e/styleguide-components.spec.ts#L693) (link click navigates) | Covered |
+| No annotated tokens means an empty palette, not a broken page | — | Skipped per [plan Step 8](../_plans/living-style-guide.md) — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [_ColorPalette.cshtml](../src/UmbracoProject/Views/Partials/StyleGuide/_ColorPalette.cshtml) |
+| An unparseable token value is shown gracefully | — | Skipped per [plan Step 8](../_plans/living-style-guide.md) — same rationale; literal-value fallback is implemented in [_ColorPalette.cshtml](../src/UmbracoProject/Views/Partials/StyleGuide/_ColorPalette.cshtml) |
 
 ---
 
@@ -162,3 +160,4 @@ Scenario: An unparseable token value is shown gracefully
 - 2026-04-29: Draft scenarios from initial spec
 - 2026-04-29: Updated to reflect resolved spec decisions — components page is a child at `/styleguide/components`, blocks grouped by category (text → media → lists), each preceded by a Rich Text Row label
 - 2026-04-29: Realigned to typography.css + /**umb_swatch:LABEL**/ convention during planning.
+- 2026-04-30: Plan Steps 7–8 shipped. Test Coverage table refreshed against the live E2E suite (16 tests across both specs); doc-type / element-type ids resolved dynamically per Step 8.

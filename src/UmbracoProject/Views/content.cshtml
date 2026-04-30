@@ -18,15 +18,18 @@
     Pattern = Model.PageHeadPattern()
 })
 
-<main class="content@(showSectionNavigation ? "" : " no-nav")">
-    @if (showSectionNavigation)
-    {
-        @await Html.PartialAsync("~/Views/Partials/sectionNavigation.cshtml", Model)
-    }
-    <div class="c-body">
-        @Html.GetBlockListHtml(Model.ContentRows)
-    </div>
-</main>
+@if (Model.ContentRows != null && Model.ContentRows.Any())
+{
+    <main class="content@(showSectionNavigation ? "" : " no-nav")">
+        @if (showSectionNavigation)
+        {
+            @await Html.PartialAsync("~/Views/Partials/sectionNavigation.cshtml", Model)
+        }
+        <div class="c-body">
+            @Html.GetBlockListHtml(Model.ContentRows)
+        </div>
+    </main>
+}
 
 @if (Model.HasValue("sectionRows"))
 {

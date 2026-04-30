@@ -1,0 +1,50 @@
+/* ================================================================
+   Living Style Guide
+   ----------------------------------------------------------------
+   Visual chrome for /styleguide and /styleguide/components.
+   The reference content (typography, swatches, elements) uses real
+   site classes — this file only adds layout, the swatch grid, and
+   the on-page nav.
+
+   Loaded on: styleGuidePage.cshtml.
+   ================================================================ */
+
+.styleguide{padding:32px 0 80px}
+.styleguide__nav{margin:0 0 56px;padding:24px 28px;border:1px solid var(--border-light);background:var(--surface-secondary);border-radius:4px}
+.styleguide__nav .overline{margin:0 0 12px;color:var(--text-secondary)}
+.styleguide__nav ol{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px 24px;counter-reset:sg-step}
+.styleguide__nav li{counter-increment:sg-step;font-family:var(--font-mono);font-size:13px}
+.styleguide__nav li::before{content:counter(sg-step,decimal-leading-zero) " ";color:var(--text-tertiary);margin-right:8px}
+.styleguide__nav a{color:var(--text-primary);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:1px;transition:border-color var(--ease-micro)}
+.styleguide__nav a:hover{border-bottom-color:var(--accent-primary)}
+
+.styleguide__section{margin:0 0 64px;padding:0 0 56px;border-bottom:1px solid var(--border-light)}
+.styleguide__section:last-of-type{border-bottom:none}
+.styleguide__section h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);line-height:1.1;letter-spacing:-.01em;margin:0 0 20px}
+.styleguide__section h3{margin:32px 0 16px}
+.styleguide__brand-summary{font-size:1.0625rem;line-height:1.6;color:var(--text-primary);max-width:60ch}
+
+/* ── Color palette ────────────────────────────────────────────── */
+.styleguide__palette{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.styleguide__swatch{display:flex;flex-direction:column;border:1px solid var(--border-light);background:var(--surface-primary);border-radius:4px;overflow:hidden}
+.styleguide__swatch-sample{display:block;height:88px;border-bottom:1px solid var(--border-light);background:var(--surface-tertiary)}
+.styleguide__swatch-sample--unparseable{background:repeating-linear-gradient(45deg,var(--surface-tertiary) 0 8px,var(--surface-secondary) 8px 16px)}
+.styleguide__swatch-meta{display:flex;flex-direction:column;gap:4px;padding:14px 16px}
+.styleguide__swatch-token{font-family:var(--font-mono);font-size:12px;color:var(--text-primary)}
+.styleguide__swatch-value{font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);letter-spacing:.02em}
+.styleguide__swatch-role{font-family:var(--font-body);font-size:13px;color:var(--text-primary);line-height:1.35}
+
+/* ── Typography reference ─────────────────────────────────────── */
+.styleguide__type{margin:0 0 32px}
+.styleguide__type h1,.styleguide__type h2,.styleguide__type h3,.styleguide__type h4,.styleguide__type h5,.styleguide__type h6{margin:18px 0 0}
+.styleguide__type p,.styleguide__type blockquote{margin-top:18px}
+.styleguide__type code{font-size:.85em;color:var(--accent-secondary)}
+
+/* ── General elements ─────────────────────────────────────────── */
+.styleguide__elements .btn+.btn{margin-left:12px}
+.styleguide__elements .table{margin-top:8px}
+.styleguide__elements ol,.styleguide__elements ul{padding-left:1.25rem}
+
+@media (max-width:640px){
+  .styleguide__nav ol{flex-direction:column;gap:6px}
+}

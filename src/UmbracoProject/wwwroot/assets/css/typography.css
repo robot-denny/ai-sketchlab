@@ -19,38 +19,59 @@
   --font-mono: "IBM Plex Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* ── Text Colors — warm stone tones ───────────────────────── */
+  /**umb_swatch:Primary text — warm stone*/
   --text-primary: #1C1917;
+  /**umb_swatch:Secondary text — muted stone*/
   --text-secondary: #57534E;
+  /**umb_swatch:Tertiary text — softest stone*/
   --text-tertiary: #78716C;
+  /**umb_swatch:Text on dark surfaces*/
   --text-on-dark: #F0EDE8;
+  /**umb_swatch:Secondary text on dark*/
   --text-on-dark-secondary: #A8A29E;
 
   /* ── Surface Palette ──────────────────────────────────────── */
+  /**umb_swatch:Primary surface — page background*/
   --surface-primary: #FFFCF9;
+  /**umb_swatch:Secondary surface — cards*/
   --surface-secondary: #F5F0EB;
+  /**umb_swatch:Tertiary surface — subtle wells*/
   --surface-tertiary: #EDE8E3;
+  /**umb_swatch:Dark surface — masthead / on-dark sections*/
   --surface-dark: #1A1A1E;
+  /**umb_swatch:Elevated dark surface*/
   --surface-dark-elevated: #252530;
   --surface-overlay: rgba(26, 26, 30, 0.6);
 
   /* ── Accent Palette ───────────────────────────────────────── */
+  /**umb_swatch:Primary action / signal red*/
   --accent-primary: #C23D2E;
+  /**umb_swatch:Primary action — hover*/
   --accent-primary-hover: #A83428;
   --accent-primary-subtle: rgba(194, 61, 46, 0.08);
   --accent-primary-light: #E8ADA7;
+  /**umb_swatch:Secondary accent — warm bronze*/
   --accent-secondary: #8B6B4A;
   --accent-secondary-hover: #6E5339;
+  /**umb_swatch:Tertiary accent — slate teal*/
   --accent-tertiary: #4A6B6E;
 
   /* ── Semantic Status ──────────────────────────────────────── */
+  /**umb_swatch:Status — success*/
   --status-success: #3D7A4A;
+  /**umb_swatch:Status — warning*/
   --status-warning: #B8860B;
+  /**umb_swatch:Status — error*/
   --status-error: #C23D2E;
+  /**umb_swatch:Status — info*/
   --status-info: #4A6B6E;
 
   /* ── Border & Divider Tones ───────────────────────────────── */
+  /**umb_swatch:Border — light divider*/
   --border-light: #E0DAD4;
+  /**umb_swatch:Border — medium*/
   --border-medium: #C4BCB4;
+  /**umb_swatch:Border — dark divider*/
   --border-dark: #3A3A42;
   --border-accent: var(--accent-primary);
 

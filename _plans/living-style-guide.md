@@ -329,3 +329,18 @@ Run the `frontend-design` skill on the rendered `/styleguide` page once Step 5 l
 - Add a C# unit-test project (xUnit) for `SwatchTokenParser` edge cases — the project has no test project today; adding one is scope creep.
 - Expose additional typographic classes (`.kicker`, `.ai-authored`, `.ai-assisted`) in the TipTap class-picker dropdown — separate spec per the resolved decision.
 - Deploy the new doc type + AI artifacts to Cloud — standard `git push` flow handles schema; verify with `/check-uda` first.
+
+---
+
+## Superseded — 2026-05-01
+
+The structural decisions from Steps 2–7 above (rigid 5-section template, hardcoded `<section data-styleguide-section>` markup, single `brandSummary` field on a "Style Guide" tab) were superseded by a follow-up plan that converted the page to **block-driven authoring**:
+
+- Three new programmatic block element types: `colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock` — each with editor-controlled `heading` (TextString) + `intro` (rich text), and the original CSS-derived body.
+- `styleGuidePage` doc-type now composes `SectionRowControls` (gives editors the same `sectionRows` Block List that the `content` doc-type uses); `FooterControls` was dropped (the global footer renders from Home).
+- The page's property group was renamed from "Style Guide" → "Content" so `brandSummary` and `sectionRows` share a single Content tab.
+- `brandSummary` stays as a top-level rich-text field rendered above the section rows.
+- The legacy `Views/Partials/StyleGuide/_*.cshtml` partials were deleted; the rendering logic lives inside the new block partials under `Views/Partials/blocklist/Components/`.
+- `.lead` and `.pull-quote` were added to the TipTap Style Select dropdown via `dropdownStyles.css`.
+
+Plan + execution log lives in `~/.claude/plans/nope-let-s-do-this-resilient-mango.md`. Current behavior is the source of truth in [_features/living-style-guide.md](../_features/living-style-guide.md). The original Steps 1–9 above remain as the historical record of how the rigid version shipped.

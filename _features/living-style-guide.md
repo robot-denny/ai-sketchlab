@@ -1,15 +1,35 @@
 # Feature: Living Style Guide
 
-A `/styleguide` page acts as a self-updating brand and design reference for site admins, content authors, and new contributors. Colors and typography render from the actual CSS so design-system changes propagate automatically. A child `/styleguide/components` page, assembled in the CMS using real Block List blocks, demonstrates each reusable content block by example.
+A `/styleguide` page acts as a self-updating brand and design reference for site admins, content authors, and new contributors. The page is **composed in the CMS from blocks** so editors can reorder sections, retitle them, and add narrative copy around the programmatic content. Three "programmatic" blocks (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) read live from the production CSS so design-system changes propagate automatically. A child `/styleguide/components` page, also assembled in the CMS, demonstrates each reusable content block by example.
 
 **Source spec**: `_specs/living-style-guide.md`
-**Last verified**: 2026-04-30 (E2E suite green — see [Test Coverage](#test-coverage) below)
+**Last verified**: 2026-05-01 (E2E suite green — see [Test Coverage](#test-coverage) below)
 
 ---
 
 ## Behaviors
 
 Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.
+
+### Rule: The styleguide page is composed of editor-arrangeable blocks
+
+```scenario
+Scenario: Editors compose the styleguide from blocks in the CMS
+  Given the styleguide page exists at /styleguide
+  And it has a top-level brand summary field plus a sectionRows block list
+  When a CMS editor adds, reorders, or removes section rows containing showcase blocks (colorPaletteBlock, typographyShowcaseBlock, generalElementsBlock, richTextRow)
+  Then the rendered /styleguide page reflects the editor's arrangement on the next request
+  And no code change or deploy is required
+```
+
+```scenario
+Scenario: Each programmatic block exposes an editable heading and intro
+  Given a colorPaletteBlock is placed on the styleguide page with heading "Color Palette" and a rich-text intro
+  When a visitor loads /styleguide
+  Then the rendered block shows the editor's heading above the swatches
+  And the editor's intro rich-text appears between the heading and the swatches
+  And the swatches themselves are still derived from typography.css
+```
 
 ### Rule: CMS editors can edit the brand summary text without code changes
 
@@ -18,16 +38,16 @@ Scenario: Editing the brand summary updates the live page
   Given the styleguide page exists at /styleguide
   And the brand summary currently reads "Honest human–AI collaboration"
   When a CMS editor changes the brand summary to "Editorial precision and craft consciousness" and publishes
-  Then visiting /styleguide shows "Editorial precision and craft consciousness" in the brand summary section
+  Then visiting /styleguide shows "Editorial precision and craft consciousness" near the top of the page
   And no code change or deploy is required
 ```
 
 ```scenario
-Scenario: An empty brand summary renders the section heading without a blank panel
+Scenario: An empty brand summary is omitted gracefully
   Given the styleguide page has an empty brand summary
   When a visitor loads /styleguide
-  Then the "Brand summary" section heading is visible
-  And the body of the section is collapsed or shows no empty white block
+  Then no empty .styleguide__brand-summary panel renders above the section rows
+  And the section rows below render normally
 ```
 
 ### Rule: The color palette is derived from CSS tokens at render time
@@ -38,7 +58,7 @@ Scenario: A token annotated with a swatch caption appears as a swatch
     /**umb_swatch:Primary action / signal red*/
     --accent-primary: #C23D2E;
   When a visitor loads /styleguide
-  Then the color palette shows a swatch labelled "--accent-primary"
+  Then the colorPaletteBlock shows a swatch labelled "--accent-primary"
   And the swatch displays the value "#C23D2E"
   And the swatch caption reads "Primary action / signal red"
   And the visible color sample matches #C23D2E
@@ -48,7 +68,7 @@ Scenario: A token annotated with a swatch caption appears as a swatch
 Scenario: A token without a swatch caption is excluded
   Given the CSS token file contains a token "--space-md: 1rem;" with no umb_swatch annotation
   When a visitor loads /styleguide
-  Then no swatch for "--space-md" appears in the color palette section
+  Then no swatch for "--space-md" appears in the colorPaletteBlock
 ```
 
 ```scenario
@@ -63,33 +83,33 @@ Scenario: Changing a token value updates the swatch on next page load
 
 ```scenario
 Scenario: Heading examples render with live CSS
-  Given the styleguide page is published
+  Given the styleguide page contains a typographyShowcaseBlock
   When a visitor loads /styleguide
-  Then the typography section contains a visible h1, h2, h3, h4, h5, and h6 example
+  Then the block contains a visible h1, h2, h3, h4, h5, and h6 example
   And each heading is rendered with the production CSS for that level
 ```
 
 ```scenario
 Scenario: Editor-available text classes render with their actual styles
-  Given the curated editor-available class list includes ".lead" and ".overline"
+  Given the curated editor-available class list is .lead, .overline, .blockquote, .caption, .pull-quote
   When a visitor loads /styleguide
-  Then the typography section shows an example paragraph with class "lead" rendered with .lead's CSS
-  And an example with class "overline" rendered with .overline's CSS
+  Then the typographyShowcaseBlock shows an example for each class rendered with its production CSS
 ```
 
 ```scenario
 Scenario: Updating a typography class in CSS is reflected in the styleguide
   Given the styleguide currently renders ".lead" at 1.25rem
   When a developer changes .lead's font-size to "1.4rem" in CSS and reloads the page
-  Then the .lead example in the typography section renders at 1.4rem
+  Then the .lead example in the typographyShowcaseBlock renders at 1.4rem
 ```
 
-### Rule: The general elements section demonstrates real HTML using current CSS
+### Rule: The general elements block demonstrates real HTML using current CSS
 
 ```scenario
 Scenario: Links, buttons, lists, tables, and form controls are visible
+  Given the styleguide page contains a generalElementsBlock
   When a visitor loads /styleguide
-  Then the general elements section contains an example link, button, ordered list, unordered list, table, and form input
+  Then the block contains an example link, button, ordered list, unordered list, table, and form input
   And each element is rendered with the production CSS
 ```
 
@@ -106,9 +126,19 @@ Scenario: Components page lists each block with a label, grouped by category
 ```scenario
 Scenario: Styleguide links to the components page
   Given a visitor is on /styleguide
-  When they reach the "Components reference" section
+  When they reach the section row containing the components-reference link
   Then they see a visible link to /styleguide/components
   And following the link takes them to the /styleguide/components page
+```
+
+### Rule: Editor-applied typography classes (.lead, .pull-quote) are exposed in the rich-text Style Select
+
+```scenario
+Scenario: Authors can apply .lead and .pull-quote from the rich-text editor
+  Given an author is editing any rich-text field in the backoffice
+  When they open the Style Select dropdown in the TipTap toolbar
+  Then "Lead" and "Pull Quote" appear as selectable styles alongside "h2", "h3", "h4"
+  And applying one wraps the selection with the corresponding class on the published page
 ```
 
 ---
@@ -121,7 +151,7 @@ Scenario: Styleguide links to the components page
 Scenario: No annotated tokens means an empty palette, not a broken page
   Given the CSS token file contains tokens but none are annotated with /**umb_swatch:...*/
   When a visitor loads /styleguide
-  Then the color palette section renders without crashing
+  Then the colorPaletteBlock renders without crashing
   And it shows an empty-state hint (e.g. "No swatches configured")
 ```
 
@@ -139,19 +169,22 @@ Scenario: An unparseable token value is shown gracefully
 
 | Scenario | Test File | Status |
 |----------|-----------|--------|
-| Editing the brand summary updates the live page | — | Manual QA — covered by the [verification section](../_plans/living-style-guide.md#verification) of the plan |
-| An empty brand summary renders the section heading without a blank panel | — | Not covered — `<section>` heading + `if (hasSummary)` guard exists in [styleGuidePage.cshtml:36-42](../src/UmbracoProject/Views/styleGuidePage.cshtml#L36-L42); no automated assertion yet |
-| A token annotated with a swatch caption appears as a swatch | [styleguide.spec.ts:210](../tests/e2e/styleguide.spec.ts#L210) | Covered |
-| A token without a swatch caption is excluded | [styleguide.spec.ts:210](../tests/e2e/styleguide.spec.ts#L210) (same test asserts `--space-md` absent) | Covered |
-| Changing a token value updates the swatch on next page load | — | Manual QA — implementation re-reads `typography.css` per request via [SwatchTokenParser.cs](../src/UmbracoProject/Helpers/SwatchTokenParser.cs); E2E mutation of fixture CSS skipped per plan |
-| Heading examples render with live CSS | [styleguide.spec.ts:256](../tests/e2e/styleguide.spec.ts#L256) | Covered |
-| Editor-available text classes render with their actual styles | [styleguide.spec.ts:256](../tests/e2e/styleguide.spec.ts#L256) (same test asserts `.lead`, `.overline`, `.blockquote`, `.caption`, `.pull-quote`) | Covered |
+| Editors compose the styleguide from blocks in the CMS | [styleguide.spec.ts:126](../tests/e2e/styleguide.spec.ts#L126) (composition + sectionRows), [:184](../tests/e2e/styleguide.spec.ts#L184) (3 element types exist), [:288](../tests/e2e/styleguide.spec.ts#L288) (block rendering) | Covered |
+| Each programmatic block exposes an editable heading and intro | [styleguide.spec.ts:184](../tests/e2e/styleguide.spec.ts#L184) (schema), [:288](../tests/e2e/styleguide.spec.ts#L288) (rendered heading) | Covered |
+| Editing the brand summary updates the live page | — | Manual QA — covered by the [verification section](../_plans/living-style-guide.md#verification) of the original plan |
+| An empty brand summary is omitted gracefully | — | Not yet automated — `if (hasSummary)` guard in [styleGuidePage.cshtml](../src/UmbracoProject/Views/styleGuidePage.cshtml); manual QA |
+| A token annotated with a swatch caption appears as a swatch | [styleguide.spec.ts:240](../tests/e2e/styleguide.spec.ts#L240) | Covered |
+| A token without a swatch caption is excluded | [styleguide.spec.ts:240](../tests/e2e/styleguide.spec.ts#L240) (same test asserts `--space-md` absent) | Covered |
+| Changing a token value updates the swatch on next page load | — | Manual QA — implementation re-reads `typography.css` per request via [SwatchTokenParser.cs](../src/UmbracoProject/Helpers/SwatchTokenParser.cs); E2E mutation of fixture CSS skipped per original plan |
+| Heading examples render with live CSS | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) | Covered |
+| Editor-available text classes render with their actual styles | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (asserts `.lead`, `.overline`, `.blockquote`, `.caption`, `.pull-quote`) | Covered |
 | Updating a typography class in CSS is reflected in the styleguide | — | Manual QA — same rationale as the swatch-mutation scenario |
-| Links, buttons, lists, tables, and form controls are visible | [styleguide.spec.ts:266](../tests/e2e/styleguide.spec.ts#L266) | Covered |
-| Components page lists each block with a label, grouped by category | [styleguide-components.spec.ts:630](../tests/e2e/styleguide-components.spec.ts#L630) (section row order), [:636](../tests/e2e/styleguide-components.spec.ts#L636) (one label per block), [:657](../tests/e2e/styleguide-components.spec.ts#L657) (text), [:671](../tests/e2e/styleguide-components.spec.ts#L671) (media), [:681](../tests/e2e/styleguide-components.spec.ts#L681) (lists) | Covered |
-| Styleguide links to the components page | [styleguide.spec.ts:284](../tests/e2e/styleguide.spec.ts#L284) (link visible), [styleguide-components.spec.ts:693](../tests/e2e/styleguide-components.spec.ts#L693) (link click navigates) | Covered |
-| No annotated tokens means an empty palette, not a broken page | — | Skipped per [plan Step 8](../_plans/living-style-guide.md) — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [_ColorPalette.cshtml](../src/UmbracoProject/Views/Partials/StyleGuide/_ColorPalette.cshtml) |
-| An unparseable token value is shown gracefully | — | Skipped per [plan Step 8](../_plans/living-style-guide.md) — same rationale; literal-value fallback is implemented in [_ColorPalette.cshtml](../src/UmbracoProject/Views/Partials/StyleGuide/_ColorPalette.cshtml) |
+| Links, buttons, lists, tables, and form controls are visible | [styleguide.spec.ts:316](../tests/e2e/styleguide.spec.ts#L316) | Covered |
+| Components page lists each block with a label, grouped by category | [styleguide-components.spec.ts:638](../tests/e2e/styleguide-components.spec.ts#L638) (section row order), [:644](../tests/e2e/styleguide-components.spec.ts#L644) (label per block), [:665](../tests/e2e/styleguide-components.spec.ts#L665) (text), [:685](../tests/e2e/styleguide-components.spec.ts#L685) (media), [:695](../tests/e2e/styleguide-components.spec.ts#L695) (lists) | Covered |
+| Styleguide links to the components page | [styleguide.spec.ts:335](../tests/e2e/styleguide.spec.ts#L335) (link visible), [styleguide-components.spec.ts:707](../tests/e2e/styleguide-components.spec.ts#L707) (link click navigates) | Covered |
+| Authors can apply .lead and .pull-quote from the rich-text editor | — | Manual QA — `umb_name` annotations live in [dropdownStyles.css](../src/UmbracoProject/wwwroot/css/dropdownStyles.css); the rich-text data type points at that stylesheet |
+| No annotated tokens means an empty palette, not a broken page | — | Skipped — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
+| An unparseable token value is shown gracefully | — | Skipped — same rationale; literal-value fallback is implemented in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
 
 ---
 
@@ -161,3 +194,4 @@ Scenario: An unparseable token value is shown gracefully
 - 2026-04-29: Updated to reflect resolved spec decisions — components page is a child at `/styleguide/components`, blocks grouped by category (text → media → lists), each preceded by a Rich Text Row label
 - 2026-04-29: Realigned to typography.css + /**umb_swatch:LABEL**/ convention during planning.
 - 2026-04-30: Plan Steps 7–8 shipped. Test Coverage table refreshed against the live E2E suite (16 tests across both specs); doc-type / element-type ids resolved dynamically per Step 8.
+- 2026-05-01: Architecture change. The styleguide page is now block-driven: three new programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the hardcoded sections. `brandSummary` stays as a top-level field. The Footer Controls composition was dropped (the global footer is rendered from Home, not per-page). `.lead` and `.pull-quote` were added to the TipTap Style Select dropdown. Behaviors and Test Coverage rewritten against the new structure (19 tests now passing).

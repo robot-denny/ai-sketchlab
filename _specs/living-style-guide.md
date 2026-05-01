@@ -1,6 +1,8 @@
 # Spec for Living Style Guide
 
 > This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/living-style-guide.md`.
+>
+> **2026-05-01 update**: the implementation moved from a hardcoded 5-section template to a **block-driven page** authored from the CMS. Three new programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the rigid sections. `brandSummary` stays as a top-level rich-text field. The "Brand summary" / "Color palette" / "Typography" / "General elements" / "Components reference" sections below describe the *content domain*, not the rendering structure — editors can now reorder, retitle, and add narrative copy around the programmatic blocks. See [_features/living-style-guide.md](../_features/living-style-guide.md) for current behavior and the Revision Notes there for the architecture rationale.
 
 branch: claude/feature/living-style-guide
 

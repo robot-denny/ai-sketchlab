@@ -8,6 +8,46 @@
     var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
     var summary = Model.BrandSummary?.ToString();
     var hasSummary = !string.IsNullOrWhiteSpace(summary);
+
+    // Resolve a nav title for each section row. Prefer the row's sectionTitle
+    // (which the contentSectionRow partial renders as an h2 anchor target).
+    // Fall back to the heading on the row's first nested block — that lets
+    // editors author programmatic blocks without a redundant section title.
+    static string ResolveTitle(BlockListItem row)
+    {
+        var title = row.Content?.Value<string>("sectionTitle");
+        if (!string.IsNullOrWhiteSpace(title)) return title;
+        var inner = row.Content?.Value<BlockListModel>("sectionContent");
+        var firstHeading = inner?.FirstOrDefault()?.Content?.Value<string>("heading");
+        return string.IsNullOrWhiteSpace(firstHeading) ? string.Empty : firstHeading;
+    }
+
+    static string Slugify(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+        var sb = new System.Text.StringBuilder(input.Length);
+        var lastWasDash = false;
+        foreach (var c in input.Trim().ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(c)) { sb.Append(c); lastWasDash = false; }
+            else if (!lastWasDash) { sb.Append('-'); lastWasDash = true; }
+        }
+        return sb.ToString().Trim('-');
+    }
+
+    var rows = Model.HasValue("sectionRows")
+        ? Model.Value<BlockListModel>("sectionRows")
+        : null;
+
+    var navItems = rows?
+        .Select(r => new { Row = r, Title = ResolveTitle(r) })
+        .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+        .Select(x => new { x.Row, x.Title, Slug = Slugify(x.Title) })
+        .Where(x => !string.IsNullOrWhiteSpace(x.Slug))
+        .ToList();
+
+    var slugByRowKey = navItems?.ToDictionary(x => x.Row.ContentUdi?.ToString() ?? x.Row.Content.Key.ToString(), x => x.Slug)
+        ?? new Dictionary<string, string>();
 }
 
 @section Styles {
@@ -23,21 +63,43 @@
 })
 
 <article class="styleguide">
-    @if (hasSummary)
-    {
-        <div class="container">
-            <div class="styleguide__brand-summary lead">@Model.BrandSummary</div>
-        </div>
-    }
-
-    @if (Model.HasValue("sectionRows"))
-    {
-        var rows = Model.Value<BlockListModel>("sectionRows");
-        if (rows != null)
+    <div class="container">
+        @if (hasSummary)
         {
-            foreach (var row in rows)
+            <div class="styleguide__brand-summary lead">@Model.BrandSummary</div>
+        }
+
+        @if (navItems != null && navItems.Count > 1)
+        {
+            <nav class="styleguide__nav" aria-label="Style guide sections">
+                <p class="overline">On this page</p>
+                <ol>
+                    @foreach (var item in navItems)
+                    {
+                        <li><a href="#@item.Slug">@item.Title</a></li>
+                    }
+                </ol>
+            </nav>
+        }
+    </div>
+
+    @if (rows != null)
+    {
+        foreach (var row in rows)
+        {
+            var key = row.ContentUdi?.ToString() ?? row.Content.Key.ToString();
+            slugByRowKey.TryGetValue(key, out var slug);
+            if (!string.IsNullOrWhiteSpace(slug))
             {
-                @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+                <div id="@slug" class="styleguide__section-anchor">
+                    @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+                </div>
+            }
+            else
+            {
+                <div class="styleguide__section-anchor">
+                    @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+                </div>
             }
         }
     }

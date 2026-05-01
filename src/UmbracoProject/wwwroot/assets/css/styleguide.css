@@ -10,6 +10,20 @@
    ================================================================ */
 
 .styleguide{padding:32px 0 80px}
+
+/* Constrain content width to a comfortable line length. Bootstrap's .container
+   defaults to ~1140px which is too wide for a single-column reference page. */
+.styleguide .container{max-width:780px}
+
+/* Drop the global .section-row--container border just inside the styleguide.
+   Other pages still get the bordered card look. */
+.styleguide .section-row--container{border:none;padding:0}
+
+/* Visually separate section rows with a thin rule between them, since the
+   border is gone. The rule lives on the wrapping anchor div, not the row. */
+.styleguide__section-anchor{padding:32px 0 48px;border-bottom:1px solid var(--border-light)}
+.styleguide__section-anchor:last-child{border-bottom:none;padding-bottom:0}
+
 .styleguide__nav{margin:0 0 56px;padding:24px 28px;border:1px solid var(--border-light);background:var(--surface-secondary);border-radius:4px}
 .styleguide__nav .overline{margin:0 0 12px;color:var(--text-secondary)}
 .styleguide__nav ol{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px 24px;counter-reset:sg-step}

@@ -706,3 +706,28 @@ header.masthead .post-heading .meta a {
   font-weight: 400;
   font-size: 0.65rem;
 }
+
+/* ── Alert Banner block ────────────────────────────────────────────
+   The block uses Bootstrap's .alert + Font Awesome icon. Two issues
+   the design system corrects:
+
+     1. The rich-text body's first <p> has top margin (and last <p>
+        bottom margin), which inflates the vertical box. With the
+        flex `align-items-center` layout the icon then drifts above
+        the visible text optical center. Stripping the first/last
+        child margins inside .alert-body collapses to text height
+        and the icon centers correctly.
+
+     2. The icon inherits the dark-foreground variant of each
+        Bootstrap level (e.g. .alert-warning -> #997404), which
+        reads as a generic dark glyph. Coloring it with the
+        corresponding --status-* token gives each level a more
+        distinctly themed visual. */
+
+.alert .alert-body > *:first-child { margin-top: 0; }
+.alert .alert-body > *:last-child  { margin-bottom: 0; }
+
+.alert-info    .alert-icon { color: var(--status-info); }
+.alert-warning .alert-icon { color: var(--status-warning); }
+.alert-danger  .alert-icon { color: var(--status-error); }
+.alert-success .alert-icon { color: var(--status-success); }

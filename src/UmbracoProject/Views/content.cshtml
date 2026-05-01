@@ -8,6 +8,22 @@
     var showSectionNavigation = Model.Value<bool>("showSectionNavigation");
     var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
     var eyebrow = Model.Parent?.Name;
+
+    // When this content page is a child of a Style Guide Page (e.g.
+    // /styleguide/components), render its section rows with the same
+    // narrow-width / no-row-border / in-page-nav treatment used on
+    // /styleguide. Other content pages render unchanged.
+    var inStyleGuideTree = string.Equals(
+        Model.Parent?.ContentType?.Alias,
+        "styleGuidePage",
+        StringComparison.Ordinal);
+}
+
+@if (inStyleGuideTree)
+{
+    @section Styles {
+        <link href="/assets/css/styleguide.css" rel="stylesheet" asp-append-version="true" />
+    }
 }
 
 @await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
@@ -34,8 +50,18 @@
 @if (Model.HasValue("sectionRows"))
 {
     var rows = Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("sectionRows");
-    foreach (var row in rows)
+
+    if (inStyleGuideTree)
     {
-        @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+        <article class="styleguide">
+            @await Html.PartialAsync("~/Views/Partials/_StyleGuideSectionRows.cshtml", rows)
+        </article>
+    }
+    else
+    {
+        foreach (var row in rows)
+        {
+            @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+        }
     }
 }

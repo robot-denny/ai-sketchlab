@@ -1,0 +1,88 @@
+@inherits UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockListModel>
+@using Umbraco.Cms.Core.Models.Blocks
+
+@*
+    Renders a list of contentSectionRow blocks with the styleguide visual
+    treatment: narrow content width, no card-style row borders, in-page nav
+    derived from sectionTitle (or first inner block's heading), and HR
+    separators between sections.
+
+    Used by:
+      - styleGuidePage.cshtml (the canonical /styleguide page)
+      - content.cshtml when the page sits under a styleGuidePage parent
+        (e.g. /styleguide/components)
+
+    Pass the BlockListModel of section rows as the Model.
+*@
+
+@functions {
+    static string ResolveTitle(BlockListItem row)
+    {
+        var title = row.Content?.Value<string>("sectionTitle");
+        if (!string.IsNullOrWhiteSpace(title)) return title;
+        var inner = row.Content?.Value<BlockListModel>("sectionContent");
+        var firstHeading = inner?.FirstOrDefault()?.Content?.Value<string>("heading");
+        return string.IsNullOrWhiteSpace(firstHeading) ? string.Empty : firstHeading;
+    }
+
+    static string Slugify(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+        var sb = new System.Text.StringBuilder(input.Length);
+        var lastWasDash = false;
+        foreach (var c in input.Trim().ToLowerInvariant())
+        {
+            if (char.IsLetterOrDigit(c)) { sb.Append(c); lastWasDash = false; }
+            else if (!lastWasDash) { sb.Append('-'); lastWasDash = true; }
+        }
+        return sb.ToString().Trim('-');
+    }
+}
+
+@{
+    var rows = Model;
+    if (rows == null || !rows.Any()) { return; }
+
+    var navItems = rows
+        .Select(r => new { Row = r, Title = ResolveTitle(r) })
+        .Where(x => !string.IsNullOrWhiteSpace(x.Title))
+        .Select(x => new { x.Row, x.Title, Slug = Slugify(x.Title) })
+        .Where(x => !string.IsNullOrWhiteSpace(x.Slug))
+        .ToList();
+
+    var slugByRowKey = navItems
+        .ToDictionary(x => x.Row.ContentUdi?.ToString() ?? x.Row.Content.Key.ToString(), x => x.Slug);
+}
+
+@if (navItems.Count > 1)
+{
+    <div class="container">
+        <nav class="styleguide__nav" aria-label="On this page">
+            <p class="overline">On this page</p>
+            <ol>
+                @foreach (var item in navItems)
+                {
+                    <li><a href="#@item.Slug">@item.Title</a></li>
+                }
+            </ol>
+        </nav>
+    </div>
+}
+
+@foreach (var row in rows)
+{
+    var key = row.ContentUdi?.ToString() ?? row.Content.Key.ToString();
+    slugByRowKey.TryGetValue(key, out var slug);
+    if (!string.IsNullOrWhiteSpace(slug))
+    {
+        <div id="@slug" class="styleguide__section-anchor">
+            @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+        </div>
+    }
+    else
+    {
+        <div class="styleguide__section-anchor">
+            @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
+        </div>
+    }
+}

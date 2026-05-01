@@ -28,7 +28,7 @@
 @if (alertContent != null)
 {
     <div class="alert @(bootstrapClass) d-flex align-items-center" role="alert">
-        <i class="@iconClass me-2 flex-shrink-0" aria-hidden="true"></i>
-        <div>@alertContent</div>
+        <i class="@iconClass me-2 flex-shrink-0 alert-icon" aria-hidden="true"></i>
+        <div class="alert-body">@alertContent</div>
     </div>
 }

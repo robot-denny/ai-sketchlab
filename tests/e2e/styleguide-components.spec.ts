@@ -694,7 +694,10 @@ test.describe('Style Guide — Components page', () => {
 
   test('Showcase blocks render — lists category', async ({ page }) => {
     await page.goto(componentsUrl);
-    await expect(page.locator('.article-grid').first()).toBeVisible();
+    // The Latest Articles Row block now renders via the design-system
+    // _ArticleCard partial inside a .latest-articles-row > .entries grid.
+    await expect(page.locator('.latest-articles-row').first()).toBeVisible();
+    await expect(page.locator('.latest-articles-row .article-grid-card').first()).toBeVisible();
   });
 
   test('Components page is hidden from the top navigation', async ({ page }) => {

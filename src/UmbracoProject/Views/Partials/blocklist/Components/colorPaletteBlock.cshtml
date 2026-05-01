@@ -1,0 +1,81 @@
+@inherits UmbracoViewPage<BlockListItem>
+@using System.IO
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Caching.Memory
+@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Strings
+@using UmbracoProject.Helpers
+@inject IWebHostEnvironment HostEnvironment
+@inject IMemoryCache MemoryCache
+
+@{
+    var heading = Model.Content?.Value<string>("heading");
+    var intro = Model.Content?.Value<IHtmlEncodedString>("intro");
+
+    var spacingClasses = "";
+    if (Model.Settings is ISpacingProperties spacing)
+    {
+        spacingClasses = Clean.Core.Helpers.SpacingHelper.GetSpacingClasses(spacing.PaddingTop, spacing.PaddingBottom, spacing.PaddingLeft, spacing.PaddingRight, spacing.MarginTop, spacing.MarginBottom, spacing.MarginLeft, spacing.MarginRight);
+    }
+
+    const string TokenCssPath = "assets/css/typography.css";
+    var fileInfo = HostEnvironment.WebRootFileProvider.GetFileInfo(TokenCssPath);
+    var swatches = Array.Empty<Swatch>() as IReadOnlyList<Swatch>;
+
+    if (fileInfo.Exists)
+    {
+        var cacheKey = $"styleguide:swatches:{fileInfo.PhysicalPath}:{fileInfo.LastModified.Ticks}";
+        swatches = MemoryCache.GetOrCreate(cacheKey, entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+            using var stream = fileInfo.CreateReadStream();
+            using var reader = new StreamReader(stream);
+            return SwatchTokenParser.Parse(reader.ReadToEnd());
+        }) ?? Array.Empty<Swatch>();
+    }
+}
+
+<div class="styleguide-block styleguide-block--palette @spacingClasses" data-block-alias="colorPaletteBlock">
+    @if (!string.IsNullOrWhiteSpace(heading))
+    {
+        <h2 class="styleguide-block__heading">@heading</h2>
+    }
+    @if (intro != null && !string.IsNullOrWhiteSpace(intro.ToHtmlString()))
+    {
+        <div class="styleguide-block__intro">@intro</div>
+    }
+
+    @if (swatches.Count == 0)
+    {
+        <p class="text-muted">No swatches configured</p>
+    }
+    else
+    {
+        <ul class="styleguide__palette" role="list">
+            @foreach (var swatch in swatches)
+            {
+                var renderable = SwatchTokenParser.IsRenderableColor(swatch.Value);
+                <li class="styleguide__swatch"
+                    data-styleguide="swatch"
+                    data-styleguide-token="@swatch.Name">
+                    @if (renderable)
+                    {
+                        <span class="styleguide__swatch-sample"
+                              aria-hidden="true"
+                              style="background-color: @swatch.Value"></span>
+                    }
+                    else
+                    {
+                        <span class="styleguide__swatch-sample styleguide__swatch-sample--unparseable"
+                              aria-hidden="true"></span>
+                    }
+                    <div class="styleguide__swatch-meta">
+                        <code class="styleguide__swatch-token">@swatch.Name</code>
+                        <span class="styleguide__swatch-value" data-styleguide="value">@swatch.Value</span>
+                        <span class="styleguide__swatch-role" data-styleguide="role">@swatch.Role</span>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>

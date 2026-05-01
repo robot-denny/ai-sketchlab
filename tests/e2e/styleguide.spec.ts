@@ -48,7 +48,7 @@ async function apiFetch(token: string, method: string, path: string, body?: any)
  *
  * The testhelpers' `documentType.getByName(...)` uses a `recurseChildren` impl
  * that short-circuits on the first folder with `hasChildren:true`, missing
- * sibling entries — the same workaround documented in the imageCarousel spec.
+ * sibling entries — same workaround documented in the imageCarousel spec.
  */
 async function findDocTypeIdByName(token: string, name: string): Promise<string | null> {
   async function walk(parentId: string | null): Promise<string | null> {
@@ -74,10 +74,6 @@ async function findDocTypeIdByName(token: string, name: string): Promise<string 
  * Find the published Style Guide document at the site root and return its
  * canonical URL. Walks the document tree dynamically (Rule #1: never hardcode
  * UUIDs; Rule #2: never hardcode URL slugs).
- *
- * The tree API returns each node's `documentType.id` but not its alias, so
- * resolve aliases via a per-id `/document-type/{id}` lookup, memoised across
- * the walk.
  */
 async function getStyleGuideUrl(): Promise<string | null> {
   const token = await freshToken();
@@ -127,7 +123,7 @@ async function getStyleGuideUrl(): Promise<string | null> {
 // ==============================
 
 test.describe('Style Guide Page — Document Type', () => {
-  test('Style Guide Page document type exists with brandSummary + visibility controls', async ({
+  test('Style Guide Page composition set: SectionRowControls in, FooterControls out', async ({
     umbracoApi,
   }) => {
     const docType = await umbracoApi.documentType.getByName('Style Guide Page');
@@ -135,8 +131,6 @@ test.describe('Style Guide Page — Document Type', () => {
     expect(docType.alias).toBe('styleGuidePage');
     expect(docType.allowedAsRoot).toBe(true);
 
-    // The doc-type API returns template references as { id } only, so resolve
-    // each allowed template's alias via a follow-up fetch.
     const templateIds: string[] = (docType.allowedTemplates ?? []).map(
       (t: any) => t.id
     );
@@ -152,23 +146,61 @@ test.describe('Style Guide Page — Document Type', () => {
     const aliases = (docType.properties ?? []).map((p: any) => p.alias);
     expect(aliases).toContain('brandSummary');
 
-    // Visibility Controls composition provides hideFromTopNavigation,
-    // hideFromXMLSitemap, umbracoNaviHide. The doc-type API does not expand
-    // inherited properties into `properties`, so verify the composition by id —
-    // resolved via a Management-API tree walk so the test stays portable across
-    // environments (and works around testhelpers' getByName short-circuit).
     const token = await freshToken();
     const visibilityControlsId = await findDocTypeIdByName(token, 'Visibility Controls');
-    expect(visibilityControlsId, '"Visibility Controls" composition should exist').toBeTruthy();
+    const sectionRowControlsId = await findDocTypeIdByName(token, 'Section Row Controls');
+    const footerControlsId = await findDocTypeIdByName(token, 'Footer Controls');
+    expect(visibilityControlsId, '"Visibility Controls" should exist').toBeTruthy();
+    expect(sectionRowControlsId, '"Section Row Controls" should exist').toBeTruthy();
+
     const compositionIds: string[] = (docType.compositions ?? []).map(
       (c: any) => c.documentType?.id
     );
-    expect(compositionIds).toContain(visibilityControlsId!);
+    expect(compositionIds, 'must include Visibility Controls').toContain(
+      visibilityControlsId!
+    );
+    expect(compositionIds, 'must include Section Row Controls').toContain(
+      sectionRowControlsId!
+    );
+    if (footerControlsId) {
+      expect(compositionIds, 'must NOT include Footer Controls').not.toContain(
+        footerControlsId
+      );
+    }
+  });
+
+  test('brandSummary lives in a property group whose name is "Content"', async ({
+    umbracoApi,
+  }) => {
+    const docType = await umbracoApi.documentType.getByName('Style Guide Page');
+    const prop = (docType.properties ?? []).find((p: any) => p.alias === 'brandSummary');
+    expect(prop, 'brandSummary property must exist').toBeTruthy();
+    const containerId = prop.container?.id;
+    expect(containerId, 'brandSummary must have a container').toBeTruthy();
+    const container = (docType.containers ?? []).find((c: any) => c.id === containerId);
+    expect(container?.name).toBe('Content');
+  });
+
+  test('Three programmatic block element types exist with heading + intro', async ({
+    umbracoApi,
+  }) => {
+    for (const name of [
+      'Color Palette Block',
+      'Typography Showcase Block',
+      'General Elements Block',
+    ]) {
+      const dt = await umbracoApi.documentType.getByName(name);
+      expect(dt, `"${name}" element type should exist`).toBeTruthy();
+      expect(dt.isElement, `"${name}" must be an element type`).toBe(true);
+      const aliases = (dt.properties ?? []).map((p: any) => p.alias);
+      expect(aliases, `"${name}" must include heading`).toContain('heading');
+      expect(aliases, `"${name}" must include intro`).toContain('intro');
+    }
   });
 });
 
 // ==============================
-// Section 2 — Page exists at /styleguide and is hidden from top nav (Step 6)
+// Section 2 — Page presence
 // ==============================
 
 test.describe('Style Guide — Page presence', () => {
@@ -181,13 +213,11 @@ test.describe('Style Guide — Page presence', () => {
   });
 
   test('Styleguide page is reachable and hidden from top navigation', async ({ page }) => {
-    // Hidden from main nav on the home page.
     await page.goto('/');
     await expect(
       page.locator('.site-nav').getByRole('link', { name: /style ?guide/i })
     ).toHaveCount(0);
 
-    // But reachable directly via its canonical URL.
     const res = await page.goto(styleguideUrl);
     expect(res?.status()).toBe(200);
   });
@@ -195,10 +225,10 @@ test.describe('Style Guide — Page presence', () => {
 
 // ==============================
 // Section 3 — Color palette (browser)
-// Depends on Steps 5–6 (view + published page) for the URL to render.
+// Selectors are emitted by the colorPaletteBlock partial.
 // ==============================
 
-test.describe('Style Guide — Color palette', () => {
+test.describe('Style Guide — Color palette block', () => {
   let styleguideUrl: string;
 
   test.beforeAll(async () => {
@@ -215,22 +245,20 @@ test.describe('Style Guide — Color palette', () => {
     const swatches = page.locator('[data-styleguide="swatch"]');
     await expect(swatches).not.toHaveCount(0);
 
-    // Spot-check a known token from typography.css.
     const accent = page.locator('[data-styleguide-token="--accent-primary"]');
     await expect(accent).toBeVisible();
     await expect(accent.locator('[data-styleguide="value"]')).toHaveText(/#C23D2E/i);
     await expect(accent.locator('[data-styleguide="role"]')).toHaveText('Primary action / signal red');
 
-    // Tokens without a `/**umb_swatch:...*/` annotation must be excluded.
     await expect(page.locator('[data-styleguide-token="--space-md"]')).toHaveCount(0);
   });
 });
 
 // ==============================
-// Section 4 — Page layout (browser, Step 5)
+// Section 4 — Block-driven page layout (browser)
 // ==============================
 
-test.describe('Style Guide — Page layout', () => {
+test.describe('Style Guide — Block-driven layout', () => {
   let styleguideUrl: string;
 
   test.beforeAll(async () => {
@@ -239,34 +267,57 @@ test.describe('Style Guide — Page layout', () => {
     styleguideUrl = url!;
   });
 
-  test('Five sections render in the prescribed order', async ({ page }) => {
+  test('Brand summary renders at the top, before the section rows', async ({ page }) => {
     await page.goto(styleguideUrl);
-    const ids = await page
-      .locator('[data-styleguide-section]')
-      .evaluateAll((els) => els.map((e) => e.getAttribute('data-styleguide-section')));
-    expect(ids).toEqual([
-      'brand-summary',
-      'color-palette',
-      'typography',
-      'general-elements',
-      'components-reference',
-    ]);
+    const brandSummary = page.locator('.styleguide__brand-summary');
+    await expect(brandSummary).toBeVisible();
+
+    // Brand summary must precede the first section row in DOM order.
+    const positions = await page.evaluate(() => {
+      const summary = document.querySelector('.styleguide__brand-summary');
+      const firstRow = document.querySelector('.section-row');
+      if (!summary || !firstRow) return null;
+      const summaryRect = summary.getBoundingClientRect();
+      const rowRect = firstRow.getBoundingClientRect();
+      return { summaryTop: summaryRect.top, rowTop: rowRect.top };
+    });
+    expect(positions, 'both elements should be present').not.toBeNull();
+    expect(positions!.summaryTop).toBeLessThan(positions!.rowTop);
   });
 
-  test('Typography section shows h1–h6 plus the five editor classes', async ({ page }) => {
+  test('Each programmatic block renders its editable heading', async ({ page }) => {
     await page.goto(styleguideUrl);
+    for (const alias of [
+      'colorPaletteBlock',
+      'typographyShowcaseBlock',
+      'generalElementsBlock',
+    ]) {
+      const block = page.locator(`[data-block-alias="${alias}"]`);
+      await expect(block, `${alias} must render`).toBeVisible();
+      // Heading text comes from the editor — we just assert there's some non-empty
+      // heading element inside the block.
+      const heading = block.locator('h1, h2, h3, h4, h5, h6').first();
+      await expect(heading).toBeVisible();
+      await expect(heading).not.toHaveText('');
+    }
+  });
+
+  test('Typography block shows h1–h6 plus the five editor classes', async ({ page }) => {
+    await page.goto(styleguideUrl);
+    const block = page.locator('[data-block-alias="typographyShowcaseBlock"]');
     for (const tag of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
-      await expect(page.locator(`#typography ${tag}`).first()).toBeVisible();
+      await expect(block.locator(tag).first()).toBeVisible();
     }
     for (const cls of ['lead', 'overline', 'blockquote', 'caption', 'pull-quote']) {
-      await expect(page.locator(`#typography .${cls}`).first()).toBeVisible();
+      await expect(block.locator(`.${cls}`).first()).toBeVisible();
     }
   });
 
-  test('General elements section includes link, button, lists, table, and inputs', async ({
+  test('General elements block includes link, button, lists, table, inputs', async ({
     page,
   }) => {
     await page.goto(styleguideUrl);
+    const block = page.locator('[data-block-alias="generalElementsBlock"]');
     for (const sel of [
       'a',
       'button',
@@ -277,13 +328,13 @@ test.describe('Style Guide — Page layout', () => {
       'input[type="email"]',
       'textarea',
     ]) {
-      await expect(page.locator(`#general-elements ${sel}`).first()).toBeVisible();
+      await expect(block.locator(sel).first()).toBeVisible();
     }
   });
 
   test('Components-reference section links to the components page', async ({ page }) => {
     await page.goto(styleguideUrl);
-    const link = page.locator('#components-reference a[href*="/styleguide/components"]');
-    await expect(link).toBeVisible();
+    const link = page.locator('a[href*="/styleguide/components"]');
+    await expect(link.first()).toBeVisible();
   });
 });

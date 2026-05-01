@@ -17,7 +17,7 @@
   },
   "CompositionContentTypes": [
     "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
-    "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",
+    "umb://document-type/84b4af3867f04ab39dd9020047ea0b3f",
     "umb://document-type/9090575e290c458591a4b72ec30ff41f",
     "umb://document-type/d03e1062f895426298275f35caa93a42",
     "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d"
@@ -25,8 +25,9 @@
   "PropertyGroups": [
     {
       "Key": "58060483-bf4e-4731-8913-6fa07ae496ac",
-      "Name": "Style Guide",
-      "Alias": "styleGuide",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
       "PropertyTypes": [
         {
           "Key": "b1643784-c838-4396-b4c9-6b0028430e59",
@@ -49,7 +50,7 @@
       "Ordering": true
     },
     {
-      "Udi": "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",
+      "Udi": "umb://document-type/84b4af3867f04ab39dd9020047ea0b3f",
       "Ordering": true
     },
     {

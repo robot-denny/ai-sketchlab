@@ -1,0 +1,54 @@
+{
+  "Name": "Typography Showcase Block",
+  "Alias": "typographyShowcaseBlock",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-document-pen color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "Live h1\u2013h6 plus editor classes (.lead/.overline/.blockquote/.caption/.pull-quote).",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "b709b796-dd9d-4818-a4b5-5c85e15beef1",
+      "Name": "Content",
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "b8861cfb-3685-46f0-825f-e0396c8122a1",
+          "Alias": "heading",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Description": "Heading rendered above the dynamic content.",
+          "Name": "Heading",
+          "SortOrder": 10
+        },
+        {
+          "Key": "cad6eb94-3956-4473-be0b-3ea7d1fe0d67",
+          "Alias": "intro",
+          "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "Description": "Short intro text rendered below the heading.",
+          "Name": "Intro",
+          "SortOrder": 20,
+          "LabelOnTop": true
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/0029955322a84f149d764ba46e92d833",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

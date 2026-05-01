@@ -707,7 +707,10 @@ test.describe('Style Guide — Components page', () => {
   test('Style guide page links to the components page and the link works', async ({ page }) => {
     const styleGuideUrl = await getStyleGuidePageUrl();
     await page.goto(styleGuideUrl);
-    const link = page.locator('#components-reference a[href*="/styleguide/components"]');
+    // The components-reference link lives inside a richTextRow under the
+    // "Components Reference" section row. Match by href rather than a fixed
+    // section id so the test stays resilient to editor-driven page reorders.
+    const link = page.locator('a[href*="/styleguide/components"]').first();
     await expect(link).toBeVisible();
     await link.click();
     // The published URL may render with or without a trailing slash depending on Umbraco's URL provider.

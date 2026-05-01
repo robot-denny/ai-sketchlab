@@ -1,0 +1,54 @@
+{
+  "Name": "Color Palette Block",
+  "Alias": "colorPaletteBlock",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-paint-roller color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "Programmatic swatch grid derived live from /**umb_swatch:LABEL*/ comments in typography.css.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "d8a04bdc-8c4f-46df-b462-f65e902f2cbc",
+      "Name": "Content",
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "47b85adc-022d-4263-baa5-4101b94e312b",
+          "Alias": "intro",
+          "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "Description": "Short intro text rendered below the heading.",
+          "Name": "Intro",
+          "SortOrder": 20,
+          "LabelOnTop": true
+        },
+        {
+          "Key": "7bc6f540-06b4-456b-b8c5-88d5dfcf2273",
+          "Alias": "heading",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Description": "Heading rendered above the dynamic content.",
+          "Name": "Heading",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/66b8b35f597b4068bb92bc47257eec0c",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

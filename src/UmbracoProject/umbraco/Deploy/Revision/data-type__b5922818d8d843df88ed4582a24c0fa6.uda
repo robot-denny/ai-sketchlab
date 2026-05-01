@@ -37,6 +37,18 @@
       {
         "contentElementTypeKey": "17c66d28-107b-4934-bc01-3b5777d42c8a",
         "label": "Alert Block"
+      },
+      {
+        "contentElementTypeKey": "66b8b35f-597b-4068-bb92-bc47257eec0c",
+        "label": "**Color Palette**${ heading ? \u0027: \u0027 \u002B heading : \u0027\u0027 }"
+      },
+      {
+        "contentElementTypeKey": "00299553-22a8-4f14-9d76-4ba46e92d833",
+        "label": "**Typography Showcase**${ heading ? \u0027: \u0027 \u002B heading : \u0027\u0027 }"
+      },
+      {
+        "contentElementTypeKey": "a5d1d688-2f37-4cb2-8c0c-08a288982e6e",
+        "label": "**General Elements**${ heading ? \u0027: \u0027 \u002B heading : \u0027\u0027 }"
       }
     ],
     "useSingleBlockMode": false,
@@ -47,6 +59,9 @@
   },
   "Udi": "umb://data-type/b5922818d8d843df88ed4582a24c0fa6",
   "Dependencies": [
+    {
+      "Udi": "umb://document-type/0029955322a84f149d764ba46e92d833"
+    },
     {
       "Udi": "umb://document-type/17c66d28107b4934bc013b5777d42c8a"
     },
@@ -60,7 +75,13 @@
       "Udi": "umb://document-type/60085a63b77b45099df4bcb75db2755f"
     },
     {
+      "Udi": "umb://document-type/66b8b35f597b4068bb92bc47257eec0c"
+    },
+    {
       "Udi": "umb://document-type/93638715f76c4a1186b16a9d66504901"
+    },
+    {
+      "Udi": "umb://document-type/a5d1d6882f374cb28c0c08a288982e6e"
     },
     {
       "Udi": "umb://document-type/c56fb5b80b894206847ea6fecd865b84"
@@ -88,5 +109,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.0.2"
 }

@@ -1,0 +1,54 @@
+{
+  "Name": "General Elements Block",
+  "Alias": "generalElementsBlock",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-formatting-text color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "Bare HTML \u2014 links, buttons, lists, tables, inputs.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "aec3f57c-b4dd-4fb1-b47a-0ffaeb84b848",
+      "Name": "Content",
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "9c379988-285f-4ba0-91c8-5c0ac6007f58",
+          "Alias": "intro",
+          "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "Description": "Short intro text rendered below the heading.",
+          "Name": "Intro",
+          "SortOrder": 20,
+          "LabelOnTop": true
+        },
+        {
+          "Key": "bd7a674d-b304-458a-a6c1-17d1d610b68e",
+          "Alias": "heading",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Description": "Heading rendered above the dynamic content.",
+          "Name": "Heading",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/a5d1d6882f374cb28c0c08a288982e6e",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

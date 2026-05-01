@@ -1,0 +1,87 @@
+@inherits UmbracoViewPage<BlockListItem>
+@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Strings
+
+@{
+    var heading = Model.Content?.Value<string>("heading");
+    var intro = Model.Content?.Value<IHtmlEncodedString>("intro");
+
+    var spacingClasses = "";
+    if (Model.Settings is ISpacingProperties spacing)
+    {
+        spacingClasses = Clean.Core.Helpers.SpacingHelper.GetSpacingClasses(spacing.PaddingTop, spacing.PaddingBottom, spacing.PaddingLeft, spacing.PaddingRight, spacing.MarginTop, spacing.MarginBottom, spacing.MarginLeft, spacing.MarginRight);
+    }
+}
+
+<div class="styleguide-block styleguide-block--elements @spacingClasses" data-block-alias="generalElementsBlock">
+    @if (!string.IsNullOrWhiteSpace(heading))
+    {
+        <h2 class="styleguide-block__heading">@heading</h2>
+    }
+    @if (intro != null && !string.IsNullOrWhiteSpace(intro.ToHtmlString()))
+    {
+        <div class="styleguide-block__intro">@intro</div>
+    }
+
+    <div class="styleguide__elements">
+        <h3 class="overline">Inline</h3>
+        <p>
+            A paragraph with an <a href="#brand-summary">inline link</a>, some <strong>bold text</strong>,
+            a touch of <em>italic emphasis</em>, and an <code>inline code span</code>.
+        </p>
+
+        <h3 class="overline">Buttons</h3>
+        <p>
+            <button type="button" class="btn btn-primary">Primary action</button>
+            <button type="button" class="btn btn-secondary">Secondary action</button>
+        </p>
+
+        <h3 class="overline">Lists</h3>
+        <ul>
+            <li>Unordered list item — first</li>
+            <li>Unordered list item — second</li>
+            <li>Unordered list item — third</li>
+        </ul>
+        <ol>
+            <li>Ordered list item — first</li>
+            <li>Ordered list item — second</li>
+            <li>Ordered list item — third</li>
+        </ol>
+
+        <h3 class="overline">Table</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Token</th>
+                    <th scope="col">Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--accent-primary</code></td>
+                    <td>Primary action / signal red</td>
+                </tr>
+                <tr>
+                    <td><code>--surface-dark</code></td>
+                    <td>Masthead / on-dark sections</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="overline">Form inputs</h3>
+        <form class="styleguide__form" onsubmit="event.preventDefault();">
+            <div class="mb-3">
+                <label class="form-label" for="sg-text">Single-line text</label>
+                <input id="sg-text" type="text" class="form-control" placeholder="Plain text input" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="sg-email">Email</label>
+                <input id="sg-email" type="email" class="form-control" placeholder="name@example.com" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="sg-textarea">Textarea</label>
+                <textarea id="sg-textarea" class="form-control" rows="3" placeholder="Multi-line text"></textarea>
+            </div>
+        </form>
+    </div>
+</div>

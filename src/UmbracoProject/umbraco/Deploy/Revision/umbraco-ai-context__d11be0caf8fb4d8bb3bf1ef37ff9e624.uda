@@ -1,0 +1,21 @@
+{
+  "Name": "How-To Guide Style",
+  "Alias": "how-to-guide-style",
+  "Resources": [
+    {
+      "Id": "38be2907-033c-4356-b617-feefc0079434",
+      "ResourceTypeId": "text",
+      "Name": "Structural Template",
+      "Description": "Section-by-section structure every generated guide must follow.",
+      "SortOrder": 0,
+      "Settings": {
+        "content": "Every guide describes one editor-facing feature \u2014 one block, setting, or piece of global chrome \u2014 for editors who manage content in this site\u0027s backoffice. The reader is a busy editor who wants to know what the feature does, when to reach for it, what each control means, and any traps to avoid. Generated prose is rendered as HTML inside a Rich Text field on the guide page. Use proper HTML tags (\u003Cp\u003E, \u003Ch2\u003E, \u003Cul\u003E, \u003Cli\u003E, \u003Cstrong\u003E, \u003Cem\u003E); never emit Markdown.\n\nRequired structure for every guide, in order:\n\n1. Intro paragraph (no heading). One short paragraph naming the feature in its first sentence and saying \u2014 in plain language \u2014 what an editor uses it to accomplish. No marketing language, no restatement of the feature name. Two to four sentences, maximum.\n\n2. \u003Ch2\u003EWhen to use it\u003C/h2\u003E. One paragraph or a short bulleted list describing the editorial situations the feature is meant for. Anchor every bullet to a concrete scenario an editor would recognize (\u0022Use this on landing pages when the reader needs to be steered to a single next action\u0022) rather than abstract claims (\u0022ideal for engagement\u0022). If there are situations where another feature is the better choice, name them.\n\n3. \u003Ch2\u003EConfiguration\u003C/h2\u003E. One row per property the editor can set, in source order. Use a definition list (\u003Cdl\u003E\u003Cdt\u003EProperty name\u003C/dt\u003E\u003Cdd\u003EWhat it controls and what to put in it\u003C/dd\u003E\u003C/dl\u003E) or a bulleted list with the property name in \u003Cstrong\u003E. Only enumerate properties that appear in the source payload \u2014 never invent, rename, or omit. If a property has a non-obvious effect, units, or accepted values, say so. Skip implementation jargon (data type aliases, GUIDs, schema notes) \u2014 describe the editor experience.\n\n4. \u003Ch2\u003ETips\u003C/h2\u003E. Two to four short bullet points covering accessibility considerations, common mistakes, content-modeling advice, or interactions with other blocks. Each bullet should be specific and actionable; no filler.\n\nVoice and tone come from the Site Content Guidelines context attached to this agent \u2014 apply those rules verbatim. Practitioner voice; concrete; no hype; no scolding; no thought-leader framing.\n\nWhen an existing description is provided in the user message, treat it as the editor\u0027s working copy. Amend rather than rewrite: keep paragraphs and bullets that still match the source payload exactly as written, including any prose the editor added. Only change sentences whose claims no longer hold (a property was renamed, added, removed, or its behavior changed). Never reorder sections, never add commentary about what you changed, and never substitute synonyms in unchanged sentences. The output is a complete, drop-in replacement for the description field \u2014 do not include diff markers or explanatory preamble.\n"
+      },
+      "InjectionMode": 0
+    }
+  ],
+  "Udi": "umb://umbraco-ai-context/d11be0caf8fb4d8bb3bf1ef37ff9e624",
+  "Dependencies": [],
+  "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
+  "__version": "17.0.2"
+}

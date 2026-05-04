@@ -1,0 +1,21 @@
+{
+  "Name": "Guides",
+  "Alias": "guides",
+  "File": "umb://template-file/guides.cshtml",
+  "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+  "Udi": "umb://template/b0cdefabb7e648d3a1771242d581149d",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/guides.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.0.2"
+}

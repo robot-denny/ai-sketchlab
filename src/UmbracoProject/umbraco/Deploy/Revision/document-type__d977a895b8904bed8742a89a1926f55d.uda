@@ -1,0 +1,55 @@
+{
+  "Name": "Guides",
+  "Alias": "guides",
+  "DefaultTemplate": "umb://template/b0cdefabb7e648d3a1771242d581149d",
+  "AllowedTemplates": [
+    "umb://template/b0cdefabb7e648d3a1771242d581149d"
+  ],
+  "HistoryCleanup": {},
+  "Icon": "icon-book color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "Parent for editor how-to guides. Hidden from main top navigation, reachable by URL.",
+  "Permissions": {
+    "AllowedChildContentTypes": [
+      "umb://document-type/1e441c00f1774ae480845353a5607dba"
+    ]
+  },
+  "CompositionContentTypes": [
+    "umb://document-type/84b4af3867f04ab39dd9020047ea0b3f",
+    "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+    "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
+    "umb://document-type/e0a344ad686a4b23b31b8801ee6d1c61"
+  ],
+  "PropertyGroups": [],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d977a895b8904bed8742a89a1926f55d",
+  "Dependencies": [
+    {
+      "Udi": "umb://document-type/1e441c00f1774ae480845353a5607dba",
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://document-type/84b4af3867f04ab39dd9020047ea0b3f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/e0a344ad686a4b23b31b8801ee6d1c61",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://template/b0cdefabb7e648d3a1771242d581149d",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

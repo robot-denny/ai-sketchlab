@@ -1,0 +1,21 @@
+{
+  "Name": "How-To Guide Page",
+  "Alias": "howToGuidePage",
+  "File": "umb://template-file/howToGuidePage.cshtml",
+  "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+  "Udi": "umb://template/898d5e2300c24d548dd2ebcd39b9ad1f",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/howToGuidePage.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.0.2"
+}

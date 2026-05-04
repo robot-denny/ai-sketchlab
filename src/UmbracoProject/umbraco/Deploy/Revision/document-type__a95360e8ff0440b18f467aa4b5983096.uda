@@ -22,7 +22,8 @@
       "umb://document-type/ac6ebe34fc2b4ee09b26e7a22adbe591",
       "umb://document-type/2cf4d65039ec41ef8bd65085ee9f780a",
       "umb://document-type/7b2f3de2c7ab449288e8c6bb02eaa6a3",
-      "umb://document-type/89f686616e424541bf8e029eef0325ab"
+      "umb://document-type/89f686616e424541bf8e029eef0325ab",
+      "umb://document-type/d977a895b8904bed8742a89a1926f55d"
     ]
   },
   "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
@@ -126,6 +127,10 @@
     {
       "Udi": "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
       "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d977a895b8904bed8742a89a1926f55d",
+      "Mode": "Exist"
     },
     {
       "Udi": "umb://document-type/e667d8521e3541d1b0eb46db0ec2342c",

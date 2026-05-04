@@ -1,0 +1,24 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Guides>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models.Blocks
+
+@{
+    Layout = "master.cshtml";
+    var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
+    var rows = Model.SectionRows;
+}
+
+@section Styles {
+    <link href="/assets/css/styleguide.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = heading,
+    Eyebrow = "Editor how-to guides",
+    Dek = Model.Subtitle
+})
+
+<article class="styleguide">
+    @await Html.PartialAsync("~/Views/Partials/_StyleGuideSectionRows.cshtml", rows)
+</article>

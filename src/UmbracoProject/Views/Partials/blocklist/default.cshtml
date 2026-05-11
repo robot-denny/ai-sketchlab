@@ -1,13 +1,40 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockListModel>
+@using Umbraco.Cms.Core.Models.PublishedContent
 @{
     if (Model?.Any() != true) { return; }
+
+    // Resolve article-level authors once. Null/empty on hosts that don't expose
+    // an `author` property — wrapper simply never activates in that case.
+    var articleAuthors = Umbraco.AssignedContentItem?.Value<IEnumerable<IPublishedContent>>("author");
+    var articleIsAllAi = articleAuthors != null
+        && articleAuthors.Any()
+        && articleAuthors.All(a => a.Value<bool>("isAi"));
 }
 <div class="umb-block-list">
     @foreach (var block in Model)
     {
         if (block?.ContentKey == null) { continue; }
         var data = block.Content;
+        var blockAuthor = data.Value<IPublishedContent>("author");
+        var wrap = blockAuthor != null
+            && blockAuthor.Value<bool>("isAi")
+            && !articleIsAllAi;
 
-        @await Html.PartialAsync("blocklist/Components/" + data.ContentType.Alias, block)
+        if (wrap)
+        {
+            var personaName = (blockAuthor.Name ?? string.Empty)
+                .Replace("\\", "\\\\")
+                .Replace("'", "\\27 ");
+            var personaSlug = !string.IsNullOrWhiteSpace(blockAuthor.UrlSegment)
+                ? blockAuthor.UrlSegment
+                : (blockAuthor.Name ?? "ai").ToLowerInvariant().Replace(" ", "-");
+            <div class="ella-wrap" data-attributed-to="@personaSlug" style="--persona-name: '@Html.Raw(personaName)';">
+                @await Html.PartialAsync("blocklist/Components/" + data.ContentType.Alias, block)
+            </div>
+        }
+        else
+        {
+            @await Html.PartialAsync("blocklist/Components/" + data.ContentType.Alias, block)
+        }
     }
 </div>

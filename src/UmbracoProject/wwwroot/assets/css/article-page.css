@@ -52,6 +52,18 @@
 .ella .eye::before{content:"";width:6px;height:6px;background:var(--text-tertiary);border-radius:50%}
 .ella p{font-family:var(--font-body);font-weight:300;font-size:1rem;line-height:1.6;color:var(--text-primary);margin:0;max-width:34em}
 
+/* AI persona attribution wrapper — orchestrator wraps any block whose Author
+   is an isAi persona inside a non-all-AI article. Persona display name is
+   passed in as the --persona-name CSS variable (already CSS-escaped). */
+.ella-wrap[data-attributed-to]{display:contents}
+.ella-wrap[data-attributed-to] > *{margin:2em 0;padding:20px 24px;background:var(--surface-secondary);border-left:2px solid var(--text-tertiary)}
+.ella-wrap[data-attributed-to] > * > :is(p,figcaption){font-family:var(--font-body);font-weight:300;color:var(--text-primary)}
+.ella-wrap[data-attributed-to] > *::before{content:"Written by " var(--persona-name) " · inline note";display:block;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px}
+.ella-wrap[data-attributed-to] .block-author{display:none}
+@media (max-width:760px){
+  .ella-wrap[data-attributed-to] > *::before{content:var(--persona-name) " · inline note"}
+}
+
 /* Next-up footer nav */
 .next{border-top:1px solid var(--border-light);padding:48px 32px;max-width:1040px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px}
 .next .eye{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 12px}

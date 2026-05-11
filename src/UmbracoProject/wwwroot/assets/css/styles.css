@@ -11567,11 +11567,6 @@ header.masthead .site-heading .h1 {
   height: 100%;
 }
 
-.block-author {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-light);
-}
-
 /* ── Content Section Rows ─────────────────────────────────── */
 .section-row {
   display: block;

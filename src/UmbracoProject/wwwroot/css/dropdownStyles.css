@@ -1,31 +1,91 @@
+/* ================================================================
+   Rich-text editor preview styles.
 
+   Loaded into the TipTap editor iframe (referenced from the
+   "Richtext editor" data type) so authors see content in the editor
+   roughly matching the rendered page. Keep aligned with
+   /wwwroot/assets/css/typography.css — the production source of truth.
 
-/**umb_name:h2*/
+   Style Menu entries (Lead, Pull quote, Overline, Caption, etc.) are
+   declared in the HelloWorld backoffice extension:
+   src/HelloWorld/Client/src/richtext/manifest.ts
+   ================================================================ */
+
 h2 {
-	font-size: 2.4em;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  font-size: 2.25rem;
+  line-height: 1.1;
 }
 
-/**umb_name:h3*/
 h3 {
-	font-size: 2em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 1.5rem;
+  line-height: 1.25;
 }
 
-/**umb_name:h4*/
 h4 {
-	font-size: 1.8em;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-size: 1.25rem;
+  line-height: 1.3;
 }
 
-/**umb_name:Lead*/
+h5 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  line-height: 1.35;
+  letter-spacing: 0.015em;
+}
+
+h6 {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
 .lead {
-	font-size: 1.25em;
-	font-weight: 300;
-	line-height: 1.55;
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.55;
 }
 
-/**umb_name:Pull Quote*/
+.overline {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: #57534E;
+}
+
+blockquote,
+.blockquote {
+  font-size: 1.375rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.45;
+  border-left: 3px solid #57534E;
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+}
+
 .pull-quote {
-	font-size: 1.75em;
-	font-weight: 300;
-	font-style: italic;
-	text-align: center;
+  font-size: 1.75rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-align: center;
+  margin: 3rem auto;
+  max-width: 36em;
+}
+
+.caption {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #57534E;
+  line-height: 1.45;
 }

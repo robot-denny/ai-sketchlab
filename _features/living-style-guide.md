@@ -131,14 +131,16 @@ Scenario: Styleguide links to the components page
   And following the link takes them to the /styleguide/components page
 ```
 
-### Rule: Editor-applied typography classes (.lead, .pull-quote) are exposed in the rich-text Style Select
+### Rule: Editor-applied typography classes are exposed in the rich-text Style Select
 
 ```scenario
-Scenario: Authors can apply .lead and .pull-quote from the rich-text editor
+Scenario: Authors can apply editorial classes from the rich-text editor
   Given an author is editing any rich-text field in the backoffice
   When they open the Style Select dropdown in the TipTap toolbar
-  Then "Lead" and "Pull Quote" appear as selectable styles alongside "h2", "h3", "h4"
-  And applying one wraps the selection with the corresponding class on the published page
+  Then under the "Editorial" group they see "Lead paragraph", "Overline", "Pull quote", and "Caption"
+  And the "Headers" group offers Page header (h2), Section header (h3), Paragraph header (h4), Minor header (h5), Fine header (h6)
+  And the "Containers" group offers Block quote and Code block
+  And applying an editorial entry wraps the selection in a paragraph with the corresponding class on the published page
 ```
 
 ---
@@ -182,7 +184,7 @@ Scenario: An unparseable token value is shown gracefully
 | Links, buttons, lists, tables, and form controls are visible | [styleguide.spec.ts:316](../tests/e2e/styleguide.spec.ts#L316) | Covered |
 | Components page lists each block with a label, grouped by category | [styleguide-components.spec.ts:638](../tests/e2e/styleguide-components.spec.ts#L638) (section row order), [:644](../tests/e2e/styleguide-components.spec.ts#L644) (label per block), [:665](../tests/e2e/styleguide-components.spec.ts#L665) (text), [:685](../tests/e2e/styleguide-components.spec.ts#L685) (media), [:695](../tests/e2e/styleguide-components.spec.ts#L695) (lists) | Covered |
 | Styleguide links to the components page | [styleguide.spec.ts:335](../tests/e2e/styleguide.spec.ts#L335) (link visible), [styleguide-components.spec.ts:707](../tests/e2e/styleguide-components.spec.ts#L707) (link click navigates) | Covered |
-| Authors can apply .lead and .pull-quote from the rich-text editor | — | Manual QA — `umb_name` annotations live in [dropdownStyles.css](../src/UmbracoProject/wwwroot/css/dropdownStyles.css); the rich-text data type points at that stylesheet |
+| Authors can apply editorial classes from the rich-text editor | — | Manual QA — Style Menu manifest in [richtext/manifest.ts](../src/HelloWorld/Client/src/richtext/manifest.ts) (alias `Site.Tiptap.Toolbar.StyleSelect`, `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'` so the built-in toolbar entry is replaced without any data-type edit); [dropdownStyles.css](../src/UmbracoProject/wwwroot/css/dropdownStyles.css) is loaded into the editor iframe for in-editor preview |
 | No annotated tokens means an empty palette, not a broken page | — | Skipped — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
 | An unparseable token value is shown gracefully | — | Skipped — same rationale; literal-value fallback is implemented in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
 
@@ -195,3 +197,4 @@ Scenario: An unparseable token value is shown gracefully
 - 2026-04-29: Realigned to typography.css + /**umb_swatch:LABEL**/ convention during planning.
 - 2026-04-30: Plan Steps 7–8 shipped. Test Coverage table refreshed against the live E2E suite (16 tests across both specs); doc-type / element-type ids resolved dynamically per Step 8.
 - 2026-05-01: Architecture change. The styleguide page is now block-driven: three new programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the hardcoded sections. `brandSummary` stays as a top-level field. The Footer Controls composition was dropped (the global footer is rendered from Home, not per-page). `.lead` and `.pull-quote` were added to the TipTap Style Select dropdown. Behaviors and Test Coverage rewritten against the new structure (19 tests now passing).
+- 2026-05-11: Rich-text Style Select rebuilt as a TipTap `styleMenu` extension manifest (TipTap doesn't parse the TinyMCE `/**umb_name:Label*/` annotation). Added `Overline`, `Caption`, `Minor header` (h5), `Fine header` (h6) entries alongside the existing Headers / Editorial / Containers groups. The manifest declares `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`, so the built-in entry is replaced in-place — no data type edit needed. Editor-iframe preview stylesheet `dropdownStyles.css` resynced with `typography.css` (the TipTap editor prepends its `/css` root path, so the persisted `/dropdownStyles.css` value resolves correctly to `/css/dropdownStyles.css`).

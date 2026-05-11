@@ -1,0 +1,47 @@
+{
+  "Name": "AI Persona Properties",
+  "Alias": "aIPersonaProperties",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-settings color-pink",
+  "Thumbnail": "folder.png",
+  "Description": "Marks a content author as an AI persona. When applied, blocks attributed to this author in non-AI articles render with the inline-note treatment.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "d32cd48e-0373-4f08-96af-4d0930beabb4",
+      "Name": "Persona",
+      "SortOrder": 50,
+      "Type": 1,
+      "Alias": "persona",
+      "PropertyTypes": [
+        {
+          "Key": "08c8381b-dbf9-41f4-9cd9-8231c80db06b",
+          "Alias": "isAi",
+          "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "Description": "Mark this author as an AI persona. When enabled, blocks attributed to this author in human-led articles render with the inline-note treatment.",
+          "Name": "Is AI",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/043faa69e11f4604bdfed0e76334e24d",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

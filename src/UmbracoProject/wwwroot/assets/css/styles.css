@@ -662,13 +662,6 @@ progress {
   margin-left: auto;
 }
 
-.post-notes {
-  font-size: 1rem;
-  color: #333;
-  background: #ececec;
-  padding: 1.25rem;
-  border-radius: 12px;
-}
 @media (min-width: 576px) {
   .container-sm, .container {
     max-width: 540px;

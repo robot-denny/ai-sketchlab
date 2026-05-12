@@ -53,6 +53,17 @@
 .ella .eye::before{content:"";width:6px;height:6px;background:var(--text-tertiary);border-radius:50%}
 .ella p{font-family:var(--font-body);font-weight:300;font-size:1rem;line-height:1.6;color:var(--text-primary);margin:0;max-width:34em}
 
+/* Post Notes — quiet author callout below an article's body.
+   Visually echoes the .ella inline-note pattern (same warm-stone
+   surface, same monospace eyebrow with dot bullet). The inline
+   <strong>Post Notes:</strong> in article.cshtml is kept for
+   screen-reader semantics; CSS rewrites it as an eyebrow. */
+.post-notes{margin:2em 0;padding:20px 24px;background:var(--surface-secondary);border-left:2px solid var(--text-tertiary)}
+.post-notes strong{font-family:var(--font-mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.post-notes strong::before{content:"";width:6px;height:6px;background:var(--text-tertiary);border-radius:50%}
+.post-notes p{font-family:var(--font-body);font-weight:300;font-size:1rem;line-height:1.6;color:var(--text-primary);margin:0 0 1em;max-width:34em}
+.post-notes p:last-child{margin-bottom:0}
+
 /* AI persona attribution wrapper — orchestrator wraps any block whose Author
    is an isAi persona inside a non-all-AI article. Persona display name is
    passed in as the --persona-name CSS variable (already CSS-escaped). */

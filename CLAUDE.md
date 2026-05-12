@@ -146,78 +146,7 @@ Version constraints for `Cms.Search.*` and `AI.Search` live in **Pinned betas �
 
 ## Modifying Umbraco Content from Claude Code
 
-Claude Code can read and write Umbraco document properties directly via the Management API. The Umbraco MCP server's tools are designed for the backoffice browser UI, so Claude Code must call the REST API using the same OAuth credentials.
-
-### Authentication
-
-```bash
-# Get a bearer token (expires in ~5 minutes, refresh as needed)
-curl -sk -X POST "https://localhost:44367/umbraco/management/api/v1/security/back-office/token" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=client_credentials&client_id=${UMBRACO_CLIENT_ID}&client_secret=${UMBRACO_CLIENT_SECRET}"
-# Returns: { "access_token": "...", "token_type": "Bearer", "expires_in": 299 }
-```
-
-Credentials are in `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`).
-
-### Key Management API Endpoints
-
-All endpoints require `Authorization: Bearer {token}`.
-
-| Action | Method | Endpoint |
-|--------|--------|----------|
-| Document tree root | GET | `/umbraco/management/api/v1/tree/document/root?skip=0&take=100` |
-| Document tree children | GET | `/umbraco/management/api/v1/tree/document/children?parentId={id}&skip=0&take=100` |
-| Get document | GET | `/umbraco/management/api/v1/document/{id}` |
-| Update document | PUT | `/umbraco/management/api/v1/document/{id}` |
-| Document type tree root | GET | `/umbraco/management/api/v1/tree/document-type/root?skip=0&take=100` |
-| Document type tree children | GET | `/umbraco/management/api/v1/tree/document-type/children?parentId={id}&skip=0&take=100` |
-| Get document type | GET | `/umbraco/management/api/v1/document-type/{id}` |
-
-### Workflow for Updating Page Properties
-
-1. **Find the document** — Walk the tree (`/tree/document/root` then `/tree/document/children?parentId=...`) to locate the target page by name
-2. **Read the document** — GET `/document/{id}` to retrieve all current property values. The response includes a `values` array with objects like `{ "alias": "title", "value": "..." }`
-3. **Identify property aliases** — If unsure of field names, GET the document type or its compositions to see available properties. Common compositions include SEO Controls (`metaName`, `metaDescription`, `metaKeywords`), Header Controls (`title`, `subtitle`), etc.
-4. **Build the update payload** — The PUT body requires `template`, `values`, and `variants` from the original document. Modify or add entries in the `values` array:
-   ```json
-   {
-     "template": { "id": "..." },
-     "values": [
-       { "alias": "metaName", "culture": null, "segment": null, "value": "New SEO Title" },
-       { "alias": "metaDescription", "culture": null, "segment": null, "value": "New description" }
-     ],
-     "variants": [{ "culture": null, "segment": null, "name": "Page Name", "state": "Draft" }]
-   }
-   ```
-5. **Update the document** — PUT `/document/{id}` with the payload. HTTP 200 = success. This saves a draft; it does not publish.
-
-### Using the AI Agent API for Content Generation
-
-AI agents configured in the backoffice can be invoked via the Agent API to generate content. Endpoints are under `/umbraco/ai/management/api/v1/agents/`:
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | List all agents |
-| GET | `/{idOrAlias}` | Get agent by ID or alias |
-| POST | `/{idOrAlias}/run` | Run agent (SSE stream) |
-
-**Important**: Agent tools (`get_page_info`, `set_property_value`, `search_umbraco`) are **frontend/client-side tools** that only work in the Copilot browser UI. When calling from Claude Code, provide the page content directly in the message and parse the agent's text response instead.
-
-```bash
-# Run an agent (returns Server-Sent Events stream)
-curl -sk -N -X POST "https://localhost:44367/umbraco/ai/management/api/v1/agents/website-content-assistant/run" \
-  -H "Authorization: Bearer {token}" \
-  -H "Content-Type: application/json" \
-  -d '{"threadId":"t1","runId":"r1","messages":[{"id":"m1","role":"user","content":"Generate SEO for this article: ..."}]}'
-```
-
-The response is an SSE stream. Extract text from `TEXT_MESSAGE_CHUNK` events:
-```
-data: {"type":"TEXT_MESSAGE_CHUNK","messageId":"...","role":"assistant","delta":"partial text"}
-```
-
-Reassemble all `delta` values to get the full agent response.
+Use the `/umbraco-edit` skill to edit document properties or invoke an AI agent via the Management API from outside the backoffice. Covers the OAuth token dance, the document/document-type endpoint reference, the find → read → PUT workflow, and the Agent SSE stream parsing. Credentials (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`) live in `.env`.
 
 ## Schema Management
 
@@ -247,21 +176,13 @@ Root-cause summary: mechanism (1) was the biggest contributor historically (51 e
 
 ### Importing pending schema on a Cloud environment
 
-If `/check-uda` reports `pending` (file exists, DB missing) or `mismatch` (signatures diverged) entries on Live — and content transfers from local to Live get stuck as a result — the fix is **not** the Deploy dashboard's "Update Umbraco Schema from data files" button. On Cloud-managed environments that button only refreshes the comparison view; the per-row dropdown on Live offers only **Create** (export DB → file) and **Delete** (remove file). There is no UI-driven "import file → DB" action on Cloud.
-
-Schema imports on Cloud run during **app startup** via Deploy's bootstrapper, not via the dashboard. Canonical fix:
-
-1. **Restart the Live environment** from the Umbraco Cloud portal (Project → Live → Restart). The bootstrapper picks up any pending `.uda` files and imports them on boot.
-2. Re-run `/check-uda` to confirm drift is zero.
-3. If drift persists, push an empty commit (`git commit --allow-empty -m "chore: nudge Cloud"`) to force a full deploy build, then check the Cloud Activity Log for the build's schema-import step. Errors there reveal the actual artifact that won't deploy.
-
-Reproduced 2026-04-27: Phase 0 of Package C added a new data type, composition, 12 dictionary keys, and modified 7 doc types. Files reached Live's git but the post-push restart didn't run the import (cause unconfirmed). Drift cleared instantly on a manual restart from the Cloud portal — the dashboard's bulk "Update" button reported "operation completed" but had moved nothing.
+If `/check-uda` reports `mismatch` or `pending` entries on Live and content transfers get stuck, the fastest fix is usually the dashboard's **per-row "Update item"** action — right-click the row after toggling "hide up to date" on. Do **not** start with portal restarts or empty-commit nudges (they often don't trigger reimport), and do not confuse the per-row action with the top-of-dashboard bulk "Update Umbraco Schema from data files" button (which does nothing on Cloud despite reporting "operation completed"). Full remediation paths — including the `POST /schema/item?udi=...` API fallback for pending rows — live in `/check-uda` Step 8.
 
 ### Enabling Live-drift detection in `/check-uda`
 
 `/check-uda` can optionally query Live's Deploy Management API to catch drift that pure git diffing misses. To enable:
 
-1. On Live's backoffice, create an OAuth client credentials pair: **Settings → OAuth → Add client** (or wherever Live exposes client registration — same mechanism as the local credentials set up per the "Modifying Umbraco Content from Claude Code" section). Grant it scopes sufficient to read the Deploy Management API.
+1. On Live's backoffice, create an OAuth client credentials pair: **Settings → OAuth → Add client** (same mechanism as the local credentials the `/umbraco-edit` skill uses). Grant it scopes sufficient to read the Deploy Management API.
 2. Add these entries to your local `.env`:
    ```
    UMBRACO_LIVE_URL=https://<your-live-host>

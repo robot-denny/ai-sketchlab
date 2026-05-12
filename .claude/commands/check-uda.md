@@ -151,8 +151,8 @@ The response has shape:
 For each entity type category, compute three counts:
 
 - **Live-only orphans**: items where `umbracoExists && !fileExists` AND no local file exists at that filename either. These are DB-only entities on Live that are not tracked in git. Action: either extract them on Live (dashboard → "Create file" → pull back via git), or delete them from Live's DB if they shouldn't exist.
-- **File-only on Live**: items where `!umbracoExists && fileExists`. The `.uda` arrived on Live but Deploy hasn't imported it yet. Usually transient after a push; if it persists, click "Update Umbraco schema from data files" on Live's dashboard.
-- **Signature mismatch**: items where `umbracoExists && fileExists && !isUpToDate`. Content diverged. Action: determine which direction should win (usually local files, since local is canonical), then run the appropriate dashboard operation.
+- **File-only on Live**: items where `!umbracoExists && fileExists`. The `.uda` arrived on Live but Deploy hasn't imported it yet. Usually transient after a push; if it persists, see **Step 8 — Importing pending schema on Cloud**.
+- **Signature mismatch**: items where `umbracoExists && fileExists && !isUpToDate`. Content diverged. Action: determine which direction should win (usually local files, since local is canonical). If local should win, the fix is the same as for file-only pending entries — see Step 8.
 
 Also cross-reference against local: for any local `.uda` file we have that Live doesn't list at all, that's a "pending push" — expected if the file is in a commit not yet pushed, a warning if it is pushed but Live hasn't processed it.
 
@@ -229,9 +229,9 @@ State the overall level and a one-line summary.
 - **SAFE / LOW**: Proceed with commit.
 - **MEDIUM**: Run `git pull --rebase` first. Let Umbraco Deploy sync locally (`dotnet run`, check the `/umbraco` Deploy dashboard). Then commit.
 - **HIGH (Live drift)**: Resolve the drift on Live before pushing local changes on top. Options:
-  - If Live orphans are entities you want to keep: extract them to `.uda` via Live's Deploy dashboard → "Create file" per row, then `git pull` to bring them into local.
-  - If Live orphans shouldn't exist: delete them in Live's backoffice UI (Settings → AI / Settings → Data Types / etc.), then click "Update schema from data files" to ensure everything is aligned.
-  - For signature mismatches: compare via `/schema/item?udi=...`, decide direction, apply.
+  - If Live orphans are entities you want to keep: extract them to `.uda` via Live's Deploy dashboard → right-click row → "Create file", then `git pull` to bring them into local.
+  - If Live orphans shouldn't exist: delete them in Live's backoffice UI (Settings → AI / Settings → Data Types / etc.).
+  - For file-only pending entries or signature mismatches where local should win: see **Step 8 — Importing pending schema on Cloud**. The per-row "Update item" action does import (for mismatch rows) — but the **bulk** "Update Umbraco schema from data files" button at the top of the dashboard does not, despite reporting "operation completed."
 - **HIGH (remote-ahead on same entity type)**: Coordinate with whoever pushed. For a solo project, inspect the remote diff before pulling.
 - **CRITICAL**: **Do not push without resolving first.** Steps:
   1. `git pull --rebase` (will conflict)
@@ -252,3 +252,64 @@ git clean -f src/UmbracoProject/umbraco/Deploy/Revision/
 ```
 
 Only commit `.uda` files when you deliberately changed a document type, data type, or template in the backoffice — or when bulk-extracting pre-existing built-in defaults (see CLAUDE.md "How schema drift happens").
+
+---
+
+## Step 8 — Importing pending schema on Cloud (remediation)
+
+If Step 6 reports `mismatch` (signatures diverged) or `pending` (file exists, DB missing) entries on Live — and content transfers get stuck as a result — there are three remediation paths, in order of preference. **Do not start with portal restarts or empty-commit nudges** (see "What not to spend time on" below).
+
+Important distinction: there are two different "Update" UI elements in the Live Deploy dashboard, and only one of them imports.
+
+- **Bulk "Update Umbraco Schema from data files" button** at the top of the dashboard — does **not** import on Cloud. It only refreshes the comparison view. Reports "operation completed" without moving anything.
+- **Per-row "Update item" action** in the right-click dropdown — **does** import file → DB, but only appears for the **mismatch** state and only when "hide up to date" is toggled on (otherwise the row is filtered out of view and the action affordance is hidden — this is the trap).
+
+### Path 1 — Dashboard "Update item" per row (try first for mismatch)
+
+Reproduced 2026-05-11, resolved in ~30 seconds:
+
+1. Open Live's backoffice → **Settings → Deploy**.
+2. Toggle **"hide up to date"** on so only non-matching rows remain visible.
+3. Right-click the row and choose the action available for the row's state. Available actions depend on which of the three checkmarks (file exists / exists in Umbraco / up to date) are missing:
+   - **Mismatch** (file ✓, in Umbraco ✓, up to date ✗): **Update item** — imports file → DB. ← the 2026-05-11 fix.
+   - **Pending** (file ✓, in Umbraco ✗): the dashboard may only offer **Create** (DB → file) / **Delete**, not a UI-driven import. If "Update item" isn't there, skip to Path 2.
+   - **Orphan** (file ✗, in Umbraco ✓): **Create** — exports DB → file.
+4. Retry the content transfer.
+
+### Path 2 — API call (fallback for pending state, or many rows)
+
+When the dashboard path is blocked (pending state with no "Update item" action, or dozens of pending entries where right-clicking each is impractical):
+
+1. Get a Live token via the OAuth client-credentials flow (`UMBRACO_LIVE_*` in `.env`).
+2. Pick the simplest pending UDI (one with no dependencies — usually a data-type or AI context).
+3. `POST ${UMBRACO_LIVE_URL}/umbraco/deploy/management/api/v1/schema/item?udi={url-encoded UDI}` with bearer token, empty body. Returns `200 OK / "Item updated."` and is idempotent.
+4. Re-run `/check-uda` — drift typically drops to zero in one shot, even though only one UDI was imported. The single call unblocks Deploy's full pending-set evaluation.
+
+Related Deploy management endpoints (sparse OpenAPI, inferred from naming; full spec at `/umbraco/swagger/deploy-management/swagger.json`):
+
+- `POST /schema/item?udi=...` — file → DB (import)
+- `DELETE /schema/item?udi=...` — remove DB entity
+- `POST /schema/file?udi=...` — DB → file (extract)
+- `DELETE /schema/file?udi=...` — remove `.uda` file
+
+### Path 3 — Portal restart + empty-commit nudge (last resort)
+
+Sometimes useful as a heavyweight bootstrap retry, but unreliable on Cloud (see "What not to spend time on"):
+
+1. Restart the Live environment from the Umbraco Cloud portal (Project → Live → Restart).
+2. If drift persists, push an empty commit (`git commit --allow-empty -m "chore: nudge Cloud"`) and watch the Cloud Activity Log for the build's schema-import step. Errors there reveal the actual artifact that won't deploy.
+
+### What not to spend time on
+
+- **Portal restart of Live**: the bootstrapper compares marker files (`deploy*` in `umbraco/Deploy/`), not `.uda` file mtimes, so a vanilla restart usually doesn't re-trigger import. Look for `INF Skipping Umbraco content and/or schema import at startup, because no files are provided or none of the files exist.` in the startup logs — that's this case.
+- **Empty-commit nudge**: Cloud's deploy pipeline emits `Checking for changes between {prev} and {current}` followed by `No changes in metadata detected - no need to run an Umbraco Deploy extraction` when the empty commit follows a commit that already deployed. The extraction step is skipped entirely.
+- **The bulk "Update Umbraco Schema from data files" button** at the top of the dashboard — see warning above.
+
+### Symptoms that point to this issue
+
+- `/check-uda` reports pending entries on Live that don't clear after a portal restart or empty-commit nudge.
+- Live startup logs show the "Skipping Umbraco content and/or schema import at startup" line.
+- Content transfer fails with `DeploySchemaMismatchException: Schema mismatch between environments` at the "Review manifest on target" step.
+- Earlier variant: `RemoteApiException → InvalidOperationException: Could not retrieve artifact with UDI {umb://...}`.
+
+After any import via Path 1 or Path 2, `git pull` before your next push — Cloud may have auto-committed normalized `.uda` files (mechanism 4 in CLAUDE.md "How schema drift happens").

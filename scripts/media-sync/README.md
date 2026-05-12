@@ -41,7 +41,7 @@ UMBRACO_LIVE_URL=https://<your-live-host>     # default source environment
 URL=https://localhost:44367                    # or UMBRACO_BASE_URL
 ```
 
-The OAuth client is the same one used by the rest of the project — see [CLAUDE.md → Modifying Umbraco Content from Claude Code](../../CLAUDE.md) for setup.
+The OAuth client is the same one used by the rest of the project — see the `/umbraco-edit` skill ([.claude/commands/umbraco-edit.md](../../.claude/commands/umbraco-edit.md)) for the token request shape.
 
 ## Exit codes
 

@@ -20,13 +20,17 @@ In-flight features — actively iterating; each has a non-empty Increments queue
 
 Committed work, no spec yet. Promote into a feature folder when starting.
 
-- **site-polish-2026-05** — bag of small fixes: styling, swap subtitle → meta description in article listings, remove "Generic" tab and fold its fields into existing tabs on selected doc types → one batched spec when ready (no feature doc — cosmetic fixes)
+- **section-nav-hide-toggle** — extracted from the polish bundle. New `hideFromSectionNavigation` boolean alongside the existing `umbracoNaviHide` / `hideFromTopNavigation` / `hideFromXMLSitemap` toggles in the Visibility Controls composition; `sectionNavigation.cshtml` filters by it. Earns a new Increment on `_features/section-navigation.md` → run `/spec section-nav-hide-toggle` from master
+- **cleanup-contact-dead-code** — remove the unused `Views/Components/Contact/Default.cshtml` view component. Never invoked (the live form renders via Umbraco Forms' `RenderForm`). Five-minute housekeeping
+- **test-infra-centralise-nodetls** — every spec file repeats `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'` at module scope; centralise in `playwright.config.ts` and prune duplicates
 
 ## Later
 
 Wishlist. Promote into Next when scope and timing become clearer.
 
 - **hero-block** — new block component. v1: image + text + button. Later: backoffice text positioning, background-video variant, layout configuration choices → `_features/hero-block.md` (no spec yet)
+- **workflow-bundle-mode** — `/spec` and `/plan` currently hard-code a feature-doc step (draft skeleton in `/spec`, `/feature update` final step in `/plan`). Cleanup bundles don't earn a feature doc, so both required manual deviation on `site-polish-2026-05`. Add a `--bundle` mode (or auto-detection) that suppresses the feature-doc steps. Second data point will justify the change
+- **workflow-implement-step** — `/implement-step _plans/<slug>.md N` spawns a subagent for one plan step so main context stays clean. Designed in the workflow scaffolding plan, deferred pending real pain. Site-polish stayed coherent across 7 steps in one context — no urgency yet
 
 ## Bundles
 
@@ -46,6 +50,7 @@ Each feature below has its full behavioral contract in `_features/<slug>.md` and
 - [image-carousel-captions-controls](_features/image-carousel-captions-controls.md) — 2026-04-13
 - [site-header](_features/site-header.md) — 2026-04-14
 - [umbraco-ai-search](_features/umbraco-ai-search.md) — 2026-04-22
+- **site-polish-2026-05** — 2026-05-12 — cleanup bundle (5 items: metaDescription on listings, Generic-tab fix via composition promote, Contact form restyle, Notes block restyle, capabilities doc refresh + CMS push). No feature doc; spec/plan under `_specs/shipped/` and `_plans/shipped/` once archived
 
 ---
 

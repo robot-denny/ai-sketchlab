@@ -63,7 +63,51 @@ Each step is designed to be completed independently in its own context window. T
 
 ---
 
-### Step 2 — Audit the "Generic" tab and consolidate (interactive)
+### Step 2 — Audit the "Generic" tab and consolidate (interactive) — FIX APPLIED
+
+**Outcome (2026-05-12)**: Audit + targeted single-composition fix. The user provided backoffice screenshots showing a "Generic" tab on Content, Author, Contact, Documentation, and other page doc types. The tab consistently held a "Header" group containing the **Page Head Pattern** property.
+
+**Root cause**: The `Page Head Pattern Controls` composition (id `d03e1062-f895-4262-9827-5f35caa93a42`) had its single PropertyGroup declared as a **Group** (`Type: null`) named "Header" with no parent tab. Umbraco's UI cannot render an orphan group inline, so it auto-wraps it under a synthetic "Generic" tab in every doc type that composes this composition.
+
+**Fix**: Promoted the orphan group to a proper **Tab** named "Content" (alias `content`, type=Tab, sortOrder=10) — reusing the existing container UUID so the property reference stays valid. The Page Head Pattern property's sortOrder is 11, slotting it just after `subtitle` (10) in the merged Content tab provided by `Header Controls`.
+
+**Files changed** (just one):
+- `src/UmbracoProject/umbraco/Deploy/Revision/document-type__d03e1062f895426298275f35caa93a42.uda` — container Name "Header"→"Content", alias "header"→"content", added `Type: 1` and `SortOrder: 10`; property got `SortOrder: 11`.
+
+Composing doc types' `.uda` files did NOT need updates — they reference the composition by UDI, so the change propagates automatically.
+
+**Backoffice effect** (across every doc type that composes Page Head Pattern Controls — Content, Documentation, Article, Article List, Author, Author List, Contact, Home, Search, Style Guide Page, How-To Guide Page):
+- "Generic" tab disappears
+- Page Head Pattern field appears under the Content tab, after Subtitle
+
+**Verification**:
+- Single-file .uda diff confirmed, no collateral changes
+- Dev server still responds 200
+- Content values for `pageHeadPattern` are preserved (data is keyed by alias, not container)
+
+**What was inspected**:
+- All 16 page doc types (Article, Article List, Author, Author List, Category, Category List, Contact, Content, Documentation, Error, Home, Image Generator Settings, Login, Search, Site Settings, XML Sitemap) — via MCP `get-document-type-by-id`
+- All 4 top-level page doc types (Guides, How-To Guide Page, Style Guide Page, plus Guide Visibility Controls)
+- All 8 confirmed compositions (Article Controls, Content Controls, SEO Controls, Visibility Controls, Main Image Controls, Header Controls, Home Content Controls indirectly) — via MCP
+- All 43 PropertyGroups across all serialized `.uda` files — via grep
+- `grep -i "generic"` across the entire `umbraco/Deploy/Revision/` directory — zero hits
+
+**What was found**:
+- 35 PropertyGroups are tabs (`Type: 1`)
+- 8 PropertyGroups are nested groups within tabs (`Type: null`) — all with explicit names (Content, Palette, Pull Quote, Manifesto, Header)
+- Zero properties exist without a container assignment (no orphans that would render as "Generic properties" in Umbraco's UI fallback)
+- Zero tabs or groups named "Generic", "General", "Other", or "Default"
+
+**Best hypotheses**:
+1. The user is seeing Umbraco's UI auto-label for ungrouped properties — but the audit confirms no such properties exist in this schema.
+2. There's local backoffice state that hasn't been serialized to `.uda` yet — but `/check-uda` would have caught any drift.
+3. The user is conflating a tab name (e.g. "Content") with "generic" as an adjective — i.e., they want certain tabs renamed or restructured, not removed.
+
+**Resolution**: One composition fix; no schema migration script needed.
+
+---
+
+### Step 2 (original prompt, now resolved)
 
 > **Prompt**: Implement Step 2 of `_plans/site-polish-2026-05.md`. This is an interactive audit + schema change. Begin by asking the user to confirm which doc types have a "Generic" tab — MCP inspection during planning found none literally named that, so the user must either show a screenshot or name the doc types. Once the doc-type list is confirmed, query MCP for each (`mcp__umbraco-mcp__get-document-type-by-id`) to enumerate properties currently on the Generic group. Propose a target tab per field (SEO → SEO tab, content fields → Content tab, etc.) and confirm with user. Then use `mcp__umbraco-mcp__update-document-type` to move each property into its target tab. After updates, run `/check-uda` and inspect git diff in `src/UmbracoProject/umbraco/Deploy/Revision/` for unintended changes. End by opening the affected doc types in the backoffice and confirming the Generic tab is gone and all fields appear under their new tabs.
 

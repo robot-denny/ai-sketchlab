@@ -3,7 +3,7 @@
 > **My Source of truth** for what I've tested with MCP integration and Umbraco AI.
 > This file should be kept in sync with the [Capabilities page](https://umbraco-17-demo-site.useast01.umbraco.io/capabilities/) in the Umbraco backoffice.
 
-**Last Updated:** 2026-04-28
+**Last Updated:** 2026-05-12
 
 ---
 
@@ -62,6 +62,7 @@
 | Custom Settings dashboard (Image Generator — single/batch generation controls) | ✅ | Commit `55306d4` — Lit dashboard in Settings section with C# API controller. Palette editing moved to standard Umbraco content editor in `c30de0b` |
 | Property action on media picker (one-click image generation from article edit page) | ✅ | Commit `55306d4` — registered on `Umbraco.MediaPicker3` properties |
 | C# API controller backing a backoffice extension (generation + process spawning) | ✅ | `src/HelloWorld/ImageGeneratorController.cs` |
+| TipTap `styleMenu` extension manifest for editor-applied typography classes | ✅ | Commit `972bf37` — replaces the legacy TinyMCE `/**umb_name:Label*/` annotation approach (which TipTap doesn't parse). Manifest at `src/HelloWorld/Client/src/richtext/manifest.ts` declares `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'` so the built-in toolbar entry is replaced in-place — no data type edit required. Adds Editorial classes (Lead, Overline, Pull quote, Caption), full h2–h6 headers, and container styles to the rich-text Style Select dropdown |
 
 ### Claude Code Custom Commands
 
@@ -74,10 +75,11 @@
 | `/code-review` — Orchestrates three subagents in parallel (accessibility, code quality, performance) to review uncommitted changes | ✅ | Commits `f330598`, `a9e5f6b`, `a60fb21` — three specialized agents run concurrently and report findings |
 | `/check-uda` — Detailed pre-commit analysis of Umbraco Deploy schema conflicts (fetches remote state, rates severity, gives remediation steps) | ✅ | Commit `f5ee9bb` — also ships pre-commit/pre-push/post-merge git hooks in `.githooks/` |
 | `/cms-image` — Generate flow-field featured images from article metadata and publish to CMS | ✅ | Commit `8bd4457` — CLI + backoffice integration |
+| `/guide` — Generate / amend editor-facing how-to guide pages for blocks and global features | ✅ | Commit `eff0370` — TypeScript CLI that calls a backoffice AI agent (with editable brand-voice contexts) to write each guide's description. Preserves editor-uploaded screenshots and live-example slots across re-runs. `--audit` mode reports missing-blocks, missing-globals, and orphaned guides (exit code 1 when gaps exist); `--auto-apply` skips the interactive approval prompt |
 
 ### Development Workflow
 
-End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Six features have travelled this pipeline so far (see `_features/`): `section-navigation`, `alert-banner-icons`, `image-carousel-captions-controls`, `image-generator`, `site-header`, `umbraco-ai-search`. Shipped specs and plans are archived under `_specs/shipped/` and `_plans/shipped/` so the top-level lists reflect only active work.
+End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Nine features have travelled this pipeline so far (see `_features/`): `section-navigation`, `alert-banner-icons`, `image-carousel-captions-controls`, `image-generator`, `site-header`, `umbraco-ai-search`, `living-style-guide`, `editor-how-to-guides`, `ella-block-attribution`. Shipped specs and plans are archived under `_specs/shipped/` and `_plans/shipped/` so the top-level lists reflect only active work. The pipeline now sits on top of a roadmap layer: [ROADMAP.md](../ROADMAP.md) tracks active and queued work across features, and each `_features/<slug>.md` carries an `Increments` section listing shipped + planned iterations within that feature.
 
 | Stage | Command | Artifact | Notes |
 |---|---|---|---|
@@ -86,6 +88,8 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | 3. Plan → TDD block (RED → GREEN) | `/block` | E2E spec + element type + Razor partial | E2E test fails first, then element type created via Management API, then partial added until test passes. Registers block in Block List data type via MCP and guards against `{alias}.cshtml` naming drift. |
 | 4. Implementation → living BDD spec | `/feature` | `_features/{slug}.md` | Given/When/Then scenarios grouped by Rule, test coverage table; kept in sync as the feature evolves — the regression source of truth |
 | 5. Uncommitted changes → review | `/code-review` | — | Three parallel subagents: accessibility, code quality, performance |
+
+**Roadmap + Increments layer** (commit `6925fcb`): [ROADMAP.md](../ROADMAP.md) at repo root is the project-level queue (Now / Next / Later / Bundles). Each `_features/<slug>.md` has an `Increments` section listing shipped + planned iterations for that feature, so a "feature" is now durable across multiple spec/plan cycles. Every workflow command (`/spec`, `/plan`, `/feature`, `/code-review`) ends with a `Next:` segue line pointing at the next stage. The layer model is documented under **Workflow layers** in [CLAUDE.md](../CLAUDE.md).
 
 ### Site Features
 
@@ -99,6 +103,9 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | Reading-time helper computed from word count | ✅ | `src/UmbracoProject/Helpers/ReadingTime.cs` — iterates `BlockListModel` rows, strips HTML, divides by 225 wpm, floor of 1 minute. Per-request `IMemoryCache` keyed on `article.Id + UpdateDate.Ticks`. Wired into `_MastheadArticle`, `_LatestSection`, `_ArticleCard` partials |
 | Editorial dictionary keys for chrome strings | ✅ | 12 new dictionary keys seeded for v2 chrome (`Home.HeroEyebrow`, `Home.LatestTitle`, `Footer.PublicationHeading`, `Article.By`, `Navigation.MenuTitle`, etc.) — managed under Translation in the backoffice |
 | E2E selector retargeting alongside template cutover | ✅ | `siteHeader.spec.ts`, `sectionNavigation.spec.ts`, `linkStyles.spec.ts`, `updatedFooter.spec.ts` retargeted phase-by-phase from legacy markup (`header.masthead`, `#mainNav`, `.section-nav-desktop`) to v2 class vocabulary (`.site-head`, `.site-nav`, `.section-nav`, `.foot`, `.page-head`, `.art-head`) |
+| Living style guide as block-driven CMS content (`/styleguide` + `/styleguide/components`) | ✅ | Commits `75538dc`, `c9a786d`, `d70f35d` — three new programmatic element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the previous hardcoded sections; editors arrange rows in the CMS and can add narrative rich-text around the showcase blocks. Color swatches and typography examples read live from `typography.css` at render time via the `/**umb_swatch:LABEL*/` annotation |
+| Editor how-to guides as CMS content (`/guides/` section, `How-To Guide Page` doc type with description + screenshot + generation-metadata) | ✅ | Commits `eff0370`, `aa5f1c6`, `d9b7ef2` — `/guide` CLI (see Custom Commands) keeps descriptions in sync with source. Descriptions are written by a backoffice AI agent so brand voice stays editable in the CMS. Live-example slot for block features, optional screenshot for non-block features. Hidden from main top nav by default; reachable by URL |
+| AI-author per-block attribution (`.ella-wrap` inline-note treatment for blocks whose author is an AI persona) | ✅ | Commits `9aff6b3`, `601b98c`, `b5cde01` — new `AI Persona Properties` composition adds an `isAi` toggle to the Author doc type. In a human-led article, any block whose Author is `isAi=true` is wrapped in `.ella-wrap` with a CSS-generated "Written by {persona} · inline note" eyebrow and warm-stone callout treatment. All-AI articles suppress the per-block treatment entirely |
 
 ### Procedural Image Generation
 
@@ -209,3 +216,8 @@ Public-site search at `/search` runs on the new `Umbraco.Cms.Search` framework (
 | 2026-04-23–04-27 | Design-system v2 rollout (Package C) — 9 phases, parallel `master-v2.cshtml` chrome converted page-by-page (error → contact → authors → articleList → search → content/documentation → article → home), legacy partials retired in Phase 9 with `master-v2 → master` rename. Added `pageHeadPatternControls` composition, `ReadingTime` helper, Home manifesto/pull-quote fields, 12 dictionary keys. `/check-uda` used to detect drift across phases; one Live restart needed to import a stuck schema bundle | `c5c4ae9`, `1107aa3`, `b9b11ca`, `0b10638`, `7c203b4`, `a3b87db`, `8d82dce`, `2287375`, `2443d31` |
 | 2026-04-28 | Cleanup pass: archived shipped specs/plans into `_specs/shipped/` and `_plans/shipped/`, refreshed CLAUDE.md (consolidated pinned-betas, updated package list and Node path, fixed Cms.Search version), renamed `_specs/template.md` → `_specs/_template.md` | `5d3f636` |
 | 2026-04-28 | Updated Capabilities tracker with site search, AI deploy, design-system v2 rollout, schema-rollout-with-`/check-uda`, and AI deploy / vector index limitations | — |
+| 2026-05-01 | Converted the living style guide to block-driven authoring: three new programmatic element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the hardcoded sections; editors arrange rows in the CMS; added `/styleguide/components` child page that demonstrates every reusable block | `75538dc`, `c9a786d`, `d70f35d` |
+| 2026-05-04 | Shipped editor how-to guides: `/guide` CLI command, `How-To Guide Page` doc type under `/guides/`, AI-Agent-driven description generation that preserves editor screenshots and live-example slots, `--audit` mode for missing/orphaned guides | `eff0370`, `aa5f1c6`, `d9b7ef2` |
+| 2026-05-11 | Added AI-author per-block attribution: `AI Persona Properties` composition adds an `isAi` toggle to the Author doc type; the article orchestrator wraps any block whose author is `isAi=true` inside a `.ella-wrap` inline-note treatment when the article isn't entirely AI-authored | `9aff6b3`, `601b98c`, `b5cde01` |
+| 2026-05-11 | Replaced the legacy TinyMCE `/**umb_name:Label*/` Style Select approach with a TipTap `styleMenu` extension manifest in HelloWorld (`overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`); adds Overline, Caption, h5/h6, and Editorial classes (Lead / Pull quote) to the rich-text Style Select dropdown | `972bf37` |
+| 2026-05-12 | Workflow scaffolding: added [ROADMAP.md](../ROADMAP.md) (Now/Next/Later/Bundles) at repo root, an `Increments` section template applied to all 9 `_features/*.md`, `Next:` segue footers on `/spec` `/plan` `/feature` `/code-review`, and a "Workflow layers" section in CLAUDE.md. Defers `/explore` `/prd` `/roadmap` `/implement-step` commands until the conventions have been used for a sprint | `6925fcb` |

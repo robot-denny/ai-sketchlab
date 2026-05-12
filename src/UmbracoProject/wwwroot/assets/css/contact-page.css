@@ -1,0 +1,227 @@
+/* ================================================================
+   v2 hybrid — Contact page
+   ----------------------------------------------------------------
+   Aligns Umbraco Forms' default-theme output with the design system.
+   The form's HTML is owned by Umbraco Forms (we don't replace it),
+   so these rules target .umbraco-forms-* classes directly. All
+   selectors are prefixed with .umbraco-forms-form to outrank the
+   Umbraco Forms theme stylesheet that loads later in the cascade.
+   Loaded only on the contact template.
+   ================================================================ */
+
+/* ── Wrapper / vertical rhythm ──────────────────────────────────── */
+
+main.wrap-narrow > .my-5 {
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.umbraco-forms-form {
+  margin: var(--space-lg) 0 0;
+}
+
+/* ── Hide redundant chrome ──────────────────────────────────────── */
+/* The page-head H1 already says "Contact"; the form's H4 caption and
+   the fieldset's internal "ContactForm" legend would duplicate it
+   visibly. Hide them accessibly (still announced to screen readers
+   that look at them). */
+
+.umbraco-forms-form .umbraco-forms-caption,
+.umbraco-forms-form .umbraco-forms-fieldset > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Fieldset / container reset ─────────────────────────────────── */
+
+.umbraco-forms-form .umbraco-forms-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.umbraco-forms-form .umbraco-forms-container {
+  padding: 0;
+}
+
+/* ── Field block — vertical rhythm ──────────────────────────────── */
+
+.umbraco-forms-form .umbraco-forms-field {
+  margin-bottom: var(--space-lg);
+}
+
+.umbraco-forms-form .umbraco-forms-field:last-of-type {
+  margin-bottom: 0;
+}
+
+/* ── Labels ─────────────────────────────────────────────────────── */
+
+.umbraco-forms-form .umbraco-forms-label {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.umbraco-forms-form .umbraco-forms-indicator {
+  color: var(--accent-primary);
+  margin-left: 0.25em;
+  font-weight: 600;
+}
+
+/* ── Helper text (tooltip / .help-block) ────────────────────────── */
+
+.umbraco-forms-form .umbraco-forms-tooltip,
+.umbraco-forms-form .help-block {
+  display: block;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-sm);
+}
+
+/* ── Inputs and textareas ───────────────────────────────────────── */
+
+.umbraco-forms-form .umbraco-forms-field-wrapper input.text,
+.umbraco-forms-form .umbraco-forms-field-wrapper input[type="text"],
+.umbraco-forms-form .umbraco-forms-field-wrapper input[type="email"],
+.umbraco-forms-form .umbraco-forms-field-wrapper textarea {
+  width: 100%;
+  /* Theme stylesheet sets `max-width:400px!important` — override here
+     to honour the 780px content column rhythm. !important is the only
+     way to outrank another !important, regardless of specificity. */
+  max-width: 100% !important;
+  display: block;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-medium);
+  border-radius: 0;
+  padding: 0.625rem 0.875rem;
+  margin: 0;
+  transition: border-color var(--ease-micro), box-shadow var(--ease-micro);
+}
+
+.umbraco-forms-form .umbraco-forms-field-wrapper input.text::placeholder,
+.umbraco-forms-form .umbraco-forms-field-wrapper input[type="text"]::placeholder,
+.umbraco-forms-form .umbraco-forms-field-wrapper input[type="email"]::placeholder,
+.umbraco-forms-form .umbraco-forms-field-wrapper textarea::placeholder {
+  color: var(--text-tertiary);
+  opacity: 1;
+}
+
+.umbraco-forms-form .umbraco-forms-field-wrapper input.text:focus,
+.umbraco-forms-form .umbraco-forms-field-wrapper input[type="text"]:focus,
+.umbraco-forms-form .umbraco-forms-field-wrapper input[type="email"]:focus,
+.umbraco-forms-form .umbraco-forms-field-wrapper textarea:focus {
+  outline: 0;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--accent-primary-subtle);
+}
+
+.umbraco-forms-form .umbraco-forms-field-wrapper textarea {
+  /* Theme stylesheet sets height:250px without !important; our
+     higher-specificity selector wins. height:auto lets resize work. */
+  height: auto;
+  min-height: 10rem;
+  resize: vertical;
+}
+
+/* ── Validation messages ────────────────────────────────────────── */
+
+.umbraco-forms-form .field-validation-error {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  /* Theme stylesheet sets `color:#8a1f11!important` here. */
+  color: var(--accent-primary) !important;
+  margin-top: var(--space-xs);
+}
+
+.umbraco-forms-form .umbraco-forms-field.umbraco-forms-invalid input.text,
+.umbraco-forms-form .umbraco-forms-field.umbraco-forms-invalid input[type="text"],
+.umbraco-forms-form .umbraco-forms-field.umbraco-forms-invalid input[type="email"],
+.umbraco-forms-form .umbraco-forms-field.umbraco-forms-invalid textarea {
+  border-color: var(--accent-primary);
+}
+
+/* ── Submit button ──────────────────────────────────────────────── */
+/* Umbraco Forms emits `btn primary` (NOT Bootstrap's `btn-primary`),
+   so we target both the compound and the raw `[type=submit]` to stay
+   robust if the theme tweaks its emitted classes. */
+
+.umbraco-forms-form .umbraco-forms-navigation .btn.primary,
+.umbraco-forms-form .umbraco-forms-navigation input[type="submit"] {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-on-dark);
+  background: var(--accent-primary);
+  border: 0;
+  border-radius: 0;
+  padding: 0.875rem 1.75rem;
+  cursor: pointer;
+  transition: background var(--ease-micro);
+}
+
+.umbraco-forms-form .umbraco-forms-navigation .btn.primary:hover,
+.umbraco-forms-form .umbraco-forms-navigation input[type="submit"]:hover {
+  background: var(--accent-primary-hover);
+  color: var(--text-on-dark);
+}
+
+.umbraco-forms-form .umbraco-forms-navigation .btn.primary:focus-visible,
+.umbraco-forms-form .umbraco-forms-navigation input[type="submit"]:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.umbraco-forms-form .umbraco-forms-navigation .col-md-12 {
+  padding: 0;
+}
+
+/* ── Result / instruction / success / error messages ────────────── */
+/* These render outside .umbraco-forms-form (raw rich-text from the
+   doc type's "Result Messages" tab). Style their paragraphs so they
+   read as design-system body type rather than UA defaults. */
+
+main.wrap-narrow > p,
+main.wrap-narrow > .my-5 > p {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md);
+  max-width: 36em;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .umbraco-forms-form .umbraco-forms-field {
+    margin-bottom: var(--space-md);
+  }
+
+  .umbraco-forms-form .umbraco-forms-navigation .btn.primary,
+  .umbraco-forms-form .umbraco-forms-navigation input[type="submit"] {
+    width: 100%;
+    padding: 1rem 1.75rem;
+  }
+}

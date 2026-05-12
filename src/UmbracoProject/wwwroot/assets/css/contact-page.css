@@ -147,6 +147,9 @@ main.wrap-narrow > .my-5 {
   display: block;
   font-family: var(--font-body);
   font-size: 0.875rem;
+  /* font-weight (non-colour signal) pairs with the red colour so the
+     error state survives red-green colour blindness — WCAG 1.4.1. */
+  font-weight: 600;
   /* Theme stylesheet sets `color:#8a1f11!important` here. */
   color: var(--accent-primary) !important;
   margin-top: var(--space-xs);
@@ -189,8 +192,12 @@ main.wrap-narrow > .my-5 {
 
 .umbraco-forms-form .umbraco-forms-navigation .btn.primary:focus-visible,
 .umbraco-forms-form .umbraco-forms-navigation input[type="submit"]:focus-visible {
-  outline: 2px solid var(--accent-primary);
+  /* Two-layer focus ring: cream outline reads against the red button,
+     red halo reads against the cream page surface — high contrast in
+     both directions. Meets WCAG 2.4.11 Focus Appearance. */
+  outline: 2px solid var(--surface-primary);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--accent-primary);
 }
 
 .umbraco-forms-form .umbraco-forms-navigation .col-md-12 {

@@ -7,6 +7,16 @@
 
 ---
 
+## Increments
+
+The per-feature mini-roadmap: shipped increments + planned increments + parking-lot ideas. Newest planned items first. When an item ships, flip the checkbox and point it at the shipped spec.
+
+- [x] {YYYY-MM-DD} — {shipped increment name} (spec: `_specs/shipped/{slug}-v1.md`)
+- [ ] {planned increment} (spec: `_specs/{slug}-v2.md`, no plan yet)
+- [ ] {parking lot idea} (no spec yet)
+
+---
+
 ## Behaviors
 
 Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.

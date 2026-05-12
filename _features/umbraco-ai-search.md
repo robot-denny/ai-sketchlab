@@ -7,6 +7,12 @@ Visitors can search the site's content from the `/search` page by typing a query
 
 ---
 
+## Increments
+
+- [x] 2026-04-22 — `/search` page powered by `Umbraco.AI.Search` (semantic) with Examine keyword fallback; system pages filtered; XSS-safe query echo (plan: `_plans/shipped/umbraco-ai-search.md`)
+
+---
+
 ## Behaviors
 
 ### Rule: Visitors can run a search from the /search page

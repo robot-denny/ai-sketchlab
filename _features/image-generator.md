@@ -7,6 +7,14 @@ CMS editors and developers can generate unique abstract featured images for blog
 
 ---
 
+## Increments
+
+- [x] 2026-04-09 — CLI generator: deterministic flow-field PNGs, batch + force + local-only modes (spec: `_specs/shipped/image-generator/image-generator.md`)
+- [x] 2026-04-09 — Backoffice dashboard + per-article property action (plan: `_plans/shipped/image-generator-backoffice.md`)
+- [x] 2026-04-09 — Palette storage migrated from JSON to CMS Block List for environment transfer via Umbraco Deploy (spec: `_specs/shipped/image-generator/palette-storage.md`)
+
+---
+
 ## Behaviors
 
 ### Rule: Each article produces a unique, deterministic flow-field image

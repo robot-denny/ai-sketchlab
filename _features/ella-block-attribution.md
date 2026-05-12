@@ -7,6 +7,12 @@ When the human site author and the AI persona Ella co-write a single article, re
 
 ---
 
+## Increments
+
+- [x] 2026-05-11 — `isAi` toggle on Author doc type, `.ella-wrap` inline-note treatment for AI-attributed blocks in human-led articles (spec: `_specs/ella-block-attribution.md`)
+
+---
+
 ## Behaviors
 
 ### Rule: The AI persona flag is a single property on the Author document type

@@ -7,6 +7,12 @@ The site header is the persistent navigation bar at the top of every page. It ha
 
 ---
 
+## Increments
+
+- [x] 2026-04-14 — Sticky white-background header with dark nav text, hero in normal flow below header, mobile dark-overlay menu, removal of legacy scroll-triggered nav classes (no source spec — design-system driven)
+
+---
+
 ## Behaviors
 
 ### Rule: The site header always has a white background

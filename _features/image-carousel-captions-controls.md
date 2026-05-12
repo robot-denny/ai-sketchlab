@@ -9,6 +9,14 @@ CMS editors can add optional captions to individual slides in an Image Carousel 
 
 ---
 
+## Increments
+
+- [x] 2026-04-13 — per-slide captions, Show captions toggle, refined control bar with responsive prev/next, icon-only play/pause, 44×44 targets (spec: `_specs/shipped/image-carousel-captions-controls.md`)
+
+The original Image Carousel Row block shipped earlier as part of `_specs/shipped/image-carousel-block.md` (no dedicated feature doc — the block is documented through this captions+controls iteration).
+
+---
+
 ## Behaviors
 
 Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.

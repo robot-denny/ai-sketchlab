@@ -46,3 +46,6 @@ Finish by asking:
 "Do you want me to implement the action plan now?"
 
 Wait for user confirmation before making any changes.
+
+After the action plan is applied (or explicitly skipped), end with a "Next:" line:
+`Next: /commit-message, then push`

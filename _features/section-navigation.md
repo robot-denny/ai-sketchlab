@@ -7,6 +7,12 @@ Section navigation is a contextual sidebar that helps visitors orient themselves
 
 ---
 
+## Increments
+
+- [x] 2026-04-09 — Section Navigation Controls composition, contextual sidebar with desktop/mobile responsive collapse, current-page highlight (spec: `_specs/shipped/section-navigation.md`)
+
+---
+
 ## Behaviors
 
 ### Rule: CMS editors control section navigation visibility per page

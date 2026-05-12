@@ -103,6 +103,7 @@ Feature doc: _features/{slug}.md
 Scenarios: {count}
 Test coverage: {covered}/{total} scenarios covered
 Conflicts resolved: {list any behavioral conflicts found and how they were resolved, or "None"}
+Next: /code-review before merge
 ```
 
 Do not print the full feature doc to chat unless the user asks. The doc lives in the file.

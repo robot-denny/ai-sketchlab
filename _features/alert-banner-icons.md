@@ -7,6 +7,12 @@ Alert banners display a contextual icon alongside their content so that visitors
 
 ---
 
+## Increments
+
+- [x] 2026-04-09 — default icons per severity + curated icon override dropdown (spec: `_specs/shipped/alert-banner-icons.md`)
+
+---
+
 ## Behaviors
 
 ### Rule: Each alert level displays a recognizable default icon

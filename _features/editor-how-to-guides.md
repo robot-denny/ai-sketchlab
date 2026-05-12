@@ -7,6 +7,14 @@ A new **Guides** section under Home gives CMS editors a single place to learn ho
 
 ---
 
+## Increments
+
+- [x] 2026-05-04 — `/guide` command, Guides section, How-To Guide Page doc type, audit mode, `--auto-apply` (spec: `_specs/editor-how-to-guides.md`)
+- [ ] Structure the generated description output (sections, headings, screenshot placement) — no spec yet
+- [ ] Add new fields / options to the How-To Guide Page type to support richer guides — no spec yet
+
+---
+
 ## Behaviors
 
 Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.

@@ -7,6 +7,14 @@ A `/styleguide` page acts as a self-updating brand and design reference for site
 
 ---
 
+## Increments
+
+- [x] 2026-04-29 — Initial styleguide page with brand summary and hardcoded showcase sections (spec: `_specs/living-style-guide.md`)
+- [x] 2026-05-01 — Block-driven architecture: `colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock` element types; editor-arrangeable section rows; `/styleguide/components` child page
+- [x] 2026-05-11 — TipTap `styleMenu` extension manifest for editorial classes (replaces TinyMCE `/**umb_name*/` annotations); editor-iframe preview stylesheet resynced
+
+---
+
 ## Behaviors
 
 Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.

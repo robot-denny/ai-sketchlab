@@ -356,6 +356,12 @@ Three skills from [anthropics/skills](https://github.com/anthropics/skills) are 
 
 `frontend-design` is installed at [.agents/skills/frontend-design/](.agents/skills/frontend-design/) (the Anthropic skills convention) with a symlink at `.claude/skills/frontend-design` so Claude Code discovers it. Hash tracked in [skills-lock.json](skills-lock.json).
 
+## Workflow layers
+
+Work flows through five layers, loose-to-tight: **Roadmap → Feature → Spec → Plan → Implement**. The project-level queue lives in [ROADMAP.md](ROADMAP.md); per-feature mini-roadmaps live in the **Increments** section of each `_features/<slug>.md`. Each spec covers a single increment (not a whole feature). When a body of work spans 3+ features and needs a shared intent doc, write an optional PRD at `_prds/<slug>.md` and link it from the roadmap.
+
+Entry-point commands per layer: `/spec <slug>` → `/plan _specs/<slug>.md` → run the plan's steps → `/feature update <slug>` → `/code-review`. Every command ends with a "Next:" line pointing at the next stage.
+
 ## Project Planning
 
 - `_specs/` — feature specification documents (initial requirements, design rationale, open questions — the "why")

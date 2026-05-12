@@ -88,5 +88,6 @@ Branch: <branch_name>
 Spec file: _specs/<feature_slug>.md
 Feature doc (draft): _features/<feature_slug>.md
 Title: <feature_title>
+Next: /plan _specs/<feature_slug>.md
 
 Do not repeat the full spec in the chat output unless the user explicitly asks to see it. The main goal is to save the files and report where they live and what branch name to use.

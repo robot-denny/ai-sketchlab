@@ -33,12 +33,14 @@
     var a = Model;
     if (a == null) { return; }
 
-    var img     = a.Value<MediaWithCrops>("mainImage");
-    var date    = a.Value<DateTime?>("articleDate");
-    var authors = a.Value<IEnumerable<ContentModels.Author>>("author");
-    var sub     = a.Value<string>("subtitle");
-    var title   = a.Value<string>("title");
-    var heading = !string.IsNullOrWhiteSpace(title) ? title : a.Name;
+    var img      = a.Value<MediaWithCrops>("mainImage");
+    var date     = a.Value<DateTime?>("articleDate");
+    var authors  = a.Value<IEnumerable<ContentModels.Author>>("author");
+    var sub      = a.Value<string>("subtitle");
+    var metaDesc = a.Value<string>("metaDescription");
+    var teaser   = !string.IsNullOrWhiteSpace(metaDesc) ? metaDesc : sub;
+    var title    = a.Value<string>("title");
+    var heading  = !string.IsNullOrWhiteSpace(title) ? title : a.Name;
 
     string author = null;
     if (authors != null)
@@ -75,9 +77,9 @@
         </p>
     }
     <h3 class="card-title"><a href="@a.Url()">@heading</a></h3>
-    @if (!string.IsNullOrWhiteSpace(sub))
+    @if (!string.IsNullOrWhiteSpace(teaser))
     {
-        <p class="card-sub">@sub</p>
+        <p class="card-sub">@teaser</p>
     }
     @if (!string.IsNullOrWhiteSpace(author))
     {

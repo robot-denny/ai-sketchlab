@@ -49,9 +49,13 @@
                         @(!string.IsNullOrWhiteSpace(article.Title) ? article.Title : article.Name)
                     </h2>
                 </a>
-                @if (!string.IsNullOrWhiteSpace(article.Subtitle))
+                @{
+                    var listMeta = article.Value<string>("metaDescription");
+                    var listTeaser = !string.IsNullOrWhiteSpace(listMeta) ? listMeta : article.Subtitle;
+                }
+                @if (!string.IsNullOrWhiteSpace(listTeaser))
                 {
-                    <p class="post-subtitle">@article.Subtitle</p>
+                    <p class="post-subtitle">@listTeaser</p>
                 }
                 <p class="post-meta @(showFullArticleOnListPage ? "mb-0" : "")">
                     @Umbraco.GetDictionaryValue("Article.Posted")

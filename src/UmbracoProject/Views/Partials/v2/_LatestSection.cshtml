@@ -78,13 +78,15 @@
                 var fAuthors = featured.Value<IEnumerable<ContentModels.Author>>("author");
                 var fAuthor  = FormatAuthors(fAuthors);
                 var fSub     = featured.Value<string>("subtitle");
+                var fMeta    = featured.Value<string>("metaDescription");
+                var fTeaser  = !string.IsNullOrWhiteSpace(fMeta) ? fMeta : fSub;
                 var fReading = ReadingTime.Estimate(featured, MemoryCache);
             }
             <p class="num">01@(fDate.HasValue ? $" · {fDate.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(fReading) ? $" · {fReading}" : "")</p>
             <h2><a href="@featured.Url()">@(!string.IsNullOrWhiteSpace(featured.Title) ? featured.Title : featured.Name)</a></h2>
-            @if (!string.IsNullOrWhiteSpace(fSub))
+            @if (!string.IsNullOrWhiteSpace(fTeaser))
             {
-                <p class="sub">@fSub</p>
+                <p class="sub">@fTeaser</p>
             }
             @if (!string.IsNullOrWhiteSpace(fAuthor))
             {
@@ -98,12 +100,14 @@
         @foreach (var a in rest)
         {
             n++;
-            var img     = a.Value<MediaWithCrops>("mainImage");
-            var date    = a.Value<DateTime?>("articleDate");
-            var authors = a.Value<IEnumerable<ContentModels.Author>>("author");
-            var author  = FormatAuthors(authors);
-            var sub     = a.Value<string>("subtitle");
-            var reading = ReadingTime.Estimate(a, MemoryCache);
+            var img      = a.Value<MediaWithCrops>("mainImage");
+            var date     = a.Value<DateTime?>("articleDate");
+            var authors  = a.Value<IEnumerable<ContentModels.Author>>("author");
+            var author   = FormatAuthors(authors);
+            var sub      = a.Value<string>("subtitle");
+            var metaDesc = a.Value<string>("metaDescription");
+            var teaser   = !string.IsNullOrWhiteSpace(metaDesc) ? metaDesc : sub;
+            var reading  = ReadingTime.Estimate(a, MemoryCache);
 
             <article class="entry">
                 <a href="@a.Url()" class="thumb">
@@ -114,9 +118,9 @@
                 </a>
                 <p class="num">@n.ToString("00")@(date.HasValue ? $" · {date.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(reading) ? $" · {reading}" : "")</p>
                 <h3><a href="@a.Url()">@(!string.IsNullOrWhiteSpace(a.Title) ? a.Title : a.Name)</a></h3>
-                @if (!string.IsNullOrWhiteSpace(sub))
+                @if (!string.IsNullOrWhiteSpace(teaser))
                 {
-                    <p class="sub">@sub</p>
+                    <p class="sub">@teaser</p>
                 }
                 @if (!string.IsNullOrWhiteSpace(author))
                 {

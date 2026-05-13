@@ -1,0 +1,41 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using System.Text.RegularExpressions
+
+@{
+    var c = Model.Content;
+    var pillarNumber = c.Value<int>("pillarNumber");
+    var eyebrow = c.Value<string>("eyebrow");
+    var headline = c.Value<string>("headline");
+    var lede = c.Value<string>("lede");
+    var tone = c.Value<string>("tone");
+    if (string.IsNullOrWhiteSpace(tone)) { tone = "light"; }
+    var anchorId = c.Value<string>("anchorId");
+    if (!string.IsNullOrWhiteSpace(anchorId))
+    {
+        anchorId = Regex.Replace(anchorId, @"[^\w\-]", "-").Trim('-');
+        if (string.IsNullOrEmpty(anchorId)) { anchorId = null; }
+    }
+    else { anchorId = null; }
+}
+
+<section class="exp-pillar exp-pillar--@tone" id="@anchorId">
+    <div class="exp-pillar__head">
+        @if (pillarNumber > 0)
+        {
+            <span class="exp-pillar__number" aria-hidden="true">@pillarNumber.ToString("00")</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(eyebrow))
+        {
+            <p class="exp-pillar__eyebrow">@eyebrow</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(headline))
+        {
+            <h2 class="exp-pillar__headline">@headline</h2>
+        }
+        @if (!string.IsNullOrWhiteSpace(lede))
+        {
+            <p class="exp-pillar__lede">@lede</p>
+        }
+    </div>
+    @await Html.GetBlockGridItemAreasHtmlAsync(Model)
+</section>

@@ -1,0 +1,7 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models.Blocks
+
+@{
+    var listItem = new BlockListItem(Model.ContentKey, Model.Content, Model.SettingsKey, Model.Settings);
+}
+@await Html.PartialAsync("~/Views/Partials/blocklist/Components/imageRow.cshtml", listItem)

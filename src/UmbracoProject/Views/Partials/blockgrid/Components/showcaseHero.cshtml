@@ -1,0 +1,42 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models.PublishedContent
+@* a11y deferral: <h1> here pairs with _SiteHead.cshtml's <h1>. Fix is site-wide (wordmark → <p>), not scoped to this PR. *@
+
+@{
+    var c = Model.Content;
+    var eyebrow = c.Value<string>("eyebrow");
+    var headline = c.Value<string>("headline");
+    var subhead = c.Value<string>("subhead");
+    var backgroundImage = c.Value<IPublishedContent>("backgroundImage");
+    var accentMark = c.Value<string>("accentMark");
+    var bgUrl = backgroundImage?.Url();
+    var heroStyle = bgUrl != null ? $"--exp-hero-bg: url(\"{bgUrl}\");" : null;
+}
+
+@if (bgUrl != null)
+{
+    @* Preload hint: browsers can't discover background-image URLs from a CSS
+       custom property until styles are computed. Emitting <link rel="preload">
+       lets the preload scanner start the fetch during HTML parse. *@
+    <link rel="preload" as="image" href="@bgUrl" fetchpriority="high" />
+}
+<section class="exp-hero" style="@heroStyle">
+    <div class="exp-hero__inner">
+        @if (!string.IsNullOrWhiteSpace(eyebrow))
+        {
+            <p class="exp-hero__eyebrow">@eyebrow</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(headline))
+        {
+            <h1 class="exp-hero__headline">@headline</h1>
+        }
+        @if (!string.IsNullOrWhiteSpace(subhead))
+        {
+            <p class="exp-hero__subhead">@subhead</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(accentMark))
+        {
+            <span class="exp-hero__accent">@accentMark</span>
+        }
+    </div>
+</section>

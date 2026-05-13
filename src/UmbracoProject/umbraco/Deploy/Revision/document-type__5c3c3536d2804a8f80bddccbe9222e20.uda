@@ -1,0 +1,70 @@
+{
+  "Name": "Experiments Landing Page",
+  "Alias": "experimentsLandingPage",
+  "DefaultTemplate": "umb://template/ef27c2a5e5e44a29a35f80f3c15ca4d2",
+  "AllowedTemplates": [
+    "umb://template/ef27c2a5e5e44a29a35f80f3c15ca4d2"
+  ],
+  "HistoryCleanup": {},
+  "Icon": "icon-presentation color-red",
+  "Thumbnail": "folder.png",
+  "Description": "Landing page showcasing the capabilities this site has unlocked. Demonstrates Block Grid layout with areas and multi-column rows.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [
+    "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+    "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+    "umb://document-type/d03e1062f895426298275f35caa93a42",
+    "umb://document-type/ef741d00fa224ab6b5ba1b450850a350"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "bbbf62e4-5722-4fba-9aad-c0ae67ab341d",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "516548c2-6256-412b-ae5f-a6bfe0981600",
+          "Alias": "body",
+          "DataType": "umb://data-type/a001e2823458461abd10600c93a80de1",
+          "Description": "Block Grid layout containing the hero, capability pillars, and closing band.",
+          "Name": "Body",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/5c3c3536d2804a8f80bddccbe9222e20",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/a001e2823458461abd10600c93a80de1",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d03e1062f895426298275f35caa93a42",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/ef741d00fa224ab6b5ba1b450850a350",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://template/ef27c2a5e5e44a29a35f80f3c15ca4d2",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

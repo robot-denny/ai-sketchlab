@@ -1,0 +1,71 @@
+{
+  "Name": "Pull Quote Block",
+  "Alias": "pullQuoteBlock",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-quote color-indigo",
+  "Thumbnail": "folder.png",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "62ce1c8b-a9f4-4e25-9775-48b7929cde69",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "5c33e2a4-2bfb-4a9a-8534-06e919f75075",
+          "Alias": "attribution",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Mandatory": true,
+          "Name": "Attribution",
+          "SortOrder": 20
+        },
+        {
+          "Key": "613a5e05-5307-4f15-9a7f-222fd0d9161c",
+          "Alias": "attributionRole",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Name": "Attribution Role",
+          "SortOrder": 30
+        },
+        {
+          "Key": "9ea9ca26-feb7-4448-8ef2-53004ccd286d",
+          "Alias": "quote",
+          "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "Mandatory": true,
+          "Name": "Quote",
+          "SortOrder": 10
+        },
+        {
+          "Key": "cab5d109-fba2-4ed8-8cec-48d8b2f92bf0",
+          "Alias": "tone",
+          "DataType": "umb://data-type/aa58c9784a99401a96a36f3dd4ca614d",
+          "Name": "Tone",
+          "SortOrder": 40
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/386dc1ae36c6447ba948675722136d03",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/aa58c9784a99401a96a36f3dd4ca614d",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

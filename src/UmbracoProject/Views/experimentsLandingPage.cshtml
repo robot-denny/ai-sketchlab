@@ -1,0 +1,20 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.ExperimentsLandingPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models.Blocks
+
+@{
+    Layout = "master.cshtml";
+    var body = Model.Value<BlockGridModel>("body");
+}
+
+@section Styles {
+    <link href="/assets/css/experiments.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script defer src="/assets/js/experiments.js" asp-append-version="true"></script>
+}
+
+<main class="experiments">
+    @await Html.GetBlockGridHtmlAsync(body)
+</main>

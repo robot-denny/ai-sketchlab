@@ -1,0 +1,25 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+
+@{
+    var c = Model.Content;
+    var figure = c.Value<string>("figure");
+    var unit = c.Value<string>("unit");
+    var supporting = c.Value<string>("supporting");
+}
+
+<figure class="exp-stat">
+    <div class="exp-stat__display">
+        @if (!string.IsNullOrWhiteSpace(figure))
+        {
+            <span class="exp-stat__figure">@figure</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(unit))
+        {
+            <span class="exp-stat__unit">@unit</span>
+        }
+    </div>
+    @if (!string.IsNullOrWhiteSpace(supporting))
+    {
+        <figcaption class="exp-stat__supporting">@supporting</figcaption>
+    }
+</figure>

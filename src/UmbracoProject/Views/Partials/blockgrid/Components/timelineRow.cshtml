@@ -1,0 +1,36 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models
+
+@{
+    var c = Model.Content;
+    var date = c.Value<DateTime?>("date");
+    var featureName = c.Value<string>("featureName");
+    var oneLiner = c.Value<string>("oneLiner");
+    var link = c.Value<IEnumerable<Link>>("link")?.FirstOrDefault();
+}
+
+<div class="exp-timeline__row">
+    @if (date.HasValue)
+    {
+        <time class="exp-timeline__date" datetime="@date.Value.ToString("yyyy-MM-dd")">@date.Value.ToString("MMM yyyy")</time>
+    }
+    <div class="exp-timeline__body">
+        @if (!string.IsNullOrWhiteSpace(featureName))
+        {
+            if (link != null && !string.IsNullOrWhiteSpace(link.Url))
+            {
+                <h3 class="exp-timeline__feature">
+                    <a href="@link.Url" target="@link.Target" rel="@(link.Type == LinkType.External ? "noopener" : null)">@featureName</a>
+                </h3>
+            }
+            else
+            {
+                <h3 class="exp-timeline__feature">@featureName</h3>
+            }
+        }
+        @if (!string.IsNullOrWhiteSpace(oneLiner))
+        {
+            <p class="exp-timeline__oneliner">@oneLiner</p>
+        }
+    </div>
+</div>

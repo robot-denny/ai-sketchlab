@@ -1,0 +1,55 @@
+{
+  "Name": "Command Badge",
+  "Alias": "commandBadge",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-terminal color-red",
+  "Thumbnail": "folder.png",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "298b3573-f4c2-475e-8fe6-19d0f7600644",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "49f232a3-9500-439b-b752-1e67c7d86d27",
+          "Alias": "oneLiner",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Name": "One Liner",
+          "SortOrder": 20
+        },
+        {
+          "Key": "8c094495-5ece-4ff2-a972-1cedccc85885",
+          "Alias": "commandName",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Mandatory": true,
+          "Name": "Command Name",
+          "SortOrder": 10
+        },
+        {
+          "Key": "e8cc2a14-2619-4f03-92c1-810a5f0cf91f",
+          "Alias": "meta",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Name": "Meta",
+          "SortOrder": 30
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/ebd96bcb41f94ad8a151120d44438cb9",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

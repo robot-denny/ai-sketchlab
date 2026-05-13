@@ -1,0 +1,20 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models.PublishedContent
+
+@{
+    var c = Model.Content;
+    var sketchUrl = c.Value<string>("sketchUrl");
+    var posterImage = c.Value<IPublishedContent>("posterImage");
+    var caption = c.Value<string>("caption");
+    if (string.IsNullOrWhiteSpace(sketchUrl) || posterImage == null) { return; }
+}
+
+<figure class="exp-sketch">
+    <div class="exp-sketch__slot" data-sketch-url="@sketchUrl">
+        <img class="exp-sketch__poster" src="@posterImage.Url()" alt="@(string.IsNullOrWhiteSpace(caption) ? "Interactive generative art sketch preview" : string.Empty)" loading="lazy" />
+    </div>
+    @if (!string.IsNullOrWhiteSpace(caption))
+    {
+        <figcaption class="exp-sketch__caption">@caption</figcaption>
+    }
+</figure>

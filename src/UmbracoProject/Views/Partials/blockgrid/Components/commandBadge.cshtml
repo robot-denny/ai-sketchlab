@@ -1,0 +1,23 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+
+@{
+    var c = Model.Content;
+    var commandName = c.Value<string>("commandName");
+    var oneLiner = c.Value<string>("oneLiner");
+    var meta = c.Value<string>("meta");
+}
+
+<div class="exp-cmd">
+    @if (!string.IsNullOrWhiteSpace(commandName))
+    {
+        <code class="exp-cmd__name">@commandName</code>
+    }
+    @if (!string.IsNullOrWhiteSpace(oneLiner))
+    {
+        <p class="exp-cmd__oneliner">@oneLiner</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(meta))
+    {
+        <p class="exp-cmd__meta">@meta</p>
+    }
+</div>

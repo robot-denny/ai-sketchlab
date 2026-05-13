@@ -1,0 +1,38 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Strings
+
+@{
+    var c = Model.Content;
+    var eyebrow = c.Value<string>("eyebrow");
+    var title = c.Value<string>("title");
+    var body = c.Value<IHtmlEncodedString>("body");
+    var iconToken = c.Value<string>("iconToken");
+    var link = c.Value<IEnumerable<Link>>("link")?.FirstOrDefault();
+}
+
+@* Deferral (MINOR a11y): when `link.Target == "_blank"` no SR "opens in new tab" hint is emitted — fix in a global Link partial, not here. *@
+<article class="exp-card">
+    @if (!string.IsNullOrWhiteSpace(iconToken))
+    {
+        <span class="exp-card__icon" data-icon-token="@iconToken" aria-hidden="true">@iconToken</span>
+    }
+    @if (!string.IsNullOrWhiteSpace(eyebrow))
+    {
+        <p class="exp-card__eyebrow">@eyebrow</p>
+    }
+    @if (!string.IsNullOrWhiteSpace(title))
+    {
+        <h3 class="exp-card__title">@title</h3>
+    }
+    @if (body != null)
+    {
+        <div class="exp-card__body">@body</div>
+    }
+    @if (link != null && !string.IsNullOrWhiteSpace(link.Url))
+    {
+        <a class="exp-card__link" href="@link.Url" target="@link.Target" rel="@(link.Type == LinkType.External ? "noopener" : null)">
+            @(string.IsNullOrWhiteSpace(link.Name) ? link.Url : link.Name)
+        </a>
+    }
+</article>

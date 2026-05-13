@@ -1,0 +1,27 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+
+@{
+    var c = Model.Content;
+    var quote = c.Value<string>("quote");
+    var attribution = c.Value<string>("attribution");
+    var attributionRole = c.Value<string>("attributionRole");
+    var tone = c.Value<string>("tone");
+    if (string.IsNullOrWhiteSpace(tone)) { tone = "light"; }
+}
+
+<figure class="exp-pullquote exp-pullquote--@tone">
+    @if (!string.IsNullOrWhiteSpace(quote))
+    {
+        <blockquote class="exp-pullquote__quote">@quote</blockquote>
+    }
+    @if (!string.IsNullOrWhiteSpace(attribution))
+    {
+        <figcaption class="exp-pullquote__attribution">
+            <span class="exp-pullquote__name">@attribution</span>
+            @if (!string.IsNullOrWhiteSpace(attributionRole))
+            {
+                <span class="exp-pullquote__role">@attributionRole</span>
+            }
+        </figcaption>
+    }
+</figure>

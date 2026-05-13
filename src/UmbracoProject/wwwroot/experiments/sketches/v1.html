@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stratified Flow — algorithmic art v1</title>
+<!-- Deferral (MINOR): no SRI hash on p5.js CDN script; iframe blast-radius is contained, will add when next p5 version is pinned. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+<style>
+  :root {
+    --dc-obsidian: #101014;
+    --dc-anthracite: #1a1a1e;
+    --dc-graphite: #202026;
+    --dc-charcoal: #252530;
+    --dc-slate: #2d2d38;
+    --dc-signal: #c23d2e;
+    --bone: #f0ede8;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: var(--dc-obsidian);
+    color: var(--bone);
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    overflow: hidden;
+  }
+  body {
+    display: block;
+    position: relative;
+  }
+  /* canvas sits absolute so it always fills the iframe regardless of host size */
+  canvas {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  /* Tiny corner mark — sub-conscious branding, never narrative */
+  .mark {
+    position: absolute;
+    right: 12px;
+    bottom: 10px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(240, 237, 232, 0.45);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .mark::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--dc-signal);
+    margin-right: 8px;
+    vertical-align: -1px;
+  }
+</style>
+</head>
+<body>
+  <span class="mark">stratified&nbsp;flow / v1</span>
+<script>
+/*
+ * Stratified Flow — Dark Constructivism, dense particle / flow-field.
+ * Decorative, not narrative. Pauses when the document is hidden.
+ *
+ * The field is layered Perlin noise routed through three "strata":
+ *   - graphite tracers (the bulk of the page)
+ *   - bone highlights (sparse, fast, short-lived)
+ *   - signal-red strikes (rare, vertical-biased, deliberate)
+ *
+ * Seeded so each refresh of the same iframe yields the same image.
+ */
+
+const PALETTE = {
+  bg: [16, 16, 20],
+  graphite: [
+    [32, 32, 38],
+    [37, 37, 48],
+    [45, 45, 56],
+    [55, 55, 66],
+  ],
+  bone: [240, 237, 232],
+  signal: [194, 61, 46],
+};
+
+const PARTICLE_COUNT = 1400;       // dense
+const BONE_RATIO = 0.05;           // 5% of particles are highlights
+const SIGNAL_RATIO = 0.015;        // 1.5% are red strikes
+const SPEED_BASE = 0.7;
+const NOISE_SCALE = 0.0024;
+const FADE_ALPHA = 7;              // motion-trail decay; lower = longer trails
+const STEP = 1.1;                  // base move distance
+const MAX_HISTORY = 8;
+const RESEED_SECONDS = 36;         // gently re-seed so the still iframe never freezes
+
+let particles = [];
+let lastReseed = 0;
+let paused = false;
+let t = 0;
+
+function setup() {
+  const c = createCanvas(window.innerWidth, window.innerHeight);
+  c.parent(document.body);
+  pixelDensity(Math.min(2, window.devicePixelRatio || 1));
+  randomSeed(2026);
+  noiseSeed(2026);
+  background(...PALETTE.bg);
+  spawnAll();
+  frameRate(36);
+}
+
+function windowResized() {
+  resizeCanvas(window.innerWidth, window.innerHeight);
+  background(...PALETTE.bg);
+  spawnAll();
+}
+
+function spawnAll() {
+  particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push(spawnOne(i));
+  }
+}
+
+function spawnOne(i) {
+  const r = i / PARTICLE_COUNT;
+  let kind = 'graphite';
+  if (r < SIGNAL_RATIO) kind = 'signal';
+  else if (r < SIGNAL_RATIO + BONE_RATIO) kind = 'bone';
+  return {
+    x: random(width),
+    y: random(height),
+    history: [],
+    life: floor(random(60, 220)),
+    age: 0,
+    kind,
+    // Per-particle speed jitter — graphite drifts, bone darts, signal stabs.
+    speed:
+      kind === 'signal'
+        ? random(1.4, 2.2)
+        : kind === 'bone'
+          ? random(1.1, 1.6)
+          : random(0.55, 1.0),
+  };
+}
+
+function draw() {
+  if (paused) return;
+  t += 0.003;
+
+  // Painted background fade. Constant value across the whole canvas
+  // produces an even decay (no banding) and keeps trails legible.
+  noStroke();
+  fill(PALETTE.bg[0], PALETTE.bg[1], PALETTE.bg[2], FADE_ALPHA);
+  rect(0, 0, width, height);
+
+  for (const p of particles) {
+    const angle =
+      noise(p.x * NOISE_SCALE, p.y * NOISE_SCALE, t) * TWO_PI * 2.0;
+
+    // Signal particles bias vertical (downward axis) — gives the
+    // composition a constructivist sense of typographic columns.
+    const biased =
+      p.kind === 'signal'
+        ? angle * 0.4 + PI * 0.5
+        : angle;
+
+    const nx = p.x + Math.cos(biased) * STEP * p.speed * SPEED_BASE * 1.6;
+    const ny = p.y + Math.sin(biased) * STEP * p.speed * SPEED_BASE * 1.6;
+
+    p.history.push([p.x, p.y]);
+    if (p.history.length > MAX_HISTORY) p.history.shift();
+
+    drawSegment(p, nx, ny);
+
+    p.x = nx;
+    p.y = ny;
+    p.age++;
+
+    // Respawn when off-canvas or aged out so the field renews.
+    if (p.x < -8 || p.x > width + 8 || p.y < -8 || p.y > height + 8 || p.age > p.life) {
+      const idx = particles.indexOf(p);
+      particles[idx] = spawnOne(idx);
+    }
+  }
+
+  // Periodic gentle re-seed so a long-running iframe keeps evolving.
+  if (millis() - lastReseed > RESEED_SECONDS * 1000) {
+    lastReseed = millis();
+    noiseSeed(floor(random(1, 9999)));
+  }
+}
+
+function drawSegment(p, nx, ny) {
+  let col;
+  let weight;
+  if (p.kind === 'signal') {
+    col = PALETTE.signal;
+    weight = 1.2;
+  } else if (p.kind === 'bone') {
+    col = PALETTE.bone;
+    weight = 0.5;
+  } else {
+    col =
+      PALETTE.graphite[
+        floor(noise(p.x * 0.004, p.y * 0.004) * PALETTE.graphite.length)
+      ];
+    weight = 0.6;
+  }
+  stroke(col[0], col[1], col[2], p.kind === 'signal' ? 200 : 130);
+  strokeWeight(weight);
+  line(p.x, p.y, nx, ny);
+}
+
+// Pause when the iframe is hidden — saves CPU, matches the page-level
+// IntersectionObserver contract from experiments.js.
+document.addEventListener('visibilitychange', () => {
+  paused = document.hidden;
+  if (!paused) loop();
+  else noLoop();
+});
+</script>
+</body>
+</html>

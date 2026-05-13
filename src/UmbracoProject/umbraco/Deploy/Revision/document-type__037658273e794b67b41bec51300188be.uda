@@ -1,0 +1,90 @@
+{
+  "Name": "Pillar Section",
+  "Alias": "pillarSection",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-layout color-indigo",
+  "Thumbnail": "folder.png",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "2048f4b9-6149-4705-9066-0d8ea09da402",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "0ca38466-a360-42e6-b005-fd4b0459628c",
+          "Alias": "lede",
+          "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "Name": "Lede",
+          "SortOrder": 40
+        },
+        {
+          "Key": "2312d1a5-06c5-4f59-bc20-d1dd6c3b526b",
+          "Alias": "eyebrow",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Name": "Eyebrow",
+          "SortOrder": 20
+        },
+        {
+          "Key": "2e79dac2-f32c-4c96-b0b0-4271b3004d1d",
+          "Alias": "anchorId",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Name": "Anchor Id",
+          "SortOrder": 60
+        },
+        {
+          "Key": "8f1f0408-2955-459e-ad94-9fd7da3f8e5c",
+          "Alias": "pillarNumber",
+          "DataType": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
+          "Mandatory": true,
+          "Name": "Pillar Number",
+          "SortOrder": 10
+        },
+        {
+          "Key": "e42870b4-b1f8-4658-9303-d18fdb0bff15",
+          "Alias": "headline",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Mandatory": true,
+          "Name": "Headline",
+          "SortOrder": 30
+        },
+        {
+          "Key": "e9221297-e535-49bc-8e2d-0f0958e57c9f",
+          "Alias": "tone",
+          "DataType": "umb://data-type/aa58c9784a99401a96a36f3dd4ca614d",
+          "Mandatory": true,
+          "Name": "Tone",
+          "SortOrder": 50
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/037658273e794b67b41bec51300188be",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/2e6d3631066e44b8aec496f09099b2b5",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/aa58c9784a99401a96a36f3dd4ca614d",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

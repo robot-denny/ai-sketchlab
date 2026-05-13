@@ -1,0 +1,60 @@
+{
+  "Name": "Embedded Sketch",
+  "Alias": "embeddedSketch",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-code color-purple",
+  "Thumbnail": "folder.png",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "8d7f3cd0-d428-4317-ad09-3261effd378a",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "55f1b40d-e7ce-478a-a9da-2bb3ff30e82f",
+          "Alias": "sketchUrl",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Mandatory": true,
+          "Name": "Sketch URL",
+          "SortOrder": 10
+        },
+        {
+          "Key": "be465fce-d3be-4b67-892b-79029cf24ea9",
+          "Alias": "caption",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "Name": "Caption",
+          "SortOrder": 30
+        },
+        {
+          "Key": "f4081b83-fd1a-447f-ab3c-cee9487303ce",
+          "Alias": "posterImage",
+          "DataType": "umb://data-type/ad9f0cf2bda245d59ea1a63cfc873fd3",
+          "Mandatory": true,
+          "Name": "Poster Image",
+          "SortOrder": 20
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/58fbccd76cbb44ed930a5b1d64bb5fca",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/ad9f0cf2bda245d59ea1a63cfc873fd3",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.0.2"
+}

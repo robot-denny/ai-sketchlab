@@ -1,0 +1,831 @@
+/* ================================================================
+   Experiments — bespoke design-system styles
+   ----------------------------------------------------------------
+   Constructivist surfaces: sharp corners, generous whitespace,
+   tone-driven alternation (light / dark / accent), signal-red as
+   the load-bearing emphasis. Layered on top of tokens-extras.css
+   + typography.css; assumes the design tokens are already loaded
+   by master.cshtml.
+
+   Load order (see master.cshtml @section Styles):
+     styles.css → typography.css → tokens-extras.css
+     → site-chrome.css → experiments.css
+   ================================================================ */
+
+/* ── Scope reset: every surface in the experiments scope is square */
+/* Deferral (LOW perf): `main.experiments *` descendant-universal selector — kept for square-corner coverage on every nested element; cost ~6–9ms on first style recalc. */
+main.experiments,
+main.experiments * {
+  border-radius: 0;
+}
+
+/* ── Page shell ─────────────────────────────────────────────── */
+main.experiments {
+  display: block;
+  background: var(--surface-primary);
+  color: var(--text-primary);
+}
+
+/* The Umbraco Block Grid markup is opaque; we map its CSS custom
+   properties onto a real 12-track grid so column-span values
+   chosen in the backoffice (12 / 8 / 6 / 4) actually take effect. */
+main.experiments .umb-block-grid {
+  display: block;
+}
+
+main.experiments .umb-block-grid__layout-container {
+  display: grid;
+  grid-template-columns: repeat(var(--umb-block-grid--grid-columns, 12), 1fr);
+  gap: var(--space-lg);
+}
+
+main.experiments .umb-block-grid__layout-item {
+  grid-column: span var(--umb-block-grid--item-column-span, 12);
+  min-width: 0;
+  max-width: 100%;
+}
+
+main.experiments .umb-block-grid__area-container {
+  display: grid;
+  grid-template-columns: repeat(var(--umb-block-grid--area-grid-columns, 12), 1fr);
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+main.experiments .umb-block-grid__area {
+  grid-column: span var(--umb-block-grid--area-column-span, 12);
+  min-width: 0;
+}
+
+/* Collapse Block-Grid spans on phone viewports. The structural
+   intent (3-card row, side-by-side pull quote) reads better as a
+   single column on phones than a half-broken multi-column layout.
+   Tablet (≥600px) keeps a 2-column intermediate — see below. */
+@media (max-width: 599px) {
+  main.experiments .umb-block-grid__layout-container,
+  main.experiments .umb-block-grid__area-container {
+    grid-template-columns: 1fr;
+  }
+  main.experiments .umb-block-grid__layout-item,
+  main.experiments .umb-block-grid__area {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Two-column intermediate at tablet for card / stat rows. */
+@media (min-width: 600px) and (max-width: 1099px) {
+  main.experiments .umb-block-grid__layout-container {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  main.experiments .umb-block-grid__layout-item {
+    grid-column: span min(6, var(--umb-block-grid--item-column-span, 12));
+  }
+  /* Cards (4-span on a 12-col grid → 2-span on a 6-col grid) */
+  main.experiments .umb-block-grid__layout-item[data-col-span="4"] {
+    grid-column: span 3;
+  }
+  /* 8 / 4 split → still 2 columns */
+  main.experiments .umb-block-grid__layout-item[data-col-span="8"],
+  main.experiments .umb-block-grid__layout-item[data-col-span="6"] {
+    grid-column: span 6;
+  }
+}
+
+/* ── Hero band ──────────────────────────────────────────────── */
+.exp-hero {
+  position: relative;
+  isolation: isolate;
+  padding: var(--space-2xl) var(--space-lg);
+  background-color: var(--surface-dark);
+  background-image: linear-gradient(var(--surface-overlay), var(--surface-overlay)), var(--exp-hero-bg, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: var(--text-on-dark);
+  text-align: left;
+  overflow: hidden;
+}
+
+.exp-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--pattern-scatter-dark);
+  background-size: cover;
+  background-position: left center;
+  background-repeat: no-repeat;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.exp-hero__inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+  position: relative;
+}
+
+.exp-hero__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-secondary);
+  margin: 0 0 var(--space-lg);
+}
+
+.exp-hero__headline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2.75rem, 1.5rem + 4.5vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--text-on-dark);
+  margin: 0 0 var(--space-md);
+  max-width: 16ch;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.exp-hero__subhead {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+  line-height: 1.5;
+  color: var(--text-on-dark);
+  max-width: 52ch;
+  margin: 0;
+}
+
+.exp-hero__accent {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  margin-top: var(--space-xl);
+  padding-left: var(--space-sm);
+  border-left: 3px solid var(--accent-primary);
+}
+
+@media (max-width: 820px) {
+  .exp-hero {
+    padding: var(--space-xl) var(--space-md);
+  }
+}
+
+/* ── Pillar — base ──────────────────────────────────────────── */
+.exp-pillar {
+  position: relative;
+  padding: var(--space-2xl) var(--space-lg);
+}
+
+.exp-pillar__head {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xl);
+}
+
+.exp-pillar__number {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(2rem, 1.25rem + 3vw, 3.5rem);
+  line-height: 1;
+  color: var(--accent-primary);
+  letter-spacing: -0.02em;
+}
+
+.exp-pillar__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.exp-pillar__headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.85rem, 1.4rem + 1.4vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  margin: var(--space-sm) 0 0;
+  max-width: 26ch;
+}
+
+.exp-pillar__lede {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1rem + 0.35vw, 1.375rem);
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin: var(--space-md) 0 0;
+  max-width: 52ch;
+}
+
+.exp-pillar__intro {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-primary);
+  max-width: 52ch;
+  margin: 0 0 var(--space-md);
+}
+
+/* Constrain pillar body to a readable measure but allow grid items
+   to span the wrap. The pillar layout-container itself sits inside
+   the wrap so multi-column rows (cards, stats) get the full width. */
+.exp-pillar > .umb-block-grid__area-container {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+@media (max-width: 820px) {
+  .exp-pillar {
+    padding: var(--space-xl) var(--space-md);
+  }
+  .exp-pillar__head {
+    margin-bottom: var(--space-lg);
+  }
+}
+
+/* ── Pillar tones ──────────────────────────────────────────── */
+.exp-pillar--light {
+  background-color: var(--surface-primary);
+}
+
+/* Subtle alternation: every other light pillar uses the stone-warm
+   secondary surface so the page reads as bands without becoming
+   busy. Achieved with a thin band rather than checkerboard tones. */
+.exp-pillar--light:nth-of-type(even) {
+  background-color: var(--surface-secondary);
+}
+
+.exp-pillar--dark {
+  background-color: var(--surface-dark);
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--dark .exp-pillar__eyebrow {
+  color: var(--text-on-dark-secondary);
+}
+
+.exp-pillar--dark .exp-pillar__headline,
+.exp-pillar--dark .exp-pillar__lede,
+.exp-pillar--dark .exp-pillar__intro {
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--dark .exp-pillar__lede {
+  color: var(--text-on-dark-secondary);
+}
+
+.exp-pillar--accent {
+  background-color: var(--accent-primary);
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--accent .exp-pillar__eyebrow,
+.exp-pillar--accent .exp-pillar__number {
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--accent .exp-pillar__headline,
+.exp-pillar--accent .exp-pillar__lede,
+.exp-pillar--accent .exp-pillar__intro {
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--accent .exp-pillar__lede {
+  color: var(--text-on-dark);
+}
+
+/* Anchor links inherit on-dark surfaces. */
+.exp-pillar--dark a,
+.exp-pillar--accent a {
+  color: var(--text-on-dark);
+  text-decoration-color: rgba(240, 237, 232, 0.55);
+}
+
+.exp-pillar--dark a:hover,
+.exp-pillar--accent a:hover {
+  text-decoration-color: var(--text-on-dark);
+}
+
+.exp-pillar--dark a:focus-visible,
+.exp-pillar--accent a:focus-visible {
+  outline-color: var(--text-on-dark);
+}
+
+/* ── Feature cards ─────────────────────────────────────────── */
+.exp-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  padding: var(--space-lg);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-light);
+  box-shadow: none;
+  transition: transform var(--ease-standard), box-shadow var(--ease-standard), border-color var(--ease-standard);
+}
+
+.exp-pillar--light:nth-of-type(even) .exp-card {
+  background-color: var(--surface-primary);
+}
+
+.exp-card:hover,
+.exp-card:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px -12px rgba(26, 26, 30, 0.35);
+  border-color: var(--border-medium);
+}
+
+.exp-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  width: 2rem;
+  height: 2rem;
+  background-color: var(--accent-primary);
+  color: var(--text-on-dark);
+}
+
+.exp-card__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.exp-card__title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.exp-card__body {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.exp-card__body p:last-child {
+  margin-bottom: 0;
+}
+
+.exp-card__link {
+  margin-top: auto;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.exp-card__link:hover {
+  color: var(--accent-primary-hover);
+  text-decoration-thickness: 2px;
+}
+
+/* ── Command badge ─────────────────────────────────────────── */
+.exp-cmd {
+  position: relative;
+  padding: var(--space-md) var(--space-md) var(--space-md) calc(var(--space-md) + 12px);
+  background-color: var(--surface-secondary);
+  border: 1px solid var(--border-light);
+}
+
+.exp-cmd::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background-color: var(--accent-primary);
+}
+
+.exp-cmd__name {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background-color: var(--surface-primary);
+  padding: 2px var(--space-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: var(--space-sm);
+}
+
+.exp-cmd__oneliner {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.exp-cmd__meta {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin: var(--space-sm) 0 0;
+}
+
+/* ── Stat callout ──────────────────────────────────────────── */
+.exp-stat {
+  margin: 0;
+  padding: var(--space-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.exp-stat__display {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.exp-stat__figure {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--accent-secondary);
+}
+
+.exp-stat__unit {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.exp-stat__supporting {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 32ch;
+}
+
+/* Stat tones: signal red on dark, on-dark on accent (red on red
+   would vanish), warm bronze stays as the default for light. */
+.exp-pillar--dark .exp-stat__figure {
+  color: var(--accent-primary);
+}
+
+.exp-pillar--accent .exp-stat__figure {
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--dark .exp-stat__unit,
+.exp-pillar--dark .exp-stat__supporting {
+  color: var(--text-on-dark-secondary);
+}
+
+.exp-pillar--accent .exp-stat__unit,
+.exp-pillar--accent .exp-stat__supporting {
+  color: var(--text-on-dark);
+}
+
+/* ── Pull quote ────────────────────────────────────────────── */
+.exp-pullquote {
+  margin: var(--space-lg) 0;
+  padding: var(--space-md) 0 var(--space-md) var(--space-lg);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.exp-pullquote__quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-md);
+  padding: 0;
+  border: 0;
+}
+
+.exp-pullquote__attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.exp-pullquote__name {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.exp-pullquote__role {
+  font-style: italic;
+  color: var(--text-tertiary);
+}
+
+/* Negative-left-margin treatment on large screens: pull the quote
+   into the editorial gutter. On small viewports the negative margin
+   collapses and the left border becomes the sole identifier. */
+@media (min-width: 1100px) {
+  .exp-pullquote {
+    margin-left: calc(-1 * var(--space-xl));
+    padding-left: var(--space-xl);
+  }
+}
+
+.exp-pullquote--dark {
+  border-left-color: var(--text-on-dark);
+}
+.exp-pillar--dark .exp-pullquote__quote,
+.exp-pullquote--dark .exp-pullquote__quote {
+  color: var(--text-on-dark);
+}
+.exp-pillar--dark .exp-pullquote__name,
+.exp-pullquote--dark .exp-pullquote__name {
+  color: var(--text-on-dark);
+}
+.exp-pillar--dark .exp-pullquote__role,
+.exp-pullquote--dark .exp-pullquote__role {
+  color: var(--text-on-dark-secondary);
+}
+
+.exp-pullquote--accent {
+  border-left-color: var(--text-on-dark);
+}
+.exp-pillar--accent .exp-pullquote__quote,
+.exp-pullquote--accent .exp-pullquote__quote {
+  color: var(--text-on-dark);
+}
+.exp-pillar--accent .exp-pullquote__attribution,
+.exp-pullquote--accent .exp-pullquote__attribution {
+  color: var(--text-on-dark);
+}
+.exp-pillar--accent .exp-pullquote__name,
+.exp-pullquote--accent .exp-pullquote__name {
+  color: var(--text-on-dark);
+}
+.exp-pillar--accent .exp-pullquote__role,
+.exp-pullquote--accent .exp-pullquote__role {
+  color: var(--text-on-dark);
+}
+
+/* ── Timeline ──────────────────────────────────────────────── */
+/* Timeline rows render inside a Block-Grid layout-container as
+   <div> children of a generated wrapper. Style each row as a self-
+   contained grid so dates and bodies align across rows. */
+.exp-timeline__row {
+  display: grid;
+  grid-template-columns: 6em 1fr;
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--border-light);
+}
+
+.exp-timeline__row:first-child {
+  border-top: 0;
+}
+
+.exp-pillar--dark .exp-timeline__row,
+.exp-pillar--accent .exp-timeline__row {
+  border-top-color: var(--border-dark);
+}
+
+.exp-timeline__date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding-top: 0.4em;
+}
+
+.exp-pillar--dark .exp-timeline__date,
+.exp-pillar--accent .exp-timeline__date {
+  color: var(--text-on-dark-secondary);
+}
+
+.exp-timeline__body {
+  min-width: 0;
+}
+
+.exp-timeline__feature {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-xs);
+  color: var(--text-primary);
+}
+
+.exp-timeline__feature a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: rgba(139, 107, 74, 0.4);
+}
+
+.exp-timeline__feature a:hover {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+.exp-timeline__oneliner {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.exp-pillar--dark .exp-timeline__feature,
+.exp-pillar--accent .exp-timeline__feature {
+  color: var(--text-on-dark);
+}
+
+.exp-pillar--dark .exp-timeline__oneliner,
+.exp-pillar--accent .exp-timeline__oneliner {
+  color: var(--text-on-dark-secondary);
+}
+
+@media (max-width: 640px) {
+  .exp-timeline__row {
+    grid-template-columns: 1fr;
+    gap: var(--space-xs);
+  }
+  .exp-timeline__date {
+    padding-top: 0;
+  }
+}
+
+/* ── Embedded sketch ───────────────────────────────────────── */
+.exp-sketch {
+  margin: 0;
+  padding: var(--space-md);
+  background-color: var(--dc-obsidian);
+  border: 1px solid var(--dc-graphite);
+  color: var(--text-on-dark);
+  max-width: 100%;
+}
+
+.exp-sketch__slot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--dc-obsidian);
+  overflow: hidden;
+}
+
+.exp-sketch__slot iframe,
+.exp-sketch__poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+  display: block;
+}
+
+.exp-sketch__poster {
+  z-index: 1;
+  transition: opacity var(--ease-emphasis);
+}
+
+.exp-sketch__slot.is-running .exp-sketch__poster {
+  opacity: 0;
+}
+
+.exp-sketch__slot iframe {
+  z-index: 0;
+}
+
+.exp-sketch__caption {
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-secondary);
+}
+
+/* ── Closing band CTA ──────────────────────────────────────── */
+.exp-closing__cta-wrap {
+  text-align: center;
+  margin: var(--space-lg) 0 0;
+}
+
+.exp-cta {
+  display: inline-block;
+  padding: var(--space-md) calc(var(--space-lg) + var(--space-sm));
+  background-color: var(--accent-primary);
+  color: var(--text-on-dark);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--accent-primary);
+  transition: background-color var(--ease-micro), color var(--ease-micro), border-color var(--ease-micro);
+}
+
+.exp-cta:hover,
+.exp-cta:focus-visible {
+  background-color: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
+  color: var(--text-on-dark);
+  text-decoration: none;
+}
+
+.exp-cta:focus-visible {
+  outline: 2px solid var(--text-on-dark);
+  outline-offset: 3px;
+}
+
+.exp-pillar--dark .exp-cta {
+  background-color: var(--accent-primary);
+  color: var(--text-on-dark);
+}
+
+/* ── Rich text inside the experiments scope ────────────────── */
+main.experiments .richtext {
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: inherit;
+  max-width: 60ch;
+}
+
+main.experiments .richtext p {
+  margin: 0 0 var(--space-md);
+}
+
+main.experiments .richtext a {
+  color: var(--accent-primary);
+  text-decoration-color: rgba(194, 61, 46, 0.4);
+}
+
+main.experiments .richtext a:hover {
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+}
+
+.exp-pillar--dark .richtext a,
+.exp-pillar--accent .richtext a {
+  color: var(--text-on-dark);
+  text-decoration-color: rgba(240, 237, 232, 0.5);
+}
+
+/* Honour OS reduced-motion preference for all custom transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .exp-card,
+  .exp-sketch__poster,
+  .exp-cta {
+    transition: none;
+  }
+}

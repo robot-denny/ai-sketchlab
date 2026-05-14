@@ -365,6 +365,22 @@ main.experiments .umb-block-grid__area {
   color: var(--text-on-dark);
 }
 
+.exp-card__icon--fa {
+  font-family: inherit;
+  font-size: 1.125rem;
+  letter-spacing: normal;
+  text-transform: none;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.exp-card__icon--fa .svg-inline--fa,
+.exp-card__icon--fa i {
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+}
+
 .exp-card__eyebrow {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -819,6 +835,23 @@ main.experiments .richtext a:hover {
 .exp-pillar--accent .richtext a {
   color: var(--text-on-dark);
   text-decoration-color: rgba(240, 237, 232, 0.5);
+}
+
+/* When an .exp-cta lives inside a rich-text block, the generic
+   `main.experiments .richtext a` rule wins on specificity (0,2,2)
+   and paints the text the same red as the button background. Bump
+   the CTA's own selector to (0,3,2) so the button stays legible. */
+main.experiments .richtext a.exp-cta,
+main.experiments .richtext a.exp-cta:visited {
+  color: var(--text-on-dark);
+  text-decoration: none;
+  text-decoration-color: transparent;
+}
+
+main.experiments .richtext a.exp-cta:hover,
+main.experiments .richtext a.exp-cta:focus-visible {
+  color: var(--text-on-dark);
+  text-decoration: none;
 }
 
 /* Honour OS reduced-motion preference for all custom transitions. */

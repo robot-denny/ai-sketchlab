@@ -48,6 +48,7 @@
           "Key": "c2345678-9abc-4def-9012-3456789abcde",
           "Alias": "siteLogo",
           "DataType": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
+          "ValueType": "Umbraco.Cms.Core.Models.MediaWithCrops",
           "Description": "Logo image displayed in the site header (supports PNG, SVG, and other image formats). Set once here \u2014 appears site-wide.",
           "Name": "Site Logo"
         }
@@ -148,5 +149,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

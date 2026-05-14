@@ -26,6 +26,7 @@
           "Key": "517519e8-728e-4ffe-8333-1aed6ba20aee",
           "Alias": "sectionBackgroundColor",
           "DataType": "umb://data-type/713d86d059a9442d9f34e64a1675713c",
+          "ValueType": "System.String",
           "Description": "Background color treatment for this section row.",
           "Name": "Background Color",
           "SortOrder": 5
@@ -34,6 +35,7 @@
           "Key": "ccc3f99d-c273-40d2-9b9e-4f07472a2369",
           "Alias": "sectionBackgroundWidth",
           "DataType": "umb://data-type/856f224e7b134775bd5ab40506f33e04",
+          "ValueType": "System.String",
           "Description": "Container: background fills the content container width. Full bleed: background extends edge-to-edge.",
           "Name": "Background Width",
           "SortOrder": 10
@@ -62,5 +64,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

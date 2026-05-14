@@ -34,6 +34,7 @@
           "Key": "2cb34cf0-2854-4585-85cb-a60fdc9dc6ac",
           "Alias": "markdownContent",
           "DataType": "umb://data-type/5f96402a733848429fa3e39347dfb03b",
+          "ValueType": "jcdcdev.Umbraco.ExtendedMarkdownEditor.Models.MarkdownValue",
           "Name": "Markdown Content",
           "LabelOnTop": true
         }
@@ -90,5 +91,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

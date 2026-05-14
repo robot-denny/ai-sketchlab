@@ -21,6 +21,7 @@
           "Key": "1326b8d9-72dc-4da9-b3ef-c87533793ee3",
           "Alias": "hideFromXMLSitemap",
           "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "ValueType": "System.Boolean",
           "Description": "Tick this if you want to hide this page from the XML sitemap",
           "Name": "Hide From XML Sitemap",
           "SortOrder": 15
@@ -29,6 +30,7 @@
           "Key": "428902e8-4319-4430-8bbe-5ec078c57655",
           "Alias": "hideFromTopNavigation",
           "DataType": "umb://data-type/0287f26577e341f4a6393a520a6cf4c0",
+          "ValueType": "System.Boolean",
           "Description": "Tick this box if you want to hide this page from the navigation in the header",
           "Name": "Hide From Top Navigation",
           "SortOrder": 5
@@ -37,6 +39,7 @@
           "Key": "6379fd03-2a82-4975-8f0c-2caced3a5ebd",
           "Alias": "umbracoNaviHide",
           "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "ValueType": "System.Boolean",
           "Description": "Tick this box if you want to hide this page from search results",
           "Name": "Hide From Search",
           "SortOrder": 10
@@ -57,5 +60,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

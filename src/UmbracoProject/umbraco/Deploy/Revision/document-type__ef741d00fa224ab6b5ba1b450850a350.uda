@@ -22,6 +22,7 @@
           "Key": "5d65b679-1f53-4e66-86ce-4cbe19bc089d",
           "Alias": "showSectionNavigation",
           "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "ValueType": "System.Boolean",
           "Description": "Enable a sidebar showing sibling and child pages for contextual navigation",
           "Name": "Show Section Navigation"
         }
@@ -41,5 +42,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

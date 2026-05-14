@@ -21,6 +21,7 @@
           "Key": "9c379988-285f-4ba0-91c8-5c0ac6007f58",
           "Alias": "intro",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Description": "Short intro text rendered below the heading.",
           "Name": "Intro",
           "SortOrder": 20,
@@ -30,6 +31,7 @@
           "Key": "bd7a674d-b304-458a-a6c1-17d1d610b68e",
           "Alias": "heading",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Description": "Heading rendered above the dynamic content.",
           "Name": "Heading",
           "SortOrder": 10
@@ -50,5 +52,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

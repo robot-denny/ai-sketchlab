@@ -21,6 +21,7 @@
           "Key": "6127e1aa-501d-4c87-88af-15f4db04a866",
           "Alias": "alertLevel",
           "DataType": "umb://data-type/3d6a3dc2fe444c368898dbb76f33cd09",
+          "ValueType": "System.String",
           "Mandatory": true,
           "Name": "Alert Level"
         },
@@ -28,6 +29,7 @@
           "Key": "ad7af577-1d5f-4c14-8701-e86d69cbbaa6",
           "Alias": "alertContent",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Name": "Alert Content",
           "SortOrder": 1
         },
@@ -35,6 +37,7 @@
           "Key": "bd12a752-6bb4-4d74-9d0e-15fc9addf28b",
           "Alias": "iconOverride",
           "DataType": "umb://data-type/23f1a6f92a35401491777307b2f34723",
+          "ValueType": "System.String",
           "Description": "Optional: select an icon to override the default for this alert level",
           "Name": "Icon Override",
           "SortOrder": 2
@@ -63,5 +66,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

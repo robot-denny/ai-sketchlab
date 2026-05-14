@@ -1,0 +1,19 @@
+{
+  "Name": "Media Assistant",
+  "Alias": "media-assistant",
+  "Description": "Helps manage and describe media assets.",
+  "ProfileUdi": "umb://umbraco-ai-profile/8bc9aabc4fff4d9681a58a06f554893b",
+  "AgentType": "Standard",
+  "Config": "{\u0022contextIds\u0022:[\u00221d2c0e55-ffab-48db-92a3-d6d589af4f80\u0022],\u0022instructions\u0022:\u0022You are a media assistant for an Umbraco CMS website. Help users write alt text, captions, and descriptions for their media assets. Focus on accessibility and SEO.\u0022,\u0022allowedToolIds\u0022:[],\u0022allowedToolScopeIds\u0022:[],\u0022outputSchema\u0022:null,\u0022userGroupPermissions\u0022:{}}",
+  "GuardrailIds": [],
+  "SurfaceIds": [],
+  "IsActive": true,
+  "Udi": "umb://umbraco-ai-agent/1adf22594f67437281dd72b703f41508",
+  "Dependencies": [
+    {
+      "Udi": "umb://umbraco-ai-profile/8bc9aabc4fff4d9681a58a06f554893b"
+    }
+  ],
+  "__type": "Umbraco.AI.Agent.Deploy,Umbraco.AI.Agent.Deploy.Artifacts.AIAgentArtifact",
+  "__version": "17.1.0"
+}

@@ -22,6 +22,7 @@
           "Key": "1b7aa686-6e21-44c6-ab4e-8a8ec70b6e61",
           "Alias": "categoryPalettes",
           "DataType": "umb://data-type/ec08d806a95a477f9ea171c16a4afea7",
+          "ValueType": "Umbraco.Cms.Core.Models.Blocks.BlockListModel",
           "Description": "Map categories to color palettes for generated images",
           "Name": "Category Palettes"
         }
@@ -38,6 +39,7 @@
           "Key": "01eefc74-e998-461f-bcf8-5af5870b70ab",
           "Alias": "defaultDeep",
           "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "ValueType": "System.String",
           "Description": "Fallback deep/dark color when no category matches",
           "Name": "Default Deep Color",
           "SortOrder": 2
@@ -46,6 +48,7 @@
           "Key": "c9cb9175-c3f1-4efd-85e1-f0ba0e6118ba",
           "Alias": "defaultMid",
           "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "ValueType": "System.String",
           "Description": "Fallback mid-range color when no category matches",
           "Name": "Default Mid Color",
           "SortOrder": 1
@@ -54,6 +57,7 @@
           "Key": "d041ff2a-698c-4437-80f4-4d6beeb36590",
           "Alias": "defaultPrimary",
           "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "ValueType": "System.String",
           "Description": "Fallback primary color when no category matches",
           "Name": "Default Primary Color"
         }
@@ -77,5 +81,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

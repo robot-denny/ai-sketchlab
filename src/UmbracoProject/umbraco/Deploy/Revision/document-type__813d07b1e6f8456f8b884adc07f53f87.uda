@@ -29,6 +29,7 @@
           "Key": "1281e861-8881-421f-af8d-990e11c64234",
           "Alias": "pullQuoteAttribution",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "Pull Quote Attribution",
           "SortOrder": 6
         },
@@ -36,6 +37,7 @@
           "Key": "cc8d6759-1150-46e2-ba04-95038bb46ab2",
           "Alias": "pullQuote",
           "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "ValueType": "System.String",
           "Name": "Pull Quote",
           "SortOrder": 5
         }
@@ -50,6 +52,7 @@
           "Key": "3c1fb9f4-4b15-464a-b288-6fe1a83c875d",
           "Alias": "manifestoAudience",
           "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "ValueType": "System.String",
           "Name": "Manifesto Audience",
           "SortOrder": 4
         },
@@ -57,6 +60,7 @@
           "Key": "48d1aa5b-ebe8-4ddb-b8ea-4f1239bd7dce",
           "Alias": "manifestoTitle",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "Manifesto Title",
           "SortOrder": 1
         },
@@ -64,12 +68,14 @@
           "Key": "48de6e4e-772a-44fd-9a44-655a00027a53",
           "Alias": "manifestoEyebrowLeft",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "Manifesto Eyebrow (left)"
         },
         {
           "Key": "69693e3b-1e40-4497-9d5a-e5bbad4788bf",
           "Alias": "manifestoBody",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Name": "Manifesto Body",
           "SortOrder": 2
         },
@@ -77,6 +83,7 @@
           "Key": "8fe734a1-b824-473c-96fa-e3e58661f7df",
           "Alias": "manifestoEyebrowRight",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "Manifesto Eyebrow (right)",
           "SortOrder": 3
         }
@@ -104,5 +111,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

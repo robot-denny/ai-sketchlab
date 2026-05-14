@@ -22,6 +22,7 @@
           "Key": "2cd5e5d8-ab66-4e16-ac07-8fd0e247b3d5",
           "Alias": "author",
           "DataType": "umb://data-type/bd37253b2f0540e08d386041c9456230",
+          "ValueType": "Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent",
           "Description": "Select the author of this content block",
           "Name": "Author",
           "SortOrder": 30
@@ -30,6 +31,7 @@
           "Key": "a7f48594-814e-452a-92e4-57d1b8a6c4a8",
           "Alias": "image",
           "DataType": "umb://data-type/ad9f0cf2bda245d59ea1a63cfc873fd3",
+          "ValueType": "Umbraco.Cms.Core.Models.MediaWithCrops",
           "Description": "Add the image for this row",
           "Name": "Image",
           "SortOrder": 10
@@ -38,6 +40,7 @@
           "Key": "ff44ccd9-2516-4b1e-be06-c7238743c59e",
           "Alias": "caption",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Description": "Enter a caption for the image",
           "Name": "Caption",
           "SortOrder": 20
@@ -66,5 +69,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

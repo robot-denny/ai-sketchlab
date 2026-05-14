@@ -33,6 +33,7 @@
           "Key": "b1643784-c838-4396-b4c9-6b0028430e59",
           "Alias": "brandSummary",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Name": "Brand Summary"
         }
       ]
@@ -76,5 +77,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

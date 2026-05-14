@@ -19,6 +19,7 @@
           "Key": "09a07aff-861d-4769-a2b0-c165ebd43d39",
           "Alias": "umbracoBytes",
           "DataType": "umb://data-type/ba5bdbe6ab3e46a882b32c45f10bc47f",
+          "ValueType": "System.Int64",
           "Name": "File size",
           "SortOrder": 2
         },
@@ -26,6 +27,7 @@
           "Key": "0f25a89e-2eb7-49bc-a7b4-759a7e4c69f2",
           "Alias": "umbracoExtension",
           "DataType": "umb://data-type/f0bc4bfbb49940d6ba86058885a5178c",
+          "ValueType": "System.String",
           "Name": "File extension",
           "SortOrder": 1
         },
@@ -33,6 +35,7 @@
           "Key": "e2a2bdf2-971b-483e-95a1-4104cc06af26",
           "Alias": "umbracoFile",
           "DataType": "umb://data-type/215cb418215344299aef8c0f0041191b",
+          "ValueType": "System.String",
           "Mandatory": true,
           "Name": "Vector Graphics"
         }
@@ -56,5 +59,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.MediaTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

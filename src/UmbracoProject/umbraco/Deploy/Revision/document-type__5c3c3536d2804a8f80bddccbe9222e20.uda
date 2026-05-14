@@ -29,6 +29,7 @@
           "Key": "516548c2-6256-412b-ae5f-a6bfe0981600",
           "Alias": "body",
           "DataType": "umb://data-type/a001e2823458461abd10600c93a80de1",
+          "ValueType": "Umbraco.Cms.Core.Models.Blocks.BlockGridModel",
           "Description": "Block Grid layout containing the hero, capability pillars, and closing band.",
           "Name": "Body",
           "SortOrder": 10
@@ -66,5 +67,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

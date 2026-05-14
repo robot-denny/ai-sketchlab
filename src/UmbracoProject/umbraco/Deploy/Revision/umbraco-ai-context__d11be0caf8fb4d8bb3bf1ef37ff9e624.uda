@@ -3,7 +3,7 @@
   "Alias": "how-to-guide-style",
   "Resources": [
     {
-      "Id": "2b500f46-19d0-48d1-8eb6-449d1045c0fc",
+      "Id": "880ff582-3ce5-4e8e-9ee0-69d9ea2354a1",
       "ResourceTypeId": "text",
       "Name": "Structural Template",
       "Description": "Section-by-section structure every generated guide must follow.",
@@ -17,5 +17,5 @@
   "Udi": "umb://umbraco-ai-context/d11be0caf8fb4d8bb3bf1ef37ff9e624",
   "Dependencies": [],
   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

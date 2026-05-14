@@ -22,6 +22,7 @@
           "Key": "cace72cf-401b-4eac-bd94-c5c3f99004bf",
           "Alias": "mainImage",
           "DataType": "umb://data-type/ad9f0cf2bda245d59ea1a63cfc873fd3",
+          "ValueType": "Umbraco.Cms.Core.Models.MediaWithCrops",
           "Description": "Choose the main image for this page",
           "Name": "Main Image",
           "SortOrder": 15
@@ -42,5 +43,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

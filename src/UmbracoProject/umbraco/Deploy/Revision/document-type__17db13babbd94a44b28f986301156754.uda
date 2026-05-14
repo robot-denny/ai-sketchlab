@@ -22,6 +22,7 @@
           "Key": "97f0c9df-4f4c-4782-b4a4-2ca5917aaf68",
           "Alias": "icon",
           "DataType": "umb://data-type/7b21df8f973a4e2d8ee1a77924d9e211",
+          "ValueType": "Umbraco.Cms.Core.Models.MediaWithCrops",
           "Description": "Choose the icon for this item. It must be an SVG",
           "Mandatory": true,
           "MandatoryMessage": "You must choose an icon",
@@ -32,6 +33,7 @@
           "Key": "aad73ce1-4ede-49e2-8eef-7ab705f6bdb3",
           "Alias": "link",
           "DataType": "umb://data-type/2d350d2151dd4c368eee18170985ce91",
+          "ValueType": "Umbraco.Cms.Core.Models.Link",
           "Description": "Enter your link for this item",
           "Mandatory": true,
           "MandatoryMessage": "You must add a link",
@@ -58,5 +60,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

@@ -45,6 +45,7 @@
 | SEO content agent | Backoffice Settings > AI > Agents — dedicated agent for generating SEO titles, descriptions, and keywords |
 | CMS editor support agent | Backoffice Settings > AI > Agents — support agent that helps train editors how to navigate and use Umbraco |
 | AI configuration auto-serializes to `.uda` for Cloud deploy | Commit `2801c20` — `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` packages serialize Connections, Contexts, Guardrails, Chat Profiles, Embedding Profiles, Prompts, and Settings to `umbraco-ai-*.uda` artifacts on save. Secret references stay as placeholders (`$OpenAI:ApiKey` etc.); raw keys never enter the artifact stream |
+| AI agents auto-serialize to `.uda` for Cloud deploy | `Umbraco.AI.Agent.Deploy 1.0.0` (added 2026-05-14, alongside the Deploy/Prompt.Deploy stable graduations and the bump to `Umbraco.AI 1.11.0` / `Umbraco.AI.Agent 1.10.0`) serializes agents to `umbraco-ai-agent-*.uda` on save. Closes the prior "agents must be recreated per Cloud environment" gap |
 
 ### MCP + AI Agent Orchestration
 
@@ -163,7 +164,6 @@ Public-site search at `/search` runs on the new `Umbraco.Cms.Search` framework (
 
 | Limitation | Details |
 |---|---|
-| AI agents do not auto-deploy to Cloud | `Umbraco.AI.Agent.Deploy` is intentionally not installed — beta1 throws `MissingMethodException` on `AIAgent.ContextIds`, beta2 depends on the unpublished `Umbraco.AI.Agent.Core 1.8.1`. Agents are recreated manually in each Cloud environment after the chat profiles deploy via `.uda` |
 | Vector search index does not replicate across environments | The `UmbAI_Search` index is per-environment. After every Cloud deploy that affects content or AI configuration, rebuild the index via `Settings → Search` on that environment before promoting further |
 
 ---
@@ -221,3 +221,4 @@ Public-site search at `/search` runs on the new `Umbraco.Cms.Search` framework (
 | 2026-05-11 | Added AI-author per-block attribution: `AI Persona Properties` composition adds an `isAi` toggle to the Author doc type; the article orchestrator wraps any block whose author is `isAi=true` inside a `.ella-wrap` inline-note treatment when the article isn't entirely AI-authored | `9aff6b3`, `601b98c`, `b5cde01` |
 | 2026-05-11 | Replaced the legacy TinyMCE `/**umb_name:Label*/` Style Select approach with a TipTap `styleMenu` extension manifest in HelloWorld (`overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`); adds Overline, Caption, h5/h6, and Editorial classes (Lead / Pull quote) to the rich-text Style Select dropdown | `972bf37` |
 | 2026-05-12 | Workflow scaffolding: added [ROADMAP.md](../ROADMAP.md) (Now/Next/Later/Bundles) at repo root, an `Increments` section template applied to all 9 `_features/*.md`, `Next:` segue footers on `/spec` `/plan` `/feature` `/code-review`, and a "Workflow layers" section in CLAUDE.md. Defers `/explore` `/prd` `/roadmap` `/implement-step` commands until the conventions have been used for a sprint | `6925fcb` |
+| 2026-05-14 | Bumped Umbraco CMS 17.3 → 17.4 and graduated all three AI Deploy packages from beta → stable (`Umbraco.AI.Deploy` 1.0.0, `Umbraco.AI.Prompt.Deploy` 1.0.0, `Umbraco.AI.Agent.Deploy` 1.0.0). Latter is newly installed — agents now auto-deploy as `.uda` like every other AI entity. Companion AI patch bumps: `Umbraco.AI` 1.9.0 → 1.11.0, `Umbraco.AI.Agent` 1.8.0 → 1.10.0, `Umbraco.AI.AGUI` 1.8.0 → 1.10.0, providers + Prompt to latest patches | — |

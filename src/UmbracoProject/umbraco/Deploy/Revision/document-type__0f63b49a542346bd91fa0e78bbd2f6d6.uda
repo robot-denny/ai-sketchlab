@@ -35,6 +35,7 @@
           "Key": "0878f223-ff55-4695-b8c2-1402ca50f397",
           "Alias": "postNotes",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Description": "Optional notes displayed below the article content",
           "Name": "Post Notes",
           "LabelOnTop": true
@@ -92,5 +93,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

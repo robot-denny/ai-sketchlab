@@ -23,6 +23,7 @@
           "Key": "fcc17ce4-5adf-4074-836d-b497ee761311",
           "Alias": "sectionRows",
           "DataType": "umb://data-type/8fdfe8f374904b9b82f1c0ffb7fdab0b",
+          "ValueType": "Umbraco.Cms.Core.Models.Blocks.BlockListModel",
           "Description": "Add one or more styled section rows below the main content area.",
           "Name": "Section Rows",
           "SortOrder": 20
@@ -43,5 +44,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

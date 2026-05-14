@@ -22,6 +22,7 @@
           "Key": "4207d7d4-aa05-4408-9fa3-88f91717ce44",
           "Alias": "readingTime",
           "DataType": "umb://data-type/f0bc4bfbb49940d6ba86058885a5178c",
+          "ValueType": "System.String",
           "Description": "Computed at render time from word count. Placeholder field; not editable.",
           "Name": "Reading Time",
           "SortOrder": 35
@@ -30,6 +31,7 @@
           "Key": "4e300c2a-054e-44f8-8c13-7914b4ffc165",
           "Alias": "author",
           "DataType": "umb://data-type/13037248a9ad4490bd77399fd7913171",
+          "ValueType": "System.Collections.Generic.IEnumerable\u003CUmbraco.Cms.Core.Models.PublishedContent.IPublishedContent\u003E",
           "Description": "Select one or more authors for this article",
           "Mandatory": true,
           "Name": "Authors",
@@ -39,6 +41,7 @@
           "Key": "5ec7043f-1670-4917-bc0e-8c2f08b3a6e4",
           "Alias": "articleDate",
           "DataType": "umb://data-type/e4d66c0fb935420081f0025f7256b89a",
+          "ValueType": "System.DateTime",
           "Description": "Enter the date for the article",
           "Mandatory": true,
           "Name": "Article Date",
@@ -48,6 +51,7 @@
           "Key": "63d11e41-4fbc-474a-ae4b-0c5b0217653c",
           "Alias": "categories",
           "DataType": "umb://data-type/9a426393b2c84403a85f00b7a51ebe69",
+          "ValueType": "System.Collections.Generic.IEnumerable\u003CUmbraco.Cms.Core.Models.PublishedContent.IPublishedContent\u003E",
           "Name": "Categories",
           "SortOrder": 30
         }
@@ -79,5 +83,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

@@ -22,6 +22,7 @@
           "Key": "42d26011-897f-4a06-8b7e-52c2b11c36d2",
           "Alias": "paletteDeep",
           "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "ValueType": "System.String",
           "Description": "Deep/dark palette color (hex)",
           "Name": "Deep Color",
           "SortOrder": 3
@@ -30,6 +31,7 @@
           "Key": "da2b2b8c-742c-442d-a317-b0793b10f924",
           "Alias": "palettePrimary",
           "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "ValueType": "System.String",
           "Description": "Primary palette color (hex)",
           "Name": "Primary Color",
           "SortOrder": 1
@@ -38,6 +40,7 @@
           "Key": "eed9cd56-3893-4904-af05-6aab536ede84",
           "Alias": "paletteMid",
           "DataType": "umb://data-type/dec936fbe87b4080abf27466d73f5362",
+          "ValueType": "System.String",
           "Description": "Mid-range palette color (hex)",
           "Name": "Mid Color",
           "SortOrder": 2
@@ -46,6 +49,7 @@
           "Key": "f206e20c-bed5-42c7-8c17-f9703fd97995",
           "Alias": "paletteCategory",
           "DataType": "umb://data-type/765ed8243724414d86dfb0599fe84006",
+          "ValueType": "Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent",
           "Description": "The category this palette applies to",
           "Name": "Category"
         }
@@ -69,5 +73,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

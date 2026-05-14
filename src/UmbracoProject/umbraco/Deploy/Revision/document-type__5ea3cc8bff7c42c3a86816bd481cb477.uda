@@ -21,6 +21,7 @@
           "Key": "11f30b7a-2c99-4cbd-9f72-1d704eb4248d",
           "Alias": "date",
           "DataType": "umb://data-type/5046194e4237453ca54715db3a07c4e1",
+          "ValueType": "System.DateTime",
           "Mandatory": true,
           "Name": "Date",
           "SortOrder": 10
@@ -29,6 +30,7 @@
           "Key": "28675e4e-15b5-4d68-af31-dde0523461b4",
           "Alias": "featureName",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Mandatory": true,
           "Name": "Feature Name",
           "SortOrder": 20
@@ -37,6 +39,7 @@
           "Key": "3aa65edb-edf4-42a2-8481-0d09c52b0ee1",
           "Alias": "oneLiner",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "One Liner",
           "SortOrder": 30
         },
@@ -44,6 +47,7 @@
           "Key": "6ac4d158-4be2-47ab-83c1-3ab7c93f79be",
           "Alias": "link",
           "DataType": "umb://data-type/b4e3535a175347e28568602cf8cfee6f",
+          "ValueType": "System.Collections.Generic.IEnumerable\u003CUmbraco.Cms.Core.Models.Link\u003E",
           "Name": "Link",
           "SortOrder": 40
         }
@@ -67,5 +71,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

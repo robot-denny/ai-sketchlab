@@ -22,6 +22,7 @@
           "Key": "067fc52b-d92c-451b-8a48-cc1e5565a046",
           "Alias": "errorMessage",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Description": "Enter the message to show on error",
           "Mandatory": true,
           "Name": "Error Message",
@@ -31,6 +32,7 @@
           "Key": "3e771f3c-d2bf-4dc4-8c31-e757eb0103d9",
           "Alias": "successMessage",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Description": "Enter the message to show on success",
           "Mandatory": true,
           "Name": "Success Message",
@@ -49,6 +51,7 @@
           "Key": "4a254e56-06f5-459b-9214-264621a97abe",
           "Alias": "instructionMessage",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Description": "Enter the message to tell the user what to do",
           "Name": "Instruction Message",
           "SortOrder": 20
@@ -69,5 +72,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

@@ -21,6 +21,7 @@
           "Key": "2c93ead0-0c05-474c-8085-78da5ed052e0",
           "Alias": "body",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Name": "Body",
           "SortOrder": 30
         },
@@ -28,6 +29,7 @@
           "Key": "511ba332-d101-43e6-8890-2645e496e190",
           "Alias": "link",
           "DataType": "umb://data-type/b4e3535a175347e28568602cf8cfee6f",
+          "ValueType": "System.Collections.Generic.IEnumerable\u003CUmbraco.Cms.Core.Models.Link\u003E",
           "Name": "Link",
           "SortOrder": 50
         },
@@ -35,6 +37,7 @@
           "Key": "7156a1c3-8efc-4760-b7a6-36d89ca46eea",
           "Alias": "iconToken",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "Icon Token",
           "SortOrder": 40
         },
@@ -42,6 +45,7 @@
           "Key": "965a5775-ed28-4059-9387-0e3881b8b4c0",
           "Alias": "title",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Mandatory": true,
           "Name": "Title",
           "SortOrder": 20
@@ -50,6 +54,7 @@
           "Key": "ff20f11b-8aae-4808-89eb-6b90de34ffd9",
           "Alias": "eyebrow",
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
           "Name": "Eyebrow",
           "SortOrder": 10
         }
@@ -73,5 +78,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

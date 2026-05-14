@@ -43,11 +43,11 @@ For E2E tests, see the **Testing** section below.
 
 **Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.3.0, Umbraco.Cms.DevelopmentMode.Backoffice 17.3.0, Umbraco.Cloud.Cms 17.1.0, Umbraco.Cloud.StorageProviders.AzureBlob 17.0.0, Umbraco.Forms 17.1.2, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.0.2, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
+**Key NuGet packages**: Umbraco.Cms 17.4.0, Umbraco.Cms.DevelopmentMode.Backoffice 17.4.0, Umbraco.Cloud.Cms 17.1.3, Umbraco.Cloud.StorageProviders.AzureBlob 17.0.0, Umbraco.Forms 17.1.2, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.1.0, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
 
-**AI packages**: Umbraco.AI 1.9.0, Umbraco.AI.Agent 1.8.0, Umbraco.AI.Agent.Copilot 1.0.0-alpha5 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0-alpha5 (shared chat UI components), Umbraco.AI.AGUI 1.8.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.0, Umbraco.AI.Google 1.1.5, Umbraco.AI.OpenAI 1.2.0, Umbraco.AI.Prompt 1.8.0.
+**AI packages**: Umbraco.AI 1.11.0, Umbraco.AI.Agent 1.10.0, Umbraco.AI.Agent.Copilot 1.0.0 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0 (shared chat UI components), Umbraco.AI.AGUI 1.10.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.2, Umbraco.AI.Google 1.1.7, Umbraco.AI.OpenAI 1.2.2, Umbraco.AI.Prompt 1.8.4.
 
-**AI Deploy packages** (beta — serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.0-beta3, Umbraco.AI.Prompt.Deploy 1.0.0-beta1. Auto-registered — no composer code required. `Umbraco.AI.Agent.Deploy` is intentionally **not installed**; agents stay DB-only and are recreated manually per Cloud environment. See **Pinned betas** below for the version constraints.
+**AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.0, Umbraco.AI.Prompt.Deploy 1.0.0, Umbraco.AI.Agent.Deploy 1.0.0. Auto-registered — no composer code required. As of 1.0.0, **all four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment.
 
 **Search packages** (beta — destined to replace legacy Examine search in v18): Umbraco.Cms.Search.Core 1.0.0-beta.3, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.3, Umbraco.Cms.Search.BackOffice 1.0.0-beta.3, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.3, Umbraco.AI.Search 1.0.0-beta3. See **Pinned betas** below for the version constraints.
 
@@ -62,8 +62,6 @@ Several beta packages have known compatibility traps. Don't let NuGet float them
 | Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 | Must match Core beta.3. |
 | Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 | Must match Core beta.3. |
 | Umbraco.AI.Search | 1.0.0-beta3 | Compiled against `Cms.Search.Core` beta.3 (see above). |
-| Umbraco.AI.Prompt.Deploy | 1.0.0-beta1 | beta2 references the unpublished `Umbraco.AI.Agent.Core 1.8.1` — `dotnet restore` succeeds but the site fails to start. (`Umbraco.AI.Deploy` itself is fine on beta3.) |
-| Umbraco.AI.Agent.Deploy | **not installed** | beta1 throws `MissingMethodException` on `AIAgent.ContextIds`; beta2 depends on the unpublished `Umbraco.AI.Agent.Core 1.8.1`. The practical fallout: AI agents don't deploy alongside prompts/connections/profiles, so they stay DB-only and must be recreated manually in each Cloud environment alongside the vector index rebuild. Tracking comment: [UmbracoProject.csproj:14-16](src/UmbracoProject/UmbracoProject.csproj#L14-L16). |
 
 **v18 upgrade path**: Both `Cms.Search.*` and `AI.Search` are destined to replace the legacy Examine-backed `IPublishedContentQuery.Search()` API in Umbraco v18. Expect API-breaking changes — revisit composer registration in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs), the `ISearcher` call in [search.cshtml](src/UmbracoProject/Views/search.cshtml), and this table as part of the v18 upgrade PR.
 
@@ -82,7 +80,7 @@ The **Umbraco MCP server** enables Claude Code to interact with backoffice conte
 
 ### AI schema deployment to Umbraco Cloud
 
-With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` packages installed, every AI Connection, Context, Guardrail, Chat Profile, Embedding Profile, Prompt, and AI Setting saved in **Settings > AI** auto-serializes to a `umbraco-ai-*.uda` artifact under [src/UmbracoProject/umbraco/Deploy/Revision/](src/UmbracoProject/umbraco/Deploy/Revision/). Those artifacts flow through the same git → Umbraco Cloud pipeline as document types. **Agents are the one exception** (see the Agent.Deploy caveat above) — they stay DB-only and must be recreated manually per environment.
+With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` + `Umbraco.AI.Agent.Deploy` packages installed, every AI Connection, Context, Guardrail, Chat Profile, Embedding Profile, Prompt, Agent, and AI Setting saved in **Settings > AI** auto-serializes to a `umbraco-ai-*.uda` artifact under [src/UmbracoProject/umbraco/Deploy/Revision/](src/UmbracoProject/umbraco/Deploy/Revision/). Those artifacts flow through the same git → Umbraco Cloud pipeline as document types. Agents now deploy as `.uda` like every other AI entity — no manual per-environment recreation required.
 
 **Secrets stay per-environment**: `.uda` artifacts reference API keys via placeholders (e.g. `$OpenAI:ApiKey`, `$Anthropic:ApiKey`), never the raw value. Each Cloud environment (Development, Staging, Live) must have its own keys set in that environment's app settings via the Cloud portal — **never paste raw keys into the backoffice connection form** (they get encrypted to the DB and break on Data Protection key rotation).
 
@@ -93,11 +91,11 @@ With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` packages installed, ev
 1. Connections → Contexts → Guardrails
 2. Chat Profiles → Embedding Profiles
 3. Prompts → Settings (default chat profile, default embedding profile)
-4. Agents — save locally for reference, but these won't produce usable `.uda` artifacts; recreate them manually in each target environment.
+4. Agents
 
 Verify new `umbraco-ai-*.uda` files appear under `umbraco/Deploy/Revision/`. Before committing, grep the folder for raw secrets (`grep -rE '(sk-[A-Za-z0-9]{20,}|ANTHROPIC_)' src/UmbracoProject/umbraco/Deploy/Revision/`) to make sure only placeholder references are present. Run `/check-uda` for the usual schema-conflict pre-commit scan.
 
-**What still needs manual per-environment work**: (1) the vector search index (see Search section below), and (2) agents — create them in each Cloud environment's backoffice once the deployed chat profiles are in place.
+**What still needs manual per-environment work**: only the vector search index (see Search section below) — every AI entity, agents included, now flows through Deploy.
 
 ## Search
 
@@ -128,15 +126,14 @@ Trigger a full rebuild from the backoffice: **`Settings → Search`** → click 
 
 ### Umbraco Cloud deploys
 
-AI connections, profiles, embedding profiles, contexts, guardrails, prompts, and AI settings now auto-deploy as schema via the `Umbraco.AI.Deploy` package family (see **AI schema deployment** subsection under AI & Copilot above). **Agents and the vector index are still local to each environment** and must be set up / rebuilt manually.
+AI connections, profiles, embedding profiles, contexts, guardrails, prompts, agents, and AI settings all auto-deploy as schema via the `Umbraco.AI.Deploy` package family (see **AI schema deployment** subsection under AI & Copilot above). **Only the vector index is still local to each environment** and must be rebuilt manually.
 
 After deploying to Cloud:
 
 1. Set `OpenAI__ApiKey` (and `Anthropic__ApiKey` if using Anthropic connections) in that environment's app settings via the Cloud portal — note the double-underscore form, the portal rejects colons.
-2. Log into that environment's backoffice and verify **Settings → AI** shows the deployed connections, profiles, contexts, etc.
-3. Recreate any agents manually (link each to its deployed chat profile; set document-type permissions).
-4. Rebuild the `UmbAI_Search` index once via `Settings → Search`.
-5. Verify the document count > 0 before promoting further.
+2. Log into that environment's backoffice and verify **Settings → AI** shows the deployed connections, profiles, contexts, and agents.
+3. Rebuild the `UmbAI_Search` index once via `Settings → Search`.
+4. Verify the document count > 0 before promoting further.
 
 Deploys do not replicate the vector index; skipping the rebuild leaves `/search` returning empty results on that environment.
 

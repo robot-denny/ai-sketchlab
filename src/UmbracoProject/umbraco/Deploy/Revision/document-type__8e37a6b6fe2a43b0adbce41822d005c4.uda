@@ -22,6 +22,7 @@
           "Key": "38e63c07-6381-45c0-ac6b-29da86775e85",
           "Alias": "socialIconLinks",
           "DataType": "umb://data-type/f8d7b987745c471f8f34a47f00838f06",
+          "ValueType": "Umbraco.Cms.Core.Models.Blocks.BlockListModel",
           "Description": "Add any social links using the SVG icons",
           "Name": "Social Icon Links",
           "SortOrder": 5
@@ -30,6 +31,7 @@
           "Key": "54cc1812-1309-4efe-bfdd-d02d15569c7b",
           "Alias": "footerDescription",
           "DataType": "umb://data-type/ca90c9500aff4e72b976a30b1ac57dad",
+          "ValueType": "Umbraco.Cms.Core.Strings.IHtmlEncodedString",
           "Description": "Rich text description displayed below the logo",
           "Name": "Footer Description",
           "SortOrder": 15
@@ -38,6 +40,7 @@
           "Key": "66af713d-ce5f-4087-b707-c43d57dbab8e",
           "Alias": "footerLogo",
           "DataType": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
+          "ValueType": "Umbraco.Cms.Core.Models.MediaWithCrops",
           "Description": "Logo image displayed in the footer (supports PNG, SVG, and other image formats)",
           "Name": "Footer Logo",
           "SortOrder": 10
@@ -46,6 +49,7 @@
           "Key": "fca0c69b-6bb3-47a1-86fe-527ef321dd68",
           "Alias": "footerNavigation",
           "DataType": "umb://data-type/b4e3535a175347e28568602cf8cfee6f",
+          "ValueType": "System.Collections.Generic.IEnumerable\u003CUmbraco.Cms.Core.Models.Link\u003E",
           "Description": "Navigation links displayed in the footer",
           "Name": "Footer Navigation",
           "SortOrder": 20
@@ -78,5 +82,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.0.1"
+  "__version": "17.1.0"
 }

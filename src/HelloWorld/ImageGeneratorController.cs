@@ -57,6 +57,7 @@ public class ImageGeneratorController : ControllerBase
 
         var articles = _contentService.GetPagedOfType(
                 contentType.Id, 0, int.MaxValue, out _, null!, Ordering.By("Name"))
+            .Where(c => !c.Trashed)
             .Select(c => new { id = c.Key, name = c.Name })
             .OrderBy(a => a.name)
             .ToList();
@@ -73,6 +74,7 @@ public class ImageGeneratorController : ControllerBase
 
         var categories = _contentService.GetPagedOfType(
                 contentType.Id, 0, int.MaxValue, out _, null!, Ordering.By("Name"))
+            .Where(c => !c.Trashed)
             .Select(c => new { id = c.Key, name = c.Name })
             .OrderBy(c => c.name)
             .ToList();

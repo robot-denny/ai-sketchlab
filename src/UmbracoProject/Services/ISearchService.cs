@@ -1,0 +1,6 @@
+namespace UmbracoProject.Services;
+
+public interface ISearchService
+{
+    Task<SearchResult> SearchAsync(string query, CancellationToken cancellationToken = default);
+}

@@ -1,0 +1,5 @@
+# JSON schema artifacts dropped here by the Umbraco SDK targets via the
+# ProjectReference to src/UmbracoProject. Mirror src/UmbracoProject/.gitignore.
+appsettings-schema.json
+appsettings-schema.*.json
+umbraco-package-schema.json

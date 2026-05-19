@@ -341,17 +341,27 @@ Uses `@napi-rs/canvas` for server-side rendering. Run via `npm run generate:imag
 
 Use the `/cms-image` command to generate and publish images.
 
-## Generative Skills
+## Claude Code Skills
 
-Three skills from [anthropics/skills](https://github.com/anthropics/skills) are used in this project:
+Five skills are installed in this project — three from [anthropics/skills](https://github.com/anthropics/skills), one Anthropic skill used as meta-tooling, and one project-authored:
 
+**From [anthropics/skills](https://github.com/anthropics/skills):**
 - `/algorithmic-art` — Interactive p5.js generative art for decorative hero visuals. Outputs self-contained HTML with seed navigation and parameter controls. Export PNG via the built-in download button.
 - `/canvas-design` — Static PNG visual design with curated typography. Requires fonts (see `skills/README.md` for fetch instructions).
 - `frontend-design` — Refined UI design exploration (used during the image-carousel-captions-controls work; see [_plans/shipped/image-carousel-captions-controls.md](_plans/shipped/image-carousel-captions-controls.md) Step 3 for an example invocation).
+- `skill-creator` — Anthropic's official scaffolding for building, evaluating, and tuning new skills. Used to build `architecture-audit`; available for future skills.
 
-`/algorithmic-art` and `/canvas-design` assets live in [skills/](skills/); outputs go to `skills/output/` (gitignored). See [skills/README.md](skills/README.md) for full documentation.
+**Project-authored:**
+- `architecture-audit` — Audits the architectural quality of an Umbraco/.NET codebase against seven pillars (modern .NET, architectural separation, Umbraco-version-appropriate patterns, headless suitability, documentation & onboarding, resilience & operations, scalability & refactorability). Lifecycle-aware; optionally compares two repos head-to-head. Reports save to `_audits/<YYYY-MM-DD>-<slug>.md`.
 
-`frontend-design` is installed at [.agents/skills/frontend-design/](.agents/skills/frontend-design/) (the Anthropic skills convention) with a symlink at `.claude/skills/frontend-design` so Claude Code discovers it. Hash tracked in [skills-lock.json](skills-lock.json).
+### Two skill folder locations (and why)
+
+Skills live in two top-level folders by accident of history. The intent is to consolidate eventually; for now both are valid:
+
+- **`skills/`** — older repo-local convention. Holds skills that ship bundled binary assets (e.g., `canvas-design` needs font files fetched at install time). `/algorithmic-art` and `/canvas-design` live here; outputs go to `skills/output/` (gitignored). See [skills/README.md](skills/README.md) for the asset-fetch instructions.
+- **`.agents/skills/`** — the [Anthropic skills convention](https://github.com/anthropics/skills). `frontend-design`, `skill-creator`, and `architecture-audit` live here. Each is symlinked from `.claude/skills/<name>` so Claude Code discovers it.
+
+Future cleanup (P2): move `algorithmic-art` and `canvas-design` to `.agents/skills/` with their bundled assets and retire the legacy `skills/` location. Hash of `frontend-design` is tracked in [skills-lock.json](skills-lock.json).
 
 ## Workflow layers
 
@@ -361,9 +371,11 @@ Entry-point commands per layer: `/spec <slug>` → `/plan _specs/<slug>.md` → 
 
 ## Project Planning
 
-- `_specs/` — feature specification documents (initial requirements, design rationale, open questions — the "why")
-- `_plans/` — implementation plans for features (TDD steps with paste-ready prompts — the "how")
+- `_specs/` — feature specification documents (initial requirements, design rationale, open questions — the "why"). Shipped specs archive under `_specs/shipped/`.
+- `_plans/` — implementation plans for features (TDD steps with paste-ready prompts — the "how"). Shipped plans archive under `_plans/shipped/`.
 - `_features/` — living BDD-style behavioral specifications (current feature behavior as Given/When/Then scenarios — the "what")
+- `_prds/` — optional PRDs for bodies of work spanning 3+ features (see *Workflow layers* above)
+- `_audits/` — architecture audit reports produced by the `architecture-audit` skill. Dated filenames (`YYYY-MM-DD-<slug>.md`). Kept in git as historical baselines and as fixtures for skill-creator eval runs.
 
 ## Feature Behavioral Specs
 

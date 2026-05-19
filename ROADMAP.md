@@ -29,8 +29,7 @@ Committed work, no spec yet. Promote into a feature folder when starting.
 Wishlist. Promote into Next when scope and timing become clearer.
 
 - **hero-block** — new block component. v1: image + text + button. Later: backoffice text positioning, background-video variant, layout configuration choices → `_features/hero-block.md` (no spec yet)
-- **workflow-bundle-mode** — `/spec` and `/plan` currently hard-code a feature-doc step (draft skeleton in `/spec`, `/feature update` final step in `/plan`). Cleanup bundles don't earn a feature doc, so both required manual deviation on `site-polish-2026-05`. Add a `--bundle` mode (or auto-detection) that suppresses the feature-doc steps. Second data point will justify the change
-- **workflow-implement-step** — `/implement-step _plans/<slug>.md N` spawns a subagent for one plan step so main context stays clean. Designed in the workflow scaffolding plan, deferred pending real pain. Site-polish stayed coherent across 7 steps in one context — no urgency yet
+- **workflow-bundle-mode** — `/spec` and `/plan` currently hard-code a feature-doc step (draft skeleton in `/spec`, `/feature update` final step in `/plan`). Cleanup bundles don't earn a feature doc, so both required manual deviation on `site-polish-2026-05`. Add a `--bundle` mode (or auto-detection) that suppresses the feature-doc steps. The 2026-05 audit's P1/P2 hygiene cluster (CI + Polly + health + nullable + central packages + ADR move) is the natural second data point — promote this to Next when audit work starts
 
 ## Bundles
 
@@ -51,6 +50,7 @@ Each feature below has its full behavioral contract in `_features/<slug>.md` and
 - [site-header](_features/site-header.md) — 2026-04-14
 - [umbraco-ai-search](_features/umbraco-ai-search.md) — 2026-04-22
 - **site-polish-2026-05** — 2026-05-12 — cleanup bundle (5 items: metaDescription on listings, Generic-tab fix via composition promote, Contact form restyle, Notes block restyle, capabilities doc refresh + CMS push). No feature doc; spec/plan under `_specs/shipped/` and `_plans/shipped/` once archived
+- **workflow-implement-step** — 2026-05-19 — `/implement-step _plans/<slug>.md N` dispatches one plan step to a fresh `general-purpose` subagent. Plan format already promises "each step independently completable in a fresh context window" — this command realizes it. Subagent receives the plan's Context + Key Decisions + Step N block only; no auto-commit; no worktree isolation. See [.claude/commands/implement-step.md](.claude/commands/implement-step.md)
 
 ---
 

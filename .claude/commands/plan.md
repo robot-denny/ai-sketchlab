@@ -187,7 +187,7 @@ Report to the user in this format:
 Plan: _plans/{feature_slug}.md
 Steps: N
 Branch: claude/feature/{feature_slug}
-Next: run step 1 of the plan (paste its prompt into a fresh context, or use /implement-step _plans/{feature_slug}.md 1 once that command exists)
+Next: /implement-step _plans/{feature_slug}.md 1 (dispatches the step to a fresh subagent context — keeps your main context clean across the plan)
 ```
 
 Do not print the full plan to chat — just the summary above. The plan lives in the file.

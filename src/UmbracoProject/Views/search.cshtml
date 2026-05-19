@@ -2,79 +2,23 @@
 
 @using System.Net
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
-@using Microsoft.Extensions.Caching.Memory
-@using Microsoft.Extensions.Options
-@using Umbraco.AI.Search.Core
-@using Umbraco.AI.Search.Core.Configuration
-@using Umbraco.Cms.Core
-@using Umbraco.Cms.Core.Models
 @using Clean.Core.Extensions
-@using Umbraco.Cms.Search.Core.Services
 @using UmbracoProject.Helpers
-@using SearchCoreConstants = Umbraco.Cms.Search.Core.Constants
-@inject Umbraco.Cms.Core.IPublishedContentQuery publishedContentQuery
-@inject ISearcherResolver searcherResolver
-@inject IMemoryCache memoryCache
-@inject IOptions<AIVectorSearchOptions> searchOptions
+@using UmbracoProject.Services
+@inject ISearchService searchService
 
 @{
     Layout = "master.cshtml";
     var searchQuery = Context.Request.Query["q"].ToString();
-    var docTypesToIgnore = new[] { Category.ModelTypeAlias, CategoryList.ModelTypeAlias, Error.ModelTypeAlias, Search.ModelTypeAlias, XMlsitemap.ModelTypeAlias };
 
-    // Display 20; ask for a small margin over the display target so post-filtering (system doc types)
-    // can drop a few without leaving the user short. Driven from Umbraco:AI:Search:DefaultTopK
-    // (see appsettings.json) so both the AI provider and the view stay in sync.
-    var take = Math.Max(20, searchOptions.Value.DefaultTopK);
-
-    IReadOnlyList<IPublishedContent> results = Array.Empty<IPublishedContent>();
-    bool isShortQuery = false;
-
-    if (!string.IsNullOrWhiteSpace(searchQuery))
-    {
-        async Task<IReadOnlyList<IPublishedContent>> RunSearchAsync(string indexAlias)
-        {
-            var s = searcherResolver.GetSearcher(indexAlias);
-            if (s == null) return Array.Empty<IPublishedContent>();
-            var r = await s.SearchAsync(indexAlias: indexAlias, query: searchQuery, skip: 0, take: take);
-            return (r?.Documents ?? Enumerable.Empty<Umbraco.Cms.Search.Core.Models.Searching.Document>())
-                .Where(d => d.ObjectType == UmbracoObjectTypes.Document)
-                .Select(d => publishedContentQuery.Content(d.Id))
-                .Where(c => c != null && !docTypesToIgnore.Contains(c.ContentType.Alias))
-                .Take(20)
-                .ToList();
-        }
-
-        // Short, keyword-style queries (1–2 tokens, e.g. author names, "contact", "sitemap")
-        // are poor semantic candidates and pure-vector search underperforms on them.
-        // Skip the embedding round-trip and go straight to Examine for those; the AI
-        // flow is reserved for longer, natural-language queries.
-        var tokenCount = searchQuery.Split(new[] { ' ', '\t', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
-        isShortQuery = tokenCount <= 2;
-
-        // Cache key is the normalized (trimmed, lower-cased) query. 5-minute TTL
-        // collapses repeat-traffic bursts onto a single embedding call while staying
-        // fresh enough for a demo/content site with low publish frequency.
-        var cacheKey = $"search:results:{(isShortQuery ? "kw" : "ai")}:{searchQuery.ToLowerInvariant().Trim()}";
-        results = await memoryCache.GetOrCreateAsync(cacheKey, async entry =>
-        {
-            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-
-            if (isShortQuery)
-            {
-                return await RunSearchAsync(SearchCoreConstants.IndexAliases.PublishedContent);
-            }
-
-            // AI semantic searcher first; fall back to Examine if vector search returns nothing.
-            var aiResults = await RunSearchAsync(AISearchConstants.IndexAliases.Search);
-            return aiResults.Count > 0
-                ? aiResults
-                : await RunSearchAsync(SearchCoreConstants.IndexAliases.PublishedContent);
-        }) ?? new List<IPublishedContent>();
-    }
+    // Context.RequestAborted lets a cancelled request short-circuit before the cache
+    // fill begins — see the entry-point guard in SearchService.SearchAsync.
+    var searchResult = await searchService.SearchAsync(searchQuery, Context.RequestAborted);
 
     var hasQuery = !string.IsNullOrWhiteSpace(searchQuery);
-    var resultCount = results.Count;
+    // TotalCount is the pre-cap, post-filter count so "Search.Results" can read
+    // "30 results for X" even when Items is capped at the 20-item display limit.
+    var resultCount = searchResult.TotalCount;
     // Encode the user's query before reflecting it back to the page.
     // StripHtml alone does NOT neutralize attribute-based XSS vectors (e.g. onerror=)
     // because those payloads contain no tags for StripHtml to remove.
@@ -112,13 +56,13 @@
     {
         <div class="s-meta" role="status" aria-live="polite" aria-atomic="true">
             <span>@Html.Raw(string.Format(Umbraco.GetDictionaryValue("Search.Results"), resultCount, encodedQuery))</span>
-            <span class="mode">Mode · <b>@(isShortQuery ? "Keyword" : "AI semantic")</b></span>
+            <span class="mode">Mode · <b>@(searchResult.Mode == SearchMode.Keyword ? "Keyword" : "AI semantic")</b></span>
         </div>
 
         if (resultCount > 0)
         {
             <div class="results" role="list">
-                @foreach (var result in results)
+                @foreach (var result in searchResult.Items)
                 {
                     <div role="listitem">
                         @await Html.PartialAsync("~/Views/Partials/v2/_ArticleCard.cshtml", result)

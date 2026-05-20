@@ -14,7 +14,8 @@ In-flight features — actively iterating; each has a non-empty Increments queue
 
 - **editor-how-to-guides** — iterate on AI-generated guide output and page-type options → [_features/editor-how-to-guides.md](_features/editor-how-to-guides.md)
 - **living-style-guide** — stable; ad-hoc additions as new editorial classes are introduced → [_features/living-style-guide.md](_features/living-style-guide.md)
-- **ella-block-attribution** — shipped 2026-05-11; watch for refinements as more AI-attributed content lands → [_features/ella-block-attribution.md](_features/ella-block-attribution.md)
+- **workflow-roadmap** — `/roadmap` command to manage [ROADMAP.md](ROADMAP.md) (promote/demote items between Now/Next/Later/Recently shipped, append Increments entries to feature docs). Currently a hand-edit chore. Part of the 2026-05-13 workflow bundle alongside [shipped `/implement-step`](.claude/commands/implement-step.md) → no spec yet
+- **workflow-explore** — `/explore <idea>` divergent pre-spec command, inspired by Pocock's [`/grill-me`](https://github.com/mattpocock/skills/blob/main/skills/productivity/grill-me/SKILL.md). Holds a Three-Amigos-style conversation ("what are we trying to do? what are the edges? who is this for?"), writes notes to `_specs/<slug>-explore.md`, segues into `/spec` when the user says "good, now spec it." Part of the 2026-05-13 workflow bundle → no spec yet
 
 ## Next
 
@@ -23,6 +24,7 @@ Committed work, no spec yet. Promote into a feature folder when starting.
 - **section-nav-hide-toggle** — extracted from the polish bundle. New `hideFromSectionNavigation` boolean alongside the existing `umbracoNaviHide` / `hideFromTopNavigation` / `hideFromXMLSitemap` toggles in the Visibility Controls composition; `sectionNavigation.cshtml` filters by it. Earns a new Increment on `_features/section-navigation.md` → run `/spec section-nav-hide-toggle` from master
 - **cleanup-contact-dead-code** — remove the unused `Views/Components/Contact/Default.cshtml` view component. Never invoked (the live form renders via Umbraco Forms' `RenderForm`). Five-minute housekeeping
 - **test-infra-centralise-nodetls** — every spec file repeats `process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'` at module scope; centralise in `playwright.config.ts` and prune duplicates
+- **workflow-retire-block-command** — fold [.claude/commands/block.md](.claude/commands/block.md) into a `/plan` template variant so block-shaped TDD stops being a separate command. Reduces command surface and re-uses the spec → plan → implement chain. Part of the 2026-05-13 workflow bundle → no spec yet
 
 ## Later
 
@@ -30,6 +32,7 @@ Wishlist. Promote into Next when scope and timing become clearer.
 
 - **hero-block** — new block component. v1: image + text + button. Later: backoffice text positioning, background-video variant, layout configuration choices → `_features/hero-block.md` (no spec yet)
 - **workflow-bundle-mode** — `/spec` and `/plan` currently hard-code a feature-doc step (draft skeleton in `/spec`, `/feature update` final step in `/plan`). Cleanup bundles don't earn a feature doc, so both required manual deviation on `site-polish-2026-05`. Add a `--bundle` mode (or auto-detection) that suppresses the feature-doc steps. The 2026-05 audit's P1/P2 hygiene cluster (CI + Polly + health + nullable + central packages + ADR move) is the natural second data point — promote this to Next when audit work starts
+- **workflow-prd** — lightweight `/prd` command for authoring multi-feature PRDs in `_prds/`. Currently a free-form markdown convention. Part of the 2026-05-13 workflow bundle; promote to Next when a bundle that needs a PRD (e.g. `algorithmic-art-platform`) reaches active scoping → no spec yet
 
 ## Bundles
 
@@ -49,8 +52,10 @@ Each feature below has its full behavioral contract in `_features/<slug>.md` and
 - [image-carousel-captions-controls](_features/image-carousel-captions-controls.md) — 2026-04-13
 - [site-header](_features/site-header.md) — 2026-04-14
 - [umbraco-ai-search](_features/umbraco-ai-search.md) — 2026-04-22
+- [ella-block-attribution](_features/ella-block-attribution.md) — 2026-05-11
 - **site-polish-2026-05** — 2026-05-12 — cleanup bundle (5 items: metaDescription on listings, Generic-tab fix via composition promote, Contact form restyle, Notes block restyle, capabilities doc refresh + CMS push). No feature doc; spec/plan under `_specs/shipped/` and `_plans/shipped/` once archived
 - **workflow-implement-step** — 2026-05-19 — `/implement-step _plans/<slug>.md N` dispatches one plan step to a fresh `general-purpose` subagent. Plan format already promises "each step independently completable in a fresh context window" — this command realizes it. Subagent receives the plan's Context + Key Decisions + Step N block only; no auto-commit; no worktree isolation. See [.claude/commands/implement-step.md](.claude/commands/implement-step.md)
+- [extract-search-service](_features/extract-search-service.md) — 2026-05-20 — refactored `search.cshtml` to delegate to a new `SearchService` registered via composer; added xUnit project and tests covering search-mode label routing (Keyword / AI semantic)
 
 ---
 

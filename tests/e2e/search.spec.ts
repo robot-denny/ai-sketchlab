@@ -103,6 +103,46 @@ test.describe('Search — page shell (characterization)', () => {
     expect(liveScripts, 'no <script> tag should be injected inside the search form').toBe(0);
   });
 
+  test('mode label shows "Keyword" for a single-token query', async ({ page }) => {
+    // Single-token queries route through the Examine keyword provider. The
+    // service emits SearchMode.Keyword which the view renders as "Keyword".
+    await page.goto(`${SEARCH_PATH}?q=${encodeURIComponent('contact')}`);
+
+    // Mode label still renders on the zero-results state, so guard against a
+    // cold index producing a vacuous pass.
+    const results = page.locator('.post-preview');
+    if ((await results.count()) === 0) {
+      test.skip(true, 'Keyword index returned no results — cannot verify keyword routing');
+    }
+
+    const modeLabel = page.locator('.s-meta .mode');
+    await expect(modeLabel).toBeVisible();
+    await expect(modeLabel).toContainText('Keyword');
+  });
+
+  test('mode label shows "AI semantic" for a 3+ token query', async ({ page }) => {
+    // The AI semantic searcher requires an OpenAI key for query embedding.
+    // Skip cleanly on environments without it rather than failing on a
+    // missing-credentials assertion.
+    test.skip(!process.env.OPENAI_API_KEY, 'OPENAI_API_KEY not set — AI semantic search unavailable');
+
+    // Multi-token natural-language queries route through the AI vector
+    // searcher. The service emits SearchMode.AiSemantic which the view
+    // renders as "AI semantic".
+    await page.goto(`${SEARCH_PATH}?q=${encodeURIComponent('stories about resilience')}`);
+
+    // Mode label still renders on the zero-results state, so guard against a
+    // cold AI vector index producing a vacuous pass.
+    const results = page.locator('.post-preview');
+    if ((await results.count()) === 0) {
+      test.skip(true, 'AI index returned no results — cannot verify AI semantic routing');
+    }
+
+    const modeLabel = page.locator('.s-meta .mode');
+    await expect(modeLabel).toBeVisible();
+    await expect(modeLabel).toContainText('AI semantic');
+  });
+
   test('XSS safety: attribute-injection payload (onerror=) is HTML-encoded, not executed', async ({ page }) => {
     // Regression guard: StripHtml() alone does NOT neutralize this vector because
     // the payload contains no tags for it to strip. Only HTML-encoding the query

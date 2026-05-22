@@ -427,6 +427,12 @@ healthchecksdb
 tests/e2e/.auth/user.json
 playwright-report/
 test-results/
+# Block-screenshot baselines must be generated on Linux (CI). macOS font
+# rendering would cause the snapshots to diverge from what CI compares against.
+# Anything else under `*-snapshots/` (i.e. the canonical Linux baselines) IS
+# committed -- see `_plans/arch-safety-net.md` Step 5 and `update-snapshots.yml`.
+tests/e2e/**/*-snapshots/*-darwin.png
+tests/e2e/**/*-snapshots/*-win32.png
 # Local utility scripts (except image generator, media sync, guide generator, and font fetch script which are version-controlled)
 scripts/*
 !scripts/image-generator/

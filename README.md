@@ -47,7 +47,7 @@ git config core.hooksPath .githooks
 Three hooks are included:
 
 - **`pre-commit` — UDA Guard**: checks whether any `.uda` schema files you're committing conflict with changes on the remote. Warns and blocks if direct conflicts are detected. To bypass in an emergency: `git commit --no-verify`.
-- **`pre-push` — AI Code Review** (disabled by default): runs accessibility + code quality review via Claude Code before pushing. Requires the `claude` CLI to be installed. Enable by setting `ENABLE_AI_REVIEW=1` in your shell profile or `.githooks.conf`.
+- **`pre-push` — Build + Tests Gate**: runs `dotnet build -c Release` and `dotnet test --no-build -c Release` before each push and prints per-step timings (e.g. `build: 6.0s, test: 1.0s, total: 7.0s`). Catches Gate 1 failures locally before they reach the Umbraco Cloud build pipeline. Enabled by default; runtime budget is ~30s on a primed build. To skip: set `SKIP_PREPUSH=1` in your shell profile, set `ENABLE_PREPUSH=false` in `.githooks.conf`, or use `git push --no-verify` for one-offs.
 - **`post-merge`**: triggers Umbraco Deploy to sync schema after a `git pull` or merge.
 
 #### Configuring hooks per-developer
@@ -58,7 +58,7 @@ Each hook can be toggled without modifying tracked files. Two methods:
 
 ```bash
 export SKIP_UDA_CHECK=1     # Disable UDA Guard on pre-commit
-export ENABLE_AI_REVIEW=1   # Enable AI review on pre-push
+export SKIP_PREPUSH=1       # Disable build + tests gate on pre-push
 ```
 
 **Option 2 — Local config file**:

@@ -322,7 +322,6 @@ test.describe('Member Login — Registration Flow', () => {
     if (!testMemberId) {
       // Try to find the member by email
       try {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         const token = await getBackOfficeToken();
         testMemberId = await findMemberByEmail(token, testEmail);
       } catch {
@@ -332,7 +331,6 @@ test.describe('Member Login — Registration Flow', () => {
 
     if (testMemberId) {
       try {
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         const token = await getBackOfficeToken();
         await deleteMember(token, testMemberId);
       } catch {
@@ -370,7 +368,6 @@ test.describe('Member Login — Registration Flow', () => {
 
     // Find the test member ID for cleanup
     try {
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
       const token = await getBackOfficeToken();
       testMemberId = await findMemberByEmail(token, testEmail);
     } catch {

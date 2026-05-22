@@ -3,7 +3,6 @@ import { test } from '@umbraco/playwright-testhelpers';
 import dotenv from 'dotenv';
 
 dotenv.config();
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const SEARCH_PATH = '/search';
 // Known URL paths of system doc types that must never appear in results. Category /

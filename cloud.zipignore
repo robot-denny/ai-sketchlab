@@ -1,0 +1,43 @@
+## File uses same principle as .gitignore
+
+## user generated files
+.DS_Store
+.idea/*
+
+## Cloud has it's own git folder
+.git/*
+
+## no need for pipeline stuff in cloud - unless you just want to have it there also
+.github/*
+[Dd]evops/*
+
+## Ignore the obj and bin artefacts - Umbraco Cloud will build
+**/[Bb]in/*
+**/[Oo]bj/*
+
+## Do not include node modules - but do included your compiled js/frontend artifacts
+node_modules/*
+**/node_modules*
+
+## ignore this file
+cloud.zipignore
+
+## ---------------------------------------------------------------------------
+## Project-specific developer-only folders that must NOT ship to Cloud.
+## (See _plans/arch-safety-net.md Step 4 code review for the rationale.)
+## ---------------------------------------------------------------------------
+_specs/*
+_plans/*
+_audits/*
+_features/*
+_prds/*
+.claude/*
+.agents/*
+tests/*
+skills/*
+.githooks/*
+.githooks.conf
+.githooks.conf.example
+.env
+playwright-report/*
+test-results/*

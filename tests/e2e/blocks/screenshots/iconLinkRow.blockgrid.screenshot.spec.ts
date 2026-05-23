@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // NOTE: The blockgrid shim for iconLinkRow has no canonical render surface
 // on the demo site. The partial delegates to the blocklist version which

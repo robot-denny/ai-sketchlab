@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /styleguide/components/ contains the JavaScript example
 // `console.log("hello, style guide")` rendered via the Code Snippet Row block.

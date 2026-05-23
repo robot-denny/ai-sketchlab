@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { expect, prepareForScreenshot, screenshotOptions } from './_helpers';
+import { expect, prepareForScreenshot, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: the blockgrid shim for alertBanner delegates to the
 // blocklist partial via Html.PartialAsync. The /experiments/ page is the

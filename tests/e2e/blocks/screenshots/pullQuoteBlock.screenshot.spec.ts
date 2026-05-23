@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /experiments/ -- partial emits
 // `<figure class="exp-pullquote exp-pullquote--<tone>">`.

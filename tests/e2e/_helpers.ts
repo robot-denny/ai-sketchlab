@@ -1,6 +1,12 @@
 /**
- * Shared helpers for block-component screenshot specs (Step 5 of
- * `_plans/arch-safety-net.md`).
+ * Shared helpers for block-component AND page-template screenshot specs
+ * (Steps 5 + 6 of `_plans/arch-safety-net.md`).
+ *
+ * Originally authored at `tests/e2e/blocks/screenshots/_helpers.ts` for the
+ * block-component suite; lifted to `tests/e2e/_helpers.ts` in Step 6 once the
+ * page-template specs needed the same `prepareForScreenshot` /
+ * `screenshotOptions` / `dynamicRegionMasks` primitives. Block specs import
+ * via `'../../_helpers'`; page specs import via `'../_helpers'`.
  *
  * TEST SCOPE — IMPORTANT for future authors:
  *   These specs are VISUAL REGRESSION tests only:
@@ -58,6 +64,30 @@
  *   equivalence specs assert the rendered output is pixel-identical across
  *   blocklist and blockgrid contexts.
  *
+ * Page-to-template mapping (Step 6 — `tests/e2e/pages/*.screenshot.spec.ts`):
+ *
+ *   home                    -> `/` (always; root URL is structural, safe to hardcode)
+ *                              Mask: latestArticles + standard timestamp selectors.
+ *   articleList             -> Looked up via header/nav walk for a link whose
+ *                              destination renders `<main class="archive-page">`
+ *                              (the unique articleList.cshtml wrapper).
+ *                              Mask: .article-grid-card, .byline, time/.post-meta,
+ *                              .pagination.
+ *   article                 -> 2-hop: home → articleList nav → first
+ *                              `.article-grid-card a[href]`. Mask: .byline,
+ *                              section.next, time/.post-meta.
+ *   experimentsLandingPage  -> Looked up via header/nav/footer walk for a link
+ *                              whose destination renders the blockgrid umb-block-grid
+ *                              wrapper (the unique experiments surface).
+ *                              Mask: time/.post-meta (timeline dates).
+ *   search                  -> `/search?q=zzzz-no-results-baseline` (deliberate
+ *                              empty-state to avoid rank-dependent snippet thrash).
+ *                              Mask: none -- the empty state is layout-stable.
+ *   contact                 -> Looked up via header/nav/footer walk for a link
+ *                              whose destination renders `form[method="post"]`
+ *                              inside main (contact.cshtml's fingerprint).
+ *                              Mask: time/.post-meta defensive only.
+ *
  * Baseline generation policy (Step 5 key decisions, _plans/arch-safety-net.md):
  *   - Baselines are GENERATED ON LINUX ONLY via the `update-snapshots.yml`
  *     `workflow_dispatch` workflow. Mac-side regeneration is forbidden -- font
@@ -75,10 +105,14 @@ import { expect, Page, Locator } from '@playwright/test';
  * Subset of Playwright's screenshot assertion options that this helper
  * surfaces. Keeps callers from passing arbitrary string values (e.g.
  * `{ maxDiffPixelRatio: 'banana' }`) and getting silent type widening.
+ *
+ * `fullPage` is only meaningful on `await expect(page).toHaveScreenshot(...)`
+ * (Step 6, page-template specs). Locator-based block specs ignore it.
  */
 export interface ScreenshotOptions {
   animations?: 'allow' | 'disabled';
   caret?: 'hide' | 'initial';
+  fullPage?: boolean;
   maxDiffPixelRatio?: number;
   maxDiffPixels?: number;
   mask?: Locator[];
@@ -170,6 +204,56 @@ export function dynamicRegionMasks(page: Page): { latestArticles: Locator; publi
     latestArticles: page.locator('.latest-articles-row .entries'),
     publishedDates: page.locator('time, .post-meta, .article-meta'),
   };
+}
+
+/**
+ * Discover the URL of a page template by walking the site's navigation and
+ * probing each link's destination for a CSS selector unique to that template.
+ *
+ * Used by the page-template screenshot specs (Step 6) so no slug like
+ * `/contact/` or `/experiments/` is hardcoded — slug changes survive without
+ * rewriting tests.
+ *
+ * Probe gotos use `{ waitUntil: 'domcontentloaded' }` rather than the default
+ * `'load'` so the discovery loop doesn't pay full image/font wait cost on
+ * pages it's about to discard.
+ *
+ * @param page     a Playwright page; on success it ends up on the discovered URL.
+ * @param fingerprint a CSS selector that ONLY the target template renders
+ *                    (e.g., `'main.archive-page'` for articleList,
+ *                    `'form[method="post"]'` inside main for contact).
+ * @param navSelectors comma-separated selectors for nav containers to walk;
+ *                     defaults to header + nav + footer anchors.
+ * @returns the URL of the page rendering the fingerprint, or throws if
+ *          no nav link resolved to the template.
+ */
+export async function findNavLinkForTemplate(
+  page: Page,
+  fingerprint: string,
+  navSelectors: string = 'header a, nav a, footer a',
+): Promise<string> {
+  await page.goto('/');
+  const navLinks = await page.locator(navSelectors).evaluateAll((els) =>
+    els
+      .map((el) => (el as HTMLAnchorElement).getAttribute('href') ?? '')
+      .filter((href) => href.startsWith('/') && href !== '/' && !href.startsWith('/assets')),
+  );
+
+  // De-duplicate (footer often re-lists header links).
+  const unique = Array.from(new Set(navLinks));
+
+  for (const href of unique) {
+    const resp = await page.goto(href, { waitUntil: 'domcontentloaded' });
+    if (!resp?.ok()) continue;
+    if ((await page.locator(fingerprint).count()) > 0) {
+      return href;
+    }
+  }
+
+  throw new Error(
+    `Could not find a nav link whose destination renders \`${fingerprint}\`. ` +
+      `Walked: ${navSelectors}. Visited ${unique.length} candidate URL(s).`,
+  );
 }
 
 // Re-export `expect` so spec files don't need to import it directly from

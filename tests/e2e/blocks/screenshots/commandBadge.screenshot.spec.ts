@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /experiments/ -- the partial emits `<div class="exp-cmd">`
 // inside Umbraco's blockgrid wrapper. Using the data-content-element-type-alias

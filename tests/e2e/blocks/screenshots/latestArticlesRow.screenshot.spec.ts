@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, dynamicRegionMasks, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, dynamicRegionMasks, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /styleguide/components/ -- partial emits
 // `<section class="latest-articles-row">`. The inner article-card grid is

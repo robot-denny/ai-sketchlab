@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // NOTE: iconLinkRow has no canonical render surface on the demo site today.
 // The partial emits `<li class="list-inline-item">...<our-svg class="social-icon"/>...</li>`

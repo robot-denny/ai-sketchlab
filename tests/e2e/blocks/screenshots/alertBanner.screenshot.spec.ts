@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /styleguide/components/ renders all three severity levels
 // of the Alert Banner block (.alert-danger / .alert-warning / .alert-info).

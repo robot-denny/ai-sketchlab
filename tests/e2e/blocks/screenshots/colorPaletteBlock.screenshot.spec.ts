@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /styleguide/ (the design-system overview page). The
 // partial emits a wrapper with `data-block-alias="colorPaletteBlock"` -- the

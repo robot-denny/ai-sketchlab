@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /experiments/ -- partial emits `<figure class="exp-sketch">`
 // with a poster image and an interactive p5.js iframe slot. We mask the

@@ -1,5 +1,5 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { discoverBlockOnPage, expect, screenshotOptions } from './_helpers';
+import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
 // Canonical surface: /experiments/ -- the blockgrid richTextRow shim wraps the
 // blocklist partial in `<div data-content-element-type-alias="richTextRow">`.

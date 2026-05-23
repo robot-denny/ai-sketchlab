@@ -18,7 +18,7 @@
  */
 
 import { Page, Locator, expect } from '@playwright/test';
-import { prepareForScreenshot } from '../_helpers';
+import { prepareForScreenshot } from '../../../_helpers';
 
 export async function shotOf(
   page: Page,

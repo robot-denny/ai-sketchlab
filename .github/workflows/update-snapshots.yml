@@ -27,9 +27,9 @@ on:
   workflow_dispatch:
     inputs:
       testFilter:
-        description: 'Optional Playwright path filter (e.g. tests/e2e/blocks/screenshots/alertBanner.screenshot.spec.ts)'
+        description: 'Optional Playwright path filter (e.g. tests/e2e/blocks/screenshots/alertBanner.screenshot.spec.ts). Default covers both block screenshots (Step 5) and page-template screenshots (Step 6).'
         required: false
-        default: 'tests/e2e/blocks/screenshots/'
+        default: 'tests/e2e/'
 
 # We push the regenerated baselines back to the branch via the default
 # GITHUB_TOKEN. Default scope is read-only on many orgs; declare write here.

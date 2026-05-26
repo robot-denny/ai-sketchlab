@@ -141,6 +141,110 @@ Deploys do not replicate the vector index; skipping the rebuild leaves `/search`
 
 Version constraints for `Cms.Search.*` and `AI.Search` live in **Pinned betas — do not float** near the top of this file, alongside the other beta-package pinning rules.
 
+## CI/CD & Build hygiene
+
+The safety net that lets schema/structural refactors (e.g. moving ~60 Razor files) ship without a leap of faith. Four interlocking pieces: GitHub Actions running Umbraco Cloud CI/CD Flow, a `dotnet build`+xUnit pre-push hook, Playwright screenshot baselines pinned to Linux, and `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` across all C# projects.
+
+### Cloud CI/CD Flow (two gates)
+
+[.github/workflows/main.yml](.github/workflows/main.yml) is the orchestrator. It runs a **two-gate** pipeline on every push:
+
+- **Gate 1 — `gate-1-build-test`** (every branch): `dotnet restore` → `dotnet build -c Release` → `dotnet test --no-build`. Runner-local; takes < 1 minute on a warm cache. Mirrors the local pre-push hook exactly so anything that slipped past the hook (or was skipped via `SKIP_PREPUSH=1`) still fails CI.
+- **Gate 2 — Cloud sync → artifact → deploy to Dev → Playwright** (master only): the four jobs are guarded by `if: github.ref == 'refs/heads/master'` at the `main.yml` level. Feature branches stop at Gate 1.
+
+The three Cloud jobs (`cloud-sync` / `cloud-artifact` / `cloud-deployment`) are reusable workflows under [.github/workflows/](.github/workflows/), mostly verbatim from the upstream Umbraco Cloud CI/CD Flow sample. The six bash scripts they call live under [.github/scripts/](.github/scripts/) — two of them carry local patches for upstream bugs (search the scripts for "Fixed locally:" to see the rationale).
+
+`concurrency: ${{ github.ref }}` with `cancel-in-progress: true` is set at the `main.yml` workflow level — rapid pushes to the same branch cancel any in-flight runs.
+
+### Master → Dev → manual promotion to Live
+
+CI **never deploys to Live**. The `cloud-deployment` job's `targetEnvironmentAlias` is wired to Dev only. Promotion from Dev to Live (or via Staging if you add one later) is a human action via the Umbraco Cloud Portal, on whatever cadence makes sense.
+
+This is deliberate: Live is the canonical content/media surface and shouldn't be redeployed every time master moves. A failed Playwright run on Dev gives you a chance to investigate without Live being affected.
+
+### Content workflow under CI
+
+Live is canonical for content; Dev is a periodic mirror via Cloud Portal **"restore from Live to Dev"**. The existing local → Live content-transfer habit (see [Media files](#media-files) for the parallel pattern with binaries) is preserved — local is still where you author content if you're not in the Live backoffice directly.
+
+**Do not use local → Dev content transfers.** Dev's content lifecycle is "periodically re-mirrored from Live" — anything you push to Dev directly will get clobbered the next time someone restores. If you need Dev content to match a local edit, push the schema first via master, then content via Live, then restore Dev from Live.
+
+### Pre-push hook
+
+[.githooks/pre-push](.githooks/pre-push) runs `dotnet build -c Release` + `dotnet test --no-build` before each push. Enabled via `git config core.hooksPath .githooks` (see [README.md](README.md) for the one-time setup).
+
+On success, it prints `Pre-push OK — build: Xs, test: Ys, total: Zs` (whole seconds). Runtime budget is < 30s on a warm build.
+
+To bypass:
+- **Per-invocation (this hook only)**: `SKIP_PREPUSH=1 git push`.
+- **Per-push (bypasses ALL git hooks, pre-commit included)**: `git push --no-verify`.
+- **Persistent disable (this hook only)**: set `ENABLE_PREPUSH=false` in `.githooks.conf` (see [.githooks.conf.example](.githooks.conf.example)). Setting `SKIP_PREPUSH=1` in your shell profile (`~/.zshrc`) achieves the same effect.
+
+This replaced the previous opt-in AI-review pre-push hook. If you want AI review on a push, run [.claude/commands/review.md](.claude/commands/review.md) manually instead.
+
+A smoke validator at [.githooks/test-pre-push.sh](.githooks/test-pre-push.sh) exercises the hook's failure paths (build-fail / test-fail / skip flag) so future edits don't silently break the gating.
+
+### Screenshot baselines
+
+Playwright visual-regression specs live under [tests/e2e/blocks/screenshots/](tests/e2e/blocks/screenshots/) (block components) and [tests/e2e/pages/](tests/e2e/pages/) (page templates). Shared helpers in [tests/e2e/_helpers.ts](tests/e2e/_helpers.ts) — `prepareForScreenshot`, `screenshotOptions`, `dynamicRegionMasks`, `discoverBlockOnPage`, `findNavLinkForTemplate`.
+
+**Baselines are Linux-only.** macOS and Linux render fonts differently, so a baseline captured on a Mac will mismatch every time CI runs it. The `.gitignore` blocks `*-darwin.png` and `*-win32.png` to enforce this.
+
+**Regenerating baselines**: trigger [.github/workflows/update-snapshots.yml](.github/workflows/update-snapshots.yml) via the "Run workflow" button on the GitHub Actions UI, or:
+
+```bash
+gh workflow run update-snapshots.yml --ref <branch>
+```
+
+The workflow runs Playwright with `--update-snapshots` against Dev (using the `URL` GitHub variable), then commits any new/changed PNGs back to the branch as `github-actions[bot]`. The default `testFilter` input is `tests/e2e/`, covering both block and page-template specs; pass a narrower path to regenerate a subset.
+
+**When to run**: first time you add a new screenshot spec (initial baseline), or after an intentional visual change where existing baselines are now correctly stale. Always review the resulting commit diff before merging.
+
+**When NOT to run**: as a "quick fix" for failing visual tests on master. Investigate the diff first — the failure may be a real regression.
+
+**What the specs cover** (and don't): runs are all under `prefers-reduced-motion: reduce`. Motion-on variants, ARIA, alt text, heading levels, and keyboard behavior are **not** baseline-tested. Semantic regression coverage requires separate axe-core / role-assertion specs (not in this bundle). See the header of [tests/e2e/_helpers.ts](tests/e2e/_helpers.ts) for the full scope statement.
+
+Default tolerance is `maxDiffPixelRatio: 0.01` per block. Shim-equivalence specs (the four blockgrid → blocklist pass-through pairs: `alertBanner`, `iconLinkRow`, `imageRow`, `richTextRow`) override to `0` for byte-identical assertions. Dynamic regions (latestArticles card grid, timestamps) are masked via `dynamicRegionMasks(page)`.
+
+### Warnings as errors + surgical NoWarn
+
+All three C# projects have `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`:
+
+- [src/UmbracoProject/UmbracoProject.csproj](src/UmbracoProject/UmbracoProject.csproj)
+- [src/HelloWorld/HelloWorld.csproj](src/HelloWorld/HelloWorld.csproj)
+- [tests/UmbracoProject.Tests/UmbracoProject.Tests.csproj](tests/UmbracoProject.Tests/UmbracoProject.Tests.csproj)
+
+`<Nullable>enable</Nullable>` is on the same projects, so any new nullable-reference-type warning fails the build (and therefore Gate 1 and the pre-push hook).
+
+**Surgical `<NoWarn>` per warning code with inline justification is the only relaxation pattern.** No project-wide suppression of CS-prefixed warnings. The two NoWarn exemptions currently in the tree:
+
+- `UmbracoProject.csproj` — `NoWarn=NU1903` (Lucene.Net.Replicator 4.8.0-beta00016, GHSA-2qw8-ppr5-m96c) — transitive via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net. Cannot pin a patched version without breaking Umbraco's locked Examine chain.
+- `UmbracoProject.Tests.csproj` — `NoWarn=NU1903;NU1904` — same Lucene.Net inheritance plus `NU1904` Microsoft.AspNetCore.DataProtection 10.0.4 (GHSA-9mv3-2cwr-p262), pulled transitively into the test host via `Microsoft.NET.Test.Sdk`. Tests don't exercise those APIs.
+
+Both exemptions have inline XML comments naming the CVE and the upgrade signal that should retire them. **Out of scope**: Razor `.cshtml` files (compile inside the runtime, not the csproj's `dotnet build`) and the auto-generated published-content models under `umbraco/Data/TEMP/InMemoryAuto/` (regenerated on startup).
+
+### GitHub Secrets / Variables
+
+The pipeline reads CI auth from GitHub Secrets and non-sensitive routing info from GitHub Variables. AI API keys are **not** here — they live in Umbraco Cloud Secrets Management on Dev (see below).
+
+| GitHub kind | Name | Source / purpose |
+|---|---|---|
+| Secret | `UMBRACO_CLOUD_API_KEY` | Cloud Portal → Configuration → CI/CD Flow (project-wide). Authenticates `cloud-sync` / `cloud-artifact` / `cloud-deployment`. |
+| Secret | `UMBRACO_CLIENT_ID` | Dev backoffice OAuth client. Used by Playwright's `tests/e2e/auth.setup.ts` against Dev. |
+| Secret | `UMBRACO_CLIENT_SECRET` | Dev backoffice OAuth client secret (matched to `UMBRACO_CLIENT_ID`). |
+| Variable | `PROJECT_ID` | Cloud project ID. Non-sensitive — passed as a workflow input to the reusable Cloud workflows. |
+| Variable | `TARGET_ENVIRONMENT_ALIAS` | Cloud environment alias for Dev (typically `development`). Controls which environment `cloud-deployment` targets. |
+| Variable | `URL` | Dev's URL (e.g. `https://<project-slug>.umbraco.io/`). Read by Playwright auth setup as `process.env.URL` and by the curl sanity check in Gate 2. |
+
+The comment header at the top of [.github/workflows/main.yml](.github/workflows/main.yml) is the source of truth for this mapping — keep it in sync with this table if names ever change.
+
+### AI keys live on Cloud Dev, NOT in GitHub Secrets
+
+Anthropic and OpenAI keys (`ANTHROPIC__APIKEY`, `OPENAI__APIKEY` — Cloud Portal's double-underscore form, see [AI & Copilot](#ai--copilot) → "Cloud portal secret-key naming") are set in **Umbraco Cloud Secrets Management** on the Dev environment via the Cloud Portal. They are referenced by `.uda` artifacts as `$OpenAI:ApiKey` / `$Anthropic:ApiKey` placeholders, the same way Live and local work.
+
+**Never put AI keys in GitHub Secrets.** GitHub Actions doesn't touch the running Umbraco app at runtime — the deployed Dev environment reads its own Cloud Secrets Management entries directly. Putting keys in GitHub would just create another sync surface to drift.
+
+The two Live/Staging environments (if they exist) each have their own Cloud Secrets Management slot for these keys, set per-environment via the Cloud Portal — see the existing [AI & Copilot](#ai--copilot) and [Search > Umbraco Cloud deploys](#umbraco-cloud-deploys) subsections for the full per-environment ritual.
+
 ## Modifying Umbraco Content from Claude Code
 
 Use the `/umbraco-edit` skill to edit document properties or invoke an AI agent via the Management API from outside the backoffice. Covers the OAuth token dance, the document/document-type endpoint reference, the find → read → PUT workflow, and the Agent SSE stream parsing. Credentials (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`) live in `.env`.
@@ -165,7 +269,7 @@ The Deploy dashboard treats any entity where `umbracoExists !== fileExists` as d
 
 **2. Schema edits made directly on Live's backoffice.** Local is the declared source of truth — all schema authoring should happen on local and flow through git to Live. If someone makes a schema change directly in Live's backoffice (including via the Deploy dashboard's "Create" action on an orphan), that change becomes a Live-only entity with no `.uda` file. Rule: **never author schema on Live** — always edit locally and push. If Live already has orphans (as we found with the old manually-created AI connection), either delete them from Live and let the file-backed version replace them, or extract them to `.uda` via the Deploy dashboard before deleting.
 
-**3. Umbraco auto-regenerates `.uda` on local startup.** Every `dotnet run` can rewrite files based on local DB signatures. If that regeneration gets staged inadvertently, git drifts from Live without any intentional schema change. See the `git checkout --` recipe above.
+**3. Umbraco auto-regenerates `.uda` on local startup.** Every `dotnet run` can rewrite files based on local DB signatures. If that regeneration gets staged inadvertently, git drifts from Live without any intentional schema change. See the `git checkout --` recipe above. Under [CI/CD & Build hygiene](#cicd--build-hygiene), `cloud-sync` also pulls Cloud's auto-normalized `.uda` commits back to the branch before each Dev deploy (the `permissions: contents: write` block in [main.yml](.github/workflows/main.yml) exists for this push) — an additional surface for the same drift, already covered by `/check-uda`.
 
 **4. Umbraco Cloud auto-commits normalized `.uda` back to git.** When a file is imported into Live's DB via the Deploy dashboard, Cloud can re-serialize the artifact with normalized internal IDs (e.g. regenerating `Resources[].Id` GUIDs in ai-context files) and commit it directly to the repo as `Umbraco Cloud <support@umbraco.io>`. This is normal — it means Live becomes the source of truth for those specific normalized values. **Always `git pull` / `git fetch` before pushing** so you don't conflict with Cloud's own commits. The `/check-uda` pre-commit hook warns about this.
 
@@ -262,6 +366,8 @@ PATH="..." npx playwright install chromium
 2. Writes `tests/e2e/.auth/user.json` with the token in `umb:userAuthTokenResponse` localStorage format
 
 Credentials come from `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`). The testhelpers package reads `process.env.URL` (not `UMBRACO_URL`) for the base URL — both are set in `.env`.
+
+**In CI** (the Gate 2 `playwright-against-dev` job in [.github/workflows/main.yml](.github/workflows/main.yml)) auth points at **Dev's URL, not localhost**, via the `URL` GitHub variable. `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET` come from GitHub Secrets and must match an OAuth client registered on the Dev backoffice. See [CI/CD & Build hygiene > GitHub Secrets / Variables](#github-secrets--variables) for the full mapping.
 
 **Tokens expire in 299 seconds.** Auth re-runs automatically before each Playwright session.
 
@@ -388,7 +494,7 @@ Entry-point commands per layer: `/spec <slug>` → `/plan _specs/<slug>.md` → 
 
 ## Deployment
 
-Git push to Umbraco Cloud triggers the build pipeline — the `.umbraco` file at the repo root tells Cloud which `.csproj` to build. No separate CI/CD is configured. Environment-specific config is in `appsettings.{Development,Staging,Production}.json`.
+Deploys are wired through **GitHub Actions → Umbraco Cloud CI/CD Flow** — see [`## CI/CD & Build hygiene`](#cicd--build-hygiene) above for the full pipeline (two gates, master-only deploy to Dev, manual promotion to Live in the Cloud Portal). The `.umbraco` file at the repo root still tells Cloud which `.csproj` to build; it just isn't triggered by a direct git push to a Cloud remote anymore — GitHub Actions calls the Cloud CI/CD Flow API instead. Environment-specific config is in `appsettings.{Development,Staging,Production}.json`.
 
 ## Formatting
 

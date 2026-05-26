@@ -15,10 +15,14 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="*" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="*" />
-    <PackageReference Include="Umbraco.Cms.Api.Common" Version="*" />
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="*" />
+    <!-- Pinned to match Umbraco.Cms 17.4.0 in UmbracoProject.csproj.
+         Cloud's CI/CD Flow deploy validator rejects `Version="*"` wildcards
+         (NU1604 / "Unsupported Version format *"), even though local dev
+         tolerates them. Keep in sync with the metapackage on upgrades. -->
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.4.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.4.0" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.4.0" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.4.0" />
   </ItemGroup>
 
   <ItemGroup>

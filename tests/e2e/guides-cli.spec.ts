@@ -13,7 +13,6 @@ import {
 } from '../../scripts/guide-generator/src/umbracoApi.js';
 
 dotenv.config();
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const API_BASE = process.env.URL || 'https://localhost:44367';
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');

@@ -13,9 +13,8 @@
 # Env var equivalent: SKIP_UDA_CHECK=1
 ENABLE_UDA_CHECK=true
 
-# AI Code Review (pre-push)
-# Runs accessibility + code quality review via Claude Code before pushing.
-# Disabled by default — opt in when you want automated review.
-# Requires: claude CLI installed and authenticated.
-# Env var equivalent: ENABLE_AI_REVIEW=1
-ENABLE_AI_REVIEW=false
+# Pre-push checks (pre-push)
+# Runs dotnet build + xUnit before each push.
+# Enabled by default. Set to "false" here OR set SKIP_PREPUSH=1 in your shell
+# to disable — the two have opposite polarity but the same effect.
+ENABLE_PREPUSH=true

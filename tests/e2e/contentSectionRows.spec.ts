@@ -4,7 +4,6 @@ import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const CONTENT_SECTION_ROW_CT_KEY = 'd5f39061-2c36-4d3c-bdc9-d8133918579b';
 const CONTENT_SECTION_ROW_SETTINGS_CT_KEY = 'a4c73435-3b28-4180-a2c9-1a4bdc2ae9ed';

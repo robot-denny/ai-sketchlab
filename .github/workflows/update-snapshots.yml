@@ -1,0 +1,127 @@
+# Manually regenerate Playwright screenshot baselines on Linux (Step 5,
+# _plans/arch-safety-net.md).
+#
+# WHY: macOS and Linux render fonts differently, so baselines captured on
+# the developer's Mac will mismatch every time CI runs them. The canonical
+# baselines live in tests/e2e/blocks/screenshots/**/-snapshots/ and MUST be
+# generated on the same Linux runner that compares them later.
+#
+# HOW: trigger via the "Run workflow" button on the GitHub Actions UI, or via
+# `gh workflow run update-snapshots.yml --ref <branch>`. The job runs Playwright
+# with `--update-snapshots` against the configured `URL` (Dev), then commits
+# any new/changed PNGs back to the same branch.
+#
+# WHEN TO RUN:
+#   - First time you add new screenshot specs and need their initial baselines.
+#   - After intentional visual changes (CSS/markup) where the existing baselines
+#     are now correctly considered "stale". Review the resulting commit diff
+#     for the new PNGs before merging.
+#
+# WHEN NOT TO RUN:
+#   - As a "quick fix" for failing visual tests on master. Investigate the diff
+#     first; the failure may be a real regression.
+
+name: Update Playwright snapshots
+
+on:
+  workflow_dispatch:
+    inputs:
+      testFilter:
+        description: 'Optional Playwright path filter (e.g. tests/e2e/blocks/screenshots/alertBanner.screenshot.spec.ts). Default covers both block screenshots (Step 5) and page-template screenshots (Step 6).'
+        required: false
+        default: 'tests/e2e/'
+
+# We push the regenerated baselines back to the branch via the default
+# GITHUB_TOKEN. Default scope is read-only on many orgs; declare write here.
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    name: Regenerate baselines
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need write access to the branch for the post-run commit.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Fetch full history so we can rebase/push cleanly.
+          fetch-depth: 0
+
+      - name: Sanity check Dev is up
+        env:
+          URL: ${{ vars.URL }}
+        run: |
+          if [ -z "$URL" ]; then
+            echo "::error::The 'URL' GitHub variable is not set. See main.yml header for the full list of required Variables/Secrets." >&2
+            exit 1
+          fi
+          curl -fSs "$URL" >/dev/null
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: npm ci
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps only (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Update snapshots
+        env:
+          URL: ${{ vars.URL }}
+          UMBRACO_URL: ${{ vars.URL }}
+          UMBRACO_CLIENT_ID: ${{ secrets.UMBRACO_CLIENT_ID }}
+          UMBRACO_CLIENT_SECRET: ${{ secrets.UMBRACO_CLIENT_SECRET }}
+          CI: 'true'
+          # Use an env var rather than direct interpolation so testFilter
+          # cannot inject shell metacharacters into the npx command.
+          TEST_FILTER: ${{ inputs.testFilter }}
+        run: |
+          npx playwright test \
+            --project=e2e \
+            --update-snapshots \
+            "$TEST_FILTER"
+
+      - name: Commit regenerated baselines
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Configure the bot identity for the commit.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Stage only the snapshot directories produced/updated by Playwright.
+          # Glob matches Playwright's default `<spec>-snapshots/` naming.
+          git add 'tests/e2e/**/*-snapshots/*' 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No baseline changes to commit."
+            exit 0
+          fi
+
+          git commit -m "test(e2e): update Playwright screenshot baselines
+
+          Regenerated on Linux via update-snapshots.yml workflow_dispatch.
+          See _plans/arch-safety-net.md Step 5 for context."
+
+          # Push to the branch that triggered the workflow. Default GITHUB_TOKEN
+          # has contents:write per the permissions block above.
+          git push origin "HEAD:${GITHUB_REF#refs/heads/}"

@@ -1,0 +1,162 @@
+# Required GitHub Secrets:
+#   UMBRACO_CLOUD_API_KEY - Cloud Portal -> Configuration -> CI/CD Flow (project-wide)
+#   UMBRACO_CLIENT_ID, UMBRACO_CLIENT_SECRET - Dev's backoffice OAuth for Playwright
+# Required GitHub Variables:
+#   PROJECT_ID - Cloud project ID (passed as a workflow input, not a secret)
+#   TARGET_ENVIRONMENT_ALIAS - Dev environment alias
+#   URL - Dev's URL (used by Playwright auth.setup.ts via process.env.URL)
+# NOTE: AI API keys are NOT in GitHub Secrets. They're set in Umbraco Cloud
+#   Secrets Management on the Dev environment (e.g. OPENAI__APIKEY, ANTHROPIC__APIKEY).
+#
+# Pipeline shape (two-gate model, see _specs/arch-safety-net.md):
+#   Gate 1 (gate-1-build-test) runs on ALL branches: dotnet restore + build + xUnit.
+#   Gate 2 (cloud-sync -> cloud-artifact -> cloud-deployment -> playwright-against-dev)
+#     runs ONLY on master pushes.
+#   Feature-branch pushes get Gate 1 only -- no Cloud deploys, no Playwright.
+
+name: pipeline
+
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+# cloud-sync.yml's apply_patch.sh runs `git push` to commit Cloud's auto-normalized
+# .uda files back to the branch. Default GITHUB_TOKEN scope is read-only on many
+# orgs; declaring write here ensures the push succeeds.
+permissions:
+  contents: write
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Gate 1 -- runs on every branch (master + feature branches).
+  # Mirrors the local pre-push hook exactly (same dotnet build + test commands)
+  # so CI catches anything that slipped past the hook (or that the hook was
+  # skipped via SKIP_PREPUSH=1).
+  # ---------------------------------------------------------------------------
+  gate-1-build-test:
+    name: "Gate 1: Build + xUnit"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          cache: true
+          # Project doesn't commit packages.lock.json files; key the NuGet cache
+          # off the .csproj files so cache invalidates on package-reference edits.
+          cache-dependency-path: '**/*.csproj'
+
+      - name: dotnet restore
+        run: dotnet restore umbraco-17-demo-site.sln
+
+      - name: dotnet build (Release, warnings-as-errors)
+        run: dotnet build umbraco-17-demo-site.sln -c Release --no-restore
+
+      - name: dotnet test (xUnit)
+        run: dotnet test umbraco-17-demo-site.sln --no-build -c Release
+
+  # ---------------------------------------------------------------------------
+  # Gate 2 -- master only. Cloud sync -> artifact -> deploy to Dev -> Playwright.
+  # All four jobs are gated by `if: github.ref == 'refs/heads/master'`.
+  # ---------------------------------------------------------------------------
+  cloud-sync:
+    name: "Umbraco Cloud Sync"
+    needs: gate-1-build-test
+    if: ${{ github.ref == 'refs/heads/master' && success() }}
+    uses: ./.github/workflows/cloud-sync.yml
+    with:
+      projectId: ${{ vars.PROJECT_ID }}
+      targetEnvironmentAlias: ${{ vars.TARGET_ENVIRONMENT_ALIAS }}
+    secrets:
+      umbracoCloudApiKey: ${{ secrets.UMBRACO_CLOUD_API_KEY }}
+
+  cloud-artifact:
+    name: "Prepare and Upload Artifact"
+    needs: cloud-sync
+    if: ${{ github.ref == 'refs/heads/master' && success() }}
+    uses: ./.github/workflows/cloud-artifact.yml
+    with:
+      projectId: ${{ vars.PROJECT_ID }}
+      newSha: ${{ needs.cloud-sync.outputs.newSha }}
+    secrets:
+      umbracoCloudApiKey: ${{ secrets.UMBRACO_CLOUD_API_KEY }}
+
+  cloud-deployment:
+    name: "Deploy to Cloud (Dev)"
+    needs: cloud-artifact
+    if: ${{ github.ref == 'refs/heads/master' && success() }}
+    uses: ./.github/workflows/cloud-deployment.yml
+    with:
+      projectId: ${{ vars.PROJECT_ID }}
+      artifactId: ${{ needs.cloud-artifact.outputs.artifactId }}
+      targetEnvironmentAlias: ${{ vars.TARGET_ENVIRONMENT_ALIAS }}
+      noBuildAndRestore: "false"
+      skipVersionCheck: "false"
+      skipPreserveUmbracoCloudJson: "false"
+      runSchemaExtraction: "true"
+    secrets:
+      umbracoCloudApiKey: ${{ secrets.UMBRACO_CLOUD_API_KEY }}
+
+  # Gate 2 final step: smoke + Playwright e2e against deployed Dev.
+  playwright-against-dev:
+    name: "Playwright (against Dev)"
+    needs: cloud-deployment
+    if: ${{ github.ref == 'refs/heads/master' && success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sanity check Dev is up
+        env:
+          URL: ${{ vars.URL }}
+        run: curl -fSs "$URL" >/dev/null
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: npm ci
+        run: npm ci
+
+      # Cache Playwright browser binaries (~130MB Chromium). Keyed by package-lock.json
+      # so any @playwright/test version bump triggers a fresh download.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Playwright Chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps only (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run Playwright (e2e project)
+        env:
+          URL: ${{ vars.URL }}
+          UMBRACO_URL: ${{ vars.URL }}
+          UMBRACO_CLIENT_ID: ${{ secrets.UMBRACO_CLIENT_ID }}
+          UMBRACO_CLIENT_SECRET: ${{ secrets.UMBRACO_CLIENT_SECRET }}
+          CI: 'true'
+        run: npx playwright test --project=e2e
+
+      - name: Upload Playwright report on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

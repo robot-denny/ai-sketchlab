@@ -14,6 +14,12 @@ export const STORAGE_STATE = join(__dirname, 'tests/e2e/.auth/user.json');
 // "STAGE" (not STATE) is an upstream typo in @umbraco/playwright-testhelpers — don't "fix" it.
 process.env.STORAGE_STAGE_PATH = STORAGE_STATE;
 
+// Hoisted from per-spec module scope (Step 1, _plans/arch-safety-net.md): every spec
+// historically set this to tolerate the self-signed HTTPS dev cert on localhost.
+// Setting it once here is equivalent (env is inherited by all worker processes at
+// spawn time) and prevents the line from re-appearing in every new spec.
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30 * 1000,

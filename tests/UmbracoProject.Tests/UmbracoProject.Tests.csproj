@@ -4,6 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- NU1903: Lucene.Net.Replicator 4.8.0-beta00016 (GHSA-2qw8-ppr5-m96c, high severity),
+         inherited via the UmbracoProject reference (see that project's csproj for the chain).
+         Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00016.
+         NU1904: Microsoft.AspNetCore.DataProtection 10.0.4 (GHSA-9mv3-2cwr-p262, critical severity),
+         pulled transitively via Microsoft.NET.Test.Sdk → AspNetCore.Identity in the test host.
+         Test project only — these APIs are never exercised at runtime (we don't persist data-protection keys
+         in unit tests). Remove when Microsoft.NET.Test.Sdk upgrades past DataProtection 10.0.4. -->
+    <NoWarn>$(NoWarn);NU1903;NU1904</NoWarn>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>

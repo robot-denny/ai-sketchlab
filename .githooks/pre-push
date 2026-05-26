@@ -1,95 +1,120 @@
 #!/bin/sh
-# AI Code Review — runs accessibility + code quality review before pushing.
+# Pre-push checks — runs dotnet build + xUnit before each push.
 #
-# DISABLED by default. To enable:
-#   export ENABLE_AI_REVIEW=1   (add to ~/.zshrc or ~/.bashrc)
-#   — or —
-#   Set ENABLE_AI_REVIEW=true in .githooks.conf
+# This catches the same Gate 1 failures that CI catches, but locally
+# (faster feedback) so a doomed push never reaches the Umbraco Cloud
+# build pipeline.
 #
-# Requires: claude CLI (Claude Code) installed and authenticated.
+# Setup (one-time, per developer):
+#   git config core.hooksPath .githooks
 #
 # To bypass in an emergency: git push --no-verify
+#
+# To disable this check permanently:
+#   export SKIP_PREPUSH=1   (add to ~/.zshrc or ~/.bashrc)
+#   — or —
+#   Set ENABLE_PREPUSH=false in .githooks.conf
+#
+# Runtime budget: < 30s on a warm build. If it consistently exceeds this,
+# consider dropping xUnit or marking slow tests as
+# [Trait("Category","Slow")] and filtering them out here.
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -z "$REPO_ROOT" ]; then
+  echo "ERROR: pre-push hook could not determine repo root (is this a git repo?)." >&2
+  exit 1
+fi
 
 # Source local config if present
-CONF="$(git rev-parse --show-toplevel 2>/dev/null)/.githooks.conf"
+CONF="$REPO_ROOT/.githooks.conf"
 [ -f "$CONF" ] && . "$CONF"
 
-# Disabled by default — must opt in
-if [ "$ENABLE_AI_REVIEW" != "1" ] && [ "$ENABLE_AI_REVIEW" != "true" ]; then
+# Allow skipping via env var or config file
+if [ "$SKIP_PREPUSH" = "1" ] || [ "$ENABLE_PREPUSH" = "false" ]; then
+  echo "Pre-push checks skipped (SKIP_PREPUSH=1 or ENABLE_PREPUSH=false)."
   exit 0
 fi
 
-# Check that claude CLI is available
-if ! command -v claude >/dev/null 2>&1; then
-  echo ""
-  echo "  ⚠️  AI review is enabled but 'claude' CLI is not installed or not in PATH."
-  echo "  Skipping AI review. Install Claude Code or set ENABLE_AI_REVIEW=false."
-  echo ""
-  exit 0
+# Drain stdin (git pipes the refs being pushed). We don't need them — the
+# build+test gate is push-scope-agnostic — but reading stdin keeps the hook
+# safe when invoked manually with no input piped in.
+if [ ! -t 0 ]; then
+  while read -r _line; do :; done
 fi
 
-# Get the diff of what's being pushed vs the remote
-REMOTE="$1"
-REMOTE_URL="$2"
-
-# Read the refs being pushed from stdin
-DIFF=""
-while read LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
-  if [ "$REMOTE_SHA" = "0000000000000000000000000000000000000000" ]; then
-    # New branch — diff against the default branch
-    BASE=$(git rev-parse --abbrev-ref HEAD)
-    DIFF=$(git diff "origin/master...${LOCAL_SHA}" 2>/dev/null || git diff "HEAD~5..HEAD" 2>/dev/null)
-  else
-    DIFF=$(git diff "${REMOTE_SHA}..${LOCAL_SHA}" 2>/dev/null)
-  fi
-done
-
-if [ -z "$DIFF" ]; then
-  exit 0
-fi
+cd "$REPO_ROOT" || exit 1
 
 echo ""
-echo "┌──────────────────────────────────────────────────────────────┐"
-echo "│  🔍  Running AI code review before push...                    │"
-echo "│  (This may take 30-90 seconds)                                │"
-echo "│  To skip: git push --no-verify                                │"
-echo "└──────────────────────────────────────────────────────────────┘"
+echo "Running pre-push checks (build + tests)..."
+echo "  Skip in an emergency: git push --no-verify"
+echo "  Disable permanently: see .githooks.conf.example"
 echo ""
 
-# Run Claude in headless mode with the diff
-REVIEW=$(echo "$DIFF" | claude -p "You are a code reviewer. Review the following diff for:
-1. Accessibility issues (WCAG violations, missing ARIA, keyboard navigation gaps)
-2. Code quality issues (security, correctness, maintainability)
+# Capture wall-clock seconds using `date +%s`. Sub-second precision via
+# `date +%s%N` is GNU-only — macOS BSD `date` lacks it. Use seconds.
+START_TOTAL=$(date +%s)
 
-Be concise. Group findings by severity (Blocker/Major/Minor).
-If no issues found, say 'No issues found.'
-Only review the diff provided — do not speculate about code outside the diff.
+# Temp logs for build/test output. Trap ensures cleanup on every exit
+# path including signal-driven exits (Ctrl-C, SIGTERM).
+BUILD_LOG=$(mktemp)
+TEST_LOG=$(mktemp)
+trap 'rm -f "$BUILD_LOG" "$TEST_LOG"' EXIT INT TERM HUP
 
-DIFF:
-$(cat)" --allowedTools "Read" --output-format text 2>&1)
+# ---- Build ----
+START_BUILD=$(date +%s)
+dotnet build -c Release --nologo > "$BUILD_LOG" 2>&1
+BUILD_EXIT=$?
+END_BUILD=$(date +%s)
+BUILD_SECS=$((END_BUILD - START_BUILD))
 
-REVIEW_EXIT=$?
-
-if [ $REVIEW_EXIT -ne 0 ]; then
-  echo "  ⚠️  AI review failed to run (exit code $REVIEW_EXIT). Proceeding with push."
+if [ "$BUILD_EXIT" -ne 0 ]; then
   echo ""
-  exit 0
-fi
-
-echo "$REVIEW"
-echo ""
-
-# Check if the review found blockers
-if echo "$REVIEW" | grep -qi "blocker"; then
-  echo "┌──────────────────────────────────────────────────────────────┐"
-  echo "│  🔴  Blocker-level issues found. Push blocked.               │"
-  echo "│  Fix the issues above, then push again.                      │"
-  echo "│  To force: git push --no-verify                              │"
-  echo "└──────────────────────────────────────────────────────────────┘"
+  echo "FAIL: dotnet build failed after ${BUILD_SECS}s."
+  echo ""
+  echo "--- Build output (tail) ---"
+  tail -40 "$BUILD_LOG"
+  echo "--- End build output ---"
+  echo ""
+  echo "  Fix the build errors above and push again."
+  echo "  To bypass: git push --no-verify"
   echo ""
   exit 1
 fi
 
-echo "  ✅  No blocker-level issues. Proceeding with push."
+# ---- Tests ----
+START_TEST=$(date +%s)
+dotnet test --no-build -c Release --nologo > "$TEST_LOG" 2>&1
+TEST_EXIT=$?
+END_TEST=$(date +%s)
+TEST_SECS=$((END_TEST - START_TEST))
+
+if [ "$TEST_EXIT" -ne 0 ]; then
+  echo ""
+  echo "FAIL: dotnet test failed after ${TEST_SECS}s."
+  echo ""
+  # Surface failing test names. xUnit's default console reporter prints
+  # lines like "  Failed UmbracoProject.Tests.SmokeTests.True_IsTrue [< 1 ms]".
+  # `[[:space:]]` is POSIX-portable; `\s` would be GNU-only.
+  FAILED_TESTS=$(grep -E "^[[:space:]]*(Failed|FAILED|\[FAIL\])" "$TEST_LOG")
+  if [ -n "$FAILED_TESTS" ]; then
+    echo "--- Failed tests ---"
+    echo "$FAILED_TESTS"
+    echo "--- End failed tests ---"
+  else
+    echo "--- Test output (tail) ---"
+    tail -40 "$TEST_LOG"
+    echo "--- End test output ---"
+  fi
+  echo ""
+  echo "  Fix the failing tests above and push again."
+  echo "  To bypass: git push --no-verify"
+  echo ""
+  exit 1
+fi
+
+END_TOTAL=$(date +%s)
+TOTAL_SECS=$((END_TOTAL - START_TOTAL))
+
+echo "Pre-push OK — build: ${BUILD_SECS}s, test: ${TEST_SECS}s, total: ${TOTAL_SECS}s"
 echo ""
 exit 0

@@ -5,6 +5,7 @@ import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { randomUUID } from 'crypto';
+import { getDocumentTypeByName } from '../_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -15,7 +16,6 @@ const __dirname = dirname(__filename);
 const IMAGE_CAROUSEL_ROW_CT_KEY = '1c43fe2d-4a9a-4336-923f-9d0214950d48';
 const IMAGE_CAROUSEL_ROW_SETTINGS_CT_KEY = '378fde96-51b6-4506-93e3-ec3038e636bb';
 const IMAGE_CAROUSEL_SLIDE_CT_KEY = '2da696cc-791f-4692-9d4e-3fae742a4aa3';
-const ELEMENTS_FOLDER_KEY = '5dde5b35-b5f9-4d61-aaf1-158368a1b0fb';
 const API_BASE = process.env.URL || 'https://localhost:44367';
 
 // ==============================
@@ -76,34 +76,22 @@ async function getDocumentPath(token: string, docId: string): Promise<string> {
  * known `getByName` short-circuit (TreeApiHelper.recurseChildren stops at the first
  * folder with hasChildren:true, missing siblings — see MEMORY.md).
  */
-async function findDocumentTypeByName(
-  umbracoApi: any,
-  name: string,
-  fallbackFolderKey: string = ELEMENTS_FOLDER_KEY
-): Promise<any> {
-  const direct = await umbracoApi.documentType.getByName(name);
-  if (direct) return direct;
-
-  const children = await umbracoApi.documentType.getChildren(fallbackFolderKey);
-  for (const child of children ?? []) {
-    if (child?.name === name) {
-      return await umbracoApi.documentType.get(child.id);
-    }
-  }
-  return null;
+async function findDocumentTypeByName(name: string): Promise<any> {
+  // Delegates to the shared, fixture-free helper (tests/e2e/_umbracoApi.ts). Its
+  // tree-walk already handles folder nesting, so the old fallbackFolderKey and the
+  // @umbraco/playwright-testhelpers getByName short-circuit (MEMORY.md) are moot.
+  return getDocumentTypeByName(name);
 }
 
 test.describe('Image Carousel Row — Element Type', () => {
-  test('imageCarouselRow element type exists and is an element', async ({ umbracoApi }) => {
-    const elementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Row');
+  test('imageCarouselRow element type exists and is an element', async () => {
+    const elementType = await findDocumentTypeByName('Image Carousel Row');
     expect(elementType, '"Image Carousel Row" should exist').toBeTruthy();
     expect(elementType.isElement).toBe(true);
   });
 
-  test('imageCarouselRow has slides, showCaptions, scrollSpeedMs, and author properties (and no images)', async ({
-    umbracoApi,
-  }) => {
-    const elementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Row');
+  test('imageCarouselRow has slides, showCaptions, scrollSpeedMs, and author properties (and no images)', async () => {
+    const elementType = await findDocumentTypeByName('Image Carousel Row');
     expect(elementType).toBeTruthy();
 
     const aliases = (elementType.properties ?? []).map((p: any) => p.alias);
@@ -114,10 +102,8 @@ test.describe('Image Carousel Row — Element Type', () => {
     expect(aliases, 'images property should be removed').not.toContain('images');
   });
 
-  test('imageCarouselRow.slides is a Block List restricted to imageCarouselSlide', async ({
-    umbracoApi,
-  }) => {
-    const elementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Row');
+  test('imageCarouselRow.slides is a Block List restricted to imageCarouselSlide', async () => {
+    const elementType = await findDocumentTypeByName('Image Carousel Row');
     expect(elementType).toBeTruthy();
 
     const slides = (elementType.properties ?? []).find((p: any) => p.alias === 'slides');
@@ -134,13 +120,13 @@ test.describe('Image Carousel Row — Element Type', () => {
     expect(blocksConfig, 'block list config should declare allowed blocks').toBeTruthy();
     const allowedTypeKeys: string[] = (blocksConfig.value ?? []).map((b: any) => b.contentElementTypeKey);
 
-    const slideElementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Slide');
+    const slideElementType = await findDocumentTypeByName('Image Carousel Slide');
     expect(slideElementType, 'imageCarouselSlide element type should exist for restriction lookup').toBeTruthy();
     expect(allowedTypeKeys, 'block list should be restricted to imageCarouselSlide only').toEqual([slideElementType.id]);
   });
 
-  test('imageCarouselRow.showCaptions is a boolean defaulting to false', async ({ umbracoApi }) => {
-    const elementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Row');
+  test('imageCarouselRow.showCaptions is a boolean defaulting to false', async () => {
+    const elementType = await findDocumentTypeByName('Image Carousel Row');
     expect(elementType).toBeTruthy();
 
     const showCaptions = (elementType.properties ?? []).find((p: any) => p.alias === 'showCaptions');
@@ -160,16 +146,14 @@ test.describe('Image Carousel Row — Element Type', () => {
     expect(defaultIsTruthy, 'showCaptions should default to off').toBeFalsy();
   });
 
-  test('imageCarouselSlide element type exists and is an element', async ({ umbracoApi }) => {
-    const slideElementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Slide');
+  test('imageCarouselSlide element type exists and is an element', async () => {
+    const slideElementType = await findDocumentTypeByName('Image Carousel Slide');
     expect(slideElementType, '"Image Carousel Slide" should exist').toBeTruthy();
     expect(slideElementType.isElement).toBe(true);
   });
 
-  test('imageCarouselSlide has image (Media Picker) and caption (Textstring) properties', async ({
-    umbracoApi,
-  }) => {
-    const slideElementType = await findDocumentTypeByName(umbracoApi, 'Image Carousel Slide');
+  test('imageCarouselSlide has image (Media Picker) and caption (Textstring) properties', async () => {
+    const slideElementType = await findDocumentTypeByName('Image Carousel Slide');
     expect(slideElementType).toBeTruthy();
 
     const properties = slideElementType.properties ?? [];

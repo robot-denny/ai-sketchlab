@@ -5,6 +5,7 @@ import { resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { randomUUID } from 'crypto';
+import { getDocumentTypeByName } from '../_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -70,10 +71,8 @@ async function getDocumentPath(token: string, docId: string): Promise<string> {
 // ==============================
 
 test.describe('Alert Banner — Element Type', () => {
-  test('element type exists with correct properties including iconOverride', async ({
-    umbracoApi,
-  }) => {
-    const elementType = await umbracoApi.documentType.getByName(elementTypeName);
+  test('element type exists with correct properties including iconOverride', async () => {
+    const elementType = await getDocumentTypeByName(elementTypeName);
     expect(elementType, `"${elementTypeName}" should exist`).toBeTruthy();
     expect(elementType.isElement).toBe(true);
 
@@ -83,10 +82,8 @@ test.describe('Alert Banner — Element Type', () => {
     expect(aliases).toContain('iconOverride');
   });
 
-  test('iconOverride property is optional and uses dropdown editor', async ({
-    umbracoApi,
-  }) => {
-    const elementType = await umbracoApi.documentType.getByName(elementTypeName);
+  test('iconOverride property is optional and uses dropdown editor', async () => {
+    const elementType = await getDocumentTypeByName(elementTypeName);
     expect(elementType).toBeTruthy();
 
     const prop = (elementType.properties ?? []).find(

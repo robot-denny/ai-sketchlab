@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import { test } from '@umbraco/playwright-testhelpers';
+import { getDocumentTypeByName, getTemplate } from './_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -122,10 +123,8 @@ async function getStyleGuideUrl(): Promise<string | null> {
 // ==============================
 
 test.describe('Style Guide Page — Document Type', () => {
-  test('Style Guide Page composition set: SectionRowControls in, FooterControls out', async ({
-    umbracoApi,
-  }) => {
-    const docType = await umbracoApi.documentType.getByName('Style Guide Page');
+  test('Style Guide Page composition set: SectionRowControls in, FooterControls out', async () => {
+    const docType = await getDocumentTypeByName('Style Guide Page');
     expect(docType, '"Style Guide Page" should exist').toBeTruthy();
     expect(docType.alias).toBe('styleGuidePage');
     expect(docType.allowedAsRoot).toBe(true);
@@ -136,7 +135,7 @@ test.describe('Style Guide Page — Document Type', () => {
     expect(templateIds.length, 'at least one allowed template').toBeGreaterThan(0);
     const templateAliases = await Promise.all(
       templateIds.map(async (id) => {
-        const tmpl = await umbracoApi.template.get(id);
+        const tmpl = await getTemplate(id);
         return tmpl?.alias;
       })
     );
@@ -168,10 +167,8 @@ test.describe('Style Guide Page — Document Type', () => {
     }
   });
 
-  test('brandSummary lives in a property group whose name is "Content"', async ({
-    umbracoApi,
-  }) => {
-    const docType = await umbracoApi.documentType.getByName('Style Guide Page');
+  test('brandSummary lives in a property group whose name is "Content"', async () => {
+    const docType = await getDocumentTypeByName('Style Guide Page');
     const prop = (docType.properties ?? []).find((p: any) => p.alias === 'brandSummary');
     expect(prop, 'brandSummary property must exist').toBeTruthy();
     const containerId = prop.container?.id;
@@ -180,15 +177,13 @@ test.describe('Style Guide Page — Document Type', () => {
     expect(container?.name).toBe('Content');
   });
 
-  test('Three programmatic block element types exist with heading + intro', async ({
-    umbracoApi,
-  }) => {
+  test('Three programmatic block element types exist with heading + intro', async () => {
     for (const name of [
       'Color Palette Block',
       'Typography Showcase Block',
       'General Elements Block',
     ]) {
-      const dt = await umbracoApi.documentType.getByName(name);
+      const dt = await getDocumentTypeByName(name);
       expect(dt, `"${name}" element type should exist`).toBeTruthy();
       expect(dt.isElement, `"${name}" must be an element type`).toBe(true);
       const aliases = (dt.properties ?? []).map((p: any) => p.alias);

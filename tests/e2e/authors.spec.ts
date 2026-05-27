@@ -5,15 +5,16 @@ test.describe('Authors pages', () => {
     const response = await page.goto('/authors/');
     expect(response?.status(), '/authors/ should return 200').toBe(200);
 
-    // Verify author cards are rendered
-    const authorCards = page.locator('.card');
+    // Verify author cards are rendered (v2 "authors-grid" layout uses .a-card)
+    const authorCards = page.locator('.authors-grid .a-card');
     await expect(authorCards.first()).toBeVisible();
   });
 
   test('each author detail page loads without errors', async ({ page }) => {
     // Visit the list page and collect all author links
     await page.goto('/authors/');
-    const authorLinks = await page.locator('a.text-primary[href*="/authors/"]').evaluateAll(
+    // Each author card links to its detail page from the card heading (<h2><a>).
+    const authorLinks = await page.locator('.a-card h2 a').evaluateAll(
       (links) => links.map((a) => (a as HTMLAnchorElement).getAttribute('href')).filter(Boolean)
     );
 
@@ -24,8 +25,9 @@ test.describe('Authors pages', () => {
       const response = await page.goto(href!);
       expect(response?.status(), `${href} should return 200`).toBe(200);
 
-      // Verify the page has the author name heading
-      const heading = page.locator('h1');
+      // Verify the page has the author name heading. The site wordmark is also
+      // an <h1 class="wordmark">, so exclude it to target the content heading.
+      const heading = page.locator('h1:not(.wordmark)').first();
       await expect(heading).toBeVisible();
     }
   });

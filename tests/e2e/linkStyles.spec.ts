@@ -3,12 +3,12 @@ import { test, expect } from '@playwright/test';
 /**
  * Link Styles E2E Tests
  *
- * Verifies the consolidated link style: bold, underlined, #8859b6 color,
- * black on hover. Header/footer links remain unchanged.
+ * Verifies the consolidated link style: bold, underlined, v2 accent #8B6B4A,
+ * darker #856646 on hover. Header/footer links are scoped separately.
  */
 
-const LINK_COLOR = 'rgb(136, 89, 182)'; // #8859b6
-const HOVER_COLOR = 'rgb(0, 0, 0)';     // #000
+const LINK_COLOR = 'rgb(139, 107, 74)';  // v2 accent link #8B6B4A
+const HOVER_COLOR = 'rgb(133, 102, 70)'; // v2 link hover #856646
 
 // ---------- Default link styles ----------
 
@@ -95,8 +95,9 @@ test.describe('Link Styles — Footer', () => {
     const textDecoration = await footerLink.evaluate((el) => getComputedStyle(el).textDecorationLine);
     const color = await footerLink.evaluate((el) => getComputedStyle(el).color);
 
-    // Footer links should be underlined for identifiability but inherit footer color
-    expect(textDecoration).toContain('underline');
+    // v2 footer links inherit the footer color and are not underlined (the footer
+    // is styled as its own scope, distinct from the global accent-link treatment).
+    expect(textDecoration).toBe('none');
     expect(color).not.toBe(LINK_COLOR);
   });
 });

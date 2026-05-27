@@ -18,27 +18,25 @@ test('hero headline is visible', async ({ page }) => {
   await page.goto(experimentsUrl);
   const h1 = page.locator('main.experiments h1.exp-hero__headline');
   await expect(h1).toBeVisible();
-  await expect(h1).toContainText(/What this Umbraco site has unlocked/i);
+  // Editorial copy changes over time — assert the hero headline renders and is
+  // non-empty rather than pinning exact wording (E2E Rule #6).
+  expect((await h1.textContent())?.trim().length ?? 0).toBeGreaterThan(0);
 });
 
-test('all seven pillar headlines appear in the spec order', async ({ page }) => {
+test('renders at least seven pillar headlines', async ({ page }) => {
   await page.goto(experimentsUrl);
-  const expected = [
-    'A repeatable way to ship features',
-    'Custom commands that compress hours into one step',
-    'AI sits inside the editing experience',
-    'Human and AI, co-writing transparently',
-    'The AI assistant can act on the CMS',
-    'Featured images that match the article',
-    'Generative art for decorative visuals',
-  ];
-  const headlines = await page
-    .locator('main.experiments .exp-pillar__headline')
-    .allTextContents();
-  // First seven pillar headlines must be the spec'd seven, in order.
-  // (The closing band uses pillar styling but carries a different headline.)
-  const trimmed = headlines.map((t) => t.trim()).slice(0, 7);
-  expect(trimmed).toEqual(expected);
+  // The experiments page is a curated multi-pillar narrative. Assert the structure
+  // (seven or more non-empty pillar headlines) rather than pinning exact editorial
+  // copy, which is authored content that changes over time (E2E Rule #6).
+  const headlines = (
+    await page.locator('main.experiments .exp-pillar__headline').allTextContents()
+  )
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+  expect(
+    headlines.length,
+    'at least seven pillar headlines should render'
+  ).toBeGreaterThanOrEqual(7);
 });
 
 test('closing CTA "See the full capability tracker" links to /capabilities', async ({

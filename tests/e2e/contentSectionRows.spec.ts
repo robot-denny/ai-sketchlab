@@ -575,13 +575,14 @@ test.describe('Content Section Row — Browser E2E', () => {
   test('section rows render after the main content container', async ({ page }) => {
     await page.goto(targetDocUrl);
 
-    // Section rows should be visible inside <article>
-    const sectionRow = page.locator('article .section-row').first();
+    // Section rows render on the page (the v2 content template no longer wraps
+    // them in an <article>; that wrapper now exists only in the styleguide tree).
+    const sectionRow = page.locator('.section-row').first();
     await expect(sectionRow).toBeVisible();
 
-    // The main .container should also exist
-    const articleContainer = page.locator('article > .container').first();
-    await expect(articleContainer).toBeVisible();
+    // Each section row carries an inner .container.
+    const sectionContainer = page.locator('.section-row .container').first();
+    await expect(sectionContainer).toBeVisible();
   });
 
   // --- Full bleed width ---
@@ -595,7 +596,9 @@ test.describe('Content Section Row — Browser E2E', () => {
       .filter({ hasText: 'Full bleed accent section content' });
     await expect(fullBleedRow).toBeVisible();
 
-    const container = page.locator('article > .container').first();
+    // Any Bootstrap-constrained .container shares the same max-width; use it as
+    // the reference (the v2 template dropped the old <article> > .container wrapper).
+    const container = page.locator('.container').first();
     const containerBox = await container.boundingBox();
     const rowBox = await fullBleedRow.boundingBox();
 
@@ -615,7 +618,9 @@ test.describe('Content Section Row — Browser E2E', () => {
       .filter({ hasText: 'Container light section content' });
     await expect(containerRow).toBeVisible();
 
-    const container = page.locator('article > .container').first();
+    // Any Bootstrap-constrained .container shares the same max-width; use it as
+    // the reference (the v2 template dropped the old <article> > .container wrapper).
+    const container = page.locator('.container').first();
     const containerBox = await container.boundingBox();
     const rowBox = await containerRow.boundingBox();
 

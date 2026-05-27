@@ -3,6 +3,7 @@ import { test } from '@umbraco/playwright-testhelpers';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
+import { randomUUID } from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,6 +14,43 @@ const __dirname = dirname(__filename);
 const compositionDisplayName = 'Section Navigation Controls';
 const propertyAlias = 'showSectionNavigation';
 const API_BASE = process.env.URL || 'https://localhost:44367';
+
+// "Rich Text Row" block element type. Stable schema identifier (deploys via .uda,
+// identical across environments), like the element-type keys hardcoded in
+// alertBanner.spec.ts / articleListGridView.spec.ts.
+const RICH_TEXT_ROW_CT_KEY = 'dd183f78-7d69-4eda-9b4c-a25970583a28';
+
+/**
+ * Minimal contentRows Block List value containing a single Rich Text Row block.
+ * The v2 content template only renders the section nav inside the contentRows
+ * content layout (content.cshtml gates it on `Model.ContentRows.Any()`), so a page
+ * that should display the nav must carry at least one contentRows block.
+ */
+function contentRowsWithRichText(text: string): any {
+  const key = randomUUID();
+  return {
+    layout: { 'Umbraco.BlockList': [{ contentKey: key }] },
+    contentData: [
+      {
+        key,
+        contentTypeKey: RICH_TEXT_ROW_CT_KEY,
+        values: [
+          {
+            alias: 'content',
+            culture: null,
+            segment: null,
+            value: {
+              markup: `<p>${text}</p>`,
+              blocks: { layout: {}, contentData: [], settingsData: [] },
+            },
+          },
+        ],
+      },
+    ],
+    settingsData: [],
+    expose: [{ contentKey: key, culture: null, segment: null }],
+  };
+}
 
 // ==============================
 // Shared API Helpers (rule #4: refresh tokens)
@@ -512,6 +550,10 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
       parentId,
       values: [
         { alias: 'showSectionNavigation', culture: null, segment: null, value: true },
+        // The section nav renders inside the contentRows content layout
+        // (content.cshtml gates it on Model.ContentRows.Any()), so this page needs
+        // at least one contentRows block for the nav to appear.
+        { alias: 'contentRows', culture: null, segment: null, value: contentRowsWithRichText('SN test content') },
       ],
     });
     createdIds.push(childAId);

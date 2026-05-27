@@ -642,8 +642,8 @@ test.describe('Content Section Row — Browser E2E', () => {
     const bgColor = await accentRow.evaluate((el) =>
       window.getComputedStyle(el).backgroundColor
     );
-    // --bs-teal is #005E70 = rgb(0, 94, 112)
-    expect(bgColor).toBe('rgb(0, 94, 112)');
+    // v2 design-system accent is terracotta #C23D2E = rgb(194, 61, 46)
+    expect(bgColor).toBe('rgb(194, 61, 46)');
   });
 
   test('light row has gray-100 background color', async ({ page }) => {
@@ -657,8 +657,8 @@ test.describe('Content Section Row — Browser E2E', () => {
     const bgColor = await lightRow.evaluate((el) =>
       window.getComputedStyle(el).backgroundColor
     );
-    // --bs-gray-100 is #f8f9fa = rgb(248, 249, 250)
-    expect(bgColor).toBe('rgb(248, 249, 250)');
+    // v2 design-system light surface is a warm off-white #F5F0EB = rgb(245, 240, 235)
+    expect(bgColor).toBe('rgb(245, 240, 235)');
   });
 
   // --- Accent row has light text ---
@@ -674,7 +674,8 @@ test.describe('Content Section Row — Browser E2E', () => {
     const textColor = await accentRow.evaluate((el) =>
       window.getComputedStyle(el).color
     );
-    expect(textColor).toBe('rgb(255, 255, 255)');
+    // v2 accent text is a warm off-white #F0EDE8 = rgb(240, 237, 232), not pure white
+    expect(textColor).toBe('rgb(240, 237, 232)');
   });
 
   // --- Empty row not rendered ---

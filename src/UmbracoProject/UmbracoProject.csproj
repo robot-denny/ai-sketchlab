@@ -7,8 +7,13 @@
     <!-- NU1903: Lucene.Net.Replicator 4.8.0-beta00016 (GHSA-2qw8-ppr5-m96c, high severity),
          pulled transitively via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net.
          We cannot pin a patched version without breaking Umbraco's locked Examine chain.
-         Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00016. -->
-    <NoWarn>$(NoWarn);NU1903</NoWarn>
+         Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00016.
+         CS0618: "obsolete API" warnings. Several Razor views still use APIs Umbraco has
+         deprecated for v18 (e.g., `IPublishedContent.Children` → `IDocumentNavigationQueryService.TryGetChildrenKeys()`).
+         Suppressed project-wide because Cloud's runtime Razor compiler honors TWAE and turns
+         these into hard errors on first-request compilation. Tracked as a follow-up migration
+         in ROADMAP (`arch-obsolete-api-migration`); remove this suppression once that's shipped. -->
+    <NoWarn>$(NoWarn);NU1903;CS0618</NoWarn>
     <CompressionEnabled>false</CompressionEnabled> <!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
   </PropertyGroup>
 

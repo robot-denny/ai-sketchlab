@@ -30,6 +30,15 @@
 
     var siteName = Umbraco.GetDictionaryValue("Navigation.SiteName");
     var siteLogo = homePage.Value<MediaWithCrops>("siteLogo");
+
+    // TODO(arch-obsolete-api-migration): migrate to IDocumentNavigationQueryService.TryGetChildrenKeys().
+    // Pragma scopes the obsolete .Children call so Cloud's runtime Razor compile
+    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
+#pragma warning disable CS0618
+    var navChildren = homePage.Children
+        .Where(x => !x.Value<bool>("hideFromTopNavigation"))
+        .ToList();
+#pragma warning restore CS0618
 }
 
 <header class="site-head">
@@ -46,7 +55,7 @@
         </a>
     </h1>
     <nav class="site-nav" aria-label="@Umbraco.GetDictionaryValue("Navigation.MenuTitle")">
-        @foreach (var child in homePage.Children.Where(x => !x.Value<bool>("hideFromTopNavigation")))
+        @foreach (var child in navChildren)
         {
             <a href="@child.Url()" class="@(IsCurrent(Model, child) ? "is-current" : null)">@child.Name</a>
         }

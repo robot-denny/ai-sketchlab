@@ -257,15 +257,15 @@ async function updateDisplayMode(token: string, mode: string): Promise<void> {
   }
 }
 
-// SKIPPED (superseded feature — decision needed): these browser tests exercise the
-// latestArticlesRow block's displayMode toggle (list → .post-preview / grid → .entries)
-// ON the Article List page. The v2 redesign changed the Article List template
-// (Views/articleList.cshtml) to render articles directly as an .entries grid of
-// _ArticleCard partials and to NOT render the page's contentRows block list — so the
-// block (and its list mode) is orphaned data on that page. Either re-point these at a
-// page that actually renders the block, or delete them, once the product decision on
-// the latestArticlesRow block's fate is made. Schema/structure coverage (Sections 1–3)
-// still passes and is retained.
+// SKIPPED — tracked regression "fix-article-list-block-bypass" (ROADMAP.md → Next).
+// These browser tests exercise the latestArticlesRow block's displayMode toggle
+// (list → .post-preview / grid → .entries) ON the Article List page. The v2 redesign
+// changed the Article List template (Views/articleList.cshtml) to render articles
+// directly as an .entries grid of _ArticleCard partials and to NOT render the page's
+// contentRows block list — so the block (and its list mode) is orphaned/unrendered
+// there. Left skipped (not deleted) on purpose: un-skip and re-point (or delete) once
+// articleList.cshtml restores contentRows rendering or the block is formally retired.
+// Schema/structure coverage (Sections 1–3) still passes and is retained.
 test.describe.skip('Article List Grid View — Browser E2E', () => {
   test.describe.configure({ mode: 'serial' });
 

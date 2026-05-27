@@ -50,8 +50,10 @@
         .Where(x => !string.IsNullOrWhiteSpace(x.Slug))
         .ToList();
 
+    // Content.Key (Guid) replaces the obsolete .ContentUdi (CS0618, removed in Umbraco 18).
+    // Both lookup sites below must key identically — keep them in sync.
     var slugByRowKey = navItems
-        .ToDictionary(x => x.Row.ContentUdi?.ToString() ?? x.Row.Content.Key.ToString(), x => x.Slug);
+        .ToDictionary(x => x.Row.Content.Key.ToString(), x => x.Slug);
 }
 
 @if (navItems.Count > 1)
@@ -71,7 +73,7 @@
 
 @foreach (var row in rows)
 {
-    var key = row.ContentUdi?.ToString() ?? row.Content.Key.ToString();
+    var key = row.Content.Key.ToString();
     slugByRowKey.TryGetValue(key, out var slug);
     if (!string.IsNullOrWhiteSpace(slug))
     {

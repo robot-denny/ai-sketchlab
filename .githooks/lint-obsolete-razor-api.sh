@@ -1,7 +1,8 @@
 #!/bin/sh
 # Lint: fail if a Razor view uses an obsolete IPublishedContent navigation
-# property (.Parent / bare .Children) OUTSIDE a `#pragma warning disable CS0618`
-# region.
+# property (.Parent / bare .Children) or the obsolete Udi family (.ContentUdi /
+# .SettingsUdi / Udi. / .GetUdi()) OUTSIDE a `#pragma warning disable CS0618`
+# region. All are CS0618 and removed in Umbraco 18.
 #
 # WHY THIS EXISTS
 # ---------------
@@ -27,11 +28,11 @@
 # and leave a TODO(arch-obsolete-api-migration) marker pointing at the real
 # IDocumentNavigationQueryService migration. Reference: Views/Partials/v2/_SiteHead.cshtml.
 #
-# Scope is deliberately tight (.Parent property, bare .Children property) to stay
-# false-positive free — the typed extension overloads (.Children<T>(),
-# .DescendantsOrSelf<T>(), .AncestorOrSelf<T>()) are NOT obsolete and render fine
-# (the home page proves it). Extend the patterns in the awk block below if a new
-# obsolete navigation member starts 500ing in production.
+# Scope is deliberately tight to stay false-positive free: the bare .Parent /
+# .Children PROPERTIES (not the typed extension overloads .Children<T>() /
+# .AncestorOrSelf<T>(), which are NOT obsolete and render fine — the home page
+# proves it), plus the unambiguous Udi accessors. Extend the patterns in the awk
+# block below if a new obsolete member starts 500ing in production.
 
 set -eu
 
@@ -55,7 +56,14 @@ violations=$(find "$VIEWS_DIR" -name '*.cshtml' -print0 | xargs -0 awk '
     if (disabled) next
     line = $0
     sub(/\/\/.*/, "", line)   # drop // comments before matching
-    if (line ~ /\.Parent([^A-Za-z0-9_]|$)/ || line ~ /\.Children([^A-Za-z0-9_<(]|$)/) {
+    # Obsolete IPublishedContent navigation (bare .Parent / .Children) and the
+    # obsolete Udi family (.ContentUdi / .SettingsUdi / Udi. / .GetUdi()), both
+    # CS0618 and both removed in Umbraco 18. Use .Content.Key / .ContentKey etc.
+    if (line ~ /\.Parent([^A-Za-z0-9_]|$)/ ||
+        line ~ /\.Children([^A-Za-z0-9_<(]|$)/ ||
+        line ~ /\.(ContentUdi|SettingsUdi)([^A-Za-z0-9_]|$)/ ||
+        line ~ /\.GetUdi([^A-Za-z0-9_]|$)/ ||
+        line ~ /(^|[^A-Za-z0-9_])Udi\./) {
       printf "%s:%d:%s\n", FILENAME, FNR, $0
     }
   }

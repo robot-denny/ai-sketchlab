@@ -7,6 +7,7 @@
   "ContextIds": [
     "1d2c0e55-ffab-48db-92a3-d6d589af4f80"
   ],
+  "GuardrailIds": [],
   "Tags": [],
   "IsActive": true,
   "IncludeEntityContext": true,
@@ -33,5 +34,5 @@
     }
   ],
   "__type": "Umbraco.AI.Prompt.Deploy,Umbraco.AI.Prompt.Deploy.Artifacts.AIPromptArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

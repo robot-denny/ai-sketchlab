@@ -14,5 +14,5 @@
     }
   ],
   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

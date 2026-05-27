@@ -5,6 +5,7 @@
   "Instructions": "Generate alt text for the image {{ image:umbracoFile }}. The text generated should follow best practices for web accessibility, so that people using assistive technology can access the content. You understand the rules about when alt text should and should not be applied, and do not suggest alt text for decorative images or for SEO-only reasons. Descriptions should always be less that 120 characters. ",
   "ProfileUdi": "umb://umbraco-ai-profile/8bc9aabc4fff4d9681a58a06f554893b",
   "ContextIds": [],
+  "GuardrailIds": [],
   "Tags": [],
   "IsActive": true,
   "IncludeEntityContext": true,
@@ -30,5 +31,5 @@
     }
   ],
   "__type": "Umbraco.AI.Prompt.Deploy,Umbraco.AI.Prompt.Deploy.Artifacts.AIPromptArtifact",
-  "__version": "17.0.2"
+  "__version": "17.1.0"
 }

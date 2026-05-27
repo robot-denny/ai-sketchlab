@@ -7,6 +7,10 @@
     Layout = "master.cshtml";
     var showSectionNavigation = Model.Value<bool>("showSectionNavigation");
     var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
+    // TODO(arch-obsolete-api-migration): migrate Model.Parent to IDocumentNavigationQueryService.TryGetParentKey().
+    // Pragma scopes the obsolete .Parent calls so Cloud's runtime Razor compile
+    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
+#pragma warning disable CS0618
     var eyebrow = Model.Parent?.Name;
 
     // When this content page is a child of a Style Guide Page (e.g.
@@ -17,6 +21,7 @@
         Model.Parent?.ContentType?.Alias,
         "styleGuidePage",
         StringComparison.Ordinal);
+#pragma warning restore CS0618
 }
 
 @if (inStyleGuideTree)

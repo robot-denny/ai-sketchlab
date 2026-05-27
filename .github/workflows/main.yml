@@ -44,6 +44,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Fast-fail guard for obsolete-API (CS0618) usage in Razor views. Cloud's
+      # runtime Razor compile honors TWAE but not csproj <NoWarn>, so these 500
+      # in production; `dotnet build` can't see them (InMemoryAuto models aren't
+      # present at build time). Mirrors the local pre-push lint.
+      - name: Lint obsolete Razor navigation APIs
+        run: ./.githooks/lint-obsolete-razor-api.sh
+
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:

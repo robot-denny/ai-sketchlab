@@ -11,7 +11,12 @@
     var authors = Model.Author;
     var authorNames = authors != null ? string.Join(", ", authors.Select(a => a.Name)) : "";
 
+    // TODO(arch-obsolete-api-migration): migrate Model.Parent to IDocumentNavigationQueryService.TryGetParentKey().
+    // Pragma scopes the obsolete .Parent call so Cloud's runtime Razor compile
+    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
+#pragma warning disable CS0618
     var parent = Model.Parent;
+#pragma warning restore CS0618
 
     ContentModels.Article previous = null;
     ContentModels.Article next = null;

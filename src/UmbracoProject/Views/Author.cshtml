@@ -6,7 +6,12 @@
 @{
     Layout = "master.cshtml";
 
+    // TODO(arch-obsolete-api-migration): migrate Model.Parent to IDocumentNavigationQueryService.TryGetParentKey().
+    // Pragma scopes the obsolete .Parent call so Cloud's runtime Razor compile
+    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
+#pragma warning disable CS0618
     var authorListPage = Model.Parent as ContentModels.AuthorList;
+#pragma warning restore CS0618
 
     var heading = !string.IsNullOrWhiteSpace(Model.Title) ? Model.Title : Model.Name;
     var role = Model.Subtitle;

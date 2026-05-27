@@ -1,9 +1,14 @@
 @inherits UmbracoViewPage<IPublishedContent>
 
 @{
+    // TODO(arch-obsolete-api-migration): migrate Model.Parent/.Children to IDocumentNavigationQueryService.
+    // Pragma scopes the obsolete .Parent/.Children calls so Cloud's runtime Razor compile
+    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
+#pragma warning disable CS0618
     var siblings = Model.Parent?.Children.Where(x => x.IsVisible()).ToList()
                    ?? new List<IPublishedContent>();
     var children = Model.Children.Where(x => x.IsVisible()).ToList();
+#pragma warning restore CS0618
 
     // Suppress: if the only visible item is the current page itself (no other siblings, no children)
     var otherSiblings = siblings.Where(s => s.Id != Model.Id).ToList();

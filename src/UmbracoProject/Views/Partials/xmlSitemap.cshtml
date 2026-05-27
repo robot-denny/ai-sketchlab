@@ -1,5 +1,9 @@
 ﻿@model IPublishedContent
 @{
+    // TODO(arch-obsolete-api-migration): migrate .Children/.AncestorOrSelf to IDocumentNavigationQueryService.
+    // Pragma scopes the obsolete navigation calls so Cloud's runtime Razor compile
+    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
+#pragma warning disable CS0618
 
     var homePage = Model.AncestorOrSelf("home");
     void RenderChildPages(IEnumerable<IPublishedContent> contentItems)
@@ -19,6 +23,7 @@
             }
         }
     };
+#pragma warning restore CS0618
 }
 
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -26,7 +31,10 @@
     xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 <url><loc>@homePage.Url(mode: UrlMode.Absolute)</loc><priority>1.0</priority><lastmod>@homePage.UpdateDate.ToString("yyyy-MM-ddTHH:mm:sszzz")</lastmod></url>
     @{
+        // Pragma scopes the obsolete homePage.Children call (see TODO at top of file).
+#pragma warning disable CS0618
         RenderChildPages(homePage.Children);
+#pragma warning restore CS0618
     }
 </urlset>
 

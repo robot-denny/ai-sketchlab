@@ -26,6 +26,10 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/UmbracoProject/UmbracoProject.csproj" />
+    <!-- HelloWorld types (IImageGenerator, CliImageGenerator, IProcessRunner, PaletteService)
+         are already available transitively via UmbracoProject; this explicit reference is for
+         intent/clarity. MSBuild dedups. -->
+    <ProjectReference Include="../../src/HelloWorld/HelloWorld.csproj" />
   </ItemGroup>
 
 </Project>

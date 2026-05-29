@@ -155,6 +155,10 @@ jobs:
         env:
           URL: ${{ vars.URL }}
           UMBRACO_URL: ${{ vars.URL }}
+          # The guide-generator CLI (scripts/guide-generator/src/*.ts) reads UMBRACO_BASE_URL,
+          # not URL. Without this line it falls back to localhost and fails on the CI runner.
+          # See _features/fix-e2e-dev-only-failures.md → Diagnosis & Fix Recipes → guides-cli.
+          UMBRACO_BASE_URL: ${{ vars.URL }}
           UMBRACO_CLIENT_ID: ${{ secrets.UMBRACO_CLIENT_ID }}
           UMBRACO_CLIENT_SECRET: ${{ secrets.UMBRACO_CLIENT_SECRET }}
           CI: 'true'

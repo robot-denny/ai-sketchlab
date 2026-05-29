@@ -5,7 +5,7 @@ The Playwright-against-Dev gate goes from "perpetually red on 5 known failures w
 **Each of the three original hypotheses turned out to be wrong**: the imageGenerator failure was a Cloud runtime Node-launch gap (not an OpenAI key issue), the guides-cli failure was an env-var naming mismatch in CI (not an OAuth client issue), and the imageCarousel failure was a content gap on both Live and Dev (not a Live→Dev sync issue). The diagnosis-and-fix recipes capture both the wrong hypotheses (for future "don't repeat this dead end" value) and the real root causes.
 
 **Source spec**: `_specs/fix-e2e-dev-only-failures.md`
-**Last verified**: 2026-05-29 — targeted Playwright runs against Dev (guides-cli 9/9 pass, imageCarousel 50/50 pass, dashboard 1 skipped + 8 passed). Full Gate 2 verification pending merge to master.
+**Last verified**: 2026-05-29 — Gate 2 on master post-merge: 249 passed / 26 failed / 19 skipped of 294 total (vs baseline 218 passed / 31 failed / ~27 not-run). All 4 originally-targeted tests pass + 1 deliberately skipped (dashboard.spec.ts:141 on Cloud URLs). The 26 remaining failures are previously-blocked sibling tests now running on their own merits — filed as the parking-lot ROADMAP entry `triage-gate2-unmasked-failures` for separate triage.
 
 ---
 
@@ -283,3 +283,4 @@ Both `altText` values should be non-empty descriptive strings. If `.altText` is 
 
 - 2026-05-29 (initial): Draft scenarios from initial spec.
 - 2026-05-29 (verified): All three fix paths exercised against Dev via targeted Playwright runs. Updated each Rule to reflect the *actual* root cause (which differed from the original hypothesis in all three cases). Test Coverage table filled in. Draft banner removed. Filed two follow-up ROADMAP entries: `cloud-image-generator-launch-path` (deferred imageGenerator fix) and `fix-imagecarousel-first-image-picker` (test brittleness around tree-walk-order picker). Full Gate 2 verification pending PR merge.
+- 2026-05-29 (gate-2-confirmed): PR merged; Gate 2 on master reported 249 passed / 26 failed / 19 skipped (vs baseline 218/31/~27-not-run). The 4 originally-targeted tests pass + the 1 deliberately-skipped test is correctly skipped on Cloud URLs. Re-verified `blocks/imageCarousel.spec.ts` 50/50 against Dev post-merge — no CI-only regression in our targeted fixes. The 26 remaining failures are previously-blocked sibling tests now running for the first time on their own merits — filed as `triage-gate2-unmasked-failures` for separate triage. Feature closed; ROADMAP entry moved from Next to Recently shipped.

@@ -245,6 +245,58 @@ Anthropic and OpenAI keys (`ANTHROPIC__APIKEY`, `OPENAI__APIKEY` — Cloud Porta
 
 The two Live/Staging environments (if they exist) each have their own Cloud Secrets Management slot for these keys, set per-environment via the Cloud Portal — see the existing [AI & Copilot](#ai--copilot) and [Search > Umbraco Cloud deploys](#umbraco-cloud-deploys) subsections for the full per-environment ritual.
 
+## Diagnosing a red CI run
+
+When master's pipeline goes red, work through three questions in order: **which gate failed → which job inside it → was it failing before my commit?** Skipping straight to "fix the test" without answering all three is the habit that lets a perpetually-red gate become background noise.
+
+The recipes for previously-seen failures live in the relevant feature doc (e.g. [_features/fix-e2e-dev-only-failures.md](_features/fix-e2e-dev-only-failures.md) → *Diagnosis & Fix Recipes*). The procedure below is the generic method — use it when you face a failure not already captured in a feature doc.
+
+### 1. Which gate failed?
+
+```bash
+# List the last few runs on your branch; note the failing run id
+gh run list --branch <branch> --limit 3
+
+# For that run, show each job's conclusion and name
+gh run view <run-id> --json jobs -q '.jobs[] | "\(.conclusion)\t\(.name)"'
+```
+
+Two gates exist (see [CI/CD & Build hygiene](#cicd--build-hygiene)):
+
+- **Gate 1** (`gate-1-build-test`) runs on every branch — `dotnet build -c Release` + `dotnet test --no-build`. Failing here means the same thing the pre-push hook checks, so reproducing is one command: `cd src/UmbracoProject && dotnet build -c Release && dotnet test --no-build`.
+- **Gate 2** (`cloud-sync` → `cloud-artifact` → `cloud-deployment` → `playwright-against-dev`) runs only on master pushes. Failures here split four ways, see the table below.
+
+### 2. Which job inside the gate?
+
+| Failure surface | First diagnostic next step |
+|---|---|
+| Gate 1 (build or test) | Reproduce locally with the commands above; the failure should be identical. If it isn't, check `dotnet --info` parity (CI uses the .NET SDK pinned by `global.json` if present). |
+| `cloud-sync` (Gate 2) | Cloud's `.uda` sync produced a conflict or pushed normalized commits back. Run [/check-uda](.claude/commands/check-uda.md) locally; also `git fetch` to see if Cloud committed via `Umbraco Cloud <support@umbraco.io>`. |
+| `cloud-artifact` (Gate 2) | The deploy artifact build failed inside Cloud's Kudu Lite container. See `[[project-cloud-no-wildcard-versions]]` and `[[project_cloud_build_no_npm]]` for the two most-common traps. |
+| `cloud-deployment` (Gate 2) | Schema deploy hit a database conflict, or runtime Razor compile rejected something. Cloud Portal → Dev → Deploy log is the source of truth; `[[project_cloud_razor_honors_twae]]` covers the most-common CS-warnings-as-errors trap. |
+| `playwright-against-dev` (Gate 2) | Read the actual error first (next subsection); then go to question 3. |
+
+### 3. New or pre-existing?
+
+For Playwright failures especially, distinguish "I broke this" from "this was already broken." A failure that's been red for 5 master pushes is structural — it shouldn't gate your PR, and acting like it does is how red becomes background noise. A failure that's new with your push is a real regression.
+
+```bash
+# The go-to command for actually reading the error (replace <job-id>)
+gh run view --job <job-id> --log 2>&1 | grep -B 1 -A 5 "Error:" | head -50
+
+# Compare against the previous master run — does the same test fail there too?
+gh run list --branch master --limit 10
+gh run view <previous-run-id> --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'
+```
+
+If the failure was already red on the previous master run, it's pre-existing. **File a ROADMAP entry under "Next" and unblock your work** — don't bundle a pre-existing infra/content issue into an unrelated feature PR. (The `fix-e2e-dev-only-failures` feature exists specifically because this hygiene was missing for several weeks.)
+
+If the failure is new with your push, it's yours to fix — and likely deserves a `/spec` if non-trivial.
+
+### Habituation avoidance
+
+Every recurring red run without diagnosis is a broken-window signal. The cost compounds: the first ignored red costs zero, the tenth costs the team's faith in CI. Tools alone can't prevent this — the discipline is to (a) always run questions 1–3 before dismissing a red, and (b) file pre-existing failures as ROADMAP work rather than letting them sit. When in doubt, treat the feature doc's *Diagnosis & Fix Recipes* section as the durable record of "we already learned this lesson; here's the playbook."
+
 ## Modifying Umbraco Content from Claude Code
 
 Use the `/umbraco-edit` skill to edit document properties or invoke an AI agent via the Management API from outside the backoffice. Covers the OAuth token dance, the document/document-type endpoint reference, the find → read → PUT workflow, and the Agent SSE stream parsing. Credentials (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`) live in `.env`.

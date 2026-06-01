@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="Clean.Core" Version="7.0.5" />
     <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="17.0.5" />
+    <PackageReference Include="SeoToolkit.Umbraco" Version="6.3.0" />
     <PackageReference Include="Umbraco.AI" Version="1.11.0" />
     <PackageReference Include="Umbraco.AI.Agent" Version="1.10.0" />
     <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.0" />

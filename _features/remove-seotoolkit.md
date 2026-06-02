@@ -1,11 +1,9 @@
 # Feature: Remove SeoToolkit and Ship In-Tree SEO Equivalents
 
-> **Draft** — These scenarios have not yet been verified against an implementation. They will be refined during planning and verified after implementation.
-
 The `SeoToolkit.Umbraco` package is removed and the three pieces of value it could have delivered — a public sitemap, a public robots.txt, and a working branded 404 page — are replaced with in-tree equivalents that flow through the project's normal master → Dev → Live pipeline. The custom SEO partial, the SEO Controls composition, and the SEO Assistant AI agent stay as they are; this work changes how visitors and crawlers see the site, not how editors author content.
 
-**Source spec**: `_specs/remove-seotoolkit.md`
-**Last verified**: (draft — not yet verified)
+**Source spec**: `_specs/shipped/remove-seotoolkit.md`
+**Last verified**: 2026-06-02
 
 ---
 
@@ -13,7 +11,7 @@ The `SeoToolkit.Umbraco` package is removed and the three pieces of value it cou
 
 The per-feature mini-roadmap: shipped increments + planned increments + parking-lot ideas. Newest planned items first. When an item ships, flip the checkbox and point it at the shipped spec.
 
-- [ ] 2026-06-01 — Remove SeoToolkit package; serve `/sitemap.xml`, `/robots.txt`, and branded 404 from in-tree code (spec: `_specs/remove-seotoolkit.md`, no plan yet)
+- [x] 2026-06-02 — Remove SeoToolkit package; serve `/sitemap.xml`, `/robots.txt`, and branded 404 from in-tree code (spec: [`_specs/shipped/remove-seotoolkit.md`](../_specs/shipped/remove-seotoolkit.md))
 - [ ] (parking lot) Manual redirects UI — for inbound links to URLs that never existed in Umbraco. Deferred until Google Search Console reveals a real need.
 - [ ] (parking lot) 404 logging dashboard — internal aggregation of 404 hits. Deferred in favor of Search Console.
 - [ ] (parking lot) Editor-facing meta override UI — the "resolved preview + override input" pattern from SeoToolkit's meta-fields. Deferred because the current direct-field-editing flow is fine for the site's editor count.
@@ -31,7 +29,7 @@ Scenario: Developer searches the project for any SeoToolkit reference after the 
   Given the `claude/feature/remove-seotoolkit` branch is merged to master
   When a developer searches the repository for the string "SeoToolkit"
   Then they find no matches in any .csproj, .cs, .cshtml, .json, or .config file
-  And the only matches (if any) are in historical commits or archived spec files
+  And the only matches (if any) are in historical commits or archived spec/feature files
 ```
 
 ```scenario
@@ -48,6 +46,7 @@ Scenario: A search engine fetches the sitemap on Live
   Given the Live environment has the SeoToolkit removal deployed
   When a search engine sends a GET request to https://umbraco-17-demo-site.useast01.umbraco.io/sitemap.xml
   Then the response status is 200 OK
+  And the Content-Type header starts with `application/xml`
   And the response body is a valid XML sitemap that includes the Home page, every published Article, every published Author page, and the Contact page
   And the response body excludes any page that has "Exclude from sitemap" ticked in the backoffice
 ```
@@ -67,6 +66,7 @@ Scenario: A crawler fetches robots.txt on Live
   Given the Live environment has the SeoToolkit removal deployed
   When a crawler sends a GET request to https://umbraco-17-demo-site.useast01.umbraco.io/robots.txt
   Then the response status is 200 OK
+  And the Content-Type header starts with `text/plain`
   And the response body contains a `Sitemap:` directive pointing at https://umbraco-17-demo-site.useast01.umbraco.io/sitemap.xml
   And the response body does not contain a blanket `Disallow: /` line
 ```
@@ -85,7 +85,9 @@ Scenario: A visitor follows a broken inbound link to a URL that never existed
   Given the Live environment has the SeoToolkit removal deployed
   When the visitor's browser sends a GET request to https://umbraco-17-demo-site.useast01.umbraco.io/this-url-was-never-published
   Then the response status is 404 Not Found
-  And the response body is the branded Error page from Views/error.cshtml (the page with the headline "The page isn't here.")
+  And the response body is the branded Error page from Views/error.cshtml
+  And the body contains the eyebrow text `404 · Not found` (or its HTML-encoded equivalent `404 &#xB7; Not found`)
+  And the body contains the headline "Page not found" (the editor-set Title) or the hard-coded fallback "The page isn't here."
   And the response body is NOT Umbraco's stock "Page Not Found" template
 ```
 
@@ -95,8 +97,17 @@ Scenario: A visitor follows a broken inbound link to a URL that never existed
 Scenario: A search engine has the legacy URL cached and re-fetches it
   Given a search engine has indexed /xmlsitemap from a previous crawl
   When the search engine sends a GET request to https://umbraco-17-demo-site.useast01.umbraco.io/xmlsitemap
-  Then the response is either a 301 redirect to /sitemap.xml OR a 200 with the same XML body the new sitemap returns
+  Then the response is either HTTP 200 OK with the same XML sitemap body returned at /sitemap.xml
+   OR  the response is HTTP 301 Moved Permanently with a Location header ending in /sitemap.xml
   And the search engine is not given a 404
+
+# Note: the shipped implementation lands on the 200-with-body variant — an internal
+# URL-rewrite middleware in Program.cs maps /sitemap.xml → /xmlsitemap before
+# Umbraco's content router runs, so both URLs reach the same xMLSitemap content
+# node and render identical bodies. The scenario keeps the 301 alternative as
+# legal because tests/e2e/seoRouting.spec.ts still accepts both branches — that
+# preserves room to switch to a 301 canonicalization later without breaking the
+# feature contract or the test.
 ```
 
 ### Rule: The custom meta-tag system and SEO AI agent continue to work unchanged
@@ -139,7 +150,7 @@ Scenario: Visual-regression baselines hold across the change
 Scenario: A new contributor reads CLAUDE.md to find sitemap/robots/404 wiring
   Given the SeoToolkit removal is merged to master
   When a new contributor opens CLAUDE.md and searches for "sitemap" or "robots" or "404"
-  Then they find a section describing where sitemap.xml is served from, where robots.txt lives, and how 404s are handled
+  Then they find the `## SEO Routing` section describing where sitemap.xml is served from (URL-rewrite middleware in Program.cs → xMLSitemap content node), where robots.txt lives (`src/UmbracoProject/wwwroot/robots.txt`), and how 404s are handled (`NotFoundContentFinder` → `IContentLastChanceFinder` → branded Error page)
   And they do not need to grep the codebase to discover these mechanics
 ```
 
@@ -155,6 +166,20 @@ Scenario: A visitor requests a missing image
   When the visitor's browser sends a GET request to https://umbraco-17-demo-site.useast01.umbraco.io/media/this-image-was-deleted.png
   Then the response status is 404 Not Found
   And the response body is NOT the branded Error page (static-asset 404s remain unintercepted so asset-fingerprinting and CDN behavior are preserved)
+```
+
+### Rule: Umbraco-internal and API paths are not intercepted by the branded Error page
+
+```scenario
+Scenario: A request to an unknown /umbraco or /api/ path
+  Given the SeoToolkit removal is deployed
+  When the visitor's browser sends a GET request to a URL beginning with /umbraco or /api/
+  Then the NotFoundContentFinder defensive guard short-circuits and returns false
+  And Umbraco / the API pipeline handles the 404 with its own (non-HTML) response shape
+
+# Defensive guard added during code review — middleware order normally prevents
+# these paths from reaching the finder, but the guard makes the contract
+# structural rather than operational. See NotFoundContentFinder.cs:60-65.
 ```
 
 ### Rule: A rename-redirect from the built-in URL Tracker takes precedence over the 404 handler
@@ -185,16 +210,18 @@ Scenario: An editor hides a thank-you page from the sitemap
 
 | Scenario | Test File | Status |
 |----------|-----------|--------|
-| Sitemap returns 200 with valid XML at /sitemap.xml | — | Not covered |
-| Robots.txt returns 200 at /robots.txt with Sitemap directive | — | Not covered |
-| Branded Error page renders for a true 404 | — | Not covered |
-| Static-asset 404 is not intercepted by the Error page | — | Not covered |
-| Legacy /xmlsitemap URL redirects or proxies to /sitemap.xml | — | Not covered |
-| articleCardMetaDescription suite still passes | `tests/e2e/articleCardMetaDescription.spec.ts` | Pre-existing (must continue to pass) |
-| Screenshot baselines hold | `tests/e2e/blocks/screenshots/`, `tests/e2e/pages/` | Pre-existing (must continue to pass) |
+| Sitemap returns 200 with valid XML at /sitemap.xml | [`tests/e2e/seoRouting.spec.ts:37`](../tests/e2e/seoRouting.spec.ts#L37) | Covered |
+| Robots.txt returns 200 at /robots.txt with Sitemap directive and no bare `Disallow: /` | [`tests/e2e/seoRouting.spec.ts:57`](../tests/e2e/seoRouting.spec.ts#L57) | Covered |
+| Branded Error page renders for a true 404 (with eyebrow + headline assertions) | [`tests/e2e/seoRouting.spec.ts:83`](../tests/e2e/seoRouting.spec.ts#L83) | Covered |
+| Legacy /xmlsitemap URL returns 200 with a sitemap body (or 301 — spec accepts either) | [`tests/e2e/seoRouting.spec.ts:98`](../tests/e2e/seoRouting.spec.ts#L98) | Covered |
+| Static-asset 404 is not intercepted by the Error page | — | Manual (verified during Step 2 implementation; not automated) |
+| Umbraco-internal / API path 404s skip the finder | — | Manual (verified by inspection of `NotFoundContentFinder.cs:60-65`) |
+| `articleCardMetaDescription` suite still passes | [`tests/e2e/articleCardMetaDescription.spec.ts`](../tests/e2e/articleCardMetaDescription.spec.ts) | Pre-existing (must continue to pass) |
+| Screenshot baselines hold | [`tests/e2e/blocks/screenshots/`](../tests/e2e/blocks/screenshots/), [`tests/e2e/pages/`](../tests/e2e/pages/) | Pre-existing (must continue to pass) |
 
 ---
 
 ## Revision Notes
 
 - 2026-06-01: Draft scenarios from initial spec
+- 2026-06-02: Verified against shipped implementation on branch `claude/feature/remove-seotoolkit`. Sitemap routing landed as a URL-rewrite middleware in `Program.cs` (not the SurfaceController originally specified — UmbracoContext lifecycle issues forced the change); `/xmlsitemap` returns 200 with the sitemap body (not the originally-planned 301); `NotFoundContentFinder` added a defensive `/umbraco` + `/api/` path-prefix guard during code review. Coverage table populated against `tests/e2e/seoRouting.spec.ts` (4/4 GREEN).

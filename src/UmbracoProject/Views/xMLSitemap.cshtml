@@ -1,13 +1,15 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @*
-    The /xmlsitemap URL is this template's content-tree slug. The canonical
-    sitemap moved to /sitemap.xml (served by SitemapController) — this view
-    exists only to 301-redirect inbound traffic and preserve any external
-    links that referenced the legacy URL. The document type, template, and
-    content node are intentionally preserved so the URL stays owned by
-    Umbraco's routing rather than 404'ing.
+    Template for the xMLSitemap document type. Serves the recursive XML sitemap
+    at both /xmlsitemap (the content node's natural URL) and /sitemap.xml (mapped
+    here by the path-rewrite middleware in Program.cs). Both URLs render the
+    same body. The 60-minute Html.CachedPartialAsync below bounds origin CPU;
+    the Cache-Control header below tells CDNs and crawlers they may edge-cache
+    the response for the same duration.
 *@
 @{
+    Context.Response.ContentType = "application/xml";
+    Context.Response.Headers.CacheControl = "public, max-age=3600";
     Layout = null;
-    Context.Response.Redirect("/sitemap.xml", permanent: true);
 }
+@(await Html.CachedPartialAsync("~/Views/Partials/xmlSitemap.cshtml", Model, TimeSpan.FromMinutes(60)))

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Absolute URL required by the robots.txt spec — points at Live's sitemap.
+# Dev and local environments intentionally reference Live here too; crawlers
+# discover /sitemap.xml by convention regardless of which host this names.
+Sitemap: https://umbraco-17-demo-site.useast01.umbraco.io/sitemap.xml

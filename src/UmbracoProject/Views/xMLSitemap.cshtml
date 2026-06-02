@@ -1,6 +1,15 @@
-﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@*
+    Template for the xMLSitemap document type. Serves the recursive XML sitemap
+    at both /xmlsitemap (the content node's natural URL) and /sitemap.xml (mapped
+    here by the path-rewrite middleware in Program.cs). Both URLs render the
+    same body. The 60-minute Html.CachedPartialAsync below bounds origin CPU;
+    the Cache-Control header below tells CDNs and crawlers they may edge-cache
+    the response for the same duration.
+*@
 @{
-    Context.Response.ContentType = "text/xml";
+    Context.Response.ContentType = "application/xml";
+    Context.Response.Headers.CacheControl = "public, max-age=3600";
     Layout = null;
 }
 @(await Html.CachedPartialAsync("~/Views/Partials/xmlSitemap.cshtml", Model, TimeSpan.FromMinutes(60)))

@@ -28,31 +28,37 @@
 .section-head .m{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
 
 /* Featured (asymmetric, image left + copy right) */
-.feature{display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;padding-bottom:48px;margin-bottom:48px;border-bottom:1px solid var(--border-light)}
-.feature .thumb{aspect-ratio:5/4;background:var(--surface-tertiary);position:relative;overflow:hidden;display:block}
+.feature{position:relative;display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:center;padding-bottom:48px;margin-bottom:48px;border-bottom:1px solid var(--border-light)}
+.feature .thumb{aspect-ratio:5/4;background:var(--surface-tertiary);position:relative;overflow:hidden}
 .feature .thumb img{width:100%;height:100%;object-fit:cover;transition:transform var(--ease-standard,250ms ease-out)}
 .feature:hover .thumb img{transform:scale(1.02)}
-.feature .num{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:var(--accent-secondary);margin:0 0 18px}
+.feature .num{position:relative;z-index:1;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;color:var(--accent-secondary);margin:0 0 18px}
 .feature h2{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,calc(1.5rem + 1.8vw),3.25rem);line-height:1.05;letter-spacing:-.015em;margin:0 0 16px;max-width:18ch}
 .feature h2 em{font-style:italic;font-weight:300}
 .feature h2 a{color:inherit;text-decoration:none}
 .feature h2 a:hover{text-decoration:underline;text-underline-offset:.12em}
-.feature .sub{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.125rem,calc(1rem + .4vw),1.375rem);line-height:1.45;color:var(--text-secondary);margin:0 0 20px;max-width:36ch}
-.feature .meta{font-family:var(--font-body);font-size:13px;letter-spacing:.03em;color:var(--text-secondary)}
+/* Inclusive-components card overlay (FR5): heading link covers the whole feature.
+   z-index:0 keeps it below the z-index:1 text rows yet on an explicit layer. */
+.feature h2 a::after{content:"";position:absolute;inset:0;z-index:0}
+.feature .sub{position:relative;z-index:1;font-family:var(--font-display);font-style:italic;font-weight:300;font-size:clamp(1.125rem,calc(1rem + .4vw),1.375rem);line-height:1.45;color:var(--text-secondary);margin:0 0 20px;max-width:36ch}
+.feature .meta{position:relative;z-index:1;font-family:var(--font-body);font-size:13px;letter-spacing:.03em;color:var(--text-secondary)}
 
 /* 3-across recent grid */
 .latest .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
-.latest .entry{display:flex;flex-direction:column;gap:12px}
-.latest .entry .thumb{aspect-ratio:4/3;background:var(--surface-tertiary);overflow:hidden;display:block}
+.latest .entry{position:relative;display:flex;flex-direction:column;gap:12px}
+.latest .entry .thumb{aspect-ratio:4/3;background:var(--surface-tertiary);overflow:hidden}
 .latest .entry .thumb img{width:100%;height:100%;object-fit:cover;transition:transform var(--ease-standard,250ms ease-out)}
 .latest .entry:hover .thumb img{transform:scale(1.02)}
-.latest .entry .num{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--accent-secondary);margin:8px 0 0}
+.latest .entry .num{position:relative;z-index:1;font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--accent-secondary);margin:8px 0 0}
 .latest .entry h3{font-family:var(--font-display);font-weight:400;font-size:1.625rem;line-height:1.1;letter-spacing:-.01em;text-transform:none;margin:0}
 .latest .entry h3 em{font-style:italic;font-weight:300}
 .latest .entry h3 a{color:inherit;text-decoration:none}
 .latest .entry h3 a:hover{text-decoration:underline;text-underline-offset:.12em}
-.latest .entry .sub{font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.0625rem;line-height:1.45;color:var(--text-secondary);margin:0;max-width:38ch}
-.latest .entry .meta{font-family:var(--font-body);font-size:12px;letter-spacing:.03em;color:var(--text-secondary)}
+/* Inclusive-components card overlay (FR5): heading link covers the whole entry.
+   z-index:0 keeps it below the z-index:1 text rows yet on an explicit layer. */
+.latest .entry h3 a::after{content:"";position:absolute;inset:0;z-index:0}
+.latest .entry .sub{position:relative;z-index:1;font-family:var(--font-display);font-style:italic;font-weight:300;font-size:1.0625rem;line-height:1.45;color:var(--text-secondary);margin:0;max-width:38ch}
+.latest .entry .meta{position:relative;z-index:1;font-family:var(--font-body);font-size:12px;letter-spacing:.03em;color:var(--text-secondary)}
 .archive-link{margin:56px 0 0;text-align:center}
 .archive-link a{font-family:var(--font-body);font-weight:600;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-primary);text-decoration:underline;text-underline-offset:.35em}
 

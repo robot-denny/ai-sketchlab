@@ -3,14 +3,15 @@ import { test, expect } from '@playwright/test';
 /**
  * Link Styles E2E Tests
  *
- * Verifies the v2 link treatment: accent color #8B6B4A (rgb 139,107,74),
+ * Verifies the v2 link treatment: accent color #7E5F3F (rgb 126,95,63) —
+ * darkened from the original #8B6B4A for WCAG AA contrast on light surfaces —
  * underlined, darkening on hover. The hover color transitions, so the hover test
  * asserts "darker than base" rather than an exact (mid-transition) value. Default
  * links are regular weight; the login button-link carries its own weight/decoration.
  * Header/footer links are scoped separately.
  */
 
-const LINK_COLOR = 'rgb(139, 107, 74)'; // v2 accent link #8B6B4A
+const LINK_COLOR = 'rgb(126, 95, 63)'; // v2 accent link #7E5F3F (darkened for WCAG AA)
 
 // ---------- Default link styles ----------
 

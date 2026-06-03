@@ -64,14 +64,21 @@
         <span class="m">@updatedLabel</span>
     </header>
 
+    @*
+        Inclusive-components card pattern (FR5): the thumbnail is a NON-interactive
+        decorative wrapper (empty alt → out of the a11y tree). The single accessible
+        link is the heading <a>; its ::after overlay (home-sections.css) makes the
+        whole card clickable. One focusable, named link per card; no focusable node
+        inside an aria-hidden subtree.
+    *@
     <article class="feature">
-        <a href="@featured.Url()" class="thumb" aria-hidden="true">
+        <div class="thumb">
             @{ var fImg = featured.Value<MediaWithCrops>("mainImage"); }
             @if (fImg != null)
             {
                 <img src="@fImg.GetCropUrl(960, 768)" alt="" loading="lazy" />
             }
-        </a>
+        </div>
         <div>
             @{
                 var fDate    = featured.Value<DateTime?>("articleDate");
@@ -110,12 +117,12 @@
             var reading  = ReadingTime.Estimate(a, MemoryCache);
 
             <article class="entry">
-                <a href="@a.Url()" class="thumb">
+                <div class="thumb">
                     @if (img != null)
                     {
                         <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
                     }
-                </a>
+                </div>
                 <p class="num">@n.ToString("00")@(date.HasValue ? $" · {date.Value:MMM d, yyyy}" : "")@(!string.IsNullOrWhiteSpace(reading) ? $" · {reading}" : "")</p>
                 <h3><a href="@a.Url()">@(!string.IsNullOrWhiteSpace(a.Title) ? a.Title : a.Name)</a></h3>
                 @if (!string.IsNullOrWhiteSpace(teaser))

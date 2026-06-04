@@ -49,7 +49,7 @@ For E2E tests, see the **Testing** section below.
 
 **AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.0, Umbraco.AI.Prompt.Deploy 1.0.0, Umbraco.AI.Agent.Deploy 1.0.0. Auto-registered — no composer code required. As of 1.0.0, **all four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment.
 
-**Search packages** (beta — destined to replace legacy Examine search in v18): Umbraco.Cms.Search.Core 1.0.0-beta.3, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.3, Umbraco.Cms.Search.BackOffice 1.0.0-beta.3, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.3, Umbraco.AI.Search 1.0.0-beta3. See **Pinned betas** below for the version constraints.
+**Search packages** (beta — see *v18 upgrade path* under Pinned betas): Umbraco.Cms.Search.Core 1.0.0-beta.3, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.3, Umbraco.Cms.Search.BackOffice 1.0.0-beta.3, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.3, Umbraco.AI.Search 1.0.0-beta3. See **Pinned betas** below for the version constraints.
 
 ## Pinned betas — do not float
 
@@ -80,7 +80,7 @@ The **Umbraco MCP server** enables Claude Code to interact with backoffice conte
 
 ### AI schema deployment to Umbraco Cloud
 
-With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` + `Umbraco.AI.Agent.Deploy` packages installed, every AI Connection, Context, Guardrail, Chat Profile, Embedding Profile, Prompt, Agent, and AI Setting saved in **Settings > AI** auto-serializes to a `umbraco-ai-*.uda` artifact under [src/UmbracoProject/umbraco/Deploy/Revision/](src/UmbracoProject/umbraco/Deploy/Revision/). Those artifacts flow through the same git → Umbraco Cloud pipeline as document types. Agents now deploy as `.uda` like every other AI entity — no manual per-environment recreation required.
+With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` + `Umbraco.AI.Agent.Deploy` packages installed, every AI Connection, Context, Guardrail, Chat Profile, Embedding Profile, Prompt, Agent, and AI Setting saved in **Settings > AI** auto-serializes to a `umbraco-ai-*.uda` artifact under [src/UmbracoProject/umbraco/Deploy/Revision/](src/UmbracoProject/umbraco/Deploy/Revision/). Those artifacts flow through the same git → Umbraco Cloud pipeline as document types.
 
 **Secrets stay per-environment**: `.uda` artifacts reference API keys via placeholders (e.g. `$OpenAI:ApiKey`, `$Anthropic:ApiKey`), never the raw value. Each Cloud environment (Development, Staging, Live) must have its own keys set in that environment's app settings via the Cloud portal — **never paste raw keys into the backoffice connection form** (they get encrypted to the DB and break on Data Protection key rotation).
 
@@ -99,7 +99,7 @@ Verify new `umbraco-ai-*.uda` files appear under `umbraco/Deploy/Revision/`. Bef
 
 ## Search
 
-The site search at [src/UmbracoProject/Views/search.cshtml](src/UmbracoProject/Views/search.cshtml) uses the new **Umbraco.Cms.Search** framework (destined to replace the legacy Examine-backed `IPublishedContentQuery.Search()` API in v18) with **Umbraco.AI.Search** layered on top for semantic/vector search.
+The site search at [src/UmbracoProject/Views/search.cshtml](src/UmbracoProject/Views/search.cshtml) uses the new **Umbraco.Cms.Search** framework (the v18-forward replacement for legacy Examine search — see the *v18 upgrade path* note under Pinned betas) with **Umbraco.AI.Search** layered on top for semantic/vector search.
 
 ### Architecture
 
@@ -115,7 +115,7 @@ The public `/search` page is wired to the AI searcher; the Examine provider stay
 
 - **Embedding profile**: `default-embedding` (alias `openai-embeddings`) — OpenAI `text-embedding-3-small`, 512-dim. Set as the **default embedding profile** under `Settings → AI → Settings` in the backoffice. Without a default embedding profile, the AI index rebuild silently completes with 0 documents.
 - **Searcher alias**: `UmbAI_Search` — pass this to `ISearcherResolver.GetSearcher(...)` and `ISearcher.SearchAsync(indexAlias: ...)`.
-- **OpenAI API key**: stored in `appsettings.Development.json` under `OpenAI:ApiKey` (gitignored). The backoffice AI connection references it as `$OpenAI:ApiKey` — **never paste the raw key into the connection form** (it would be encrypted into the DB and break on Data Protection key rotation).
+- **OpenAI API key**: stored in `appsettings.Development.json` under `OpenAI:ApiKey` (gitignored); the backoffice AI connection references it as `$OpenAI:ApiKey`. (Same placeholder-not-raw-key rule as every AI secret — see *AI schema deployment to Umbraco Cloud* under AI & Copilot.)
 - **Tuning values**: `Umbraco:AI:Search` block in [appsettings.json](src/UmbracoProject/appsettings.json) — `ChunkSize: 512`, `ChunkOverlap: 50`, `DefaultTopK: 50`, `MinScore: 0.3`.
 
 ### Rebuilding the index
@@ -126,7 +126,7 @@ Trigger a full rebuild from the backoffice: **`Settings → Search`** → click 
 
 ### Umbraco Cloud deploys
 
-AI connections, profiles, embedding profiles, contexts, guardrails, prompts, agents, and AI settings all auto-deploy as schema via the `Umbraco.AI.Deploy` package family (see **AI schema deployment** subsection under AI & Copilot above). **Only the vector index is still local to each environment** and must be rebuilt manually.
+Every AI entity auto-deploys as schema via the `Umbraco.AI.Deploy` package family (see **AI schema deployment** under AI & Copilot above). **The vector index is the one exception** — it's local to each environment and must be rebuilt manually after a deploy.
 
 After deploying to Cloud:
 
@@ -228,9 +228,9 @@ Playwright visual-regression specs live under [tests/e2e/blocks/screenshots/](te
 gh workflow run update-snapshots.yml --ref <branch>
 ```
 
-The workflow runs Playwright with `--update-snapshots` against Dev (using the `URL` GitHub variable), then commits any new/changed PNGs back to the branch as `github-actions[bot]`. The default `testFilter` input is `tests/e2e/`, covering both block and page-template specs; pass a narrower path to regenerate a subset.
+The workflow runs Playwright with `--update-snapshots=all` against Dev (using the `URL` GitHub variable), then commits any new/changed PNGs back to the branch as `github-actions[bot]`. Two non-obvious requirements, both learned the hard way (`db1df8f` / `5d4cdb1`) and easy to re-break: Playwright 1.56+ needs an explicit **mode** on the flag (the bare `--update-snapshots` swallows the `testFilter` path as its mode arg), and the job must set `UMBRACO_BASE_URL: ${{ vars.URL }}` — `guides.spec.ts` drives the guide-generator CLI, which otherwise hits localhost and fails the run *before* the baseline-commit step. The default `testFilter` input is `tests/e2e/`, covering both block and page-template specs; pass a narrower path to regenerate a subset.
 
-**When to run**: first time you add a new screenshot spec (initial baseline), or after an intentional visual change where existing baselines are now correctly stale. Always review the resulting commit diff before merging.
+**When to run**: first time you add a new screenshot spec (initial baseline), or after an intentional visual change where existing baselines are now correctly stale. Always review the resulting commit diff before merging. **A new screenshot spec with no committed baseline does not skip — it _fails_** every Gate 2 Playwright run until its PNG lands, and reads as "pre-existing red" (this is exactly how 26 specs sat red for weeks; see *Diagnosing a red CI run* below). So after adding any spec, run this workflow and confirm the bot's baseline commit before moving on.
 
 **When NOT to run**: as a "quick fix" for failing visual tests on master. Investigate the diff first — the failure may be a real regression.
 
@@ -272,7 +272,7 @@ The comment header at the top of [.github/workflows/main.yml](.github/workflows/
 
 ### AI keys live on Cloud Dev, NOT in GitHub Secrets
 
-Anthropic and OpenAI keys (`ANTHROPIC__APIKEY`, `OPENAI__APIKEY` — Cloud Portal's double-underscore form, see [AI & Copilot](#ai--copilot) → "Cloud portal secret-key naming") are set in **Umbraco Cloud Secrets Management** on the Dev environment via the Cloud Portal. They are referenced by `.uda` artifacts as `$OpenAI:ApiKey` / `$Anthropic:ApiKey` placeholders, the same way Live and local work.
+Anthropic and OpenAI keys (`ANTHROPIC__APIKEY`, `OPENAI__APIKEY` — Cloud Portal's double-underscore form, see [AI & Copilot](#ai--copilot) → "Cloud portal secret-key naming") are set in **Umbraco Cloud Secrets Management** on the Dev environment via the Cloud Portal, referenced by `.uda` artifacts as `$OpenAI:ApiKey` / `$Anthropic:ApiKey` placeholders just like Live and local.
 
 **Never put AI keys in GitHub Secrets.** GitHub Actions doesn't touch the running Umbraco app at runtime — the deployed Dev environment reads its own Cloud Secrets Management entries directly. Putting keys in GitHub would just create another sync surface to drift.
 
@@ -485,7 +485,7 @@ elementType.groups?.flatMap((g) => g.properties)
 elementType.properties ?? []
 ```
 
-**Token lifetime** — Access tokens expire in 299 seconds (~5 min). For long-running scripts, re-authenticate before each logical operation.
+**Token lifetime** — the 299-second expiry (see *Auth Setup* above) bites long-running scripts too: re-authenticate before each logical operation group, don't reuse one token across a whole multi-call `beforeAll`.
 
 ### E2E Test Resilience Rules
 

@@ -59,26 +59,42 @@
         @if (nav != null && nav.Any())
         {
             <div class="col">
-                <h4>@pubLabel</h4>
-                @foreach (var link in nav)
-                {
-                    <a href="@link.Url"
-                       target="@link.Target"
-                       rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)">@link.Name</a>
-                }
+                @* Heading text is a localized dictionary value, so associate the
+                   nav with the <h4> via aria-labelledby rather than a hardcoded
+                   aria-label. The wrapping <footer class="foot"> is already the
+                   sole contentinfo landmark — do NOT add a role here. *@
+                <h4 id="footer-nav-pub">@pubLabel</h4>
+                <nav aria-labelledby="footer-nav-pub">
+                    <ul>
+                        @foreach (var link in nav)
+                        {
+                            <li>
+                                <a href="@link.Url"
+                                   target="@link.Target"
+                                   rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)">@link.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
             </div>
         }
 
         @if (social != null && social.Any())
         {
             <div class="col">
-                <h4>@elseLabel</h4>
-                @foreach (var link in social)
-                {
-                    <a href="@link.Url"
-                       target="@link.Target"
-                       rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)">@link.Name</a>
-                }
+                <h4 id="footer-nav-else">@elseLabel</h4>
+                <nav aria-labelledby="footer-nav-else">
+                    <ul>
+                        @foreach (var link in social)
+                        {
+                            <li>
+                                <a href="@link.Url"
+                                   target="@link.Target"
+                                   rel="@(link.Type == LinkType.External ? "noopener noreferrer" : null)">@link.Name</a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
             </div>
         }
 

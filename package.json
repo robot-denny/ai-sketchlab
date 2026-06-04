@@ -14,6 +14,7 @@
     "check:lockout": "sqlite3 -header src/UmbracoProject/umbraco/Data/Umbraco.sqlite.db 'SELECT id, userName, userNoConsole, failedLoginAttempts, lastLockoutDate FROM umbracoUser WHERE id IN (1, 2, 3);'"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@napi-rs/canvas": "^0.1.95",
     "@playwright/test": "^1.56",
     "@types/diff": "^7.0.2",

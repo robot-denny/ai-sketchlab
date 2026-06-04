@@ -3,14 +3,15 @@ import { test, expect } from '@playwright/test';
 /**
  * Link Styles E2E Tests
  *
- * Verifies the v2 link treatment: accent color #8B6B4A (rgb 139,107,74),
+ * Verifies the v2 link treatment: accent color #7E5F3F (rgb 126,95,63) —
+ * darkened from the original #8B6B4A for WCAG AA contrast on light surfaces —
  * underlined, darkening on hover. The hover color transitions, so the hover test
  * asserts "darker than base" rather than an exact (mid-transition) value. Default
  * links are regular weight; the login button-link carries its own weight/decoration.
  * Header/footer links are scoped separately.
  */
 
-const LINK_COLOR = 'rgb(139, 107, 74)'; // v2 accent link #8B6B4A
+const LINK_COLOR = 'rgb(126, 95, 63)'; // v2 accent link #7E5F3F (darkened for WCAG AA)
 
 // ---------- Default link styles ----------
 
@@ -86,11 +87,15 @@ test.describe('Link Styles — Header Navigation', () => {
 // ---------- Footer navigation ----------
 
 test.describe('Link Styles — Footer', () => {
-  test('footer links retain existing scoped styles', async ({ page }) => {
+  test('footer nav/social links are underlined and keep the footer-scoped color', async ({ page }) => {
     await page.goto('/');
-    const footerLink = page.locator('footer a').first();
+    // Target a nav/social LIST link (footer.foot .col li a) — the brand .fm link
+    // is a separate scope that stays undecorated. Footer list links are now
+    // persistently underlined (FR4: a non-colour affordance) but keep their
+    // own --text-secondary color, distinct from the global accent-link treatment.
+    const footerLink = page.locator('footer.foot .col li a').first();
 
-    // Footer may not always have links, skip if none
+    // Footer may not always have nav/social links, skip if none
     if (await footerLink.count() === 0) {
       test.skip();
       return;
@@ -101,9 +106,7 @@ test.describe('Link Styles — Footer', () => {
     const textDecoration = await footerLink.evaluate((el) => getComputedStyle(el).textDecorationLine);
     const color = await footerLink.evaluate((el) => getComputedStyle(el).color);
 
-    // v2 footer links inherit the footer color and are not underlined (the footer
-    // is styled as its own scope, distinct from the global accent-link treatment).
-    expect(textDecoration).toBe('none');
+    expect(textDecoration).toContain('underline');
     expect(color).not.toBe(LINK_COLOR);
   });
 });

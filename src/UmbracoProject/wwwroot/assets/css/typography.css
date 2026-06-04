@@ -106,8 +106,13 @@
   --bs-dark-rgb: 26, 26, 30;
 
   /* ── Replace inherited link colors ────────────────────────── */
-  --site-link-color: #8B6B4A;
-  --site-link-hover-color: #6E5339;
+  /* WCAG 2.1 AA (1.4.3, ≥4.5:1 normal text). Darkened from #8B6B4A,
+     which failed on --surface-secondary #f5f0eb (4.31:1) and was marginal
+     on the main surface. #7E5F3F clears AA with margin on all three light
+     surfaces: primary #fffcf9 5.71:1, secondary #f5f0eb 5.16:1,
+     tertiary #ede8e3 4.80:1. */
+  --site-link-color: #7E5F3F;
+  --site-link-hover-color: #5F4731;
 }
 
 /* ── Base ───────────────────────────────────────────────────────── */
@@ -177,6 +182,32 @@ a:focus-visible {
   text-decoration-thickness: 2px;
 }
 
+/* Inclusive-components card pattern (FR5): the single .card-title <a> is the   */
+/* only link; its ::after overlay makes the whole card (thumbnail included)     */
+/* clickable, so the thumbnail no longer needs its own (aria-hidden, focusable) */
+/* link. See Views/Partials/v2/_ArticleCard.cshtml.                             */
+.article-grid-card {
+  position: relative;
+}
+
+.article-grid-card .card-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Pin the overlay below the z-index:1 text rows (so they stay selectable)
+     but on an explicit layer, not z-index:auto — guards against mis-stacking
+     near transform-creating siblings (e.g. the thumbnail hover-scale). */
+  z-index: 0;
+}
+
+/* Keep card body text mouse-selectable above the overlay. */
+.article-grid-card .card-num,
+.article-grid-card .card-sub,
+.article-grid-card .card-meta {
+  position: relative;
+  z-index: 1;
+}
+
 /* Author card "Read more" link */
 .card .card-body a {
   text-decoration: underline;
@@ -241,7 +272,8 @@ header.masthead a:focus-visible {
 #mainNav a:focus-visible,
 .section-nav a:focus-visible,
 .pagination a:focus-visible {
-  outline: 2px solid currentColor;
+  /* Consistent accent-red focus signal site-wide (≥3:1 on light surfaces). */
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
   text-decoration: none;
 }

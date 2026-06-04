@@ -57,6 +57,28 @@ export async function apiFetch(method: string, path: string, body?: any): Promis
   });
 }
 
+/** Find the Home node id from the document tree root (E2E rule #1: no hardcoded UUIDs). */
+export async function findHomeDocId(): Promise<string> {
+  const resp = await apiFetch('GET', '/tree/document/root?skip=0&take=100');
+  if (!resp.ok) throw new Error(`GET doc tree root failed: ${resp.status}`);
+  const data = (await resp.json()) as any;
+  const homeItem = (data.items ?? []).find(
+    (item: any) => (item.variants?.[0]?.name ?? '').toLowerCase() === 'home'
+  );
+  if (!homeItem) throw new Error('Home page not found in document tree root');
+  return homeItem.id;
+}
+
+/** Fetch the published path for a document (E2E rule #2: never hardcode URL slugs). */
+export async function getDocumentPath(docId: string): Promise<string> {
+  const resp = await apiFetch('GET', `/document/urls?id=${docId}`);
+  if (!resp.ok) throw new Error(`GET document URLs failed: ${resp.status}`);
+  const data = (await resp.json()) as any;
+  const url: string = data[0]?.urlInfos?.[0]?.url;
+  if (!url) throw new Error(`No URL found for document ${docId}`);
+  return url;
+}
+
 /**
  * Find a document type / element type by display name, walking the tree
  * (root + nested folders such as Elements / Pages / Compositions). Returns the

@@ -53,12 +53,20 @@
 }
 
 <article class="article-grid-card">
-    <a href="@a.Url()" class="card-thumb" aria-hidden="true">
+    @*
+        Inclusive-components card pattern (https://inclusive-components.design/cards/):
+        the thumbnail is a NON-interactive, decorative wrapper (empty alt → out of
+        the a11y tree). The single accessible link is the .card-title <a> below; its
+        ::after overlay (typography.css) makes the whole card — thumbnail included —
+        clickable. Result: exactly one focusable, named link per card, and no
+        focusable node inside an aria-hidden subtree.
+    *@
+    <div class="card-thumb">
         @if (img != null)
         {
             <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
         }
-    </a>
+    </div>
     @if (date.HasValue || !string.IsNullOrWhiteSpace(readingTime))
     {
         <p class="card-num">

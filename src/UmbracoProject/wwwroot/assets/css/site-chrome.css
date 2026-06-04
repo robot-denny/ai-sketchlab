@@ -28,6 +28,11 @@
 .site-head .site-nav a{font-family:var(--font-body);font-weight:400;font-size:14px;color:var(--text-primary);text-decoration:none;letter-spacing:.01em}
 .site-head .site-nav a.is-current{font-weight:600;border-bottom:1px solid var(--text-primary)}
 .site-head .site-nav .search-ico{font-family:var(--font-body);font-size:14px;color:var(--text-secondary);cursor:pointer;background:none;border:0;padding:0}
+/* WCAG 2.4.7 — re-assert a visible focus ring on v2 chrome links/buttons
+   that strip text-decoration, so keyboard focus is never silent. Accent-red
+   matches the site-wide focus signal (the .search-ico is a <button>, so the
+   base a:focus-visible rule wouldn't cover it). */
+.site-head .site-nav a:focus-visible,.site-head .site-nav .search-ico:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px}
 
 /* ── Standard page header (text-led, used on every secondary
    page — Blog landing / Authors / Contact / Content / Search /
@@ -55,7 +60,19 @@
 .foot .fm a{color:inherit;text-decoration:none;display:inline-flex;align-items:center}
 .foot .fm .footer-logo{width:130px;max-width:130px;height:auto;max-height:80px;display:block}
 .foot .col p,.foot .col a{font-family:var(--font-body);font-size:13px;line-height:1.6;color:var(--text-secondary);display:block;text-decoration:none}
+/* Footer nav/social links now live in <nav><ul><li>; strip list chrome so the
+   semantic markup doesn't introduce bullets/indent that shift the layout. */
+.foot .col nav ul{list-style:none;margin:0;padding:0}
+/* FR4 — persistent underline gives a non-colour affordance (approved as a
+   deliberate visual change; baselines regenerate in a later step).
+   FR6 — padding-block makes each link's interactive box >= 24px tall so
+   adjacent stacked targets satisfy WCAG 2.5.8 spacing at every breakpoint. */
+.foot .col li a{text-decoration:underline;text-underline-offset:2px;padding-block:4px}
 .foot .colophon{grid-column:1/-1;padding-top:32px;margin-top:24px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
+/* WCAG 2.4.7 — re-assert a visible ring on footer links (brand .fm link and
+   the nav/social list links). Accent-red matches the site-wide focus signal.
+   `.foot .col a` already covers the nested `.col li a`, so no separate selector. */
+.foot .col a:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px}
 
 /* ── Common layout helpers ─────────────────────────────────── */
 .wrap{max-width:1160px;margin:0 auto;padding:0 32px}

@@ -66,8 +66,12 @@ html {
   --bs-body-line-height: 1.5;
   --bs-body-color: #212529;
   --bs-body-bg: #FFFCF9;
-  --site-link-color: #8B6B4A;
-  --site-link-hover-color: #6E5339;
+  /* WCAG 2.1 AA (1.4.3, ≥4.5:1 normal text). Darkened from #8B6B4A
+     (failed 4.31:1 on --surface-secondary #f5f0eb). #7E5F3F clears AA on
+     primary #fffcf9 5.71:1, secondary #f5f0eb 5.16:1, tertiary #ede8e3 4.80:1.
+     Kept in sync with the same token in typography.css. */
+  --site-link-color: #7E5F3F;
+  --site-link-hover-color: #5F4731;
 }
 
 *,
@@ -253,7 +257,10 @@ a:hover {
   color: var(--site-link-hover-color);
 }
 a:focus-visible {
-  outline: 2px solid var(--site-link-color);
+  /* Site-wide focus signal = accent red. Kept in sync with the typography.css
+     a:focus-visible rule (which loads later and would otherwise win); having
+     both agree avoids a dead/conflicting declaration. */
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 

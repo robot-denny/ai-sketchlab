@@ -272,7 +272,8 @@ header.masthead a:focus-visible {
 #mainNav a:focus-visible,
 .section-nav a:focus-visible,
 .pagination a:focus-visible {
-  outline: 2px solid currentColor;
+  /* Consistent accent-red focus signal site-wide (≥3:1 on light surfaces). */
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
   text-decoration: none;
 }

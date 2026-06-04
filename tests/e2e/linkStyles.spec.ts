@@ -87,11 +87,15 @@ test.describe('Link Styles — Header Navigation', () => {
 // ---------- Footer navigation ----------
 
 test.describe('Link Styles — Footer', () => {
-  test('footer links retain existing scoped styles', async ({ page }) => {
+  test('footer nav/social links are underlined and keep the footer-scoped color', async ({ page }) => {
     await page.goto('/');
-    const footerLink = page.locator('footer a').first();
+    // Target a nav/social LIST link (footer.foot .col li a) — the brand .fm link
+    // is a separate scope that stays undecorated. Footer list links are now
+    // persistently underlined (FR4: a non-colour affordance) but keep their
+    // own --text-secondary color, distinct from the global accent-link treatment.
+    const footerLink = page.locator('footer.foot .col li a').first();
 
-    // Footer may not always have links, skip if none
+    // Footer may not always have nav/social links, skip if none
     if (await footerLink.count() === 0) {
       test.skip();
       return;
@@ -102,9 +106,7 @@ test.describe('Link Styles — Footer', () => {
     const textDecoration = await footerLink.evaluate((el) => getComputedStyle(el).textDecorationLine);
     const color = await footerLink.evaluate((el) => getComputedStyle(el).color);
 
-    // v2 footer links inherit the footer color and are not underlined (the footer
-    // is styled as its own scope, distinct from the global accent-link treatment).
-    expect(textDecoration).toBe('none');
+    expect(textDecoration).toContain('underline');
     expect(color).not.toBe(LINK_COLOR);
   });
 });

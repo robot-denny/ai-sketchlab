@@ -257,7 +257,10 @@ a:hover {
   color: var(--site-link-hover-color);
 }
 a:focus-visible {
-  outline: 2px solid var(--site-link-color);
+  /* Site-wide focus signal = accent red. Kept in sync with the typography.css
+     a:focus-visible rule (which loads later and would otherwise win); having
+     both agree avoids a dead/conflicting declaration. */
+  outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
 

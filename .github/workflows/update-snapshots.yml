@@ -93,9 +93,12 @@ jobs:
           # cannot inject shell metacharacters into the npx command.
           TEST_FILTER: ${{ inputs.testFilter }}
         run: |
+          # Playwright 1.56+ requires a mode value on --update-snapshots
+          # (all|changed|missing|none). Bind it with `=` so the trailing
+          # "$TEST_FILTER" is parsed as a positional path, not the flag's mode.
           npx playwright test \
             --project=e2e \
-            --update-snapshots \
+            --update-snapshots=all \
             "$TEST_FILTER"
 
       - name: Commit regenerated baselines

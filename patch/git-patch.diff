@@ -1,26 +1,26 @@
 diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-index 22f113a..b6ff630 100644
+index b6ff630..fb0a478 100644
 --- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
 +++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
 @@ -3,7 +3,7 @@
    "Alias": "site-content-guidelines",
    "Resources": [
      {
--      "Id": "f3b9804d-1fb9-49bf-bb60-67b2f55b1ad8",
-+      "Id": "b46d1c72-0750-4e9a-9c4a-10a3fb8fcc40",
+-      "Id": "b46d1c72-0750-4e9a-9c4a-10a3fb8fcc40",
++      "Id": "8ef22247-93ab-49ad-a7a6-74c1ba8db9b6",
        "ResourceTypeId": "brand-voice",
        "Name": "Brand Voice",
        "Description": null,
 diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-index 574c8c5..a00d2cb 100644
+index a00d2cb..69d2371 100644
 --- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
 +++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
 @@ -3,7 +3,7 @@
    "Alias": "how-to-guide-style",
    "Resources": [
      {
--      "Id": "e18dc67b-c751-4142-86f9-f75e7c6bc8ad",
-+      "Id": "1f5b27d2-4ce5-4f81-92c6-0907d6ffa13d",
+-      "Id": "1f5b27d2-4ce5-4f81-92c6-0907d6ffa13d",
++      "Id": "43359ad3-411a-457f-b7e6-c36319006f75",
        "ResourceTypeId": "text",
        "Name": "Structural Template",
        "Description": "Section-by-section structure every generated guide must follow.",

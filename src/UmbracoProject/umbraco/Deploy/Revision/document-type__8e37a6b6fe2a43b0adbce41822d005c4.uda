@@ -46,6 +46,15 @@
           "SortOrder": 10
         },
         {
+          "Key": "ee41bec9-c7de-4891-8336-17a8301578a4",
+          "Alias": "footerLogoLink",
+          "DataType": "umb://data-type/2d350d2151dd4c368eee18170985ce91",
+          "ValueType": "Umbraco.Cms.Core.Models.Link",
+          "Description": "Where the footer logo links to. Leave empty to link to this site\u0027s home page.",
+          "Name": "Footer Logo Link",
+          "SortOrder": 11
+        },
+        {
           "Key": "fca0c69b-6bb3-47a1-86fe-527ef321dd68",
           "Alias": "footerNavigation",
           "DataType": "umb://data-type/b4e3535a175347e28568602cf8cfee6f",
@@ -60,6 +69,10 @@
   "PropertyTypes": [],
   "Udi": "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",
   "Dependencies": [
+    {
+      "Udi": "umb://data-type/2d350d2151dd4c368eee18170985ce91",
+      "Ordering": true
+    },
     {
       "Udi": "umb://data-type/4309a3ea0d784329a06cc80b036af19a",
       "Ordering": true

@@ -86,6 +86,11 @@ jobs:
         env:
           URL: ${{ vars.URL }}
           UMBRACO_URL: ${{ vars.URL }}
+          # The guide-generator CLI (scripts/guide-generator/src/*.ts) reads
+          # UMBRACO_BASE_URL, defaulting to https://localhost:44367. Without it,
+          # guides.spec.ts fails with ECONNREFUSED on the runner. Mirrors the
+          # playwright-against-dev job in main.yml.
+          UMBRACO_BASE_URL: ${{ vars.URL }}
           UMBRACO_CLIENT_ID: ${{ secrets.UMBRACO_CLIENT_ID }}
           UMBRACO_CLIENT_SECRET: ${{ secrets.UMBRACO_CLIENT_SECRET }}
           CI: 'true'

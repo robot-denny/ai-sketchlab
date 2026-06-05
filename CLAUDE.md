@@ -59,7 +59,7 @@ Several beta packages have known compatibility traps. Don't let NuGet float them
 |---|---|---|
 | Umbraco.Cms.Search.Core | 1.0.0-beta.3 | `IndexMetadata` signature changed in beta.4; `Umbraco.AI.Search 1.0.0-beta3` is binary-compiled against beta.3. Opening **Settings → Search** throws `MissingMethodException` if Core floats. |
 | Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.3 | Must match Core beta.3. |
-| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 | Must match Core beta.3. |
+| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 | Must match Core beta.3. **Known beta.3 bug:** its `AddBackOfficeSearch()` registration crashes the backoffice Media/Content list-view search box — `'field name' cannot be null or empty` from Examine — so [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs) deliberately does *not* call it (list-view search falls back to built-in Umbraco Examine). Re-enable when an `AI.Search` build compatible with `Cms.Search.* beta.4+` lets us float past the beta.3 fix. Tracked: `fix-backoffice-search-beta3-fieldname-crash`. |
 | Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 | Must match Core beta.3. |
 | Umbraco.AI.Search | 1.0.0-beta3 | Compiled against `Cms.Search.Core` beta.3 (see above). |
 
@@ -106,10 +106,10 @@ The site search at [src/UmbracoProject/Views/search.cshtml](src/UmbracoProject/V
 Three packages cooperate at runtime, registered via [src/UmbracoProject/SearchComposer.cs](src/UmbracoProject/SearchComposer.cs):
 
 - **`Umbraco.Cms.Search.Core`** — provides the `ISearcher` / `ISearcherResolver` abstractions used by the Razor view. Doesn't do indexing itself; it's the façade that routes queries to a registered provider.
-- **`Umbraco.Cms.Search.Provider.Examine`** — Lucene/keyword provider. Used in the backoffice and as a safety net for short, exact-match queries (author names, "contact", etc.) where pure-vector search underperforms.
+- **`Umbraco.Cms.Search.Provider.Examine`** — Lucene/keyword provider. Used as a safety net for short, exact-match queries (author names, "contact", etc.) where pure-vector search underperforms.
 - **`Umbraco.AI.Search`** — vector/semantic search on top of Core. Calls the configured embedding model to chunk + embed documents on publish and to embed the query at search time.
 
-The public `/search` page is wired to the AI searcher; the Examine provider stays registered for hybrid fallback and for the backoffice search UI.
+The public `/search` page is wired to the AI searcher; the Examine provider stays registered for hybrid fallback. **`AddBackOfficeSearch()` is intentionally NOT called** — in beta.3 it crashes the backoffice Media/Content list-view search box (`'field name' cannot be null or empty`), so those searches fall back to Umbraco 17's built-in Examine search. See the `Cms.Search.BackOffice` row in *Pinned betas* for the re-enable signal.
 
 ### Configuration
 

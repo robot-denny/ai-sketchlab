@@ -15,7 +15,17 @@ Creates or updates a feature doc in `_features/` that:
 - Groups scenarios under `Rule:` headings (the business rule each cluster proves)
 - Maps scenarios to test files in a coverage table
 - Uses business language, not technical jargon
-- Is ONE file per logical feature, even if the feature spans multiple specs/plans
+- Is ONE file per logical **capability**, named by area of the site, even if the capability spans multiple specs/plans
+
+## Guard — `_features/` is for capabilities, not work
+
+Before creating any new file, apply the work-type classification from [CLAUDE.md → Workflow layers → "Work types — which artifacts a piece of work earns"](../../CLAUDE.md#workflow-layers). `_features/` holds **evergreen capability behavior only**.
+
+- If the slug names a **change to an existing capability** (migration, upgrade, refactor, "add X to existing Y") — e.g. it starts with `migrate-`/`upgrade-`/`extract-`/`bump-`, or its draft Rules read as *transitions* ("goes from red to…", "after the change ships…", "compiles on the stable stack") rather than standing behavior — **do not create a `<slug>.md`.** Instead, find the existing capability doc it changes (grep `_features/` by area) and update *that*, folding in the evergreen behavior. Point-in-time ACs stay in the shipped spec.
+- If the slug names a **fix / infra / CI / cleanup** effort (e.g. `fix-`, `triage-`, a dependency bump with no behavior change) — **do not create a feature doc at all.** Durable residue belongs in a `docs/` runbook and/or a CLAUDE.md section.
+- Only a genuinely **new capability** earns a new `_features/<slug>.md`.
+
+If the argument points at a change/fix slug, STOP and tell the user which existing capability doc (or runbook) should receive the content instead, rather than creating a transition-style feature doc.
 
 ## Before You Start
 
@@ -29,8 +39,8 @@ Creates or updates a feature doc in `_features/` that:
 
 Determine mode and feature slug from `$ARGUMENTS`:
 
-- **Spec path** (contains `/` or ends in `.md`, starts with `_specs`): Create a new feature doc. Extract slug from filename (e.g., `_specs/shipped/section-navigation.md` → slug `section-navigation`).
-- **Feature name** (no path separators, no `.md`): Look for existing `_features/{name}.md`. If found, update it. If not, look for `_specs/{name}.md` and create from that.
+- **Spec path** (contains `/` or ends in `.md`, starts with `_specs`): Read the spec's `**Work type**:` line first. For `new-capability`, create a new feature doc (extract slug from filename, e.g. `_specs/shipped/section-navigation.md` → `section-navigation`). For `change-to <existing>`, update `_features/<existing>.md` instead of creating a new file. For `fix-infra`, do not create a feature doc — apply the Guard above. If the spec has no work-type line, classify it yourself per the Guard.
+- **Feature name** (no path separators, no `.md`): Look for existing `_features/{name}.md`. If found, update it. If not, apply the Guard before creating: only create from `_specs/{name}.md` when the work is a new capability.
 - **`update` directive** (starts with `update`): Update the existing feature doc at the path that follows.
 
 ## Step 2 — Locate all related artifacts

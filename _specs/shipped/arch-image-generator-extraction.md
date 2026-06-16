@@ -1,6 +1,6 @@
 # Spec for arch-image-generator-extraction
 
-> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/arch-image-generator-extraction.md`.
+> This spec captures initial requirements and design rationale. This was a behind-the-scenes refactor of an existing capability, not a new one — its operator-facing behavior was folded into `_features/image-generator.md` on 2026-06-16. The refactor's architecture acceptance criteria (`IImageGenerator`/`CliImageGenerator` boundary, controller holds no subprocess, composer registration, unit-testability, CLI-argument and temp-file-cleanup contracts) remain below as the historical record.
 
 branch: claude/feature/arch-image-generator-extraction
 
@@ -52,7 +52,7 @@ Out of scope (deliberate, deferrable to future increments):
 
 ## Scenarios (Draft)
 
-Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/arch-image-generator-extraction.md` for the verified version.
+Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. The operator-facing behavior is recorded in `_features/image-generator.md`; the architecture criteria stay in this spec.
 
 ### Rule: The backoffice generate endpoints behave identically after the refactor (AC1)
 

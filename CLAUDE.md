@@ -289,7 +289,7 @@ The two Live/Staging environments (if they exist) each have their own Cloud Secr
 
 When master's pipeline goes red, work through three questions in order: **which gate failed → which job inside it → was it failing before my commit?** Skipping straight to "fix the test" without answering all three is the habit that lets a perpetually-red gate become background noise.
 
-The recipes for previously-seen failures live in the relevant feature doc (e.g. [_features/fix-e2e-dev-only-failures.md](_features/fix-e2e-dev-only-failures.md) → *Diagnosis & Fix Recipes*). The procedure below is the generic method — use it when you face a failure not already captured in a feature doc.
+The recipes for previously-seen failures live in the [CI Failure Recipes runbook](docs/ci-failure-recipes.md). The procedure below is the generic method — use it when you face a failure not already captured in that runbook.
 
 ### 1. Which gate failed?
 
@@ -329,7 +329,7 @@ gh run list --branch master --limit 10
 gh run view <previous-run-id> --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'
 ```
 
-If the failure was already red on the previous master run, it's pre-existing. **File a ROADMAP entry under "Next" and unblock your work** — don't bundle a pre-existing infra/content issue into an unrelated feature PR. (The `fix-e2e-dev-only-failures` feature exists specifically because this hygiene was missing for several weeks.)
+If the failure was already red on the previous master run, it's pre-existing. **File a ROADMAP entry under "Next" and unblock your work** — don't bundle a pre-existing infra/content issue into an unrelated feature PR. (The `fix-e2e-dev-only-failures` work — see `_specs/shipped/fix-e2e-dev-only-failures.md` and the [CI Failure Recipes runbook](docs/ci-failure-recipes.md) — happened specifically because this hygiene was missing for several weeks.)
 
 If the failure is new with your push, it's yours to fix — and likely deserves a `/spec` if non-trivial.
 
@@ -566,6 +566,18 @@ Future cleanup (P2): move `algorithmic-art` and `canvas-design` to `.agents/skil
 Work flows through five layers, loose-to-tight: **Roadmap → Feature → Spec → Plan → Implement**. The project-level queue lives in [ROADMAP.md](ROADMAP.md); per-feature mini-roadmaps live in the **Increments** section of each `_features/<slug>.md`. Each spec covers a single increment (not a whole feature). When a body of work spans 3+ features and needs a shared intent doc, write an optional PRD at `_prds/<slug>.md` and link it from the roadmap.
 
 Entry-point commands per layer: `/spec <slug>` → `/plan _specs/<slug>.md` → `/implement-step _plans/<slug>.md N` (per step) → `/feature update <slug>` → `/code-review`. `/implement-step` dispatches each step to a fresh subagent so the main context stays clean across an M-or-L plan; you can also just paste a step's prompt into a new chat if you don't want the dispatch overhead. Every command ends with a "Next:" line pointing at the next stage.
+
+### Work types — which artifacts a piece of work earns
+
+`_features/` is **living documentation of how the site behaves right now — one file per capability, named by area of the site** (`section-navigation`, `site-header`, `seo-routing`, `umbraco-ai-search`). It is **not** a record of work done. Before any work earns a feature doc, classify it — `/spec`, `/plan`, and `/feature` all branch on this:
+
+| Work type | Examples | Feature doc? | Where the durable record lives |
+|---|---|---|---|
+| **New capability** | section-navigation, image-carousel, innovation-showcase | **Create** `_features/<slug>.md`, named by the capability | The new feature doc (behavior) + spec/plan (why/how) |
+| **Change to an existing capability** | migrate-ai-search-stable, extract-search-service, a new field on an existing block | **Update the existing capability's doc** — do *not* create a `<work-name>.md` | Evergreen behavior folds into the existing feature doc; point-in-time ACs stay in the shipped spec/plan |
+| **Fix / infra / CI / cleanup** | fix-e2e-dev-only-failures, fix-screenshot-baselines, a dependency bump with no behavior change | **No feature doc** | A runbook under `docs/` (e.g. [docs/ci-failure-recipes.md](docs/ci-failure-recipes.md)) and/or a CLAUDE.md section; ACs in the shipped spec |
+
+**The tell**: if a doc's Rules read as *transitions* ("goes from red to…", "leaves no trace after the change ships", "compiles on the stable stack") rather than *standing behavior* ("visitors can search from /search"), it's a change/fix masquerading as a capability — fold it into the affected capability doc or a runbook, don't file it under `_features/`. (This is why `migrate-ai-search-stable-1-0`, `remove-seotoolkit`, and `fix-e2e-dev-only-failures` were retired on 2026-06-16 — see their shipped specs.) This rule supersedes the older `workflow-bundle-mode` ROADMAP idea (binary bundle/not-bundle) with a three-way classification.
 
 ## Project Planning
 

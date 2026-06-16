@@ -12,6 +12,7 @@ CMS editors and developers can generate unique abstract featured images for blog
 - [x] 2026-04-09 — CLI generator: deterministic flow-field PNGs, batch + force + local-only modes (spec: `_specs/shipped/image-generator/image-generator.md`)
 - [x] 2026-04-09 — Backoffice dashboard + per-article property action (plan: `_plans/shipped/image-generator-backoffice.md`)
 - [x] 2026-04-09 — Palette storage migrated from JSON to CMS Block List for environment transfer via Umbraco Deploy (spec: `_specs/shipped/image-generator/palette-storage.md`)
+- [x] 2026-05-28 — Generation moved behind an `IImageGenerator` service boundary; no editor-facing change (spec: `_specs/shipped/arch-image-generator-extraction.md`)
 
 ---
 
@@ -508,6 +509,17 @@ Scenario: Invalid credentials produce a clear error
   Then it exits with "Error: Authentication failed. Check UMBRACO_CLIENT_ID/SECRET in .env"
 ```
 
+### Rule: A missing Node binary on the host fails with an actionable diagnostic
+
+```scenario
+Scenario: The backoffice generate cannot find a Node binary
+  Given no npx binary is on the host PATH and ImageGenerator:NodeBinPath is unset
+  When an editor triggers a generate from the dashboard
+  Then the request returns HTTP 200 with success false
+  And the output names "ImageGenerator:NodeBinPath" and reports "(unset — using PATH)"
+  And the palette temp file the attempt created is cleaned up
+```
+
 ---
 
 ## Test Coverage
@@ -563,9 +575,11 @@ Scenario: Invalid credentials produce a clear error
 | Umbraco not running produces clear error | -- | Not covered |
 | Property action triggers generation from editor | -- | Not covered |
 | Category rename survives via content picker | -- | Not covered |
+| Missing Node binary fails with the NodeBinPath diagnostic | [tests/UmbracoProject.Tests/ImageGenerator/CliImageGeneratorTests.cs:105](tests/UmbracoProject.Tests/ImageGenerator/CliImageGeneratorTests.cs#L105) | Covered (unit — `Win32OnLaunch_FailsWithNodeBinPathDiagnostic`) |
 
 ---
 
 ## Revision Notes
 
+- 2026-06-16: Folded in the former `arch-image-generator-extraction` feature doc (a behind-the-scenes refactor — not its own capability). Added the operator-facing "missing Node binary" diagnostic edge case (the one user/operator-observable behavior the extraction introduced) and the service-extraction increment. The refactor's architecture ACs (`IImageGenerator`/`CliImageGenerator` boundary, controller holds no subprocess, composer registration, controller unit-testable with a fake, CLI-argument and temp-file-cleanup contracts) were point-in-time refactor criteria and stay in `_specs/shipped/arch-image-generator-extraction.md` — they are not standing capability behavior.
 - 2026-04-09: Initial feature doc synthesized from 2 specs, 3 plans, and implemented code. **Conflict resolved**: The original spec (`image-generator.md`) initially said "first match wins" for multi-category palette handling, while the backoffice plan (`image-generator-backoffice.md`) specified "merge all matching palettes." The implemented code in `scripts/image-generator/src/palette.ts` uses the **merge** strategy -- it concatenates all matching category palettes into a single combined color pool and the renderer cycles through all merged colors. The test suite (`tests/image-generator/palette.test.ts:L69`) explicitly verifies that two matching categories produce a 6-color merged palette. The spec was also updated (per backoffice plan Step 0) to reflect the merge behavior. This feature doc records the merge behavior as authoritative. Additionally, the palette storage migration from JSON file to CMS content (per `palette-storage.md`) is fully implemented: palettes are stored as a Block List in the "Image Generator Settings" document, the dashboard palette editor was removed, and the CLI supports a priority chain (--palette-json > --palette-from-api > config file > hardcoded defaults). The "Vibe Coding" category was renamed to "Agentic Coding" in the live CMS data but the behavior is unchanged.

@@ -67,9 +67,21 @@ After writing the Acceptance Criteria section, use the **Example Mapping** techn
 
 Add these draft scenarios in the "Scenarios (Draft)" section of the spec (see template).
 
-## Step 5. Create draft feature doc skeleton
+## Step 5. Classify the work type
 
-After saving the spec, also create a draft feature doc at `_features/<feature_slug>.md` using the template from `_features/_template.md`. Populate it with:
+Before deciding whether to create a feature doc, classify the work using the table in [CLAUDE.md → Workflow layers → "Work types — which artifacts a piece of work earns"](../../CLAUDE.md#workflow-layers). The `_features/` folder is for **evergreen capability behavior, one file per capability named by area of the site** — not for records of work done. Decide which bucket applies:
+
+- **New capability** — a behavior or surface the site didn't have. → A new feature doc is warranted.
+- **Change to an existing capability** — a refactor, upgrade, migration, or enhancement to how an already-documented capability behaves. → No new feature doc; the existing capability's doc gets updated after implementation. Identify which `_features/<existing>.md` that is (grep `_features/` by capability area).
+- **Fix / infra / CI / cleanup** — no standing change to a documented capability. → No feature doc; durable residue lands in a `docs/` runbook and/or a CLAUDE.md section.
+
+**The tell**: if your draft Rules read as *transitions* ("goes from red to…", "after the change ships…", "compiles on the stable stack") rather than *standing behavior*, it is a change/fix, not a new capability.
+
+Record the decision in the spec under a `**Work type**:` line near the top — one of `new-capability` / `change-to <existing-feature-slug>` / `fix-infra` — so `/plan` and `/feature` can honor it without re-deciding.
+
+## Step 6. Create the draft feature doc skeleton (only for new capabilities)
+
+**Only if Step 5 classified this as a _new capability_**, create a draft feature doc at `_features/<feature_slug>.md` using the template from `_features/_template.md`. Populate it with:
 
 - The feature summary from the spec
 - The draft scenarios from the spec's "Scenarios (Draft)" section
@@ -80,13 +92,16 @@ After saving the spec, also create a draft feature doc at `_features/<feature_sl
 
 This skeleton gives QA and planners the behavioral contract immediately, even before implementation begins.
 
-## Step 6. Final output to the user
+**For a _change-to-existing_ or _fix-infra_ work type, do NOT create a `_features/<feature_slug>.md`.** The draft scenarios still live in the spec (Step 4). The spec's `**Work type**:` line tells `/plan` where the behavior will eventually be recorded (an existing feature doc, a runbook, or nowhere).
 
-After both files are saved, respond to the user with a short summary in this exact format:
+## Step 7. Final output to the user
+
+After the files are saved, respond to the user with a short summary in this exact format (the Feature doc line varies by work type):
 
 Branch: <branch_name>
 Spec file: _specs/<feature_slug>.md
-Feature doc (draft): _features/<feature_slug>.md
+Work type: <new-capability | change-to <existing-feature-slug> | fix-infra>
+Feature doc (draft): _features/<feature_slug>.md   ← only for new-capability; otherwise write "Feature doc: (none — <reason>)"
 Title: <feature_title>
 Next: /plan _specs/<feature_slug>.md
 

@@ -1,6 +1,6 @@
 # Spec for remove-seotoolkit
 
-> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/remove-seotoolkit.md`.
+> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/seo-routing.md` (the evergreen SEO Routing capability — renamed from `remove-seotoolkit` on 2026-06-16).
 
 branch: claude/feature/remove-seotoolkit
 
@@ -40,7 +40,7 @@ Remove the `SeoToolkit.Umbraco` 6.3.0 NuGet package and replace the three pieces
 
 ## Scenarios (Draft)
 
-Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/remove-seotoolkit.md` for the verified version.
+Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/seo-routing.md` for the verified, current behavior.
 
 ### Rule: The SeoToolkit package leaves no trace in the codebase
 

@@ -85,7 +85,10 @@ Order the layers into implementation steps following these rules:
 3. **Manual verification checkpoints** — any step that changes visible behavior in the browser (layout, rendered output, interactive JS) should end with a concrete manual check the developer can do before moving to the next step.
 4. **Each step must be independently completable** — it should have a clear start state (what was done before) and end state (what passes/exists after).
 
-5. **Feature doc verification as the final step** — every plan ends with a step that runs `/feature update _features/{slug}.md` (or `/feature _specs/{slug}.md` if no feature doc exists yet) to verify/update the living behavioral spec against the actual implementation.
+5. **Behavior-recording as the final step — but where depends on the work type.** Read the spec's `**Work type**:` line (set by `/spec`; if absent, classify now using [CLAUDE.md → Workflow layers → "Work types"](../../CLAUDE.md#workflow-layers)). The final step records the durable behavior in the right place:
+   - **new-capability** → `/feature update _features/{slug}.md` (or `/feature _specs/{slug}.md` if no draft doc exists yet) — verify/create the capability's living doc.
+   - **change-to `<existing>`** → `/feature update _features/<existing>.md` — **fold this change's evergreen behavior into the existing capability doc; do not create `_features/{slug}.md`.** Point-in-time ACs stay in the shipped spec.
+   - **fix-infra** → **no feature-doc step.** Instead, the final step records any durable residue (diagnosis recipes, runbook entries) under `docs/` and/or a CLAUDE.md section, and confirms the shipped spec carries the ACs.
 
 Typical step order for most features:
 1. Schema (Management API script)
@@ -106,6 +109,7 @@ Write the plan in the format shown below. Do not skip sections.
 
 **Spec**: `_specs/{feature_slug}.md`
 **Branch**: `claude/feature/{feature_slug}`
+**Work type**: {new-capability | change-to <existing-feature-slug> | fix-infra} — carried from the spec; drives the final step (see Step 4 rule 5)
 
 ## Context
 
@@ -148,13 +152,19 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 
 ---
 
-### Step {final} — Verify feature behavioral spec
+### Step {final} — Record the durable behavior (varies by work type)
 
-> **Prompt**: Run `/feature update _features/{feature_slug}.md` to verify the living behavioral spec reflects the actual implementation. Review each scenario against the code and test results. Update any scenarios where the implementation diverged from the draft. Fill in the test coverage table with actual test file paths and line numbers. Remove the "Draft" banner if present. Commit the verified feature doc.
+Pick the variant matching the spec's `**Work type**:`:
+
+> **Prompt (new-capability)**: Run `/feature update _features/{feature_slug}.md` to verify the living behavioral spec reflects the actual implementation. Review each scenario against the code and test results. Update any scenarios where the implementation diverged from the draft. Fill in the test coverage table with actual test file paths and line numbers. Remove the "Draft" banner if present. Commit the verified feature doc.
+
+> **Prompt (change-to `<existing>`)**: Run `/feature update _features/<existing>.md` to fold this change's evergreen behavior into the existing capability doc — add/adjust the affected Rules and scenarios, refresh the test-coverage table, and add a revision note describing what changed. Do **not** create `_features/{feature_slug}.md`; this work is a change to an existing capability, and its point-in-time acceptance criteria stay in the shipped spec.
+
+> **Prompt (fix-infra)**: No feature doc. Capture any durable diagnosis/runbook residue under `docs/` (e.g. a `docs/*-recipes.md` runbook) and/or the relevant CLAUDE.md section, and confirm the shipped spec carries the acceptance criteria. Then archive the spec/plan to their `shipped/` folders.
 
 **Validation**:
-- [Manual]: Every scenario in `_features/{feature_slug}.md` matches observable behavior
-- [Manual]: Test coverage table has no unexpected "Not covered" gaps
+- [Manual]: For new-capability / change-to — every affected scenario in the target `_features/*.md` matches observable behavior, and the coverage table has no unexpected "Not covered" gaps
+- [Manual]: For fix-infra — the durable residue is recorded in its `docs/`/CLAUDE.md home and nothing was filed under `_features/`
 
 ---
 
@@ -165,7 +175,9 @@ The step heading contains a ready-to-use prompt you can paste into a new chat.
 | Create | `path/to/file` |
 | Modify | `path/to/file` |
 | Create (delete after running) | `scripts/setup-*.mjs` |
-| Create/Update | `_features/{feature_slug}.md` |
+| Create/Update *(new-capability)* | `_features/{feature_slug}.md` |
+| Update *(change-to)* | `_features/<existing>.md` (fold in evergreen behavior — no new file) |
+| Update *(fix-infra)* | `docs/<runbook>.md` and/or a CLAUDE.md section (no `_features/` file) |
 ```
 
 ## Step 6 — Validate the plan before saving

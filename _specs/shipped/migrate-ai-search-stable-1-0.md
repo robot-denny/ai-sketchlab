@@ -1,6 +1,6 @@
 # Spec for Migrate AI + Search Stack to Stable 1.0.0
 
-> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/migrate-ai-search-stable-1-0.md`.
+> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/umbraco-ai-search.md` (Site Search — this migration's evergreen behavior was folded in there on 2026-06-16).
 
 branch: claude/feature/migrate-ai-search-stable-1-0
 
@@ -45,7 +45,7 @@ This migration takes the whole stack to stable, re-tests the two known beta.3 ba
 
 ## Scenarios (Draft)
 
-Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/migrate-ai-search-stable-1-0.md` for the verified version.
+Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/umbraco-ai-search.md` (Site Search) for the verified, current behavior — this migration's evergreen scenarios were folded in there.
 
 ### Rule: The AI Copilot stack runs on stable AI package versions (AC1)
 

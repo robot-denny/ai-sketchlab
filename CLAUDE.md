@@ -43,27 +43,25 @@ For E2E tests, see the **Testing** section below.
 
 **Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.4.0, Umbraco.Cms.DevelopmentMode.Backoffice 17.4.0, Umbraco.Cloud.Cms 17.1.3, Umbraco.Cloud.StorageProviders.AzureBlob 17.0.0, Umbraco.Forms 17.1.2, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.1.0, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
+**Key NuGet packages**: Umbraco.Cms 17.4.2, Umbraco.Cms.DevelopmentMode.Backoffice 17.4.2, Umbraco.Cloud.Cms 17.1.3, Umbraco.Cloud.StorageProviders.AzureBlob 17.0.0, Umbraco.Forms 17.4.2, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.1.0, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
 
-**AI packages**: Umbraco.AI 1.11.0, Umbraco.AI.Agent 1.10.0, Umbraco.AI.Agent.Copilot 1.0.0 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.0 (shared chat UI components), Umbraco.AI.AGUI 1.10.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.2, Umbraco.AI.Google 1.1.7, Umbraco.AI.OpenAI 1.2.2, Umbraco.AI.Prompt 1.8.4.
+**AI packages**: Umbraco.AI 1.14.0, Umbraco.AI.Agent 1.10.4, Umbraco.AI.Agent.Copilot 1.0.1 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.1 (shared chat UI components), Umbraco.AI.AGUI 1.10.4 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.6, Umbraco.AI.Google 1.1.11, Umbraco.AI.OpenAI 1.2.6, Umbraco.AI.Prompt 1.8.8. **As of Umbraco.AI 1.14.0**, `$`-referenced configuration keys must be allow-listed — see *AI config-key allow-list* under AI & Copilot.
 
-**AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.0, Umbraco.AI.Prompt.Deploy 1.0.0, Umbraco.AI.Agent.Deploy 1.0.0. Auto-registered — no composer code required. As of 1.0.0, **all four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment.
+**AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 1.0.4, Umbraco.AI.Prompt.Deploy 1.0.1, Umbraco.AI.Agent.Deploy 1.0.1. Auto-registered — no composer code required. As of 1.0.0, **all four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment.
 
-**Search packages** (beta — see *v18 upgrade path* under Pinned betas): Umbraco.Cms.Search.Core 1.0.0-beta.3, Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.3, Umbraco.Cms.Search.BackOffice 1.0.0-beta.3, Umbraco.Cms.Search.DeliveryApi 1.0.0-beta.3, Umbraco.AI.Search 1.0.0-beta3. See **Pinned betas** below for the version constraints.
+**Search packages** (now stable — the v18-forward replacement for legacy Examine search): Umbraco.Cms.Search.Core 1.0.0, Umbraco.Cms.Search.BackOffice 1.0.0, Umbraco.Cms.Search.DeliveryApi 1.0.0, Umbraco.AI.Search 1.0.0. The lone exception is Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 (no stable release yet) — see **Pinned betas** below.
 
 ## Pinned betas — do not float
 
-Several beta packages have known compatibility traps. Don't let NuGet float them within their declared version ranges; pin exact versions until stable releases ship.
+The search stack went stable 1.0.0, so this table collapsed to a single remaining pin. Don't let NuGet float it.
 
 | Package | Pinned version | Why pinned |
 |---|---|---|
-| Umbraco.Cms.Search.Core | 1.0.0-beta.3 | `IndexMetadata` signature changed in beta.4; `Umbraco.AI.Search 1.0.0-beta3` is binary-compiled against beta.3. Opening **Settings → Search** throws `MissingMethodException` if Core floats. |
-| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.3 | Must match Core beta.3. |
-| Umbraco.Cms.Search.BackOffice | 1.0.0-beta.3 | Must match Core beta.3. **Known beta.3 bug:** its `AddBackOfficeSearch()` registration crashes the backoffice Media/Content list-view search box — `'field name' cannot be null or empty` from Examine — so [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs) deliberately does *not* call it (list-view search falls back to built-in Umbraco Examine). Re-enable when an `AI.Search` build compatible with `Cms.Search.* beta.4+` lets us float past the beta.3 fix. Tracked: `fix-backoffice-search-beta3-fieldname-crash`. |
-| Umbraco.Cms.Search.DeliveryApi | 1.0.0-beta.3 | Must match Core beta.3. |
-| Umbraco.AI.Search | 1.0.0-beta3 | Compiled against `Cms.Search.Core` beta.3 (see above). |
+| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.9 | No stable release exists yet — beta.9 is the head pre-release and declares `Umbraco.Cms.Search.Core [1.0.0, )`, so it's the correct companion to the stable Core. It's the keyword provider the Core façade routes to (`.AddExamineSearchProvider()` in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs)) — `Cms.Search.BackOffice 1.0.0`'s direct `Examine.Lucene` dependency does **not** supersede it. **Known beta.9 bug:** `CreateAggregatedTextQuery` throws `NullReferenceException` (via Examine `GetFieldInternalQuery`) on some multi-word keyword queries — it wraps the full query in `MultipleCharacterWildcard`. [SearchService.cs](src/UmbracoProject/Services/SearchService.cs) guards the keyword path (try/catch → zero hits) so `/search` degrades to the empty state instead of a 500. Drop the guard and bump when a fixed/stable Provider.Examine ships. |
 
-**v18 upgrade path**: Both `Cms.Search.*` and `AI.Search` are destined to replace the legacy Examine-backed `IPublishedContentQuery.Search()` API in Umbraco v18. Expect API-breaking changes — revisit composer registration in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs), the `ISearcher` call in [search.cshtml](src/UmbracoProject/Views/search.cshtml), and this table as part of the v18 upgrade PR.
+The four previously-pinned packages (`Cms.Search.Core`/`.BackOffice`/`.DeliveryApi`, `AI.Search`) are now on stable 1.0.0 — the old `MissingMethodException`-on-`Settings → Search` and the `AddBackOfficeSearch()` list-view crash are both fixed in 1.0.0, so `AddBackOfficeSearch()` is now enabled in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs).
+
+**v18 upgrade path**: Both `Cms.Search.*` and `AI.Search` are the v18-forward replacement for the legacy Examine-backed `IPublishedContentQuery.Search()` API. Expect further API changes at v18 — revisit composer registration in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs), the searcher calls in [Services/SearchService.cs](src/UmbracoProject/Services/SearchService.cs), and this table as part of the v18 upgrade PR.
 
 ## AI & Copilot
 
@@ -85,6 +83,15 @@ With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` + `Umbraco.AI.Agent.De
 **Secrets stay per-environment**: `.uda` artifacts reference API keys via placeholders (e.g. `$OpenAI:ApiKey`, `$Anthropic:ApiKey`), never the raw value. Each Cloud environment (Development, Staging, Live) must have its own keys set in that environment's app settings via the Cloud portal — **never paste raw keys into the backoffice connection form** (they get encrypted to the DB and break on Data Protection key rotation).
 
 **Cloud portal secret-key naming**: the portal's app-settings UI rejects `:` in key names (validator allows only `0-9 a-z A-Z _`). Use the .NET Core double-underscore convention — `Anthropic__ApiKey` / `OpenAI__ApiKey`. .NET Core flattens `__` back to `:` when building `IConfiguration`, so the backoffice connection references (`$OpenAI:ApiKey`) and `appsettings.Development.json` entries (`"OpenAI:ApiKey": "..."`) keep the colon form unchanged.
+
+**AI config-key allow-list** (required since **Umbraco.AI 1.14.0**): the AI core now refuses to resolve a `$`-referenced configuration key unless its prefix is allow-listed. The defaults are `Umbraco:AI:Secrets` and `Umbraco:AI:Variables` only — so the `$OpenAI:ApiKey` / `$Anthropic:ApiKey` references this project uses throw `InvalidOperationException: Configuration key 'OpenAI:ApiKey' is not permitted in settings` at resolve time. The failure is **swallowed** by the AI searcher (logged as `Vector search failed for index UmbAI_Search`) and silently breaks embeddings/semantic search rather than erroring loudly. Fix: extend `Umbraco:AI:AllowedConfigurationKeyPrefixes` in the committed [appsettings.json](src/UmbracoProject/appsettings.json) — the .NET config binder merges arrays by index, so **re-list the two defaults** then add yours:
+
+```json
+"Umbraco": { "AI": { "AllowedConfigurationKeyPrefixes": [
+  "Umbraco:AI:Secrets", "Umbraco:AI:Variables", "OpenAI", "Anthropic" ] } }
+```
+
+Because it lives in the committed `appsettings.json`, it applies to local + every Cloud environment with no per-environment portal action. This is the least-invasive fix (preserves the `$OpenAI:ApiKey` convention everywhere); relocating keys under `Umbraco:AI:Secrets` would rewrite the whole secret convention and re-serialize `.uda` — avoid.
 
 **Bootstrapping existing AI config into Deploy** (one-time, when adopting the Deploy packages on an established install): existing DB-only entities do **not** auto-export on package install — the serializer only writes on save. Open **Settings → AI** and click Save on every entity once, in this order (matches Deploy's dependency chain):
 
@@ -109,7 +116,7 @@ Three packages cooperate at runtime, registered via [src/UmbracoProject/SearchCo
 - **`Umbraco.Cms.Search.Provider.Examine`** — Lucene/keyword provider. Used as a safety net for short, exact-match queries (author names, "contact", etc.) where pure-vector search underperforms.
 - **`Umbraco.AI.Search`** — vector/semantic search on top of Core. Calls the configured embedding model to chunk + embed documents on publish and to embed the query at search time.
 
-The public `/search` page is wired to the AI searcher; the Examine provider stays registered for hybrid fallback. **`AddBackOfficeSearch()` is intentionally NOT called** — in beta.3 it crashes the backoffice Media/Content list-view search box (`'field name' cannot be null or empty`), so those searches fall back to Umbraco 17's built-in Examine search. See the `Cms.Search.BackOffice` row in *Pinned betas* for the re-enable signal.
+The public `/search` page is wired to the AI searcher; the Examine provider stays registered for hybrid fallback and for the backoffice search UI. **`AddBackOfficeSearch()` is now enabled** — the beta.3 crash that previously forced it off (`'field name' cannot be null or empty` in the backoffice Media/Content list-view search box) is fixed in 1.0.0.
 
 ### Configuration
 
@@ -250,7 +257,7 @@ All three C# projects have `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`
 
 **Surgical `<NoWarn>` per warning code with inline justification is the only relaxation pattern.** No project-wide suppression of CS-prefixed warnings. The two NoWarn exemptions currently in the tree:
 
-- `UmbracoProject.csproj` — `NoWarn=NU1903` (Lucene.Net.Replicator 4.8.0-beta00016, GHSA-2qw8-ppr5-m96c) — transitive via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net. Cannot pin a patched version without breaking Umbraco's locked Examine chain.
+- `UmbracoProject.csproj` — `NoWarn=NU1903` (Lucene.Net.Replicator 4.8.0-beta00017, GHSA-2qw8-ppr5-m96c) — transitive via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net. Cannot pin a patched version without breaking Umbraco's locked Examine chain. (The stable Examine 4.0.0-beta.4 chain bumped Lucene.Net beta00016 → beta00017; the advisory still applies.)
 - `UmbracoProject.Tests.csproj` — `NoWarn=NU1903;NU1904` — same Lucene.Net inheritance plus `NU1904` Microsoft.AspNetCore.DataProtection 10.0.4 (GHSA-9mv3-2cwr-p262), pulled transitively into the test host via `Microsoft.NET.Test.Sdk`. Tests don't exercise those APIs.
 
 Both exemptions have inline XML comments naming the CVE and the upgrade signal that should retire them. **Out of scope**: Razor `.cshtml` files (compile inside the runtime, not the csproj's `dotnet build`) and the auto-generated published-content models under `umbraco/Data/TEMP/InMemoryAuto/` (regenerated on startup).

@@ -25,6 +25,25 @@ test.describe('Search — page shell (characterization)', () => {
     await expect(page.locator('.article-grid-card')).toHaveCount(0);
   });
 
+  test('forced keyword-fallback query degrades to the empty state, not a 500', async ({ page }) => {
+    // A long natural-language query routes to AI semantic; a nonsense phrase returns zero
+    // vector hits and falls back to the keyword (Examine) searcher. Umbraco.Cms.Search.Provider.Examine
+    // 1.0.0-beta.9 can throw a NullReferenceException from CreateAggregatedTextQuery on
+    // multi-word keyword queries — SearchService guards that path (try/catch → zero hits) so
+    // the page must degrade to the empty state rather than surface a 500. Holds on both the
+    // pre-migration (no NRE) and post-migration (guarded NRE) stacks.
+    const response = await page.goto(
+      `${SEARCH_PATH}?q=${encodeURIComponent('zxqw flibberty wobble nonsense gibberish phrase')}`
+    );
+
+    expect(response, 'page.goto must return an HTTP response').not.toBeNull();
+    expect(response!.status(), 'search must not return a server error').toBeLessThan(500);
+
+    // A 500 dev-exception page would not contain the search form; the empty state does.
+    await expect(page.locator('form#search')).toBeVisible();
+    await expect(page.locator('.article-grid-card')).toHaveCount(0);
+  });
+
   test('GET /search?q=article returns at least one .article-grid-card result', async ({ page }) => {
     await page.goto(`${SEARCH_PATH}?q=article`);
 

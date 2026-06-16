@@ -10,6 +10,7 @@ using Umbraco.Cms.Search.Core.Services;
 
 using SearchCoreConstants = Umbraco.Cms.Search.Core.Constants;
 using ProviderDocument = Umbraco.Cms.Search.Core.Models.Searching.Document;
+using ProviderSearchResult = Umbraco.Cms.Search.Core.Models.Searching.SearchResult;
 
 namespace UmbracoProject.Services;
 
@@ -183,13 +184,34 @@ public sealed class SearchService : ISearchService
         }
 
         // ISearcher.SearchAsync does not accept a CancellationToken (framework constraint
-        // in Umbraco.Cms.Search.Core 1.0.0-beta.3). If a CT overload is added in a later
-        // version, thread the request CT in here.
-        var result = await searcher.SearchAsync(
-            indexAlias: indexAlias,
-            query: query,
-            skip: 0,
-            take: take);
+        // confirmed still present in Umbraco.Cms.Search.Core 1.0.0). If a CT overload is
+        // added in a later version, thread the request CT in here.
+        ProviderSearchResult? result;
+        try
+        {
+            result = await searcher.SearchAsync(
+                indexAlias: indexAlias,
+                query: query,
+                skip: 0,
+                take: take);
+        }
+        // `when (ex is not OperationCanceledException)` so a future CancellationToken overload
+        // (see comment above) propagates cancellation instead of having it swallowed here. OCE
+        // can't arrive today — ISearcher.SearchAsync has no CT parameter — but this self-enforces.
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            // Defensive guard: Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 throws a
+            // NullReferenceException from CreateAggregatedTextQuery on some multi-word
+            // queries (it wraps the full query in a MultipleCharacterWildcard). Rather than
+            // 500 the /search page, log and treat as zero hits so the request degrades to
+            // the empty state. Remove when a fixed Provider.Examine ships — tracked in
+            // CLAUDE.md "Pinned betas".
+            _logger.LogWarning(
+                ex,
+                "Searcher for {IndexAlias} threw during SearchAsync — treating as zero hits",
+                indexAlias);
+            return (Array.Empty<IPublishedContent>(), 0);
+        }
 
         // A null result indicates an infrastructure-level failure (provider misconfiguration,
         // transport error) rather than a genuine "no hits" response. Log it explicitly so

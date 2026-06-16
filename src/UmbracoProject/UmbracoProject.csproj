@@ -20,6 +20,12 @@
   <ItemGroup>
     <PackageReference Include="Clean.Core" Version="7.0.5" />
     <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="17.0.5" />
+    <!-- MessagePack: direct pin to float the transitive (Umbraco.Cms.Search.Core 1.0.0 → MessagePack
+         [3.1.4,)) up to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x (high, NU1903);
+         3.1.7 is the fix. The open dependency range lets us pin forward without breaking the chain —
+         so we resolve the vulnerability rather than suppress NU1903. Revisit when Umbraco's Search
+         chain ships a newer MessagePack itself. -->
+    <PackageReference Include="MessagePack" Version="3.1.7" />
     <PackageReference Include="Umbraco.AI" Version="1.14.0" />
     <PackageReference Include="Umbraco.AI.Agent" Version="1.10.4" />
     <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.1" />

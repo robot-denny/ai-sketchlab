@@ -15,14 +15,19 @@
 
 
   <ItemGroup>
-    <!-- Pinned to match Umbraco.Cms 17.4.0 in UmbracoProject.csproj.
+    <!-- Pinned to match Umbraco.Cms 17.4.2 in UmbracoProject.csproj.
          Cloud's CI/CD Flow deploy validator rejects `Version="*"` wildcards
          (NU1604 / "Unsupported Version format *"), even though local dev
          tolerates them. Keep in sync with the metapackage on upgrades. -->
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.4.0" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.4.0" />
-    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.4.0" />
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.4.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.4.2" />
+    <!-- Direct pin to float the transitive MessagePack (via Umbraco.Cms.Search.Core 1.0.0,
+         range [3.1.4,)) to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x
+         (high, NU1903); 3.1.7 fixes it. Resolving the vuln rather than suppressing NU1903 —
+         keep aligned with the same pin in UmbracoProject.csproj. -->
+    <PackageReference Include="MessagePack" Version="3.1.7" />
   </ItemGroup>
 
   <ItemGroup>

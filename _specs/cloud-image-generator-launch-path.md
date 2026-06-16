@@ -48,7 +48,7 @@ This spec deliberately **defers** these from the parent `fix-e2e-dev-only-failur
 - **AC1**: `POST https://<dev>/umbraco/api/image-generator/generate/<id>?force=true` returns HTTP 200 with `{ success: true, output: "...Done...|generated..." }` after the fix lands and the deploy completes.
 - **AC2**: `dashboard.spec.ts:141` passes against Dev's URL (skip predicate removed in same PR; CI's Gate 2 Playwright-against-Dev shows the test as ran + passed, not skipped).
 - **AC3**: The Windows-compat fix in `CliImageGenerator` has a unit test (or set of) covering the candidate-resolution paths for both Windows and Unix.
-- **AC4**: The diagnosis-and-fix recipe in `_features/fix-e2e-dev-only-failures.md` is updated to reference this spec as the followup and to remove "OpenAI key" as the sole hypothesis.
+- **AC4**: The imageGenerator diagnosis-and-fix recipe in [`docs/ci-failure-recipes.md`](../docs/ci-failure-recipes.md) is updated to reference this spec as the followup and to remove "OpenAI key" as the sole hypothesis.
 - **AC5**: Documentation in `CLAUDE.md` (or the feature doc for image-generator) captures: (a) the `ImageGenerator__NodeBinPath` App Setting is mandatory on Cloud, (b) which Node version path to use, (c) the `node_modules` deployment strategy chosen during /plan.
 
 ## Open Questions
@@ -67,7 +67,7 @@ This spec deliberately **defers** these from the parent `fix-e2e-dev-only-failur
 
 ## References
 
-- Parent feature: `_features/fix-e2e-dev-only-failures.md` (deferral happened during Step 1, 2026-05-29).
+- Parent work: `_specs/shipped/fix-e2e-dev-only-failures.md` (deferral happened during Step 1, 2026-05-29); the imageGenerator recipe lives in [`docs/ci-failure-recipes.md`](../docs/ci-failure-recipes.md).
 - Discovery thread: see the `## Diagnosis & Fix Recipes` section of the parent feature doc for the Kudu console probe transcript and the layered-blocker breakdown.
 - Memory: `[[project_cloud_build_no_npm]]` (build container had no npm — this spec extends the same constraint to the runtime container's PATH).
 - Existing image-generator feature: `_features/image-generator.md` (3 increments shipped 2026-04-09; this is a Cloud-runtime gap not covered by those increments).

@@ -1,6 +1,6 @@
 # Spec for fix-e2e-dev-only-failures
 
-> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/fix-e2e-dev-only-failures.md`.
+> This spec captures initial requirements and design rationale. This was a CI-fix effort, not a site capability — it has no `_features/` doc. The durable per-failure playbooks live in [`docs/ci-failure-recipes.md`](../../docs/ci-failure-recipes.md), and the generic red-run method is in [CLAUDE.md → "Diagnosing a red CI run"](../../CLAUDE.md#diagnosing-a-red-ci-run).
 
 branch: claude/feature/fix-e2e-dev-only-failures
 
@@ -52,7 +52,7 @@ This is also the first feature where the **process for diagnosing a red CI run**
 
 ## Scenarios (Draft)
 
-Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/fix-e2e-dev-only-failures.md` for the verified version.
+Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. The durable diagnosis-and-fix playbooks this effort produced live in [`docs/ci-failure-recipes.md`](../../docs/ci-failure-recipes.md) (this CI-fix effort earned a runbook, not a `_features/` capability doc).
 
 ### Rule: The Playwright-against-Dev gate goes green after the three root-cause fixes ship (AC1, AC2)
 

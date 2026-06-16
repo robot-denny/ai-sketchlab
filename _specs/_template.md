@@ -1,8 +1,9 @@
 # Spec for <feature-name>
 
-> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/<feature-name>.md`.
+> This spec captures initial requirements and design rationale. For **current system behavior**, see the doc named on the **Work type** line below (a new `_features/<feature-name>.md` for a new capability; an existing `_features/*.md` for a change; a `docs/` runbook or CLAUDE.md section for a fix).
 
 branch: claude/feature/<feature-name>
+**Work type**: <new-capability | change-to <existing-feature-slug> | fix-infra>  — see CLAUDE.md → Workflow layers → "Work types"; drives whether this work earns a feature doc
 figma_component (if used): <figma-component>
 
 ## Summary

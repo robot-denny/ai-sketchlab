@@ -1,6 +1,6 @@
 # Spec for extract-search-service
 
-> This spec captures initial requirements and design rationale. For **current system behavior**, see `_features/extract-search-service.md`.
+> This spec captures initial requirements and design rationale. This was a behind-the-scenes refactor of an existing capability, not a new one — its evergreen behavior was folded into `_features/umbraco-ai-search.md` (Site Search) on 2026-06-16. The refactor's architecture acceptance criteria (view holds no logic, `SearchService` unit-testable, composer-registered) remain below as the historical record.
 
 branch: claude/feature/extract-search-service
 
@@ -52,7 +52,7 @@ Out of scope (deliberate, deferrable to future increments):
 
 ## Scenarios (Draft)
 
-Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. See `_features/extract-search-service.md` for the verified version.
+Draft BDD scenarios derived from acceptance criteria using Example Mapping. Each Rule maps to an acceptance criterion; scenarios use concrete examples. These will be verified and refined after implementation. The evergreen behavior is recorded in `_features/umbraco-ai-search.md` (Site Search); the architecture criteria stay in this spec.
 
 ### Rule: Search results on `/search` are unchanged by the refactor (AC1)
 

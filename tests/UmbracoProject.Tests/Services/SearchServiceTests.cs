@@ -315,6 +315,32 @@ public class SearchServiceTests
             maxSuggestions: Arg.Any<int>());
     }
 
+    [Fact]
+    public async Task SearcherThrows_DegradesToEmptyResult_DoesNotPropagate()
+    {
+        // Guards the Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 multi-word-query NRE:
+        // when the searcher throws, RunSearchAsync logs and returns zero hits so /search
+        // degrades to the empty state instead of surfacing a 500.
+        SetupThrowingSearcher(_keywordSearcher, new NullReferenceException("CreateAggregatedTextQuery"));
+
+        var result = await _sut.SearchAsync("contact");
+
+        Assert.Empty(result.Items);
+        Assert.Equal(0, result.TotalCount);
+        Assert.Equal(SearchMode.Keyword, result.Mode);
+    }
+
+    [Fact]
+    public async Task SearcherThrows_OperationCanceled_IsNotSwallowed()
+    {
+        // The guard intentionally excludes OperationCanceledException (catch ... when
+        // (ex is not OperationCanceledException)) so cancellation propagates rather than
+        // being logged as a benign zero-hit result.
+        SetupThrowingSearcher(_keywordSearcher, new OperationCanceledException());
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() => _sut.SearchAsync("contact"));
+    }
+
     // --- Helpers ---
 
     private void SetupSearcherWithArticles(ISearcher searcher, int count)
@@ -330,6 +356,22 @@ public class SearchServiceTests
             _publishedContentQuery.Content(id).Returns(article);
         }
         SetupSearcher(searcher, docs);
+    }
+
+    private static void SetupThrowingSearcher(ISearcher searcher, Exception exception)
+    {
+        searcher.SearchAsync(
+            indexAlias: Arg.Any<string>(),
+            query: Arg.Any<string?>(),
+            filters: Arg.Any<IEnumerable<Filter>?>(),
+            facets: Arg.Any<IEnumerable<Facet>?>(),
+            sorters: Arg.Any<IEnumerable<Sorter>?>(),
+            culture: Arg.Any<string?>(),
+            segment: Arg.Any<string?>(),
+            accessContext: Arg.Any<AccessContext?>(),
+            skip: Arg.Any<int>(),
+            take: Arg.Any<int>(),
+            maxSuggestions: Arg.Any<int>()).Returns(Task.FromException<ProviderSearchResult>(exception));
     }
 
     private static void SetupSearcher(ISearcher searcher, IReadOnlyCollection<Document> docs)

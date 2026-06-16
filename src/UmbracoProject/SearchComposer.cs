@@ -10,9 +10,11 @@ using Umbraco.Cms.Search.Provider.Examine.DependencyInjection;
 namespace UmbracoProject;
 
 // ComposeBefore(UmbracoAISearchComposer) ensures our registrations run first.
-// AddSearchCore() is idempotent in 1.0.0-beta.3 (per its XML docs), but was temporarily
-// non-idempotent in 1.0.0-beta.4; the ordering stays here as a defensive guard for future
-// version bumps. Revisit when we move off beta.3.
+// AddSearchCore() is idempotent in Cms.Search.Core 1.0.0 (per its XML docs); the ordering
+// stays here as a cheap defensive guard against re-registration order changes in future
+// version bumps.
+// AddBackOfficeSearch() is called here deliberately: the beta.3 list-view-search crash
+// ('field name' cannot be null or empty) is fixed in 1.0.0 (verified on the stable migration).
 [ComposeBefore(typeof(UmbracoAISearchComposer))]
 public class SearchComposer : IComposer
 {

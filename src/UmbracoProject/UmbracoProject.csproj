@@ -20,29 +20,29 @@
   <ItemGroup>
     <PackageReference Include="Clean.Core" Version="7.0.5" />
     <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="17.0.5" />
-    <PackageReference Include="Umbraco.AI" Version="1.11.0" />
-    <PackageReference Include="Umbraco.AI.Agent" Version="1.10.0" />
-    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.0" />
-    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="1.0.0" />
-    <PackageReference Include="Umbraco.AI.Agent.UI" Version="1.0.0" />
-    <PackageReference Include="Umbraco.AI.AGUI" Version="1.10.0" />
-    <PackageReference Include="Umbraco.AI.Anthropic" Version="1.3.2" />
-    <PackageReference Include="Umbraco.AI.Deploy" Version="1.0.0" />
-    <PackageReference Include="Umbraco.AI.Google" Version="1.1.7" />
-    <PackageReference Include="Umbraco.AI.OpenAI" Version="1.2.2" />
-    <PackageReference Include="Umbraco.AI.Prompt" Version="1.8.4" />
-    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="1.0.0" />
-    <PackageReference Include="Umbraco.AI.Search" Version="1.0.0-beta3" />
+    <PackageReference Include="Umbraco.AI" Version="1.14.0" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="1.10.4" />
+    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.1" />
+    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="1.0.1" />
+    <PackageReference Include="Umbraco.AI.Agent.UI" Version="1.0.1" />
+    <PackageReference Include="Umbraco.AI.AGUI" Version="1.10.4" />
+    <PackageReference Include="Umbraco.AI.Anthropic" Version="1.3.6" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="1.0.4" />
+    <PackageReference Include="Umbraco.AI.Google" Version="1.1.11" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="1.2.6" />
+    <PackageReference Include="Umbraco.AI.Prompt" Version="1.8.8" />
+    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="1.0.1" />
+    <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.1.3" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms" Version="17.4.0" />
-    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.4.0" />
-    <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="1.0.0-beta.3" />
-    <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0-beta.3" />
-    <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0-beta.3" />
-    <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.3" />
+    <PackageReference Include="Umbraco.Cms" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="1.0.0" />
+    <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
+    <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0" />
+    <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.9" />
     <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.1.0" />
-    <PackageReference Include="Umbraco.Forms" Version="17.1.2" />
+    <PackageReference Include="Umbraco.Forms" Version="17.4.2" />
     <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.0" />
   </ItemGroup>
 

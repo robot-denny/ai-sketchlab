@@ -51,17 +51,67 @@ For E2E tests, see the **Testing** section below.
 
 **Search packages** (now stable — the v18-forward replacement for legacy Examine search): Umbraco.Cms.Search.Core 1.0.0, Umbraco.Cms.Search.BackOffice 1.0.0, Umbraco.Cms.Search.DeliveryApi 1.0.0, Umbraco.AI.Search 1.0.0. The lone exception is Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 (no stable release yet) — see **Pinned betas** below.
 
+## Solution architecture
+
+The solution is a **two-project Razor Class Library (RCL) split**, matching the agency-standard Umbraco layout (reference: `dev-kittitas-county`, whose `Kittitas.Features` RCL this mirrors). The split exists to put a **compile-enforced boundary** between business logic and the runnable host — the lever the [2026-05-19 audit](_audits/2026-05-19-umbraco-17-demo-site.md) rewards on Pillar 2 (architectural separation, scored 2/5). It shipped via the `arch-feature-folder-architecture` pilot (2026-06-19; spec/plan archived under `_specs/shipped/` and `_plans/shipped/`), which proved the pattern by migrating the **Search** slice with behavior preserved.
+
+### The two projects
+
+- **`src/UmbracoProject.Features/`** — the RCL holding migrated business logic. SDK is `Microsoft.NET.Sdk.Razor` with `<AddRazorSupportForMvc>true</AddRazorSupportForMvc>` (matches the reference's `Kittitas.Features` exactly, and readies the project for the deferred view-migration tier — see *Recorded deferrals* below). `net10.0`, `<Nullable>enable</Nullable>`, `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>` to match the other two C# projects. References `Umbraco.Cms` (+ the slice's own packages, e.g. `Umbraco.AI.Search`, `Umbraco.Cms.Search.Core`), with explicit pinned versions aligned to the host (`Version="*"` is rejected by Cloud's CI/CD Flow validator — see `[[project_cloud_no_wildcard_versions]]`).
+- **`src/UmbracoProject/`** — the **thin host**. Stays the runnable entry point. References the Features RCL (`UmbracoProject.csproj` → `ProjectReference ../UmbracoProject.Features/UmbracoProject.Features.csproj`); the test project (`tests/UmbracoProject.Tests/`) also references it.
+
+### Folder-by-kind taxonomy (inside the RCL)
+
+The RCL is organized **by kind**, not by feature — mirroring the reference. There is **no top-level `Features/<FeatureName>/` folder** (this supersedes the ROADMAP's original `src/UmbracoProject/Features/<FeatureName>/` premise — the reference uses no such folder):
+
+- `Abstractions/` — genuinely cross-cutting interfaces only. Domain-specific interfaces co-locate with their implementation instead (e.g. `ISearchService.cs` lives in `Services/Search/`, not here).
+- `Services/` — application services, with a domain sub-folder per service (e.g. `Services/Search/` holds `ISearchService`, `SearchService`, `SearchMode`, `SearchResult`).
+- `Composer/` — Umbraco `IComposer` implementations (e.g. `SearchServiceComposer`).
+- `Constants/`, `Extensions/`, `Models/` — by-kind buckets for their respective types.
+- `Infrastructure/` — cross-cutting plumbing (content finders, middleware, message handlers). This is where `NotFoundContentFinder`, the `/sitemap.xml` rewrite, and `AssignMembersToPremiumRoleHandler` land **when their slices migrate** (they are not moved yet — tracked under `arch-feature-folder-migration`). Mirrors the reference's `Infrastructure/ContentFinder/Custom404ContentFinder.cs`.
+- `Controllers/` — MVC/API controllers; vertical slices live *inside* `Controllers/API/<Domain>/` (and, in the deferred view tier, `Blocks/<Element>/` and `Pages/<PageType>/`).
+
+**Namespaces mirror the project + folder** (the .NET default, and an aid to navigation): a type under `Services/Search/` is `namespace UmbracoProject.Features.Services.Search`; the composer is `UmbracoProject.Features.Composer`. Namespace and path stay in lockstep. Note this is *not* the reference's flat `Kittitas.Features` namespace — folder→namespace mirroring was chosen deliberately.
+
+### Composer cross-assembly auto-discovery
+
+Umbraco's `TypeLoader` scans **every assembly in the host's dependency graph that references Umbraco**. Because the RCL references `Umbraco.Cms`, it is in that scanned graph, so an `IComposer` placed in `UmbracoProject.Features/Composer/` is discovered and run **with no `Program.cs` edit and no central manifest**. This was the single biggest "does the boundary actually work" risk and is **runtime-verified**: after the pilot, `SearchServiceComposer` (now in the RCL) still registers `ISearchService`, and `/search` keyword + AI-semantic modes both work.
+
+### Stays in the host (`src/UmbracoProject/`)
+
+These remain in the thin host and are **not** moved into the RCL:
+
+- `Program.cs` (entry point + middleware wiring), `appsettings*.json`, `wwwroot/` (static assets).
+- `umbraco/` and all `.uda` schema artifacts under `umbraco/Deploy/Revision/`.
+- **All Razor views** — page templates (`Views/*.cshtml`) and block components (`Views/Partials/blocklist|blockgrid/Components/`) stay at their stock Umbraco locations under `src/UmbracoProject/Views/`. No view is embedded in the RCL this increment (see *Recorded deferrals*).
+- The package-registration composer `SearchComposer.cs` (which calls `.AddSearchCore()` / `.AddExamineSearchProvider()` / `.AddBackOfficeSearch()`) stays in the host — it wires up the search *packages*; the relocated `SearchServiceComposer` in the RCL registers the *application service*.
+
+`HelloWorld` remains a distinct backoffice-extension project; it is **not** merged into the Features RCL. Its ImageGenerator/Palettes clusters migrate within `HelloWorld` (or into the RCL) in a later slice — end-state relationship is TBD under `arch-feature-folder-migration`.
+
+### Where new code goes
+
+- A new application service → `Services/<Domain>/` in the RCL, with its interface co-located (cross-cutting interfaces → `Abstractions/`).
+- A new composer → `Composer/`. Cross-cutting plumbing (finders, middleware, handlers) → `Infrastructure/`.
+- A new view → stays in the host's `Views/` (until the deferred view tier is adopted).
+
+### Recorded deferrals (do not re-litigate)
+
+After studying the reference in full, the agency standard decomposes into three tiers; this project **adopts** the project split + folder-by-kind taxonomy and **defers/declines** the third. Two decisions are recorded here so later slices don't re-decide them:
+
+1. **ModelsBuilder `InMemoryAuto` → source-mode switch — DEFERRED (gating, recommended next).** This project uses `InMemoryAuto` (models generated at runtime under `umbraco/Data/TEMP/InMemoryAuto/`), so **any C# or view that references a generated `PublishedModels.*` type cannot live in the build-time-compiled RCL** — it fails `CS0234` at build. Search was RCL-safe (it touches generated models only in a doc comment), so the pilot needed no switch. Migrating *model-coupled* code (most page controllers, some handlers, any RCL-embedded view) is **gated** on switching to source-mode ModelsBuilder (committed `Models/Generated/`). That switch is high-value independently — it also unblocks build-time Razor obsolete-API detection (retiring `[[project_inmemoryauto_blocks_buildtime_razor.md]]` and de-risking `arch-obsolete-api-migration`) — but it is a separate, deliberately-scoped increment (`arch-modelsbuilder-source-mode` in the ROADMAP), sequenced immediately after this pilot and before any model-coupled migration slice.
+2. **Embedded-views rendering framework — DECLINED (parity-only).** The reference embeds Razor views *in the RCL* as `<EmbeddedResource>`, enabled by a substantial homegrown framework: per-page route-hijacking controllers, an `IViewModelFactory`, an `ITemplateCoordinator` (alias→view registration), a `BaseController`, and custom `HtmlExtensions`. This is a large port whose value is mostly already achieved here by stock Umbraco block/template conventions + the already-extracted `SearchService`. It was **declined** as parity-for-parity (low marginal resilience). Views stay in the host's stock `Views/` locations; **no `IViewLocationExpander`, `ViewModelFactory`, or `TemplateCoordinator` is introduced.** Recorded as an explicitly-optional future increment under `arch-feature-folder-migration` — pursue only if pages accrete logic that justifies it.
+
 ## Pinned betas — do not float
 
 The search stack went stable 1.0.0, so this table collapsed to a single remaining pin. Don't let NuGet float it.
 
 | Package | Pinned version | Why pinned |
 |---|---|---|
-| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.9 | No stable release exists yet — beta.9 is the head pre-release and declares `Umbraco.Cms.Search.Core [1.0.0, )`, so it's the correct companion to the stable Core. It's the keyword provider the Core façade routes to (`.AddExamineSearchProvider()` in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs)) — `Cms.Search.BackOffice 1.0.0`'s direct `Examine.Lucene` dependency does **not** supersede it. **Known beta.9 bug:** `CreateAggregatedTextQuery` throws `NullReferenceException` (via Examine `GetFieldInternalQuery`) on some multi-word keyword queries — it wraps the full query in `MultipleCharacterWildcard`. [SearchService.cs](src/UmbracoProject/Services/SearchService.cs) guards the keyword path (try/catch → zero hits) so `/search` degrades to the empty state instead of a 500. Drop the guard and bump when a fixed/stable Provider.Examine ships. |
+| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.9 | No stable release exists yet — beta.9 is the head pre-release and declares `Umbraco.Cms.Search.Core [1.0.0, )`, so it's the correct companion to the stable Core. It's the keyword provider the Core façade routes to (`.AddExamineSearchProvider()` in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs)) — `Cms.Search.BackOffice 1.0.0`'s direct `Examine.Lucene` dependency does **not** supersede it. **Known beta.9 bug:** `CreateAggregatedTextQuery` throws `NullReferenceException` (via Examine `GetFieldInternalQuery`) on some multi-word keyword queries — it wraps the full query in `MultipleCharacterWildcard`. [SearchService.cs](src/UmbracoProject.Features/Services/Search/SearchService.cs) guards the keyword path (try/catch → zero hits) so `/search` degrades to the empty state instead of a 500. Drop the guard and bump when a fixed/stable Provider.Examine ships. |
 
 The four previously-pinned packages (`Cms.Search.Core`/`.BackOffice`/`.DeliveryApi`, `AI.Search`) are now on stable 1.0.0 — the old `MissingMethodException`-on-`Settings → Search` and the `AddBackOfficeSearch()` list-view crash are both fixed in 1.0.0, so `AddBackOfficeSearch()` is now enabled in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs).
 
-**v18 upgrade path**: Both `Cms.Search.*` and `AI.Search` are the v18-forward replacement for the legacy Examine-backed `IPublishedContentQuery.Search()` API. Expect further API changes at v18 — revisit composer registration in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs), the searcher calls in [Services/SearchService.cs](src/UmbracoProject/Services/SearchService.cs), and this table as part of the v18 upgrade PR.
+**v18 upgrade path**: Both `Cms.Search.*` and `AI.Search` are the v18-forward replacement for the legacy Examine-backed `IPublishedContentQuery.Search()` API. Expect further API changes at v18 — revisit composer registration in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs), the searcher calls in [SearchService.cs](src/UmbracoProject.Features/Services/Search/SearchService.cs), and this table as part of the v18 upgrade PR.
 
 ## AI & Copilot
 

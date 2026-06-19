@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <!-- NU1903: Lucene.Net.Replicator 4.8.0-beta00017 (GHSA-2qw8-ppr5-m96c, high severity),
+         pulled transitively via Umbraco.Cms.Search.Core → ... → Lucene.Net (same chain the host
+         suppresses). We cannot pin a patched version without breaking Umbraco's locked Examine chain.
+         Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00017.
+         (No CS0618 suppression needed here — this RCL holds no Razor views this increment.) -->
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
+    <PackageReference Include="Umbraco.Cms" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>

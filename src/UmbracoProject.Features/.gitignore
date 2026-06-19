@@ -1,0 +1,5 @@
+# JSON schema files copied in by the Umbraco MSBuild targets at build time.
+# Generated artifacts, mirrors src/UmbracoProject/.gitignore — never commit.
+appsettings-schema.json
+appsettings-schema.*.json
+umbraco-package-schema.json

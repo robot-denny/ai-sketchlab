@@ -10,7 +10,7 @@ using Umbraco.Cms.Core.Models.PublishedContent;
 using Umbraco.Cms.Search.Core.Models.Searching;
 using Umbraco.Cms.Search.Core.Models.Searching.Faceting;
 using Umbraco.Cms.Search.Core.Services;
-using UmbracoProject.Services;
+using UmbracoProject.Features.Services.Search;
 using Xunit;
 
 using SearchCoreConstants = Umbraco.Cms.Search.Core.Constants;

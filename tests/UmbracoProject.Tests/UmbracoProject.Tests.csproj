@@ -30,6 +30,9 @@
          are already available transitively via UmbracoProject; this explicit reference is for
          intent/clarity. MSBuild dedups. -->
     <ProjectReference Include="../../src/HelloWorld/HelloWorld.csproj" />
+    <!-- UmbracoProject.Features types (ISearchService, SearchService, etc.) are already available
+         transitively via UmbracoProject; this explicit reference is for intent/clarity. MSBuild dedups. -->
+    <ProjectReference Include="../../src/UmbracoProject.Features/UmbracoProject.Features.csproj" />
   </ItemGroup>
 
 </Project>

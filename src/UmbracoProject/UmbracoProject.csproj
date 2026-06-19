@@ -60,6 +60,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../HelloWorld/HelloWorld.csproj" />
+    <ProjectReference Include="../UmbracoProject.Features/UmbracoProject.Features.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -1,4 +1,4 @@
-namespace UmbracoProject.Services;
+namespace UmbracoProject.Features.Services.Search;
 
 public enum SearchMode
 {

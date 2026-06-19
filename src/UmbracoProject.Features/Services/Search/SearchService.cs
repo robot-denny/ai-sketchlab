@@ -12,7 +12,7 @@ using SearchCoreConstants = Umbraco.Cms.Search.Core.Constants;
 using ProviderDocument = Umbraco.Cms.Search.Core.Models.Searching.Document;
 using ProviderSearchResult = Umbraco.Cms.Search.Core.Models.Searching.SearchResult;
 
-namespace UmbracoProject.Services;
+namespace UmbracoProject.Features.Services.Search;
 
 /// <summary>
 /// Routes search queries to either keyword (Examine) or AI semantic (vector) search,

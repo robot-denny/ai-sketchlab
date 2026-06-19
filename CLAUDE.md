@@ -84,7 +84,7 @@ These remain in the thin host and are **not** moved into the RCL:
 - `Program.cs` (entry point + middleware wiring), `appsettings*.json`, `wwwroot/` (static assets).
 - `umbraco/` and all `.uda` schema artifacts under `umbraco/Deploy/Revision/`.
 - **All Razor views** — page templates (`Views/*.cshtml`) and block components (`Views/Partials/blocklist|blockgrid/Components/`) stay at their stock Umbraco locations under `src/UmbracoProject/Views/`. No view is embedded in the RCL this increment (see *Recorded deferrals*).
-- The package-registration composer `SearchComposer.cs` (which calls `.AddSearchCore()` / `.AddExamineSearchProvider()` / `.AddBackOfficeSearch()`) stays in the host — it wires up the search *packages*; the relocated `SearchServiceComposer` in the RCL registers the *application service*.
+- The package-registration composer `SearchComposer.cs` (which calls `.AddSearchCore()` / `.AddExamineSearchProvider()` / `.AddBackOfficeSearch()` / `.AddDeliveryApiSearch()`) stays in the host — it wires up the search *packages*; the relocated `SearchServiceComposer` in the RCL registers the *application service*.
 
 `HelloWorld` remains a distinct backoffice-extension project; it is **not** merged into the Features RCL. Its ImageGenerator/Palettes clusters migrate within `HelloWorld` (or into the RCL) in a later slice — end-state relationship is TBD under `arch-feature-folder-migration`.
 

@@ -15,6 +15,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- jcdcdev.Umbraco.ExtendedMarkdownEditor: required because a generated PublishedModel
+         (Documentation.MarkdownContent) is strongly typed to its MarkdownValue. Pinned to the
+         host's version — Cloud's CI/CD Flow validator rejects Version="*". -->
+    <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="17.0.5" />
+    <!-- MessagePack: direct pin to float the transitive (Umbraco.Cms.Search.Core 1.0.0 → MessagePack
+         [3.1.4,)) up to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x (high, NU1903)
+         plus the moderate NU1902 advisories; 3.1.7 is the fix. The open dependency range lets us pin
+         forward without breaking the chain — so we resolve the vulnerability rather than suppress it.
+         Mirrors the host's pin. Revisit when Umbraco's Search chain ships a newer MessagePack itself. -->
+    <PackageReference Include="MessagePack" Version="3.1.7" />
     <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cms" Version="17.4.2" />
     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />

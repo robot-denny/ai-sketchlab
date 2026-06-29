@@ -44,12 +44,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Fast-fail guard for obsolete-API (CS0618) usage in Razor views. Cloud's
-      # runtime Razor compile honors TWAE but not csproj <NoWarn>, so these 500
-      # in production; `dotnet build` can't see them (InMemoryAuto models aren't
-      # present at build time). Mirrors the local pre-push lint.
-      - name: Lint obsolete Razor navigation APIs
-        run: ./.githooks/lint-obsolete-razor-api.sh
+      # NOTE: the standalone obsolete-API lint (`.githooks/lint-obsolete-razor-api.sh`)
+      # was retired in `arch-modelsbuilder-source-mode` (2026-06-29). With ModelsBuilder
+      # in source-mode + build-time Razor compilation on, the `dotnet build` step below
+      # compiles every .cshtml and gates CS0618 directly — superseding the lint heuristic.
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4

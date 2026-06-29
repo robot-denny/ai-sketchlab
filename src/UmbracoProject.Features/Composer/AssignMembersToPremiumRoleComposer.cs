@@ -1,7 +1,8 @@
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.Notifications;
+using UmbracoProject.Features.Infrastructure;
 
-namespace UmbracoProject;
+namespace UmbracoProject.Features.Composer;
 
 public class AssignMembersToPremiumRoleComposer : IComposer
 {

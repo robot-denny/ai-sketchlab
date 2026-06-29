@@ -4,6 +4,7 @@ using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
+using UmbracoProject.Features.Infrastructure;
 using Xunit;
 
 namespace UmbracoProject.Tests.Infrastructure;

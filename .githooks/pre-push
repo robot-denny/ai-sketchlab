@@ -60,18 +60,11 @@ BUILD_LOG=$(mktemp)
 TEST_LOG=$(mktemp)
 trap 'rm -f "$BUILD_LOG" "$TEST_LOG"' EXIT INT TERM HUP
 
-# ---- Lint: obsolete Razor navigation APIs ----
-# Cheap, fast-fail guard for the CS0618-in-.cshtml class that `dotnet build`
-# cannot catch (InMemoryAuto models aren't present at build time, so build-time
-# Razor compile dies on CS0234 first). These views 500 on Cloud's runtime Razor
-# compile. See .githooks/lint-obsolete-razor-api.sh for the full rationale.
-if ! "$REPO_ROOT/.githooks/lint-obsolete-razor-api.sh"; then
-  echo ""
-  echo "  Fix the unguarded obsolete APIs above and push again."
-  echo "  To bypass: git push --no-verify"
-  echo ""
-  exit 1
-fi
+# NOTE: the obsolete-Razor-API lint (lint-obsolete-razor-api.sh) was retired once
+# ModelsBuilder source-mode (arch-modelsbuilder-source-mode) enabled build-time
+# Razor compilation. The compiler now flags every CS0618 (obsolete-API) usage in
+# .cshtml during `dotnet build` below — a superset of what the lint hand-matched —
+# so unguarded obsolete calls fail the build here (and in CI Gate 1) directly.
 
 # ---- Build ----
 START_BUILD=$(date +%s)

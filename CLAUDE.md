@@ -98,8 +98,44 @@ These remain in the thin host and are **not** moved into the RCL:
 
 After studying the reference in full, the agency standard decomposes into three tiers; this project **adopts** the project split + folder-by-kind taxonomy and **defers/declines** the third. Two decisions are recorded here so later slices don't re-decide them:
 
-1. **ModelsBuilder `InMemoryAuto` → source-mode switch — DEFERRED (gating, recommended next).** This project uses `InMemoryAuto` (models generated at runtime under `umbraco/Data/TEMP/InMemoryAuto/`), so **any C# or view that references a generated `PublishedModels.*` type cannot live in the build-time-compiled RCL** — it fails `CS0234` at build. Search was RCL-safe (it touches generated models only in a doc comment), so the pilot needed no switch. Migrating *model-coupled* code (most page controllers, some handlers, any RCL-embedded view) is **gated** on switching to source-mode ModelsBuilder (committed `Models/Generated/`). That switch is high-value independently — it also unblocks build-time Razor obsolete-API detection (retiring `[[project_inmemoryauto_blocks_buildtime_razor.md]]` and de-risking `arch-obsolete-api-migration`) — but it is a separate, deliberately-scoped increment (`arch-modelsbuilder-source-mode` in the ROADMAP), sequenced immediately after this pilot and before any model-coupled migration slice.
+1. **ModelsBuilder `InMemoryAuto` → source-mode switch — SHIPPED (2026-06-29, `arch-modelsbuilder-source-mode`).** This was the gating deferral: under `InMemoryAuto`, **any C# or view that references a generated `PublishedModels.*` type could not live in the build-time-compiled RCL** — it failed `CS0234` at build. Search was RCL-safe (it touches generated models only in a doc comment), so the pilot needed no switch; migrating *model-coupled* code (most page controllers, some handlers, any RCL-embedded view) was gated on it. **It has now shipped** — ModelsBuilder runs in `SourceCodeManual` with committed models under `src/UmbracoProject.Features/Models/Generated/`, so model-coupled C# can now build-time-compile in the RCL. It also turned build-time Razor compilation back on, making obsolete-API detection a build gate. See the [`## ModelsBuilder`](#modelsbuilder) section below for the full mechanism.
 2. **Embedded-views rendering framework — DECLINED (parity-only).** The reference embeds Razor views *in the RCL* as `<EmbeddedResource>`, enabled by a substantial homegrown framework: per-page route-hijacking controllers, an `IViewModelFactory`, an `ITemplateCoordinator` (alias→view registration), a `BaseController`, and custom `HtmlExtensions`. This is a large port whose value is mostly already achieved here by stock Umbraco block/template conventions + the already-extracted `SearchService`. It was **declined** as parity-for-parity (low marginal resilience). Views stay in the host's stock `Views/` locations; **no `IViewLocationExpander`, `ViewModelFactory`, or `TemplateCoordinator` is introduced.** Recorded as an explicitly-optional future increment under `arch-feature-folder-migration` — pursue only if pages accrete logic that justifies it.
+
+## ModelsBuilder
+
+ModelsBuilder runs in **`SourceCodeManual`** mode (it was previously the Umbraco default **`InMemoryAuto`**, which generated PublishedModels at runtime into the gitignored `umbraco/Data/TEMP/InMemoryAuto/`). Committed source is now the single source of truth — Cloud never regenerates models on boot.
+
+### Where the models live (and why the RCL)
+
+The generated `*.generated.cs` models are committed under [src/UmbracoProject.Features/Models/Generated/](src/UmbracoProject.Features/Models/Generated/) — **in the RCL, not the host**. This is forced by dependency direction: the RCL can't reference the host, so for any future *model-coupled* RCL code (services, handlers, controllers) to compile against `PublishedModels.*`, the models must live in (or below) the RCL. The host sees them transitively via its existing `ProjectReference` to `UmbracoProject.Features`. This was the gate identified by the Pillar 2 push — see *Recorded deferrals → item 1* under [Solution architecture](#solution-architecture).
+
+The **namespace is unchanged** — `Umbraco.Cms.Web.Common.PublishedModels` (the ModelsBuilder default) — so no existing view or C# file needed a `using`/namespace edit when the switch landed.
+
+### Configuration
+
+In [src/UmbracoProject/appsettings.json](src/UmbracoProject/appsettings.json) under `Umbraco:CMS:ModelsBuilder`:
+
+- `ModelsMode: SourceCodeManual` — committed source is authoritative; no runtime/boot regeneration.
+- `ModelsDirectory: ../UmbracoProject.Features/Models/Generated` — relative to the host content root, points into the RCL.
+- `AcceptUnsafeModelsDirectory: true` — required because the directory is outside the host project.
+
+Because this lives in committed `appsettings.json`, it applies to local and **every Cloud environment** identically — committed models are authoritative everywhere, and no environment auto-regenerates.
+
+### Regenerating models when the schema changes
+
+`SourceCodeManual` does **not** regenerate automatically. When you change a document type / element type in the backoffice:
+
+1. **Settings → ModelsBuilder → Generate models** (or `POST /umbraco/management/api/v1/models-builder/build` via the Management API).
+2. `git diff` the updated `*.generated.cs` under `src/UmbracoProject.Features/Models/Generated/` — confirm the change matches your schema edit.
+3. Commit the regenerated models alongside the `.uda` schema change.
+
+Stale models (forgetting step 1) won't break the build, but model-coupled code won't see the new property until you regenerate.
+
+### Build-time Razor compilation + obsolete-API gate
+
+Switching off `InMemoryAuto` let build-time Razor compilation be turned back on — the host csproj's `RazorCompileOnBuild=false` / `RazorCompileOnPublish=false` flags were removed. So `dotnet build` now compiles views and gates **obsolete-API (`CS0618`) usage at build time**, instead of those errors only surfacing on Cloud's first-request runtime Razor compile. Existing obsolete usages are grandfathered with scoped per-call-site `#pragma warning disable/restore CS0618` (e.g. [Views/Partials/v2/_SiteHead.cshtml](src/UmbracoProject/Views/Partials/v2/_SiteHead.cshtml)); new unguarded usage fails the build. The migration off obsolete APIs is tracked as ROADMAP `arch-obsolete-api-migration`. The former `.githooks/lint-obsolete-razor-api.sh` stopgap was retired — the compiler now supersedes it.
+
+Turning on build-time Razor compile also surfaced ~102 pre-existing nullable-reference-type warnings across 22 views (idiomatic Umbraco template code never previously nullable-checked under runtime-compile). These are grandfathered project-wide via `<NoWarn>` `CS8600;CS8602;CS8603;CS8604` on [UmbracoProject.csproj](src/UmbracoProject/UmbracoProject.csproj); incremental per-view cleanup is tracked as ROADMAP `arch-view-nullable-hardening`.
 
 ## Pinned betas — do not float
 

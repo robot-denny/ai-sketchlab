@@ -1,9 +1,10 @@
+using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
 using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Services;
 
-namespace UmbracoProject;
+namespace UmbracoProject.Features.Infrastructure;
 
 public class AssignMembersToPremiumRoleHandler :
     INotificationHandler<MemberSavedNotification>

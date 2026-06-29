@@ -8,11 +8,16 @@
          pulled transitively via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net.
          We cannot pin a patched version without breaking Umbraco's locked Examine chain.
          Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00017.
-         CS0618: "obsolete API" warnings. Several Razor views still use APIs Umbraco has
-         deprecated for v18 (e.g., `IPublishedContent.Children` → `IDocumentNavigationQueryService.TryGetChildrenKeys()`).
-         Suppressed project-wide because Cloud's runtime Razor compiler honors TWAE and turns
-         these into hard errors on first-request compilation. Tracked as a follow-up migration
-         in ROADMAP (`arch-obsolete-api-migration`); remove this suppression once that's shipped.
+         CS0618 is NOT suppressed here: obsolete-API ("deprecated for v18") usage is now gated
+         at build time. With build-time Razor compilation on (arch-modelsbuilder-source-mode),
+         every CS0618 site in a .cshtml is enumerated by `dotnet build` — so each EXISTING
+         obsolete call site is grandfathered with a scoped `#pragma warning disable/restore CS0618`
+         at the call site (e.g. Views/Partials/v2/_SiteHead.cshtml), and any NEW unguarded obsolete
+         usage fails the build. Migrating those grandfathered sites off the obsolete APIs (e.g.
+         `IPublishedContent.Children` → `IDocumentNavigationQueryService.TryGetChildrenKeys()`)
+         is tracked separately in ROADMAP (`arch-obsolete-api-migration`). Per-call-site pragmas
+         (not a project-wide <NoWarn>) are required because Cloud's runtime Razor compiler honors
+         TWAE but does NOT read the csproj <NoWarn> list.
          CS8600/CS8602/CS8603/CS8604: nullable-reference-type warnings. Enabling build-time Razor
          compilation (arch-modelsbuilder-source-mode) made the compiler check ~102 pre-existing
          nullable sites across 22 views — idiomatic Umbraco template code (`.Url()`, `.Children<T>()`,
@@ -22,7 +27,7 @@
          the UmbracoProject.Features RCL (which keeps <Nullable>enable</Nullable>), so the lasting
          gap is only Program.cs + a few Helpers. Tracked for incremental cleanup in ROADMAP
          (`arch-view-nullable-hardening`); remove these once views carry explicit null handling. -->
-    <NoWarn>$(NoWarn);NU1903;CS0618;CS8600;CS8602;CS8603;CS8604</NoWarn>
+    <NoWarn>$(NoWarn);NU1903;CS8600;CS8602;CS8603;CS8604</NoWarn>
     <CompressionEnabled>false</CompressionEnabled> <!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
   </PropertyGroup>
 

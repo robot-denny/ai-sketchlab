@@ -29,6 +29,17 @@
          (`arch-view-nullable-hardening`); remove these once views carry explicit null handling. -->
     <NoWarn>$(NoWarn);NU1903;CS8600;CS8602;CS8603;CS8604</NoWarn>
     <CompressionEnabled>false</CompressionEnabled> <!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
+    <!-- ErrorOnDuplicatePublishOutputFiles=false: Umbraco.Cms.Targets' `CopyUmbracoJsonSchemaFiles`
+         target runs unconditionally in EVERY project that references Umbraco.Cms, so both this host
+         AND the UmbracoProject.Features RCL emit identically-named IDE-assist schema files
+         (appsettings-schema.json, appsettings-schema.Umbraco.Cms.json, umbraco-package-schema.json).
+         They build fine, but collide at the same relative path during `dotnet publish` → NETSDK1152,
+         which `dotnet build` never surfaces (so it passed Gate 1 + the pre-push hook) but fails the
+         Cloud Kudu `deploy.cmd` publish on a Portal Dev→Live promotion (Run 50, 2026-06-29). The
+         target has no opt-out property; these schema files are dev-only IDE assist with no runtime
+         effect, so letting the publish dedupe them (host copy wins) is safe. ALWAYS run
+         `dotnet publish -c Release` — not just `dotnet build` — when verifying RCL-split changes. -->
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>

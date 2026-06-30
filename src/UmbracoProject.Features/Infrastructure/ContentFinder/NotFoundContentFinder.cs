@@ -3,7 +3,7 @@ using Umbraco.Cms.Core.Routing;
 using Umbraco.Cms.Core.Services.Navigation;
 using Umbraco.Cms.Core.Web;
 
-namespace UmbracoProject;
+namespace UmbracoProject.Features.Infrastructure.ContentFinder;
 
 /// <summary>
 ///     Routes unresolved URLs to the published <c>Error</c> doc-type node and returns HTTP 404.

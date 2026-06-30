@@ -1,8 +1,8 @@
 using Umbraco.Cms.Core.Composing;
 using Umbraco.Cms.Core.DependencyInjection;
-using Umbraco.Extensions;
+using UmbracoProject.Features.Infrastructure.ContentFinder;
 
-namespace UmbracoProject;
+namespace UmbracoProject.Features.Composer;
 
 /// <summary>
 ///     Registers <see cref="NotFoundContentFinder" /> as the project's

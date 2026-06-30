@@ -1,3 +1,5 @@
+using UmbracoProject.Features.Infrastructure;
+
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.CreateUmbracoBuilder()
@@ -15,24 +17,11 @@ await app.BootUmbracoAsync();
 
 app.UseHttpsRedirection();
 
-// Internal rewrite: /sitemap.xml → /xmlsitemap. The xMLSitemap doc-type's
-// natural template URL is /xmlsitemap (derived from the alias), but
-// /sitemap.xml is the canonical industry-standard URL. Rewriting before
-// Umbraco's content routing lets the existing template render under its
-// normal request pipeline (with IUmbracoContext active throughout view
-// execution); a SurfaceController or IContentFinder approach can't
-// because the `.xml` extension is filtered out of Umbraco's content
-// routing (treated as a static-asset URL). Client-visible URL stays
-// /sitemap.xml — this is an internal rewrite, not a redirect.
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.Equals("/sitemap.xml", StringComparison.OrdinalIgnoreCase))
-    {
-        context.Request.Path = "/xmlsitemap";
-    }
-
-    await next();
-});
+// Internal rewrite: /sitemap.xml → /xmlsitemap. Must stay between UseHttpsRedirection()
+// and UseUmbraco() — the rewrite has to run before Umbraco's content routing sees the
+// request (the `.xml` extension is otherwise filtered out as a static-asset URL). See
+// SitemapRewriteMiddleware for the full rationale.
+app.UseSitemapRewrite();
 
 app.UseUmbraco()
     .WithMiddleware(u =>

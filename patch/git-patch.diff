@@ -1,57 +1,12 @@
-diff --git a/src/HelloWorld/HelloWorld.csproj b/src/HelloWorld/HelloWorld.csproj
-index 7bf036d..1a8fec0 100644
---- a/src/HelloWorld/HelloWorld.csproj
-+++ b/src/HelloWorld/HelloWorld.csproj
-@@ -19,10 +19,10 @@
-          Cloud's CI/CD Flow deploy validator rejects `Version="*"` wildcards
-          (NU1604 / "Unsupported Version format *"), even though local dev
-          tolerates them. Keep in sync with the metapackage on upgrades. -->
--    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.4.2" />
--    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.4.2" />
--    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.4.2" />
--    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.4.2" />
-+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.5.0" />
-+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.5.0" />
-+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.5.0" />
-+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.5.0" />
-     <!-- Direct pin to float the transitive MessagePack (via Umbraco.Cms.Search.Core 1.0.0,
-          range [3.1.4,)) to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x
-          (high, NU1903); 3.1.7 fixes it. Resolving the vuln rather than suppressing NU1903 —
-diff --git a/src/UmbracoProject.Features/UmbracoProject.Features.csproj b/src/UmbracoProject.Features/UmbracoProject.Features.csproj
-index 186013d..d047071 100644
---- a/src/UmbracoProject.Features/UmbracoProject.Features.csproj
-+++ b/src/UmbracoProject.Features/UmbracoProject.Features.csproj
-@@ -26,7 +26,7 @@
-          Mirrors the host's pin. Revisit when Umbraco's Search chain ships a newer MessagePack itself. -->
-     <PackageReference Include="MessagePack" Version="3.1.7" />
-     <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
--    <PackageReference Include="Umbraco.Cms" Version="17.4.2" />
-+    <PackageReference Include="Umbraco.Cms" Version="17.5.0" />
-     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
-   </ItemGroup>
- 
-diff --git a/src/UmbracoProject/UmbracoProject.csproj b/src/UmbracoProject/UmbracoProject.csproj
-index 4a63303..07c158b 100644
---- a/src/UmbracoProject/UmbracoProject.csproj
-+++ b/src/UmbracoProject/UmbracoProject.csproj
-@@ -64,15 +64,15 @@
-     <PackageReference Include="Umbraco.AI.Prompt" Version="1.8.8" />
-     <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="1.0.1" />
-     <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
--    <PackageReference Include="Umbraco.Cloud.Cms" Version="17.1.3" />
--    <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.0.0" />
--    <PackageReference Include="Umbraco.Cms" Version="17.4.2" />
--    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.4.2" />
-+    <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.0" />
-+    <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.1.0" />
-+    <PackageReference Include="Umbraco.Cms" Version="17.5.0" />
-+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.5.0" />
-     <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="1.0.0" />
-     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
-     <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0" />
-     <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.9" />
--    <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.1.0" />
-+    <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.2.0" />
-     <PackageReference Include="Umbraco.Forms" Version="17.4.2" />
-     <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.0" />
-   </ItemGroup>
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda
+index 2649c14..d9013d3 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda
+@@ -81,5 +81,5 @@
+     }
+   ],
+   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+-  "__version": "17.1.0"
++  "__version": "17.2.0"
+ }
+\ No newline at end of file

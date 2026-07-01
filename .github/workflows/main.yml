@@ -11,7 +11,12 @@
 # Pipeline shape (two-gate model, see _specs/arch-safety-net.md):
 #   Gate 1 (gate-1-build-test) runs on ALL branches: dotnet restore + build + xUnit.
 #   Gate 2 (cloud-sync -> cloud-artifact -> cloud-deployment -> playwright-against-dev)
-#     runs ONLY on master pushes.
+#     runs ONLY on master pushes. Inside playwright-against-dev, a warm-up gate
+#     (.github/scripts/wait_for_search_warm.sh) runs between the Dev deploy and
+#     Playwright: Umbraco.AI.Search comes up cold after a deploy and every
+#     POST /document (the way Playwright creates fixtures) 500s while the searcher
+#     is cold, cascading into ~9 misleading failures. The gate polls Dev /search
+#     until it serves (or fails fast with a diagnostic) before Playwright launches.
 #   Feature-branch pushes get Gate 1 only -- no Cloud deploys, no Playwright.
 
 name: pipeline
@@ -118,10 +123,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Sanity check Dev is up
+      # Warm-up gate: Umbraco.AI.Search comes up cold after the Dev deploy (vector
+      # data survives, but the searcher isn't serving yet). AI.Search hooks the
+      # publish pipeline to embed each document, so every POST /document 500s while
+      # cold -- and Playwright creates fixtures via POST /document, so one cold
+      # subsystem cascades into ~9 misleading test failures. This step polls Dev
+      # /search until it serves (or fails fast with a diagnostic) before Playwright
+      # launches. It only needs curl + the OAuth secrets, so it runs right after
+      # checkout (before Node setup). It supersedes the old thin "Sanity check Dev
+      # is up" home-page curl: the script's first probe hits /search (200 + marker),
+      # which already implies the site is reachable.
+      - name: Wait for Dev search to warm up
         env:
           URL: ${{ vars.URL }}
-        run: curl -fSs "$URL" >/dev/null
+          UMBRACO_CLIENT_ID: ${{ secrets.UMBRACO_CLIENT_ID }}
+          UMBRACO_CLIENT_SECRET: ${{ secrets.UMBRACO_CLIENT_SECRET }}
+        run: bash .github/scripts/wait_for_search_warm.sh
 
       - name: Setup Node 22
         uses: actions/setup-node@v4

@@ -43,7 +43,7 @@ For E2E tests, see the **Testing** section below.
 
 **Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.4.2, Umbraco.Cms.DevelopmentMode.Backoffice 17.4.2, Umbraco.Cloud.Cms 17.1.3, Umbraco.Cloud.StorageProviders.AzureBlob 17.0.0, Umbraco.Forms 17.4.2, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.1.0, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
+**Key NuGet packages**: Umbraco.Cms 17.5.1, Umbraco.Cms.DevelopmentMode.Backoffice 17.5.1, Umbraco.Cloud.Cms 17.2.0, Umbraco.Cloud.StorageProviders.AzureBlob 17.1.0, Umbraco.Forms 17.4.4, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.2.0, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
 
 **AI packages**: Umbraco.AI 1.14.0, Umbraco.AI.Agent 1.10.4, Umbraco.AI.Agent.Copilot 1.0.1 (copilot chat surface), Umbraco.AI.Agent.UI 1.0.1 (shared chat UI components), Umbraco.AI.AGUI 1.10.4 (AG-UI protocol SDK), Umbraco.AI.Anthropic 1.3.6, Umbraco.AI.Google 1.1.11, Umbraco.AI.OpenAI 1.2.6, Umbraco.AI.Prompt 1.8.8. **As of Umbraco.AI 1.14.0**, `$`-referenced configuration keys must be allow-listed — see *AI config-key allow-list* under AI & Copilot.
 

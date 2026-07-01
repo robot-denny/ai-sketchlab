@@ -66,14 +66,14 @@
     <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.0" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.1.0" />
-    <PackageReference Include="Umbraco.Cms" Version="17.5.0" />
-    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.5.0" />
+    <PackageReference Include="Umbraco.Cms" Version="17.5.1" />
+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.5.1" />
     <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.9" />
     <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.2.0" />
-    <PackageReference Include="Umbraco.Forms" Version="17.4.2" />
+    <PackageReference Include="Umbraco.Forms" Version="17.4.4" />
     <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.0" />
   </ItemGroup>
 

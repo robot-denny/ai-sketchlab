@@ -28,6 +28,13 @@
          (high, NU1903); 3.1.7 fixes it. Resolving the vuln rather than suppressing NU1903 —
          keep aligned with the same pin in UmbracoProject.csproj. -->
     <PackageReference Include="MessagePack" Version="3.1.7" />
+    <!-- Direct pin to float the transitive Microsoft.OpenApi (via Swashbuckle.AspNetCore 10.1.7,
+         pulled in by Umbraco.Cms.Api.Common / Api.Management) past GHSA-v5pm-xwqc-g5wc — a high-
+         severity circular-schema-reference DoS. 2.4.1 (the version Swashbuckle 10.1.7 resolves)
+         is vulnerable; the 2.x line is patched in 2.7.5, which stays API-compatible with
+         Swashbuckle's expected 2.x. Resolving the vuln rather than suppressing NU1903. Drop this
+         pin once Umbraco's Swashbuckle dependency floats to a patched Microsoft.OpenApi itself. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
   </ItemGroup>
 
   <ItemGroup>

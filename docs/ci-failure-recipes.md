@@ -152,3 +152,31 @@ Both `altText` values should be non-empty descriptive strings. If `.altText` is 
 **Followup ROADMAP entry**: `fix-imagecarousel-first-image-picker` — make the test deterministic (seed a known media item with known altText, or set altText in `beforeAll` with restoration in `afterAll`). Captured 2026-05-29.
 
 **Lesson — what the original spec missed** — assumed Live was a usable "source of truth" without probing Live's actual content. Always verify the suspected source environment matches the desired end state BEFORE planning a restore as the fix. And: when a test passes locally but fails on Dev+Live, suspect a local-only content drift (someone set the alt text locally but never pushed up) more than a Live→Dev sync gap.
+
+### cold AI.Search — `POST /document` 500 cascade after a Dev deploy
+
+**Failure signature** — `playwright-against-dev` goes red with ~9 failures. The primary tell is a cluster of fixture-creation failures: `POST /document` returns `500 "Unknown error"` in test `beforeAll`/setup blocks (spread across `search`, `search.screenshot`, `articleCardMetaDescription`, `ellaBlockAttribution`, `experiments.blockgrid`, `guides-cli`, `sectionNavigation`), followed by downstream `toBeVisible` / locator-resolution timeouts on the pages that depended on those never-created fixtures. The failures look scattered across unrelated specs, but they share one upstream cause.
+
+**Root cause** — `Umbraco.AI.Search` comes up **cold** after a Gate 2 deploy to Dev. `cloud-deployment` reports "finished" before the deployed app is actually *serving* search: the vector data survives the deploy (`documentCount` stays ~179), but the searcher isn't hydrated yet. Because `AI.Search` hooks the publish pipeline to embed each document, every `POST /document` throws `500` while the embedding path is cold — and Playwright creates its fixtures via `POST /document`, so one cold subsystem cascades into ~9 misleading test failures.
+
+**Diagnostic tell** — `GET $URL/search?q=article` returns **HTTP 200 but the body says "No matches"** (cold), instead of containing an `article-grid-card` marker (serving). This distinguishes a cold subsystem from an empty index — the vector data is present, the searcher just isn't serving from it yet.
+
+```bash
+DEV_URL="https://dev-umbraco-17-demo-site.useast01.umbraco.io"
+# "No matches" in the body ⇒ cold (data intact, searcher unhydrated); an
+# `article-grid-card` in the body ⇒ serving.
+curl -sk "$DEV_URL/search?q=article" | grep -c 'article-grid-card'
+```
+
+**This is a cold subsystem, NOT an empty index.** For a **human** the correct move is to **restart Dev from the Cloud Portal** — do **not** rebuild the index (the data is fine; a rebuild is churn a restart avoids). CI, however, has **no restart lever**: the Cloud CI/CD Flow API exposes deployment/artifact endpoints only, so restart is Portal-only. The CI-automatable equivalent of the human "restart" is therefore a **Management API `UmbAI_Search` rebuild**, which rehydrates the serving searcher to the same end state.
+
+**Fix (now automated in CI)** — the warm-up gate [`.github/scripts/wait_for_search_warm.sh`](../.github/scripts/wait_for_search_warm.sh), wired into `playwright-against-dev` (it replaced the old "Sanity check Dev is up" home-page curl, and runs *before* the Playwright step), self-heals this: it polls `GET $URL/search?q=article` for the `article-grid-card` serving marker; if still cold after a 60s passive grace it fires **one** `UmbAI_Search` rebuild via the Management API (`PUT {URL}/umbraco/search/api/v1/rebuild?indexAlias=UmbAI_Search`, Bearer auth), keeps polling to a 600s ceiling, and fails fast — **without launching Playwright** — if search never warms. So a cold deploy self-heals instead of needing a hand restart + `gh run rerun --failed`.
+
+**Reading the gate's log:**
+- A `>>> ESCALATION` line means the passive grace expired and the gate fired the one-time rebuild — normal for a genuinely cold deploy.
+- A `did not warm up within …` line means the gate hit the 600s ceiling and **skipped Playwright** — search never came up serving; investigate Dev (Cloud Portal deploy log, restart) rather than re-running blindly.
+- Neither line (a quick clean exit) means Dev was already warm and the gate passed without firing a rebuild.
+
+**Verification run id** — `TODO(backfill after first master merge): <run-id>`. The end-to-end proof (a real cold master deploy self-healing to green Playwright) can only be observed *after* this change is on master; capture the run id from the first such run and backfill it here.
+
+**Why this recurs** — every master merge triggers a fresh Dev deploy, and whether the searcher comes up warm or cold is timing-dependent (not controllable from CI). The gate makes the outcome deterministic regardless. If the gate itself starts failing at the ceiling repeatedly, that's a *real* Dev-health problem (or a search-stack regression), not the transient cold-start this recipe covers.

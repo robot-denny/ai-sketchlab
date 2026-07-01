@@ -276,11 +276,17 @@ The safety net that lets schema/structural refactors (e.g. moving ~60 Razor file
 [.github/workflows/main.yml](.github/workflows/main.yml) is the orchestrator. It runs a **two-gate** pipeline on every push:
 
 - **Gate 1 — `gate-1-build-test`** (every branch): `dotnet restore` → `dotnet build -c Release` → `dotnet test --no-build`. Runner-local; takes < 1 minute on a warm cache. Mirrors the local pre-push hook exactly so anything that slipped past the hook (or was skipped via `SKIP_PREPUSH=1`) still fails CI.
-- **Gate 2 — Cloud sync → artifact → deploy to Dev → Playwright** (master only): the four jobs are guarded by `if: github.ref == 'refs/heads/master'` at the `main.yml` level. Feature branches stop at Gate 1.
+- **Gate 2 — Cloud sync → artifact → deploy to Dev → search warm-up gate → Playwright** (master only): the four jobs are guarded by `if: github.ref == 'refs/heads/master'` at the `main.yml` level. Feature branches stop at Gate 1. (`playwright-against-dev` runs a search warm-up gate before Playwright — see *Post-deploy search warm-up gate* below.)
 
 The three Cloud jobs (`cloud-sync` / `cloud-artifact` / `cloud-deployment`) are reusable workflows under [.github/workflows/](.github/workflows/), mostly verbatim from the upstream Umbraco Cloud CI/CD Flow sample. The six bash scripts they call live under [.github/scripts/](.github/scripts/) — two of them carry local patches for upstream bugs (search the scripts for "Fixed locally:" to see the rationale).
 
 `concurrency: ${{ github.ref }}` with `cancel-in-progress: true` is set at the `main.yml` workflow level — rapid pushes to the same branch cancel any in-flight runs.
+
+### Post-deploy search warm-up gate (between Dev deploy and Playwright)
+
+`cloud-deployment` reports "finished" before the deployed Dev app is actually *serving* search — `Umbraco.AI.Search` comes up **cold** (its vector data survives the deploy, but the searcher isn't hydrated yet). Because `AI.Search` hooks the publish pipeline to embed each document, every `POST /document` throws `500` while cold — and `playwright-against-dev` creates its fixtures via `POST /document`, so one cold subsystem used to cascade into ~9 misleading test failures needing a hand Portal restart + `gh run rerun --failed`.
+
+The `playwright-against-dev` job now runs [`.github/scripts/wait_for_search_warm.sh`](.github/scripts/wait_for_search_warm.sh) (env `URL` / `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET`) right after checkout, replacing the old thin "Sanity check Dev is up" home-page curl and running *before* the Playwright step. It **poll → escalate-to-rebuild → poll → fail-fast**: polls `GET $URL/search?q=article` for the `article-grid-card` serving marker (probe every 10s); if still cold after a 60s passive grace it fires **one** `UmbAI_Search` rebuild via the Management API (`PUT {URL}/umbraco/search/api/v1/rebuild?indexAlias=UmbAI_Search`) — CI can't restart Dev (the Cloud CI/CD Flow API has no restart endpoint; restart is Portal-only), so a rebuild is the automatable equivalent of the human "restart"; then keeps polling to a 600s ceiling and, if search never warms, fails fast **without launching Playwright**. So a cold deploy self-heals instead of needing manual intervention. Reading its log: `>>> ESCALATION` = it fired the rebuild; `did not warm up within …` = it hit the ceiling and skipped Playwright. Full playbook: [CI Failure Recipes → cold AI.Search 500 cascade](docs/ci-failure-recipes.md).
 
 ### Master → Dev → manual promotion to Live
 
@@ -685,6 +691,20 @@ Entry-point commands per layer: `/spec <slug>` → `/plan _specs/<slug>.md` → 
 ## Deployment
 
 Deploys are wired through **GitHub Actions → Umbraco Cloud CI/CD Flow** — see [`## CI/CD & Build hygiene`](#cicd--build-hygiene) above for the full pipeline (two gates, master-only deploy to Dev, manual promotion to Live in the Cloud Portal). The `.umbraco` file at the repo root still tells Cloud which `.csproj` to build; it just isn't triggered by a direct git push to a Cloud remote anymore — GitHub Actions calls the Cloud CI/CD Flow API instead. Environment-specific config is in `appsettings.{Development,Staging,Production}.json`.
+
+### Git remotes — always push to `github`, never `origin`
+
+This clone has **three** remotes, and `origin` is a trap:
+
+| Remote | URL | What it is | Push here? |
+|---|---|---|---|
+| `github` | `github.com/robot-denny/ai-sketchlab` | **The dev repo** — code, PRs, GitHub Actions CI/CD. `master` tracks this. | **Yes — all normal git work.** |
+| `origin` | `scm.umbraco.io/.../umbraco-17-demo-site` | Umbraco Cloud **Live** SCM | No |
+| `dev-cloud` | `scm.umbraco.io/.../dev-umbraco-17-demo-site` | Umbraco Cloud **Dev** SCM | No |
+
+**All pushes, branches, and PRs go to `github`.** The Cloud remotes (`origin`, `dev-cloud`) are *not* the deploy trigger — GitHub Actions calls the Cloud CI/CD Flow API (above), so you never `git push` to Cloud in the normal workflow.
+
+The trap: `git config remote.pushDefault` is **unset**, so git falls back to `origin` (= Cloud Live) for any branch without an upstream. `master` already tracks `github` so a bare `git push` on master is fine, but **`git push -u origin <new-branch>` pushes a feature branch to Cloud, not GitHub** — the wrong place, and it won't open a PR or run CI. When creating a branch, push explicitly: `git push -u github <branch>`. (A durable per-clone fix is `git config remote.pushDefault github`, which makes a bare `git push` target GitHub for every branch.)
 
 ## Formatting
 

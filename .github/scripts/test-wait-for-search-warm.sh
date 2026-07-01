@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# Smoke validation for the Gate 2 search warm-up gate (wait_for_search_warm.sh).
+# Smoke validation for the Gate 2 search readiness gate (wait_for_search_warm.sh).
 #
 # One-time validation artifact — committed but NOT wired into CI.
 # Mirrors the style of .githooks/test-pre-push.sh (per-case PASS/FAIL, exit 0
 # only when every case passes).
 #
 # It drives wait_for_search_warm.sh with NO real network by overriding the
-# script's HTTP seams (_probe_search / _get_token / _rebuild_index) with canned
-# stubs, and asserts each decision path:
-#   1. warm on first probe          → exit 0, rebuild NOT fired
-#   2. cold < sub-budget then warm  → exit 0, rebuild NOT fired
-#   3. cold past sub-budget, warm   → exit 0, rebuild fired ONCE (after escalation)
-#      after rebuild
-#   4. single transient 503 mid-poll → retried, not fatal (exit 0)
-#   5. cold the whole total budget  → non-zero exit, "did not warm up",
-#      rebuild attempted
+# script's seams (_probe_search / _sleep) with canned stubs, and asserts each
+# decision path of the detect-and-fail-fast gate:
+#   1. serving on first probe        → exit 0
+#   2. cold briefly then serving     → exit 0
+#   3. single transient 503 mid-poll → retried, not fatal (exit 0)
+#   4. cold the whole budget         → non-zero exit + fail-fast diagnostic
+#
+# (There is no rebuild/escalation path any more: a real cold master run proved a
+# rebuild does not rehydrate the running searcher, so the gate is detect-only —
+# see the script header and docs/ci-failure-recipes.md.)
 #
 # Usage:
 #   bash .github/scripts/test-wait-for-search-warm.sh
@@ -45,7 +46,7 @@ fail() {
 }
 
 echo ""
-echo "=== Search warm-up gate smoke validation ==="
+echo "=== Search readiness gate smoke validation ==="
 echo ""
 
 # Case (a): the script exists and is executable.
@@ -64,21 +65,13 @@ WORK="$(mktemp -d)"
 cleanup() { rm -rf "$WORK"; }
 trap cleanup EXIT
 
-# run_case <name> <stub-preamble-file> — sources the script into a subshell
-# harness that first defines the canned stubs, then invokes the script's main
-# entry (main "$@"). WARMUP_SOURCED=1 tells the script NOT to auto-run its main
-# loop on source, so the harness controls invocation after installing stubs.
-#
-# Each case writes a small preamble script (the stubs) to $WORK/preamble.sh.
-# The counters/probe-state live in files under $WORK so stubs (which run in
-# subshells for command substitution) can share state.
+# Each case writes a small preamble script (the stubs) under $WORK. The
+# probe-state lives in files under $WORK so stubs (which run in subshells for
+# command substitution) can share state across probes.
 
 # Tiny budgets so the whole harness runs in ~seconds.
 export URL="https://dev.example.test"
-export UMBRACO_CLIENT_ID="test-client"
-export UMBRACO_CLIENT_SECRET="test-secret"
 export PROBE_INTERVAL=1
-export INITIAL_POLL_BUDGET=2
 export TOTAL_BUDGET=6
 # Neutralize real sleeps: the script calls _sleep, overridable to a no-op.
 export WARMUP_SOURCED=1
@@ -99,147 +92,98 @@ run_with_stubs() {
 }
 
 # ---------------------------------------------------------------------------
-# Case 1: warm on first probe → exit 0, rebuild NOT fired.
+# Case 1: serving on first probe → exit 0.
 # ---------------------------------------------------------------------------
 echo ""
-echo "[1] Warm on first probe → exit 0, no rebuild"
-: > "$WORK/rebuild_count"
+echo "[1] Serving on first probe → exit 0"
 cat > "$WORK/stubs1.sh" <<EOF
 _probe_search() { echo "READY"; }
-_get_token() { echo "tok"; }
-_rebuild_index() { echo x >> "$WORK/rebuild_count"; }
 EOF
 OUT1="$(run_with_stubs "$WORK/stubs1.sh" 2>&1)"
 EXIT1=$?
-RB1=$(wc -l < "$WORK/rebuild_count" | tr -d ' ')
-if [ "$EXIT1" -eq 0 ] && [ "$RB1" -eq 0 ]; then
-  pass "exit 0, rebuild not fired"
+if [ "$EXIT1" -eq 0 ]; then
+  pass "exit 0 (gate open)"
 else
-  fail "expected exit 0 + 0 rebuilds, got exit=$EXIT1 rebuilds=$RB1"
+  fail "expected exit 0, got exit=$EXIT1"
   echo "$OUT1" | sed 's/^/      /'
 fi
 
 # ---------------------------------------------------------------------------
-# Case 2: cold for < sub-budget (a couple probes) then warm → exit 0, no rebuild.
-# INITIAL_POLL_BUDGET=2, PROBE_INTERVAL=1 → escalation happens once elapsed >= 2s.
-# We make it warm on the 2nd probe (before the 2s grace elapses in probe-count
-# terms). _sleep is overridden to a no-op, but the script still runs
-# `ELAPSED=$((ELAPSED + PROBE_INTERVAL))` after every _sleep, so the elapsed
-# counter advances at probe-count speed rather than wall-clock speed.
+# Case 2: cold for a couple probes then serving → exit 0.
+# _sleep is a no-op, but the script still runs `ELAPSED=$((ELAPSED +
+# PROBE_INTERVAL))` after every _sleep, so the counter advances at probe-count
+# speed and the budget is reached deterministically.
 # ---------------------------------------------------------------------------
 echo ""
-echo "[2] Cold briefly then warm before grace → exit 0, no rebuild"
-: > "$WORK/rebuild_count"
+echo "[2] Cold briefly then serving → exit 0"
 : > "$WORK/probe_n"
 cat > "$WORK/stubs2.sh" <<EOF
 _probe_search() {
   echo x >> "$WORK/probe_n"
   n=\$(wc -l < "$WORK/probe_n" | tr -d ' ')
-  if [ "\$n" -ge 2 ]; then echo "READY"; else echo "COLD"; fi
+  if [ "\$n" -ge 3 ]; then echo "READY"; else echo "COLD"; fi
 }
-_get_token() { echo "tok"; }
-_rebuild_index() { echo x >> "$WORK/rebuild_count"; }
 EOF
 OUT2="$(run_with_stubs "$WORK/stubs2.sh" 2>&1)"
 EXIT2=$?
-RB2=$(wc -l < "$WORK/rebuild_count" | tr -d ' ')
-if [ "$EXIT2" -eq 0 ] && [ "$RB2" -eq 0 ]; then
-  pass "exit 0, rebuild not fired (warmed within grace)"
+if [ "$EXIT2" -eq 0 ]; then
+  pass "exit 0 after warming mid-budget"
 else
-  fail "expected exit 0 + 0 rebuilds, got exit=$EXIT2 rebuilds=$RB2"
+  fail "expected exit 0, got exit=$EXIT2"
   echo "$OUT2" | sed 's/^/      /'
 fi
 
 # ---------------------------------------------------------------------------
-# Case 3: cold past sub-budget then warm after rebuild → exit 0, rebuild ONCE.
-# Stay cold until the rebuild has fired, then go warm.
+# Case 3: single transient 503 on the first probe → retried, then serving.
+# The readiness check treats a non-"READY" transient marker as "keep polling",
+# not fatal.
 # ---------------------------------------------------------------------------
 echo ""
-echo "[3] Cold past grace, warm after rebuild → exit 0, rebuild fired once"
-: > "$WORK/rebuild_count"
-cat > "$WORK/stubs3.sh" <<EOF
-_probe_search() {
-  c=\$(wc -l < "$WORK/rebuild_count" | tr -d ' ')
-  if [ "\$c" -ge 1 ]; then echo "READY"; else echo "COLD"; fi
-}
-_get_token() { echo "tok"; }
-_rebuild_index() { echo x >> "$WORK/rebuild_count"; }
-EOF
-OUT3="$(run_with_stubs "$WORK/stubs3.sh" 2>&1)"
-EXIT3=$?
-RB3=$(wc -l < "$WORK/rebuild_count" | tr -d ' ')
-if [ "$EXIT3" -eq 0 ] && [ "$RB3" -eq 1 ]; then
-  pass "exit 0, rebuild fired exactly once"
-else
-  fail "expected exit 0 + exactly 1 rebuild, got exit=$EXIT3 rebuilds=$RB3"
-  echo "$OUT3" | sed 's/^/      /'
-fi
-if echo "$OUT3" | grep -qi "rebuild"; then
-  pass "escalation logged a rebuild line"
-else
-  fail "no rebuild escalation line in output"
-  echo "$OUT3" | sed 's/^/      /'
-fi
-
-# ---------------------------------------------------------------------------
-# Case 4: single transient 503 on the first probe → retried, then warm. Exit 0.
-# The script's readiness check treats a non-"READY" transient marker as "keep
-# polling", not fatal.
-# ---------------------------------------------------------------------------
-echo ""
-echo "[4] Transient 503 mid-poll → retried, not fatal"
-: > "$WORK/rebuild_count"
+echo "[3] Transient 503 mid-poll → retried, not fatal"
 : > "$WORK/probe_n"
-cat > "$WORK/stubs4.sh" <<EOF
+cat > "$WORK/stubs3.sh" <<EOF
 _probe_search() {
   echo x >> "$WORK/probe_n"
   n=\$(wc -l < "$WORK/probe_n" | tr -d ' ')
   if [ "\$n" -eq 1 ]; then echo "TRANSIENT_503"; else echo "READY"; fi
 }
-_get_token() { echo "tok"; }
-_rebuild_index() { echo x >> "$WORK/rebuild_count"; }
 EOF
-OUT4="$(run_with_stubs "$WORK/stubs4.sh" 2>&1)"
-EXIT4=$?
-RB4=$(wc -l < "$WORK/rebuild_count" | tr -d ' ')
-if [ "$EXIT4" -eq 0 ] && [ "$RB4" -eq 0 ]; then
-  pass "exit 0 after transient retry, rebuild not fired"
+OUT3="$(run_with_stubs "$WORK/stubs3.sh" 2>&1)"
+EXIT3=$?
+if [ "$EXIT3" -eq 0 ]; then
+  pass "exit 0 after transient retry"
 else
-  fail "expected exit 0 + 0 rebuilds, got exit=$EXIT4 rebuilds=$RB4"
-  echo "$OUT4" | sed 's/^/      /'
+  fail "expected exit 0, got exit=$EXIT3"
+  echo "$OUT3" | sed 's/^/      /'
 fi
 
 # ---------------------------------------------------------------------------
-# Case 5: cold the whole total budget → non-zero exit, diagnostic, rebuild tried.
+# Case 4: cold the whole budget → non-zero exit + fail-fast diagnostic.
 # ---------------------------------------------------------------------------
 echo ""
-echo "[5] Cold for the whole budget → non-zero exit + diagnostic + rebuild attempted"
-: > "$WORK/rebuild_count"
-cat > "$WORK/stubs5.sh" <<EOF
+echo "[4] Cold for the whole budget → non-zero exit + fail-fast diagnostic"
+cat > "$WORK/stubs4.sh" <<EOF
 _probe_search() { echo "COLD"; }
-_get_token() { echo "tok"; }
-_rebuild_index() { echo x >> "$WORK/rebuild_count"; }
 EOF
-OUT5="$(run_with_stubs "$WORK/stubs5.sh" 2>&1)"
-EXIT5=$?
-RB5=$(wc -l < "$WORK/rebuild_count" | tr -d ' ')
-if [ "$EXIT5" -ne 0 ]; then
-  pass "non-zero exit ($EXIT5) on exhausted budget"
+OUT4="$(run_with_stubs "$WORK/stubs4.sh" 2>&1)"
+EXIT4=$?
+if [ "$EXIT4" -ne 0 ]; then
+  pass "non-zero exit ($EXIT4) on exhausted budget"
 else
-  fail "expected non-zero exit, got $EXIT5"
-  echo "$OUT5" | sed 's/^/      /'
+  fail "expected non-zero exit, got $EXIT4"
+  echo "$OUT4" | sed 's/^/      /'
 fi
-if echo "$OUT5" | grep -qi "did not warm up"; then
-  pass "diagnostic contains 'did not warm up'"
+if echo "$OUT4" | grep -qi "did not come up serving"; then
+  pass "diagnostic contains 'did not come up serving'"
 else
-  fail "missing 'did not warm up' diagnostic"
-  echo "$OUT5" | sed 's/^/      /'
+  fail "missing fail-fast diagnostic"
+  echo "$OUT4" | sed 's/^/      /'
 fi
-if [ "$RB5" -ge 1 ]; then
-  pass "rebuild was attempted before giving up"
+if echo "$OUT4" | grep -qi "restart the Dev environment"; then
+  pass "diagnostic points to the Portal-restart fix"
 else
-  fail "rebuild was never attempted (expected >= 1)"
-  echo "$OUT5" | sed 's/^/      /'
+  fail "diagnostic does not mention the restart fix"
+  echo "$OUT4" | sed 's/^/      /'
 fi
 
 echo ""

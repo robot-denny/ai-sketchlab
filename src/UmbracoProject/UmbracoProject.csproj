@@ -51,23 +51,36 @@
          so we resolve the vulnerability rather than suppress NU1903. Revisit when Umbraco's Search
          chain ships a newer MessagePack itself. -->
     <PackageReference Include="MessagePack" Version="3.1.7" />
-    <PackageReference Include="Umbraco.AI" Version="1.14.0" />
-    <PackageReference Include="Umbraco.AI.Agent" Version="1.10.4" />
-    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="1.0.1" />
-    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="1.0.1" />
-    <PackageReference Include="Umbraco.AI.Agent.UI" Version="1.0.1" />
-    <PackageReference Include="Umbraco.AI.AGUI" Version="1.10.4" />
-    <PackageReference Include="Umbraco.AI.Anthropic" Version="1.3.6" />
-    <PackageReference Include="Umbraco.AI.Deploy" Version="1.0.4" />
-    <PackageReference Include="Umbraco.AI.Google" Version="1.1.11" />
-    <PackageReference Include="Umbraco.AI.OpenAI" Version="1.2.6" />
-    <PackageReference Include="Umbraco.AI.Prompt" Version="1.8.8" />
-    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="1.0.1" />
-    <PackageReference Include="Umbraco.AI.Search" Version="1.0.0" />
+    <!-- Umbraco.AI suite: on 2026-06-25 the vendor realigned versioning to the CMS major
+         ("17.0.0 to align with Umbraco CMS v17"). The old 1.x line (AI 1.14.0 / Agent 1.10.4 /
+         Copilot 1.0.1) was the pre-alignment line; running it against Cms 17.5.x left the AG-UI
+         copilot tool protocol out of step (Agent 17.0.0's "Forward AG-UI tool metadata to server"
+         / "Adopt AG-UI Tool.metadata" fixes), which broke copilot editing of block-nested rich
+         text while plain-property writes still worked. Moved the whole suite to the CMS-17-aligned
+         17.0.x line. Keep all Umbraco.AI.* on the same 17.0.x version. -->
+    <PackageReference Include="Umbraco.AI" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.AGUI" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Anthropic" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Google" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Prompt" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.0" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.1.0" />
     <PackageReference Include="Umbraco.Cms" Version="17.5.1" />
     <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.5.1" />
+    <!-- Umbraco.Cms.Search.* stays on the 1.x line even though a CMS-aligned 17.0.0 exists:
+         Umbraco.AI.Search 17.0.0 (above) constrains Umbraco.Cms.Search.Core to [1.0.0, 1.999.999),
+         so it pairs with the 1.x CMS-search stack, NOT the 17.0.0 one. Bumping these to 17.0.0
+         triggers NU1608 against AI.Search 17.0.0. Cms.Search 1.0.0 runs fine on Cms 17.5.x.
+         Provider.Examine has no stable release — 1.0.0-beta.9 remains the head companion to Core 1.0.0.
+         Revisit when a future Umbraco.AI.Search widens its Cms.Search.Core constraint to 17.x. -->
     <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
     <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0" />

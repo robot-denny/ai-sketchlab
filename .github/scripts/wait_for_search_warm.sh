@@ -16,19 +16,25 @@
 #     do NOT launch Playwright (so you get a single actionable failure instead
 #     of a ~9-test POST /document cascade).
 #
-# IMPORTANT — this gate DETECTS and FAILS FAST; it does NOT self-heal. An
-# earlier version fired a Management API `UmbAI_Search` rebuild as a self-heal
-# lever; a real cold master run (2026-07-01, run 28539245107) DISPROVED it: the
-# rebuild repopulates the *index* (writer side, went to 179/Healthy) but does
-# NOT rehydrate the running app's *searcher* (reader/query side), so /search
-# stayed cold for the full budget — and firing the rebuild correlated with
-# "index was locked and could not be unlocked" errors in Dev's log. Only an app
-# RESTART (Cloud Portal → Database/Environment → Restart) rehydrates the
-# searcher. CI cannot restart (the Cloud CI/CD Flow API has no restart
-# endpoint), so the rebuild was removed and this gate is detect-only. See the
-# CI Failure Recipes runbook for the full playbook. Revisit on the v18 upgrade:
-# the Umbraco.Cms.Search / AI.Search stack is still beta and its behavior (and
-# this readiness marker) should be re-verified on the new version.
+# IMPORTANT — this gate DETECTS and FAILS FAST; it does NOT self-heal. The right
+# mental model (CORRECTED 2026-07-02): Dev search HYDRATES GRADUALLY after a
+# deploy and SELF-WARMS in ~20-30 min. It does NOT need a restart or a rebuild —
+# just wall-clock time the default 180s budget doesn't allow. Verified on a real
+# cold deploy (run 28624753905): /search?q=article went 0 -> 10 results over
+# ~20-30 min with NOTHING done to Dev, and re-running the failed job once warm
+# passed the gate + Playwright green — no restart.
+#   - An earlier version fired a Management API `UmbAI_Search` rebuild to
+#     self-heal; run 28539245107 showed the rebuild repopulates the *index* but
+#     does NOT make /search serve any faster (and correlated with "index was
+#     locked" errors), so it was removed. A rebuild is NOT the fix.
+#   - A Portal RESTART is ALSO not required. Earlier notes credited a restart for
+#     "rehydrating the searcher", but that was a misdiagnosis: /search self-warms
+#     given enough time, and the restart merely coincided with the warm-up
+#     window. Do NOT waste time restarting Dev.
+# So on gate failure the remedy is simply: WAIT for warm-up (~20-30 min), then
+# rerun the failed job. The gate stays short + fail-fast on purpose (avoids the
+# POST /document cascade and doesn't burn ~30 min of runner time per attempt).
+# Revisit on the v18 upgrade: re-verify warm-up timing and this readiness marker.
 #
 # Readiness marker = search actually SERVING, not any 200: ready iff
 # GET $URL/search?q=article body contains >= 1 "article-grid-card". The empty
@@ -131,7 +137,7 @@ main() {
   done
 
   echo "Dev search did not come up serving within ${TOTAL_BUDGET}s. Cold Umbraco.AI.Search makes every POST /document (Playwright fixture creation) misbehave — NOT launching Playwright (this is a single fail-fast, not a ~9-test cascade)." >&2
-  echo "FIX: restart the Dev environment from the Cloud Portal (this rehydrates the searcher), confirm ${URL%/}/search?q=article returns results, then re-run the failed job: gh run rerun <run-id> --failed. A UmbAI_Search index rebuild does NOT fix this (it repopulates the index but not the running searcher). See docs/ci-failure-recipes.md." >&2
+  echo "FIX: Dev search hydrates gradually after a deploy and self-warms in ~20-30 min — do NOT restart or rebuild (both were tried; neither speeds it up). The ${TOTAL_BUDGET}s budget is simply far shorter than the real warm-up. Wait until ${URL%/}/search?q=article returns results, then re-run the failed job: gh run rerun <run-id> --failed. See docs/ci-failure-recipes.md." >&2
   return 1
 }
 

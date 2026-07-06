@@ -16,25 +16,32 @@
 #     do NOT launch Playwright (so you get a single actionable failure instead
 #     of a ~9-test POST /document cascade).
 #
-# IMPORTANT — this gate DETECTS and FAILS FAST; it does NOT self-heal. The right
-# mental model (CORRECTED 2026-07-02): Dev search HYDRATES GRADUALLY after a
-# deploy and SELF-WARMS in ~20-30 min. It does NOT need a restart or a rebuild —
-# just wall-clock time the default 180s budget doesn't allow. Verified on a real
-# cold deploy (run 28624753905): /search?q=article went 0 -> 10 results over
-# ~20-30 min with NOTHING done to Dev, and re-running the failed job once warm
-# passed the gate + Playwright green — no restart.
-#   - An earlier version fired a Management API `UmbAI_Search` rebuild to
-#     self-heal; run 28539245107 showed the rebuild repopulates the *index* but
-#     does NOT make /search serve any faster (and correlated with "index was
-#     locked" errors), so it was removed. A rebuild is NOT the fix.
-#   - A Portal RESTART is ALSO not required. Earlier notes credited a restart for
-#     "rehydrating the searcher", but that was a misdiagnosis: /search self-warms
-#     given enough time, and the restart merely coincided with the warm-up
-#     window. Do NOT waste time restarting Dev.
-# So on gate failure the remedy is simply: WAIT for warm-up (~20-30 min), then
-# rerun the failed job. The gate stays short + fail-fast on purpose (avoids the
-# POST /document cascade and doesn't burn ~30 min of runner time per attempt).
-# Revisit on the v18 upgrade: re-verify warm-up timing and this readiness marker.
+# IMPORTANT — this gate DETECTS and FAILS FAST; it does NOT self-heal. The TRUE
+# root cause (confirmed 2026-07-06, superseding two earlier wrong theories):
+# after a Cloud deploy the *Examine keyword* index `Umb_PublishedContent` comes
+# up CORRUPTED (beta.9 Provider.Examine fragility — "index was locked and could
+# not be unlocked"). The public /search is hybrid — SHORT queries run the keyword
+# index, LONG natural-language queries run the AI vector index `UmbAI_Search`.
+# `UmbAI_Search` stays HEALTHY across deploys, so semantic search works; only the
+# corrupted keyword index returns 0. This gate probes `q=article` (a SHORT query),
+# so it reads "cold" whenever the keyword index is corrupt.
+#
+# Two things this disproves:
+#   - The old `UmbAI_Search` rebuild "self-heal" targeted the WRONG index
+#     (UmbAI_Search is Healthy). Removed. It never was the problem.
+#   - "It self-warms, just wait" was ALSO wrong (a confounded 2026-07-02 reading):
+#     a clean 2026-07-06 deploy sat cold for 90+ min untouched, and the dashboard
+#     "Rebuild" on Umb_PublishedContent FAILS (goes Corrupted -> Empty + "A fatal
+#     server error occurred"). Waiting does not reliably fix it.
+#
+# THE FIX: RESTART Dev from the Cloud Portal. On boot the app rebuilds the Examine
+# indexes cleanly and keyword /search serves within a few minutes (verified
+# 2026-07-06: post-restart q=article went 0 -> 10). CI cannot restart (the Cloud
+# CI/CD Flow API has no restart endpoint), so this gate stays detect-only: fail
+# fast, then a human restarts Dev and reruns. Revisit on the v18 upgrade — a
+# stable `Provider.Examine` should end the corruption (it's pinned at beta.9 only
+# because no stable exists). Consider also re-pointing this probe at a LONG
+# (semantic) query so the gate reflects the Healthy path — tracked as follow-up.
 #
 # Readiness marker = search actually SERVING, not any 200: ready iff
 # GET $URL/search?q=article body contains >= 1 "article-grid-card". The empty
@@ -136,8 +143,8 @@ main() {
     ELAPSED=$((ELAPSED + PROBE_INTERVAL))
   done
 
-  echo "Dev search did not come up serving within ${TOTAL_BUDGET}s. Cold Umbraco.AI.Search makes every POST /document (Playwright fixture creation) misbehave — NOT launching Playwright (this is a single fail-fast, not a ~9-test cascade)." >&2
-  echo "FIX: Dev search hydrates gradually after a deploy and self-warms in ~20-30 min — do NOT restart or rebuild (both were tried; neither speeds it up). The ${TOTAL_BUDGET}s budget is simply far shorter than the real warm-up. Wait until ${URL%/}/search?q=article returns results, then re-run the failed job: gh run rerun <run-id> --failed. See docs/ci-failure-recipes.md." >&2
+  echo "Dev keyword search did not serve within ${TOTAL_BUDGET}s — the Examine index 'Umb_PublishedContent' comes up CORRUPTED after a Cloud deploy (beta.9 Provider.Examine), so short/keyword /search returns 0 and POST /document (Playwright fixture creation) misbehaves. NOT launching Playwright (single fail-fast, not a ~9-test cascade)." >&2
+  echo "FIX: RESTART Dev from the Cloud Portal — on boot it rebuilds the Examine indexes cleanly and keyword search serves within a few minutes. Do NOT use the dashboard 'Rebuild' on Umb_PublishedContent (it fails with a fatal error), and don't just wait (it does not reliably self-recover). Confirm ${URL%/}/search?q=article returns results, then: gh run rerun <run-id> --failed. (Semantic/long-query search via UmbAI_Search is unaffected.) See docs/ci-failure-recipes.md." >&2
   return 1
 }
 

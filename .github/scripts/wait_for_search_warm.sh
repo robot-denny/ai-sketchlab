@@ -34,17 +34,25 @@
 #     "Rebuild" on Umb_PublishedContent FAILS (goes Corrupted -> Empty + "A fatal
 #     server error occurred"). Waiting does not reliably fix it.
 #
-# THE FIX: RESTART Dev from the Cloud Portal. On boot the app rebuilds the Examine
-# indexes cleanly and keyword /search serves within a few minutes (verified
-# 2026-07-06: post-restart q=article went 0 -> 10). CI cannot restart (the Cloud
-# CI/CD Flow API has no restart endpoint), so this gate stays detect-only: fail
-# fast, then a human restarts Dev and reruns. Revisit on the v18 upgrade — a
-# stable `Provider.Examine` should end the corruption (it's pinned at beta.9 only
-# because no stable exists). Consider also re-pointing this probe at a LONG
-# (semantic) query so the gate reflects the Healthy path — tracked as follow-up.
+# For the keyword index itself, the fix is a RESTART of Dev from the Cloud Portal
+# (on boot the app rebuilds the Examine indexes cleanly; verified 2026-07-06:
+# post-restart q=article went 0 -> 10). The dashboard "Rebuild" on
+# Umb_PublishedContent FAILS (fatal error), and it does not reliably self-recover.
+#
+# GATE BEHAVIOR (as of 2026-07-06): to stop failing on every merge over the
+# routine keyword-index corruption, this gate now probes a LONG/SEMANTIC query
+# ($PROBE_QUERY) that routes to the Healthy UmbAI_Search vector index — NOT the
+# fragile keyword index. Keyword search is still checked once (q=$KEYWORD_PROBE_
+# QUERY) but only LOGGED as a non-gating WARNING, so a corrupt Examine index no
+# longer blocks CI (the site's semantic search still works; short-query search is
+# broken until a restart). A gate FAILURE now therefore means SEMANTIC search is
+# down (UmbAI_Search unhealthy, query-time embeddings failing, or a broken
+# deploy) — a worse, rarer condition than the keyword corruption. Revisit on the
+# v18 upgrade — a stable `Provider.Examine` should end the keyword corruption
+# entirely (pinned at beta.9 only because no stable exists).
 #
 # Readiness marker = search actually SERVING, not any 200: ready iff
-# GET $URL/search?q=article body contains >= 1 "article-grid-card". The empty
+# GET $URL/search?q=$PROBE_QUERY body contains >= 1 "article-grid-card". The empty
 # "No matches" state means still cold.
 #
 # Inputs (env):
@@ -75,7 +83,19 @@ set -o pipefail  # surface failures in the grep/sed status-parsing pipe
 PROBE_INTERVAL="${PROBE_INTERVAL:-10}"
 TOTAL_BUDGET="${TOTAL_BUDGET:-180}"
 
-# Readiness marker in the /search HTML.
+# The GATING probe is a LONG, natural-language query ON PURPOSE: it routes to the
+# AI vector index (UmbAI_Search), which stays Healthy across deploys — NOT the
+# Examine keyword index (Umb_PublishedContent), which comes up corrupt after a
+# Cloud deploy and used to fail this gate on every merge (see header). Keep it a
+# real multi-word question so the site's hybrid search picks the semantic path.
+PROBE_QUERY="${PROBE_QUERY:-what can AI teach us about ethics and humanity}"
+
+# A SHORT keyword query, checked ONCE when the gate opens, purely to LOG whether
+# keyword search is up. Non-gating: a corrupt keyword index no longer blocks CI,
+# it just prints a WARNING so the (known, restart-fixable) condition is visible.
+KEYWORD_PROBE_QUERY="${KEYWORD_PROBE_QUERY:-article}"
+
+# Readiness marker in the /search HTML (same result-card class for keyword + semantic).
 READY_MARKER="article-grid-card"
 
 # Elapsed-seconds counter. Driven by _sleep so the same code path works for a
@@ -94,9 +114,12 @@ _sleep() {
   sleep "$1"
 }
 
-# _probe_search: echo a readiness token for GET $URL/search?q=article.
-#   "READY"  -> body contains the readiness marker (search is serving)
+# _probe_search: echo a readiness token for the SEMANTIC probe
+# (GET $URL/search with q=$PROBE_QUERY, a long natural-language query).
+#   "READY"  -> body contains the readiness marker (semantic search is serving)
 #   anything else (e.g. "COLD", "TRANSIENT_503") -> keep polling
+# The whole function is a test seam: the harness replaces it wholesale, so the
+# real curls here (including the keyword health check) never run under test.
 _probe_search() {
   local body http
   # -s silent, -w to capture status; tolerate connection errors (curl exit != 0)
@@ -104,13 +127,25 @@ _probe_search() {
   # --connect-timeout/--max-time cap a hung connection on a cold/restarting Dev:
   # without them a stalled TCP read blocks the loop for the OS default (~2 min)
   # without advancing ELAPSED, silently eating the budget.
-  body="$(curl -s --connect-timeout 5 --max-time 15 -w $'\n%{http_code}' "${URL%/}/search?q=article" 2>/dev/null)" || {
+  # -G --data-urlencode encodes the multi-word query safely.
+  body="$(curl -s --connect-timeout 5 --max-time 15 -w $'\n%{http_code}' -G --data-urlencode "q=${PROBE_QUERY}" "${URL%/}/search" 2>/dev/null)" || {
     echo "TRANSIENT_ERR"
     return 0
   }
   http="$(printf '%s' "$body" | tail -n1)"
   body="$(printf '%s' "$body" | sed '$d')"
   if [ "$http" = "200" ] && printf '%s' "$body" | grep -qF "$READY_MARKER"; then
+    # Semantic path serving → gate opens. Do a ONE-SHOT, non-gating keyword health
+    # check so a corrupt Examine index is visible in the log without blocking CI.
+    local kbody khttp
+    kbody="$(curl -s --connect-timeout 5 --max-time 15 -w $'\n%{http_code}' -G --data-urlencode "q=${KEYWORD_PROBE_QUERY}" "${URL%/}/search" 2>/dev/null)" || kbody=""
+    khttp="$(printf '%s' "$kbody" | tail -n1)"
+    kbody="$(printf '%s' "$kbody" | sed '$d')"
+    if [ "$khttp" = "200" ] && printf '%s' "$kbody" | grep -qF "$READY_MARKER"; then
+      echo "  keyword search OK (q='${KEYWORD_PROBE_QUERY}' serving)." >&2
+    else
+      echo "  WARNING: keyword search is DOWN (q='${KEYWORD_PROBE_QUERY}' -> no results; Examine 'Umb_PublishedContent' likely corrupt after the deploy). Semantic search serves, so the gate opens and Playwright runs — but short-query search on Dev is broken until a Portal restart. Non-gating by design; see docs/ci-failure-recipes.md." >&2
+    fi
     echo "READY"
   elif [ "$http" = "500" ] || [ "$http" = "503" ] || [ "$http" = "502" ] || [ "$http" = "504" ]; then
     echo "TRANSIENT_${http}"
@@ -125,8 +160,9 @@ main() {
   # if the required input is missing.
   : "${URL:?URL must be set to the Dev base URL (e.g. https://<slug>.umbraco.io)}"
 
-  echo "Waiting for Dev search to serve at ${URL%/}/search?q=article"
+  echo "Waiting for Dev SEMANTIC search to serve at ${URL%/}/search (q='${PROBE_QUERY}')"
   echo "  probe interval=${PROBE_INTERVAL}s  total budget=${TOTAL_BUDGET}s"
+  echo "  (probing the AI vector path, which stays healthy across deploys; keyword health is logged, non-gating)"
 
   while [ "$ELAPSED" -lt "$TOTAL_BUDGET" ]; do
     local marker
@@ -143,8 +179,8 @@ main() {
     ELAPSED=$((ELAPSED + PROBE_INTERVAL))
   done
 
-  echo "Dev keyword search did not serve within ${TOTAL_BUDGET}s — the Examine index 'Umb_PublishedContent' comes up CORRUPTED after a Cloud deploy (beta.9 Provider.Examine), so short/keyword /search returns 0 and POST /document (Playwright fixture creation) misbehaves. NOT launching Playwright (single fail-fast, not a ~9-test cascade)." >&2
-  echo "FIX: RESTART Dev from the Cloud Portal — on boot it rebuilds the Examine indexes cleanly and keyword search serves within a few minutes. Do NOT use the dashboard 'Rebuild' on Umb_PublishedContent (it fails with a fatal error), and don't just wait (it does not reliably self-recover). Confirm ${URL%/}/search?q=article returns results, then: gh run rerun <run-id> --failed. (Semantic/long-query search via UmbAI_Search is unaffected.) See docs/ci-failure-recipes.md." >&2
+  echo "Dev SEMANTIC search did not serve (did not come up serving) within ${TOTAL_BUDGET}s (probe q='${PROBE_QUERY}'). This gate probes the AI vector path (UmbAI_Search), which normally stays HEALTHY across deploys — so a failure here is WORSE than the routine post-deploy Examine keyword corruption: e.g. UmbAI_Search itself is down, query-time embeddings are failing (check OPENAI__APIKEY / the AI config-key allow-list), or the deploy is genuinely broken. NOT launching Playwright (single fail-fast, not a ~9-test cascade)." >&2
+  echo "FIX: check Dev's log and Settings -> Search — is UmbAI_Search Healthy? are embeddings erroring? A Portal restart of the Dev environment may clear it; confirm ${URL%/}/search returns results for a natural-language query, then: gh run rerun <run-id> --failed. (Routine keyword-index corruption no longer fails this gate — it is logged as a non-gating WARNING above.) See docs/ci-failure-recipes.md." >&2
   return 1
 }
 

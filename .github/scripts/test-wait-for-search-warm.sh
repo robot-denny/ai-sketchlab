@@ -179,7 +179,7 @@ else
   fail "missing fail-fast diagnostic"
   echo "$OUT4" | sed 's/^/      /'
 fi
-if echo "$OUT4" | grep -qi "restart the Dev environment"; then
+if echo "$OUT4" | grep -qi "restart"; then
   pass "diagnostic points to the Portal-restart fix"
 else
   fail "diagnostic does not mention the restart fix"

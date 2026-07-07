@@ -209,6 +209,29 @@ test.describe('Section Navigation Controls — Document Type Setup', () => {
     const compositionIds = (docType.compositions ?? []).map((c: any) => c.documentType?.id);
     expect(compositionIds, `"Documentation" should compose "${compositionDisplayName}"`).toContain(composition.id);
   });
+
+  // The "Hide From Section Navigation" toggle lives on the *Visibility Controls*
+  // composition (not Section Navigation Controls) alongside the other Hide-From
+  // toggles — see _plans/section-nav-hide-toggle.md Key Decisions.
+  test('Visibility Controls composition has hideFromSectionNavigation boolean property', async () => {
+    const docType = await findCompositionByName('Visibility Controls');
+    expect(docType, '"Visibility Controls" document type should exist').toBeTruthy();
+
+    const props = docType.properties ?? [];
+    const newProp = props.find((p: any) => p.alias === 'hideFromSectionNavigation');
+    expect(newProp, 'Should have a "hideFromSectionNavigation" property').toBeTruthy();
+
+    // Prove it uses the SAME True/False data type as the existing sibling toggles
+    // rather than hardcoding a data-type UUID (resilience rule #1). If it were mistyped
+    // (string/dropdown) the Razor .Value<bool>() would silently default to false at runtime
+    // instead of failing loudly — so pin the editor by comparing to a known boolean sibling.
+    const siblingToggle = props.find((p: any) => p.alias === 'hideFromTopNavigation');
+    expect(siblingToggle, 'sibling toggle "hideFromTopNavigation" should exist').toBeTruthy();
+    expect(
+      newProp.dataType?.id,
+      'hideFromSectionNavigation should reuse the shared True/False data type of the sibling toggles'
+    ).toBe(siblingToggle.dataType?.id);
+  });
 });
 
 test.describe('Section Navigation — View Layout (Step 3)', () => {
@@ -309,6 +332,9 @@ test.describe('Section Navigation — Partial View (Step 2)', () => {
 
     // Must use IsVisible() for filtering
     expect(content, 'Should filter by IsVisible()').toMatch(/IsVisible\(\)/);
+
+    // Must additionally filter on the hideFromSectionNavigation toggle
+    expect(content, 'Should filter by hideFromSectionNavigation').toMatch(/hideFromSectionNavigation/);
 
     // Must emit the v2 active-link modifier
     expect(content, 'Should have is-current class for active links').toContain('is-current');
@@ -467,8 +493,12 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
   let childAUrl: string;
   let childBUrl: string;
   let loneChildUrl: string;
+  let secNavSuppressionVisibleChildUrl: string;
 
+  // The fixture hierarchy now creates ~11 pages sequentially (each a create+publish
+  // round-trip); the default 30s hook budget is too tight. Give setup/teardown more room.
   test.beforeAll(async () => {
+    test.setTimeout(120_000);
     token = await freshToken();
 
     // 1. Dynamically find Home page (rule #1: never hardcode UUIDs)
@@ -499,7 +529,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     contentDtId = contentDTNode.id;
 
     // 3. Clean up stale test data from previous failed runs (rule #3)
-    await cleanStaleTestPages(token, homeId, ['SN Test Parent', 'SN Lone Parent']);
+    await cleanStaleTestPages(token, homeId, ['SN Test Parent', 'SN Lone Parent', 'SN SecNav Lone Parent']);
 
     // 4. GET the Content doc type for template and allowed children
     token = await freshToken();
@@ -578,6 +608,20 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     });
     createdIds.push(hiddenId);
 
+    // SN Test Parent > SN SecNav Hidden (hideFromSectionNavigation ON, umbracoNaviHide OFF).
+    // Covers both: a sibling excluded by the new toggle, AND independence from the
+    // Hide-From-Search toggle (umbracoNaviHide is unticked, yet it's still filtered out).
+    const secNavHiddenSiblingId = await createAndPublish(token, {
+      ...base,
+      name: 'SN SecNav Hidden',
+      parentId,
+      values: [
+        { alias: 'showSectionNavigation', culture: null, segment: null, value: true },
+        { alias: 'hideFromSectionNavigation', culture: null, segment: null, value: true },
+      ],
+    });
+    createdIds.push(secNavHiddenSiblingId);
+
     // Section Child A > SN Grandchild
     token = await freshToken();
     const grandchildId = await createAndPublish(token, {
@@ -586,6 +630,18 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
       parentId: childAId,
     });
     createdIds.push(grandchildId);
+
+    // Section Child A > SN SecNav Hidden Child (hideFromSectionNavigation ON).
+    // Should be absent from the indented .section-nav li.child list under Section Child A.
+    const secNavHiddenChildId = await createAndPublish(token, {
+      ...base,
+      name: 'SN SecNav Hidden Child',
+      parentId: childAId,
+      values: [
+        { alias: 'hideFromSectionNavigation', culture: null, segment: null, value: true },
+      ],
+    });
+    createdIds.push(secNavHiddenChildId);
 
     // Suppression test: lone parent with single child (no siblings, no children → suppressed)
     const loneParentId = await createAndPublish(token, {
@@ -605,14 +661,48 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     });
     createdIds.push(loneChildId);
 
+    // Suppression via the new toggle: a parent whose only *other* sibling is hidden
+    // by hideFromSectionNavigation. On the visible child's page the sibling list is
+    // [current page, hidden sibling]; after filtering the hidden one out, no other
+    // siblings and no children remain → the partial suppresses (0 .section-nav).
+    token = await freshToken();
+    const secNavLoneParentId = await createAndPublish(token, {
+      ...base,
+      name: 'SN SecNav Lone Parent',
+      parentId: homeId,
+    });
+    createdIds.push(secNavLoneParentId);
+
+    const secNavVisibleChildId = await createAndPublish(token, {
+      ...base,
+      name: 'SN SecNav Visible Child',
+      parentId: secNavLoneParentId,
+      values: [
+        { alias: 'showSectionNavigation', culture: null, segment: null, value: true },
+      ],
+    });
+    createdIds.push(secNavVisibleChildId);
+
+    const secNavHiddenSiblingId2 = await createAndPublish(token, {
+      ...base,
+      name: 'SN SecNav Hidden Suppression Sibling',
+      parentId: secNavLoneParentId,
+      values: [
+        { alias: 'hideFromSectionNavigation', culture: null, segment: null, value: true },
+      ],
+    });
+    createdIds.push(secNavHiddenSiblingId2);
+
     // 7. Fetch actual published URLs (rule #2: never hardcode URL slugs)
     token = await freshToken();
     childAUrl = await getDocumentPath(token, childAId);
     childBUrl = await getDocumentPath(token, childBId);
     loneChildUrl = await getDocumentPath(token, loneChildId);
+    secNavSuppressionVisibleChildUrl = await getDocumentPath(token, secNavVisibleChildId);
   });
 
   test.afterAll(async () => {
+    test.setTimeout(120_000);
     try { token = await freshToken(); } catch { /* ignore */ }
 
     // 1. Delete test pages (children first)
@@ -704,6 +794,57 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     page,
   }) => {
     await page.goto(loneChildUrl);
+    await expect(page.locator('.section-nav')).toHaveCount(0);
+  });
+
+  // 10. Sibling hidden via hideFromSectionNavigation is absent; an unticked sibling present
+  test('sibling with hideFromSectionNavigation is absent; unticked sibling present', async ({
+    page,
+  }) => {
+    await page.goto(childAUrl);
+    // Section Child B (unticked) is still present
+    await expect(page.locator('.section-nav')).toContainText('Section Child B');
+    // SN SecNav Hidden (hideFromSectionNavigation ON) is filtered out
+    const navText = await page.locator('.section-nav').textContent();
+    expect(navText).not.toContain('SN SecNav Hidden');
+  });
+
+  // 11. Independence of the two filters, proven bidirectionally on Section Child A's sibling list:
+  //   - "SN SecNav Hidden": hideFromSectionNavigation ON, umbracoNaviHide OFF → excluded by the NEW toggle
+  //     (it would appear if only IsVisible() were applied, so its absence proves the new toggle filters it).
+  //   - "SN Hidden": umbracoNaviHide ON, hideFromSectionNavigation unset → excluded by IsVisible() alone.
+  //   - "Section Child B": neither flag set → included.
+  // Together these show the two filters act independently, in both directions.
+  test('the section-nav and search/IsVisible filters are independent', async ({
+    page,
+  }) => {
+    await page.goto(childAUrl);
+    const navText = (await page.locator('.section-nav').textContent()) ?? '';
+    // Excluded by the new toggle alone (umbracoNaviHide unticked).
+    expect(navText).not.toContain('SN SecNav Hidden');
+    // Excluded by umbracoNaviHide alone (hideFromSectionNavigation unset).
+    expect(navText).not.toContain('SN Hidden');
+    // Neither flag set → included.
+    expect(navText).toContain('Section Child B');
+  });
+
+  // 12. Child hidden via hideFromSectionNavigation absent from the indented li.child list
+  test('child with hideFromSectionNavigation is absent from li.child list', async ({
+    page,
+  }) => {
+    await page.goto(childAUrl);
+    // The visible grandchild is present
+    await expect(page.locator('.section-nav li.child')).toContainText('SN Grandchild');
+    // The hidden child is filtered out
+    const childrenText = await page.locator('.section-nav li.child').allTextContents();
+    expect(childrenText.join(' ')).not.toContain('SN SecNav Hidden Child');
+  });
+
+  // 13. Suppression: toggle removes the last meaningful sibling → no section nav
+  test('no section nav when hideFromSectionNavigation removes the last sibling', async ({
+    page,
+  }) => {
+    await page.goto(secNavSuppressionVisibleChildUrl);
     await expect(page.locator('.section-nav')).toHaveCount(0);
   });
 });

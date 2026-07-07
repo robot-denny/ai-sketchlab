@@ -1,119 +1,26 @@
 diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-index 31e9969..1c44b9f 100644
+index 1c44b9f..b52d849 100644
 --- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
 +++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
 @@ -3,7 +3,7 @@
    "Alias": "site-content-guidelines",
    "Resources": [
      {
--      "Id": "8726d0ca-6674-4543-a08f-36f348d58568",
-+      "Id": "98720b29-d83d-479a-bba1-19e959e5076a",
+-      "Id": "98720b29-d83d-479a-bba1-19e959e5076a",
++      "Id": "e3fdb522-8579-4041-9397-c0b0d6dd71b9",
        "ResourceTypeId": "brand-voice",
        "Name": "Brand Voice",
        "Description": null,
-@@ -20,5 +20,5 @@
-   "Udi": "umb://umbraco-ai-context/1d2c0e55ffab48db92a3d6d589af4f80",
-   "Dependencies": [],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
--  "__version": "17.1.0"
-+  "__version": "17.2.0"
- }
-\ No newline at end of file
 diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-index a15b8b0..bdd3f23 100644
+index bdd3f23..14eb810 100644
 --- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
 +++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
 @@ -3,7 +3,7 @@
    "Alias": "how-to-guide-style",
    "Resources": [
      {
--      "Id": "6b075a44-de97-4780-ba7d-90b3daf026ad",
-+      "Id": "c08792ac-25b5-4e76-8880-8c3b11114008",
+-      "Id": "c08792ac-25b5-4e76-8880-8c3b11114008",
++      "Id": "f329af50-6aa0-44f3-9f58-683e711fa7b9",
        "ResourceTypeId": "text",
        "Name": "Structural Template",
        "Description": "Section-by-section structure every generated guide must follow.",
-@@ -17,5 +17,5 @@
-   "Udi": "umb://umbraco-ai-context/d11be0caf8fb4d8bb3bf1ef37ff9e624",
-   "Dependencies": [],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
--  "__version": "17.1.0"
-+  "__version": "17.2.0"
- }
-\ No newline at end of file
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__b2babe4c84b341439cc889c68949ed83.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__b2babe4c84b341439cc889c68949ed83.uda
-index 79654fb..315cc3d 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__b2babe4c84b341439cc889c68949ed83.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__b2babe4c84b341439cc889c68949ed83.uda
-@@ -4,7 +4,13 @@
-   "ModelProviderId": "anthropic",
-   "ModelModelId": "claude-haiku-4-5-20251001",
-   "ConnectionUdi": "umb://umbraco-ai-connection/79f50bf8aafb4ae88835e741c3371a43",
--  "Settings": {},
-+  "Settings": {
-+    "temperature": null,
-+    "maxTokens": null,
-+    "systemPromptTemplate": null,
-+    "contextIds": [],
-+    "guardrailIds": []
-+  },
-   "Tags": [],
-   "Udi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83",
-   "Dependencies": [
-@@ -13,5 +19,5 @@
-     }
-   ],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
--  "__version": "17.1.0"
-+  "__version": "17.2.0"
- }
-\ No newline at end of file
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__bfcc69a87b464598abc27ac55e3f3c13.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__bfcc69a87b464598abc27ac55e3f3c13.uda
-index 810c08b..ac7090d 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__bfcc69a87b464598abc27ac55e3f3c13.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__bfcc69a87b464598abc27ac55e3f3c13.uda
-@@ -5,7 +5,9 @@
-   "ModelProviderId": "openai",
-   "ModelModelId": "text-embedding-3-small",
-   "ConnectionUdi": "umb://umbraco-ai-connection/a3599365553d4b958bcae0422b3c8e1c",
--  "Settings": {},
-+  "Settings": {
-+    "dimensions": null
-+  },
-   "Tags": [],
-   "Udi": "umb://umbraco-ai-profile/bfcc69a87b464598abc27ac55e3f3c13",
-   "Dependencies": [
-@@ -14,5 +16,5 @@
-     }
-   ],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
--  "__version": "17.1.0"
-+  "__version": "17.2.0"
- }
-\ No newline at end of file
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__debdb0b149df43f69f0ad6d56fea514e.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__debdb0b149df43f69f0ad6d56fea514e.uda
-index f11f6b0..beecad2 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__debdb0b149df43f69f0ad6d56fea514e.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-profile__debdb0b149df43f69f0ad6d56fea514e.uda
-@@ -4,7 +4,13 @@
-   "ModelProviderId": "anthropic",
-   "ModelModelId": "claude-sonnet-4-6",
-   "ConnectionUdi": "umb://umbraco-ai-connection/79f50bf8aafb4ae88835e741c3371a43",
--  "Settings": {},
-+  "Settings": {
-+    "temperature": null,
-+    "maxTokens": null,
-+    "systemPromptTemplate": null,
-+    "contextIds": [],
-+    "guardrailIds": []
-+  },
-   "Tags": [],
-   "Udi": "umb://umbraco-ai-profile/debdb0b149df43f69f0ad6d56fea514e",
-   "Dependencies": [
-@@ -13,5 +19,5 @@
-     }
-   ],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
--  "__version": "17.1.0"
-+  "__version": "17.2.0"
- }
-\ No newline at end of file

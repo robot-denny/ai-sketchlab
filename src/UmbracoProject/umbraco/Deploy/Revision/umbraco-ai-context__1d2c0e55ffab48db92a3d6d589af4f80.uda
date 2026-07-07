@@ -3,7 +3,7 @@
   "Alias": "site-content-guidelines",
   "Resources": [
     {
-      "Id": "8726d0ca-6674-4543-a08f-36f348d58568",
+      "Id": "98720b29-d83d-479a-bba1-19e959e5076a",
       "ResourceTypeId": "brand-voice",
       "Name": "Brand Voice",
       "Description": null,
@@ -20,5 +20,5 @@
   "Udi": "umb://umbraco-ai-context/1d2c0e55ffab48db92a3d6d589af4f80",
   "Dependencies": [],
   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

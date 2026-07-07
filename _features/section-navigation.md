@@ -10,6 +10,7 @@ Section navigation is a contextual sidebar that helps visitors orient themselves
 ## Increments
 
 - [x] 2026-04-09 — Section Navigation Controls composition, contextual sidebar with desktop/mobile responsive collapse, current-page highlight (spec: `_specs/shipped/section-navigation.md`)
+- [x] 2026-07-07 — `hideFromSectionNavigation` toggle on the Visibility Controls composition: a page can be removed from the section-nav sidebar independently of "Hide From Search" (default unticked, existing content unaffected) (spec: `_specs/shipped/section-nav-hide-toggle.md`)
 
 ---
 
@@ -74,6 +75,50 @@ Scenario: Hidden page does not appear in section navigation
   Given "SN Hidden" is a sibling of "Section Child A" and is marked as hidden from navigation
   When a visitor views "Section Child A"
   Then "SN Hidden" does not appear in the section navigation list
+```
+
+### Rule: Pages can be hidden from section navigation independently of search
+
+A page carries a "Hide From Section Navigation" toggle (alias `hideFromSectionNavigation`) on the Visibility Controls composition, alongside the existing "Hide From Search" toggle (`umbracoNaviHide`). The two are independent: a page shows in the section-nav sidebar only if it is visible to search AND its "Hide From Section Navigation" toggle is unticked. Ticking one has no effect on the other. The toggle applies to both sibling and child entries. The current page is never removed from its own list — it always renders as the active item. Default is unticked, so pre-existing content is unaffected.
+
+```scenario
+Scenario: A sibling with "Hide From Section Navigation" ticked is excluded
+  Given "SN SecNav Hidden" is a sibling of "Section Child A" with "Hide From Section Navigation" ticked
+  And "Section Child B" is a sibling with the toggle unticked
+  And "Show Section Navigation" is enabled on "Section Child A"
+  When a visitor views "Section Child A"
+  Then "SN SecNav Hidden" does not appear in the section navigation list
+  And "Section Child B" still appears in the list
+```
+
+```scenario
+Scenario: A child with "Hide From Section Navigation" ticked is excluded from the indented list
+  Given "Section Child A" has a child "SN Grandchild" with the toggle unticked
+  And "Section Child A" has a child "SN SecNav Hidden Child" with "Hide From Section Navigation" ticked
+  And "Show Section Navigation" is enabled on "Section Child A"
+  When a visitor views "Section Child A"
+  Then "SN Grandchild" appears in the indented child list
+  And "SN SecNav Hidden Child" does not appear in the indented child list
+```
+
+```scenario
+Scenario: The section-nav toggle and the search-visibility toggle act independently
+  Given "SN SecNav Hidden" has "Hide From Section Navigation" ticked but "Hide From Search" unticked
+  And "SN Hidden" has "Hide From Search" ticked but "Hide From Section Navigation" unticked
+  And "Section Child B" has neither toggle ticked
+  When a visitor views "Section Child A"
+  Then "SN SecNav Hidden" is excluded from section navigation (by the section-nav toggle alone)
+  And "SN Hidden" is excluded from section navigation (by the search-visibility toggle alone)
+  And "Section Child B" appears in the section navigation list
+```
+
+```scenario
+Scenario: Suppression fires when the toggle removes the last meaningful item
+  Given "SN SecNav Visible Child" is a page under "SN SecNav Lone Parent" with "Show Section Navigation" enabled
+  And its only sibling "SN SecNav Hidden Suppression Sibling" has "Hide From Section Navigation" ticked
+  And "SN SecNav Visible Child" has no child pages
+  When a visitor views "SN SecNav Visible Child"
+  Then no section navigation appears
 ```
 
 ### Rule: Section navigation is suppressed when there are no meaningful items to show
@@ -182,6 +227,12 @@ Scenario: Base styles, active states, children styles, toggle, and responsive br
 | Child pages appear indented | `tests/e2e/sectionNavigation.spec.ts` — "grandchild appears indented in section-nav-children" | Covered |
 | Current page link is marked as active | `tests/e2e/sectionNavigation.spec.ts` — "current page link has active class" | Covered |
 | Hidden page excluded from navigation | `tests/e2e/sectionNavigation.spec.ts` — "hidden page does not appear in section nav" | Covered |
+| Visibility Controls has hideFromSectionNavigation boolean | `tests/e2e/sectionNavigation.spec.ts` — "Visibility Controls composition has hideFromSectionNavigation boolean property" | Covered |
+| Sibling with toggle ticked excluded; unticked sibling present | `tests/e2e/sectionNavigation.spec.ts` — "sibling with hideFromSectionNavigation is absent; unticked sibling present" | Covered |
+| Section-nav and search-visibility filters are independent | `tests/e2e/sectionNavigation.spec.ts` — "the section-nav and search/IsVisible filters are independent" | Covered |
+| Child with toggle ticked excluded from li.child list | `tests/e2e/sectionNavigation.spec.ts` — "child with hideFromSectionNavigation is absent from li.child list" | Covered |
+| Suppression when toggle removes the last sibling | `tests/e2e/sectionNavigation.spec.ts` — "no section nav when hideFromSectionNavigation removes the last sibling" | Covered |
+| Partial filters on hideFromSectionNavigation | `tests/e2e/sectionNavigation.spec.ts` — "partial contains required structural elements" | Covered |
 | Suppressed when only current page visible | `tests/e2e/sectionNavigation.spec.ts` — "no section nav when only visible item is current page" | Covered |
 | Desktop layout sidebar visible | `tests/e2e/sectionNavigation.spec.ts` — "desktop: sidebar column visible alongside content" | Covered |
 | Mobile layout hides sidebar, shows toggle | `tests/e2e/sectionNavigation.spec.ts` — "mobile: desktop nav hidden, toggle button visible" | Covered |
@@ -199,3 +250,4 @@ Scenario: Base styles, active states, children styles, toggle, and responsive br
 ## Revision Notes
 
 - 2026-04-09: Initial feature doc from spec + implementation
+- 2026-07-07: Added the "Hide From Section Navigation" toggle (`hideFromSectionNavigation` boolean on the Visibility Controls composition). The section-nav partial now filters siblings and children by `IsVisible() && !hideFromSectionNavigation`, so a page can be removed from the section-nav sidebar independently of "Hide From Search". Default unticked (existing content unaffected); the current page is never filtered from its own list; suppression recomputes against the filtered lists. New scenarios and coverage rows added; behavior folds into this existing capability doc (change to `section-navigation`, spec `_specs/shipped/section-nav-hide-toggle.md`).

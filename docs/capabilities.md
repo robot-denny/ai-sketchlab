@@ -4,9 +4,9 @@
 >
 > Kept in sync with the [Capabilities page](https://ai-sketchlab.dev/capabilities/) in the Umbraco backoffice.
 >
-> **This page tracks _capabilities_, not commits.** For the authoritative shipped history see [ROADMAP.md → Recently shipped](../ROADMAP.md) and the [git log](https://github.com/robot-denny/ai-sketchlab/commits/master). Behavioral contracts for each shipped feature live under [`_features/`](../_features/).
+> **This page tracks _capabilities_, not commits.** For the authoritative shipped history see [ROADMAP.md → Recently shipped](https://github.com/robot-denny/ai-sketchlab/blob/master/ROADMAP.md) and the [git log](https://github.com/robot-denny/ai-sketchlab/commits/master). Behavioral contracts for each shipped feature live under [`_features/`](https://github.com/robot-denny/ai-sketchlab/tree/master/_features).
 
-**Last Updated:** 2026-07-01
+**Last Updated:** 2026-07-07
 
 ---
 
@@ -36,7 +36,7 @@ The Umbraco MCP server exposes four tool collections to Claude Code — `documen
 
 ### Cross-Document Reading & Reference Analysis via MCP
 
-Unlike the in-backoffice Copilot (scoped to the open page — see *Boundaries* below), MCP-orchestrated tooling can read, search, and analyze the **whole content tree**, then write across it. This is what powers the bulk-operation workflows above.
+Unlike the in-backoffice Copilot (which can read the tree but only writes to the open content item — see *Boundaries* below), MCP-orchestrated tooling can read, search, and analyze the **whole content tree**, then write across it. This is what powers the bulk-operation workflows above.
 
 | Capability | Notes |
 |---|---|
@@ -48,14 +48,17 @@ Unlike the in-backoffice Copilot (scoped to the open page — see *Boundaries* b
 
 ### AI Content Generation (Copilot & Agents)
 
-Configured in the backoffice under **Settings → AI**. The current stack runs `Umbraco.AI` 1.14.0 with the Copilot chat surface (`Umbraco.AI.Agent.Copilot` / `Umbraco.AI.Agent.UI`) and provider integrations for Anthropic, OpenAI, and Google.
+Configured in the backoffice under **Settings → AI**. The current stack runs the `Umbraco.AI` 17.x suite — the Copilot chat surface (`Umbraco.AI.Agent.Copilot` / `.UI`) plus provider integrations for Anthropic, OpenAI, and Google.
 
 | Capability | Notes |
 |---|---|
 | Custom agent personas with distinct personality and voice | Settings → AI → Agent config |
 | Context management for brand consistency and topic boundaries | Settings → AI → Contexts |
+| Content-tree navigation and structure awareness | Copilot traverses parent-child relationships to understand where the open page sits in the site |
+| Schema inspection for complex properties | Copilot requests full property schemas — including the JSON shapes for block lists, block grids, and pickers — to build valid values |
+| Incremental block operations | Copilot adds, removes, and reorders individual blocks in a collection without replacing the whole property value |
 | Page property modifications (metadata, titles, descriptions) | Copilot editing, scoped by agent permissions |
-| Rich Text block population with maintained voice consistency | Requires pre-created block structure (see Limitations) |
+| Rich Text block population with maintained voice consistency | Fills blocks already on the page (see Limitations) |
 | SEO metadata generation from page content | Copilot reads current page content and generates metaName, metaDescription, metaKeywords |
 | Text summarization prompt | Settings → AI → Prompts — summarize selected text in-place |
 | Image alt text generation prompt | Settings → AI → Prompts — descriptive alt text for selected images |
@@ -72,7 +75,7 @@ Every AI entity now deploys as schema through git → Umbraco Cloud, so AI confi
 | AI configuration auto-serializes to `.uda` for Cloud deploy | `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` serialize Connections, Contexts, Guardrails, Chat/Embedding Profiles, Prompts, and Settings to `umbraco-ai-*.uda` on save |
 | AI **agents** auto-serialize to `.uda` for Cloud deploy | `Umbraco.AI.Agent.Deploy` — closes the prior "agents must be recreated per Cloud environment" gap. **All four AI entity families now deploy as `.uda`** |
 | Secret references stay as placeholders | Artifacts reference `$OpenAI:ApiKey` / `$Anthropic:ApiKey`; raw keys never enter the artifact stream. Per-environment keys set via Cloud Secrets Management |
-| `$`-config-key allow-list (AI 1.14.0) | AI core refuses to resolve `$`-referenced config keys unless the prefix is allow-listed; `Umbraco:AI:AllowedConfigurationKeyPrefixes` in committed `appsettings.json` re-lists the defaults + adds `OpenAI` / `Anthropic` |
+| `$`-config-key allow-list | AI core refuses to resolve `$`-referenced config keys unless the prefix is allow-listed; `Umbraco:AI:AllowedConfigurationKeyPrefixes` in committed `appsettings.json` re-lists the defaults + adds `OpenAI` / `Anthropic` |
 
 ### MCP + AI Agent Orchestration
 
@@ -97,7 +100,7 @@ Every AI entity now deploys as schema through git → Umbraco Cloud, so AI confi
 
 ### Claude Code Custom Commands
 
-Slash commands under [`.claude/commands/`](../.claude/commands/) that drive the agentic development process.
+Slash commands under `.claude/commands/` that drive the agentic development process.
 
 | Command | What it does |
 |---|---|
@@ -112,11 +115,11 @@ Slash commands under [`.claude/commands/`](../.claude/commands/) that drive the 
 | `/guide` | Generate/amend editor-facing how-to guide pages; TS CLI calls a backoffice AI agent, preserves editor screenshots + live-example slots, `--audit` reports gaps |
 | `/umbraco-edit` | Edit document properties or invoke an AI agent via the Management API from outside the backoffice |
 
-**Skills** (under [`.claude/skills/`](../.claude/skills/)): `architecture-audit` (project-authored — audits architectural quality against seven pillars), plus `frontend-design`, `skill-creator`, `algorithmic-art`, and `canvas-design`. The [Umbraco CMS Backoffice Skills](https://github.com/umbraco/Umbraco-CMS-Backoffice-Skills) plugin adds 60+ backoffice-extension skills.
+**Skills** (under `.claude/skills/`): `architecture-audit` (project-authored — audits architectural quality against seven pillars), plus `frontend-design`, `skill-creator`, `algorithmic-art`, and `canvas-design`. The [Umbraco CMS Backoffice Skills](https://github.com/umbraco/Umbraco-CMS-Backoffice-Skills) plugin adds 60+ backoffice-extension skills.
 
 ### Development Workflow
 
-End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Shipped specs and plans archive under [`_specs/shipped/`](../_specs/shipped/) and [`_plans/shipped/`](../_plans/shipped/) so the top-level lists reflect only active work.
+End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Shipped specs and plans archive under [`_specs/shipped/`](https://github.com/robot-denny/ai-sketchlab/tree/master/_specs/shipped) and [`_plans/shipped/`](https://github.com/robot-denny/ai-sketchlab/tree/master/_plans/shipped) so the top-level lists reflect only active work.
 
 | Stage | Command | Artifact |
 |---|---|---|
@@ -127,11 +130,11 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | 5. Implementation → living BDD spec | `/feature` | `_features/{slug}.md` |
 | 6. Uncommitted changes → review | `/code-review` | (accessibility + code-quality + perf subagents) |
 
-**Workflow layers.** Work flows through five loose-to-tight layers — **Roadmap → Feature → Spec → Plan → Implement**. [ROADMAP.md](../ROADMAP.md) is the project-level queue (Now / Next / Later / Bundles); each `_features/<slug>.md` carries an `Increments` section listing shipped + planned iterations, so a "feature" is durable across multiple spec/plan cycles. Work is classified as **new capability** (earns a feature doc), **change to an existing capability** (folds into that doc), or **fix/infra/cleanup** (a `docs/` runbook, no feature doc). The full model is documented under **Workflow layers** in [CLAUDE.md](../CLAUDE.md).
+**Workflow layers.** Work flows through five loose-to-tight layers — **Roadmap → Feature → Spec → Plan → Implement**. [ROADMAP.md](https://github.com/robot-denny/ai-sketchlab/blob/master/ROADMAP.md) is the project-level queue (Now / Next / Later / Bundles); each `_features/<slug>.md` carries an `Increments` section listing shipped + planned iterations, so a "feature" is durable across multiple spec/plan cycles. Work is classified as **new capability** (earns a feature doc), **change to an existing capability** (folds into that doc), or **fix/infra/cleanup** (a `docs/` runbook, no feature doc). The full model is documented under **Workflow layers** in [CLAUDE.md](https://github.com/robot-denny/ai-sketchlab/blob/master/CLAUDE.md).
 
 ### Solution Architecture
 
-The site is a **two-project Razor Class Library (RCL) split** — a compile-enforced boundary between business logic and the runnable host. This landed via the Pillar 2 architecture push (completed 2026-06-30), moving architectural separation from 2 → 4 against the [2026-05-19 audit](../_audits/2026-05-19-umbraco-17-demo-site.md).
+The site is a **two-project Razor Class Library (RCL) split** — a compile-enforced boundary between business logic and the runnable host. This landed via the Pillar 2 architecture push (completed 2026-06-30), moving architectural separation from 2 → 4 against the [2026-05-19 audit](https://github.com/robot-denny/ai-sketchlab/blob/master/_audits/2026-05-19-umbraco-17-demo-site.md).
 
 | Capability | Notes |
 |---|---|
@@ -151,7 +154,7 @@ A safety net that lets schema/structural refactors ship without a leap of faith 
 | Pre-push hook | `dotnet build -c Release` + xUnit before each push (< 30s warm; `SKIP_PREPUSH=1` escape) |
 | Warnings-as-errors across all C# projects | `<TreatWarningsAsErrors>` + `<Nullable>enable</Nullable>`; only surgical per-code `<NoWarn>` with inline CVE justification is allowed |
 | Linux-pinned Playwright screenshot baselines | Regenerated via the `update-snapshots.yml` workflow_dispatch; baselines committed by the CI bot |
-| Red-CI diagnostic playbook | Generic "which gate → which job → new or pre-existing" method in CLAUDE.md; per-failure recipes in the [CI Failure Recipes runbook](ci-failure-recipes.md) |
+| Red-CI diagnostic playbook | Generic "which gate → which job → new or pre-existing" method in CLAUDE.md; per-failure recipes in the [CI Failure Recipes runbook](https://github.com/robot-denny/ai-sketchlab/blob/master/docs/ci-failure-recipes.md) |
 
 ### Site Features
 
@@ -195,7 +198,7 @@ Canvas-based flow-field featured images seeded from article metadata.
 
 ### Site Search
 
-Public search at `/search` runs on the **`Umbraco.Cms.Search` framework** (the v18-forward replacement for the legacy Examine-backed `IPublishedContentQuery.Search()` API) with **`Umbraco.AI.Search`** layered on top for vector/semantic search. As of 2026-06-16 the whole stack is on **stable 1.0.0** (the lone remaining pre-release is `Provider.Examine 1.0.0-beta.9` — no stable exists yet).
+Public search at `/search` runs on the **`Umbraco.Cms.Search` framework** (stable 1.0.0 — the v18-forward replacement for the legacy Examine-backed `IPublishedContentQuery.Search()` API) with **`Umbraco.AI.Search`** (17.x) layered on top for vector/semantic search. The lone remaining pre-release is `Provider.Examine 1.0.0-beta.9` — no stable release exists yet.
 
 | Capability | Notes |
 |---|---|
@@ -209,7 +212,7 @@ Public search at `/search` runs on the **`Umbraco.Cms.Search` framework** (the v
 
 ### E2E Testing
 
-Playwright suite under [`tests/e2e/`](../tests/e2e/); auth via OAuth client credentials (the backoffice is a Lit SPA, so UI login helpers don't apply).
+Playwright suite under [`tests/e2e/`](https://github.com/robot-denny/ai-sketchlab/tree/master/tests/e2e); auth via OAuth client credentials (the backoffice is a Lit SPA, so UI login helpers don't apply).
 
 | Capability | Notes |
 |---|---|
@@ -232,13 +235,21 @@ These are deliberate constraints that keep the in-editor assistant supporting hu
 
 | Boundary | Detail |
 |---|---|
-| Edits existing blocks; doesn't scaffold new ones | Copilot fills/updates blocks already on the page. Creating block structure is an MCP operation (`update-document` / `update-block-property`) or manual editor work |
-| Scoped to the open page | Can't traverse the tree or change other pages — cross-page work is MCP + Management API |
+| Builds blocks incrementally; doesn't scaffold whole pages | Copilot adds, removes, and reorders blocks in an existing collection and constructs schema-valid values, but complex multi-block page layouts still start from a template or MCP operations |
+| No cross-document writes | Copilot can navigate tree structure and inspect schemas, but its changes are confined to the single open content item — multi-page work is MCP + Management API |
 | Stages; doesn't publish | Copilot proposes changes in the workspace; the editor clicks Save/Publish. (MCP `publish-document` *can* publish directly) |
-| References media; doesn't upload | Copilot picks existing media via pickers; generating/uploading files is external (`/cms-image` CLI → `create-media`) |
-| Syntax, not content strategy | Works on schema-valid values, not an understanding of the model's editorial intent — humans own strategy |
+| References media; doesn't upload or generate | Copilot picks existing media via pickers; creating/uploading files is external (`/cms-image` CLI → `create-media`). It can't trigger the backoffice Image Generator |
+| Schema-level operations, not content strategy | Constructs schema-valid content and handles conversational scaffolding ("a post about X with three sections"), but doesn't own editorial intent or governance — humans do |
 
 *Philosophy: AI-assisted authoring, not autonomous generation.*
+
+**Real-world limits (from field testing).** Beyond the design boundaries above, a few sharp edges surface in practice:
+
+| Limitation | Detail |
+|---|---|
+| No transaction rollback | Failed operations — especially near context limits — can leave workspace state corrupted with no per-operation rollback; a refresh may lose staged changes |
+| Can't inspect its own error state | Once the workspace is in a failed state, Copilot can't diagnose the error or suggest a recovery path |
+| Schema docs must match runtime exactly | Mismatches between documented JSON schemas and actual runtime expectations (e.g. `content` vs `document` in a picker) cause blocking errors |
 
 ### MCP Environment
 
@@ -267,7 +278,7 @@ These are deliberate constraints that keep the in-editor assistant supporting hu
 
 ## Recent additions (since the last update, 2026-05-12)
 
-The full dated history now lives in [ROADMAP.md → Recently shipped](../ROADMAP.md) and the [git log](https://github.com/robot-denny/ai-sketchlab/commits/master); this list is a capability-level summary of what changed on this page.
+The full dated history now lives in [ROADMAP.md → Recently shipped](https://github.com/robot-denny/ai-sketchlab/blob/master/ROADMAP.md) and the [git log](https://github.com/robot-denny/ai-sketchlab/commits/master); this list is a capability-level summary of what changed on this page.
 
 - **Innovation showcase** (`/experiments`) — the site's first production **Block Grid** layout; seven bespoke element types. → *Site Features*
 - **`/implement-step`** command — dispatches a single plan step to a fresh subagent. → *Custom Commands, Development Workflow*
@@ -275,6 +286,6 @@ The full dated history now lives in [ROADMAP.md → Recently shipped](../ROADMAP
 - **`arch-safety-net`** — two-gate Cloud CI/CD Flow pipeline, pre-push hook, warnings-as-errors, Linux screenshot baselines, CI-failure runbook. → *CI/CD & Build Hygiene, E2E Testing*
 - **Image generator `IImageGenerator` seam** — CLI-shellout replaced with a unit-testable interface. → *Backoffice Extensions*
 - **SEO routing in-tree** — removed `SeoToolkit`; `/sitemap.xml` rewrite middleware, `/robots.txt` static file, branded 404 finder. → *SEO Routing*
-- **Site Search → stable 1.0.0** — `Cms.Search.*` + `AI.Search` graduated off beta; `AddBackOfficeSearch()` re-enabled. → *Site Search*
-- **AI stack → 1.14.0** — Copilot/UI packages; `$`-config-key allow-list; **all four AI entity families (agents included) now deploy as `.uda`**. → *AI Content Generation, AI Schema Deployment*
+- **Site Search off beta** — `Cms.Search.*` on stable 1.0.0 and `AI.Search` on the 17.x line; `AddBackOfficeSearch()` re-enabled. → *Site Search*
+- **AI stack → `Umbraco.AI` 17.x line** — the suite realigned onto the CMS-17 versioning; Copilot/UI packages; `$`-config-key allow-list; **all four AI entity families (agents included) now deploy as `.uda`**. → *AI Content Generation, AI Schema Deployment*
 - **Pillar 2 architecture push (complete 2026-06-30)** — two-project **RCL split**, folder-by-kind taxonomy, ModelsBuilder `SourceCodeManual`, cross-assembly composer auto-discovery, migrated Search / premium-role / routing slices. Architectural separation 2 → 4. → *Solution Architecture*

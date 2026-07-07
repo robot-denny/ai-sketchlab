@@ -44,6 +44,15 @@
           "Description": "Tick this box if you want to hide this page from the navigation in the header",
           "Name": "Hide From Top Navigation",
           "SortOrder": 5
+        },
+        {
+          "Key": "6e1e27b7-b8d2-4c7d-b818-24f850a2cc59",
+          "Alias": "hideFromSectionNavigation",
+          "DataType": "umb://data-type/92897bc6a5f34ffeae27f2e7e33dda49",
+          "ValueType": "System.Boolean",
+          "Description": "Tick this box if you want to hide this page from the section navigation sidebar",
+          "Name": "Hide From Section Navigation",
+          "SortOrder": 20
         }
       ]
     }
@@ -61,5 +70,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

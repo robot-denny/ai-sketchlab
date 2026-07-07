@@ -28,7 +28,7 @@
     <!-- Umbraco.AI.Search 17.0.0 constrains Umbraco.Cms.Search.Core to [1.0.0, 1.999.999),
          so Core stays on the 1.x line (mirrors the host). -->
     <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms" Version="17.5.1" />
+    <PackageReference Include="Umbraco.Cms" Version="17.5.3" />
     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
   </ItemGroup>
 

@@ -1,5 +1,11 @@
 import { test } from '@umbraco/playwright-testhelpers';
-import { expect, prepareForScreenshot, screenshotOptions } from '../_helpers';
+import {
+  expect,
+  prepareForScreenshot,
+  screenshotOptions,
+  keywordSearchAvailable,
+  KEYWORD_SEARCH_SKIP_REASON,
+} from '../_helpers';
 
 // Page-template screenshot (Step 6, _plans/arch-safety-net.md).
 //
@@ -32,6 +38,12 @@ const NO_RESULTS_QUERY = 'zzzz-no-results-baseline';
 
 test.describe('Screenshot: search page template', () => {
   test('renders /search/?q=<no-results> matching baseline', async ({ page }) => {
+    // The search page's empty-state rendering differs when the Examine keyword
+    // index is corrupt (beta.9; e.g. Dev after a deploy), so the baseline only
+    // matches when keyword search is healthy. Skip when it's confirmed down —
+    // conditional, so a genuine visual regression (keyword UP) still fails.
+    test.skip(!(await keywordSearchAvailable(page)), KEYWORD_SEARCH_SKIP_REASON);
+
     const resp = await page.goto(`/search/?q=${encodeURIComponent(NO_RESULTS_QUERY)}`);
     expect(resp?.ok(), 'navigation to /search/ should succeed').toBeTruthy();
     await prepareForScreenshot(page);

@@ -256,6 +256,39 @@ export async function findNavLinkForTemplate(
   );
 }
 
+// --- Keyword-search availability (beta.9 Examine corruption guard) ----------
+//
+// Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 corrupts the
+// `Umb_PublishedContent` keyword index after every Cloud deploy, so SHORT /
+// keyword queries return 0 results on Dev until a Portal restart rebuilds it.
+// Semantic (AI vector, UmbAI_Search) search is unaffected. Tests that
+// hard-depend on keyword results self-skip when keyword search is confirmed
+// down — so they still run locally, post-restart, and once a stable
+// Provider.Examine lands (v18). The skip is CONDITIONAL on keyword being down,
+// so a failure while keyword is UP (a genuine regression) is NOT masked.
+// Remove the guards + this helper when a stable Provider.Examine ships.
+// See docs/ci-failure-recipes.md → "cold AI.Search".
+export const KEYWORD_SEARCH_SKIP_REASON =
+  'Keyword search (Examine Umb_PublishedContent) is corrupt on this environment after a Cloud deploy ' +
+  '(beta.9 Provider.Examine); short queries return 0 until a Portal restart. Semantic search is unaffected. ' +
+  'Re-enable when a stable Provider.Examine ships (v18). See docs/ci-failure-recipes.md.';
+
+/**
+ * True if the Examine keyword index is serving. NOTE: this NAVIGATES `page` to
+ * `/search?q=article` (a short/keyword query) and counts rendered result cards —
+ * the same reliable signal the search specs use (a plain `page.request` fetch
+ * proved flaky re: baseURL/caching). Callers that need a specific page state
+ * must navigate again afterward. Any error is treated as "down".
+ */
+export async function keywordSearchAvailable(page: Page): Promise<boolean> {
+  try {
+    await page.goto('/search?q=article');
+    return (await page.locator('.article-grid-card').count()) > 0;
+  } catch {
+    return false;
+  }
+}
+
 // Re-export `expect` so spec files don't need to import it directly from
 // playwright/test alongside the testhelpers `test`.
 export { expect };

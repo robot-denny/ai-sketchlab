@@ -4,7 +4,13 @@
   "ModelProviderId": "anthropic",
   "ModelModelId": "claude-sonnet-4-5-20250929",
   "ConnectionUdi": "umb://umbraco-ai-connection/79f50bf8aafb4ae88835e741c3371a43",
-  "Settings": {},
+  "Settings": {
+    "temperature": null,
+    "maxTokens": 32100,
+    "systemPromptTemplate": null,
+    "contextIds": [],
+    "guardrailIds": []
+  },
   "Tags": [],
   "Udi": "umb://umbraco-ai-profile/8bc9aabc4fff4d9681a58a06f554893b",
   "Dependencies": [
@@ -13,5 +19,5 @@
     }
   ],
   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

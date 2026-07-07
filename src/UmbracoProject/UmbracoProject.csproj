@@ -51,24 +51,26 @@
          so we resolve the vulnerability rather than suppress NU1903. Revisit when Umbraco's Search
          chain ships a newer MessagePack itself. -->
     <PackageReference Include="MessagePack" Version="3.1.7" />
-    <!-- Umbraco.AI suite: on 2026-06-25 the vendor realigned versioning to the CMS major
-         ("17.0.0 to align with Umbraco CMS v17"). The old 1.x line (AI 1.14.0 / Agent 1.10.4 /
-         Copilot 1.0.1) was the pre-alignment line; running it against Cms 17.5.x left the AG-UI
-         copilot tool protocol out of step (Agent 17.0.0's "Forward AG-UI tool metadata to server"
-         / "Adopt AG-UI Tool.metadata" fixes), which broke copilot editing of block-nested rich
-         text while plain-property writes still worked. Moved the whole suite to the CMS-17-aligned
-         17.0.x line. Keep all Umbraco.AI.* on the same 17.0.x version. -->
-    <PackageReference Include="Umbraco.AI" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.Agent" Version="17.0.0" />
+    <!-- Umbraco.AI suite, pinned to each package's latest 17.x. The vendor realigned to the
+         CMS major (17.0.0, 2026-06-25) and now patches each package independently — hence the
+         mixed 17.0.0 / 17.0.1 / 17.1.0 below (all the same major, internally range-compatible).
+         Bumped 2026-07-07 primarily for **Umbraco.AI.Deploy 17.0.1** — its changelog entry
+         "Deploy capability-specific profile settings and default profiles" fixes the bug where
+         profile Settings (Max Tokens, temperature, system prompt, contexts) serialized to `{}`
+         in the .uda (GetArtifactAsync serialized via the IAIProfileSettings interface), so they
+         now deploy to Cloud instead of being per-environment-only. Keep each on its latest 17.x;
+         do NOT cross to 18.x until the planned v18 upgrade. Provider.Examine has no fix yet. -->
+    <PackageReference Include="Umbraco.AI" Version="17.1.0" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="17.1.0" />
     <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.0" />
     <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.AGUI" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.1" />
+    <PackageReference Include="Umbraco.AI.AGUI" Version="17.1.0" />
     <PackageReference Include="Umbraco.AI.Anthropic" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.Deploy" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="17.0.1" />
     <PackageReference Include="Umbraco.AI.Google" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.Prompt" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.1.0" />
+    <PackageReference Include="Umbraco.AI.Prompt" Version="17.0.1" />
     <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.0" />
     <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.0" />

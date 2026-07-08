@@ -33,7 +33,7 @@
           "ValueType": "System.Boolean",
           "Description": "Tick this box if you want to hide this page from the section navigation sidebar",
           "Name": "Hide From Section Navigation",
-          "SortOrder": 20
+          "SortOrder": 21
         },
         {
           "Key": "428902e8-4319-4430-8bbe-5ec078c57655",

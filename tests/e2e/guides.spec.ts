@@ -103,7 +103,7 @@ test.describe('Guides schema', () => {
     ).toBeTruthy();
   });
 
-  test('Guide Visibility Controls composition exists with four boolean properties', async () => {
+  test('Guide Visibility Controls composition exists with three boolean properties', async () => {
     const token = await freshToken();
     const id = await findDocTypeIdByName(token, 'Guide Visibility Controls');
     expect(id, '"Guide Visibility Controls" composition should exist').toBeTruthy();
@@ -115,9 +115,7 @@ test.describe('Guides schema', () => {
 
     const aliases = (dt.properties ?? []).map((p: any) => p.alias).sort();
     expect(aliases).toEqual(
-      // hideFromSectionNavigation added 2026-07-08 to mirror the standard Visibility
-      // Controls composition (guide page types were previously missing the toggle).
-      ['hideFromSectionNavigation', 'hideFromTopNavigation', 'hideFromXMLSitemap', 'umbracoNaviHide'].sort()
+      ['hideFromTopNavigation', 'hideFromXMLSitemap', 'umbracoNaviHide'].sort()
     );
 
     // hideFromTopNavigation must use the new default-true data type
@@ -128,18 +126,18 @@ test.describe('Guides schema', () => {
     );
     expect(hideFromTopNav?.dataType?.id).toBe(defaultTrueId);
 
-    // umbracoNaviHide, hideFromXMLSitemap and hideFromSectionNavigation must use the shared True/False
-    for (const alias of ['umbracoNaviHide', 'hideFromXMLSitemap', 'hideFromSectionNavigation']) {
+    // umbracoNaviHide and hideFromXMLSitemap must use the shared True/False
+    for (const alias of ['umbracoNaviHide', 'hideFromXMLSitemap']) {
       const prop = (dt.properties ?? []).find((p: any) => p.alias === alias);
       expect(prop?.dataType?.id, `${alias} should use shared True/False`).toBe(sharedTrueFalseId);
     }
 
-    // All four properties must live on a "Visibility" tab
+    // All three properties must live on a "Visibility" tab
     const visibilityContainer = (dt.containers ?? []).find(
       (c: any) => c.name === 'Visibility'
     );
     expect(visibilityContainer, 'Visibility tab should exist').toBeTruthy();
-    for (const alias of ['hideFromTopNavigation', 'umbracoNaviHide', 'hideFromXMLSitemap', 'hideFromSectionNavigation']) {
+    for (const alias of ['hideFromTopNavigation', 'umbracoNaviHide', 'hideFromXMLSitemap']) {
       const prop = (dt.properties ?? []).find((p: any) => p.alias === alias);
       expect(prop?.container?.id).toBe(visibilityContainer.id);
     }

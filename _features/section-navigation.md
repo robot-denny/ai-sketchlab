@@ -11,6 +11,7 @@ Section navigation is a contextual sidebar that helps visitors orient themselves
 
 - [x] 2026-04-09 — Section Navigation Controls composition, contextual sidebar with desktop/mobile responsive collapse, current-page highlight (spec: `_specs/shipped/section-navigation.md`)
 - [x] 2026-07-07 — `hideFromSectionNavigation` toggle on the Visibility Controls composition: a page can be removed from the section-nav sidebar independently of "Hide From Search" (default unticked, existing content unaffected) (spec: `_specs/shipped/section-nav-hide-toggle.md`)
+- [x] 2026-07-08 — mirrored the `hideFromSectionNavigation` toggle onto the **Guide Visibility Controls** composition so Guides / How-To Guide page types carry it too (parity — the 2026-07-07 increment only added it to the standard Visibility Controls). Note: guide page types do not currently render section navigation themselves, so the toggle is effective only where a guide node appears in a section-nav-rendering page's list — see ROADMAP `guide-visibility-composition-consolidation`
 
 ---
 
@@ -80,6 +81,8 @@ Scenario: Hidden page does not appear in section navigation
 ### Rule: Pages can be hidden from section navigation independently of search
 
 A page carries a "Hide From Section Navigation" toggle (alias `hideFromSectionNavigation`) on the Visibility Controls composition, alongside the existing "Hide From Search" toggle (`umbracoNaviHide`). The two are independent: a page shows in the section-nav sidebar only if it is visible to search AND its "Hide From Section Navigation" toggle is unticked. Ticking one has no effect on the other. The toggle applies to both sibling and child entries. The current page is never removed from its own list — it always renders as the active item. Default is unticked, so pre-existing content is unaffected.
+
+The toggle exists on **both** visibility compositions — the standard `Visibility Controls` (composed by Content, Documentation, Article, etc.) and `Guide Visibility Controls` (composed by Guides and How-To Guide pages) — so every page type carries it in the backoffice. One caveat on effect: guide page types do not themselves render the section-nav sidebar (only `content.cshtml` / `documentation.cshtml` render it, via the Section Navigation Controls composition), so on a guide page the toggle takes effect only where that guide node appears as a sibling/child within a section-nav-rendering page's list. The two compositions are hand-maintained twins; keeping the toggle set in parity is tracked as ROADMAP `guide-visibility-composition-consolidation`.
 
 ```scenario
 Scenario: A sibling with "Hide From Section Navigation" ticked is excluded
@@ -228,6 +231,7 @@ Scenario: Base styles, active states, children styles, toggle, and responsive br
 | Current page link is marked as active | `tests/e2e/sectionNavigation.spec.ts` — "current page link has active class" | Covered |
 | Hidden page excluded from navigation | `tests/e2e/sectionNavigation.spec.ts` — "hidden page does not appear in section nav" | Covered |
 | Visibility Controls has hideFromSectionNavigation boolean | `tests/e2e/sectionNavigation.spec.ts` — "Visibility Controls composition has hideFromSectionNavigation boolean property" | Covered |
+| Guide Visibility Controls has hideFromSectionNavigation boolean | `tests/e2e/sectionNavigation.spec.ts` — "Guide Visibility Controls composition has hideFromSectionNavigation boolean property" | Covered |
 | Sibling with toggle ticked excluded; unticked sibling present | `tests/e2e/sectionNavigation.spec.ts` — "sibling with hideFromSectionNavigation is absent; unticked sibling present" | Covered |
 | Section-nav and search-visibility filters are independent | `tests/e2e/sectionNavigation.spec.ts` — "the section-nav and search/IsVisible filters are independent" | Covered |
 | Child with toggle ticked excluded from li.child list | `tests/e2e/sectionNavigation.spec.ts` — "child with hideFromSectionNavigation is absent from li.child list" | Covered |
@@ -251,3 +255,4 @@ Scenario: Base styles, active states, children styles, toggle, and responsive br
 
 - 2026-04-09: Initial feature doc from spec + implementation
 - 2026-07-07: Added the "Hide From Section Navigation" toggle (`hideFromSectionNavigation` boolean on the Visibility Controls composition). The section-nav partial now filters siblings and children by `IsVisible() && !hideFromSectionNavigation`, so a page can be removed from the section-nav sidebar independently of "Hide From Search". Default unticked (existing content unaffected); the current page is never filtered from its own list; suppression recomputes against the filtered lists. New scenarios and coverage rows added; behavior folds into this existing capability doc (change to `section-navigation`, spec `_specs/shipped/section-nav-hide-toggle.md`).
+- 2026-07-08: Mirrored the toggle onto the **Guide Visibility Controls** composition (`guideVisibilityControls`), so Guides and How-To Guide page types now carry `hideFromSectionNavigation` in the backoffice too — closing a parity gap where the 2026-07-07 increment only added it to the standard `Visibility Controls`. Retrofitted (schema + regenerated ModelsBuilder models were already committed; this pass added the composition test + these doc updates). Discovered during retrofit: guide page types render no section navigation of their own (only `content.cshtml` / `documentation.cshtml` do), so the toggle is currently latent for guides — effective only where a guide node appears within a section-nav-rendering page's sibling/child list. Follow-ups filed: ROADMAP `guide-visibility-composition-consolidation` (merge/justify the twin compositions) and `guide-visibility-toggle-datatype-drift` (reconcile `hideFromTopNavigation`'s divergent data type across the two compositions).

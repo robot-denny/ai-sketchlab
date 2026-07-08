@@ -232,6 +232,31 @@ test.describe('Section Navigation Controls — Document Type Setup', () => {
       'hideFromSectionNavigation should reuse the shared True/False data type of the sibling toggles'
     ).toBe(siblingToggle.dataType?.id);
   });
+
+  // Guide page types (Guides, How-To Guide) compose a SEPARATE "Guide Visibility
+  // Controls" composition, so hideFromSectionNavigation had to be mirrored there too
+  // (the original toggle only landed on the standard "Visibility Controls"). NB: pin
+  // the data type against umbracoNaviHide, NOT hideFromTopNavigation — the latter uses
+  // a divergent (drifted) True/False data type on this composition. See ROADMAP:
+  // guide-visibility-composition-consolidation.
+  test('Guide Visibility Controls composition has hideFromSectionNavigation boolean property', async () => {
+    // Unlike the standard "Visibility Controls", this composition lives at the doc-type
+    // tree ROOT (not inside the "Compositions" folder), so findCompositionByName misses it.
+    // getDocumentTypeByName checks root first, then folders — resilient either way.
+    const docType = await getDocumentTypeByName('Guide Visibility Controls');
+    expect(docType, '"Guide Visibility Controls" document type should exist').toBeTruthy();
+
+    const props = docType.properties ?? [];
+    const newProp = props.find((p: any) => p.alias === 'hideFromSectionNavigation');
+    expect(newProp, 'Should have a "hideFromSectionNavigation" property').toBeTruthy();
+
+    const siblingToggle = props.find((p: any) => p.alias === 'umbracoNaviHide');
+    expect(siblingToggle, 'sibling toggle "umbracoNaviHide" should exist').toBeTruthy();
+    expect(
+      newProp.dataType?.id,
+      'hideFromSectionNavigation should reuse a shared True/False data type'
+    ).toBe(siblingToggle.dataType?.id);
+  });
 });
 
 test.describe('Section Navigation — View Layout (Step 3)', () => {

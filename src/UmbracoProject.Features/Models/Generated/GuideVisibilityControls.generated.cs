@@ -22,6 +22,10 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 	/// <summary>Guide Visibility Controls</summary>
 	public partial interface IGuideVisibilityControls : IPublishedContent
 	{
+		/// <summary>Hide From Section Navigation</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
+		bool HideFromSectionNavigation { get; }
+
 		/// <summary>Hide From Top Navigation</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
 		bool HideFromTopNavigation { get; }
@@ -65,6 +69,17 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		}
 
 		// properties
+
+		///<summary>
+		/// Hide From Section Navigation: Tick this box if you want to hide this page from the section navigation sidebar
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
+		[ImplementPropertyType("hideFromSectionNavigation")]
+		public virtual bool HideFromSectionNavigation => GetHideFromSectionNavigation(this, _publishedValueFallback);
+
+		/// <summary>Static getter for Hide From Section Navigation</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
+		public static bool GetHideFromSectionNavigation(IGuideVisibilityControls that, IPublishedValueFallback publishedValueFallback) => that.Value<bool>(publishedValueFallback, "hideFromSectionNavigation");
 
 		///<summary>
 		/// Hide From Top Navigation: Tick this box if you want to hide this page from the navigation in the header

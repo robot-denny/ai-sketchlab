@@ -74,6 +74,13 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		public virtual global::Umbraco.Cms.Core.Models.MediaWithCrops Screenshot => this.Value<global::Umbraco.Cms.Core.Models.MediaWithCrops>(_publishedValueFallback, "screenshot");
 
 		///<summary>
+		/// Hide From Section Navigation: Tick this box if you want to hide this page from the section navigation sidebar
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
+		[ImplementPropertyType("hideFromSectionNavigation")]
+		public virtual bool HideFromSectionNavigation => global::Umbraco.Cms.Web.Common.PublishedModels.GuideVisibilityControls.GetHideFromSectionNavigation(this, _publishedValueFallback);
+
+		///<summary>
 		/// Hide From Top Navigation: Tick this box if you want to hide this page from the navigation in the header
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]

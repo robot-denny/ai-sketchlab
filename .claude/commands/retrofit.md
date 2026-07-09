@@ -23,7 +23,7 @@ Your job is to act as a senior architect and codebase expert who arrives *after*
 
 "Already landed" usually means the work is *already committed* on the branch, so a plain `git diff` would come up empty and miss everything. Compute the **full change set** on this branch, from all three sources:
 
-- **Base branch**: default to `master` (this project's main branch). Find the fork point: `git merge-base HEAD master`.
+- **Base branch**: prefer the **upstream tracking branch** over local `master`. Local `master` is frequently stale (behind the real remote), which inflates the diff with everything your local is missing and mis-scopes the retrofit. Resolve it as `git rev-parse --abbrev-ref @{u}` (e.g. `github/master`), `git fetch` that remote first, then find the fork point against it: `git merge-base HEAD @{u}`. Fall back to `master` only if there's no upstream.
 - **Committed on the branch**: `git diff <merge-base>...HEAD` — everything committed since branching.
 - **Uncommitted**: `git diff HEAD` — staged + unstaged working-tree edits.
 - **Untracked**: `git status --porcelain` — new files not yet added (e.g. a new `.cshtml` or `.spec.ts`).
@@ -71,14 +71,15 @@ Beyond what the reviewers flag, think like the author's most careful colleague: 
 - **Empty / missing values** — a new author-editable field with no value entered; does the template fall back gracefully or render a blank/broken element?
 - **Migration of existing content** — content authored *before* this change: does a new boolean default correctly? does hardcoded text that moved into a field still appear on already-published nodes?
 - **Nulls** — Umbraco content access that assumes a picker/relation is set (this project grandfathers view nullability, so new code should be explicit).
-- **Multi-type / composition reach** — a field added to a shared composition surfaces on *every* composing doc type; is that intended everywhere?
+- **Multi-type / composition reach** — a field added to a shared composition surfaces on *every* composing doc type; is that intended everywhere? Conversely, a "parallel" composition (e.g. a guide-specific twin) may *not* get the field, leaving a gap.
 - **Culture / variants, caching** — cached partials that won't reflect the change until expiry; culture-specific rendering.
+- **Schema actually imported on each environment (`.uda` changes)** — a committed `.uda` file is **not** the same as the schema being present in an environment's *database*. Umbraco Cloud extraction can fail or be skipped (it diffs commit-to-commit, not file-to-DB), leaving a property in git but absent from Dev/Live's DB — which silently breaks rendering *and* blocks content transfers with a schema mismatch, and normal deploys/promotions/`POST /schema/item` imports may not unstick it (Cloud re-serializes the entity from its own DB and reverts the file). So for any `.uda` / doc-type / composition / data-type change, the proposal must include **verifying the change actually landed in the target environment's database** — query the Management API (`GET /document-type/{id}` → check the property is present) or the Deploy comparison endpoint, not just confirm the `.uda` exists — and note that a deploy reporting "completed" does **not** prove extraction ran. (Learned 2026-07-08 the hard way: a guide-composition toggle sat in git but never imported into any Cloud DB; see ROADMAP `guides-rework`.)
 
 ## Step 5 — Tests (draft, for confirmation)
 
 Decide whether existing tests should change or new ones are needed, following the project's TDD and E2E conventions (`.claude/skills/BDD.md`; the **E2E Test Resilience Rules** in CLAUDE.md — dynamic lookups over hardcoded UUIDs/slugs, regex over exact CSS matches, browser assertions over file-content assertions, Linux-only screenshot baselines).
 
-- **Existing tests to modify** — does the change alter behavior a current spec asserts? Name the file and the assertion.
+- **Existing tests to modify** — does the change alter behavior a current spec asserts? **Grep the *whole* test suite for assertions about the changed entity — not just the obvious spec.** Search by alias/name/type key (e.g. `grep -rn "guideVisibilityControls\|hideFromSectionNavigation" tests/`): a change often trips a coupled assertion in a *different* file — e.g. adding a property breaks a `toEqual([...])` or a "has N properties" count somewhere you didn't edit. Name every such file + assertion.
 - **New tests** — what behavior is now untested? Prefer a Playwright E2E spec that verifies rendered behavior over file-content checks. For a new block, the `/block` TDD workflow is the house pattern.
 - **Draft the tests** so the developer can read them — but do **not** write them to disk yet. If a screenshot spec is proposed, note that its Linux baseline must be generated via `update-snapshots.yml` after it lands, or it fails every Gate 2 run.
 

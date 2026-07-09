@@ -422,6 +422,10 @@ healthchecksdb
 .env
 .githooks.conf
 **/appsettings.Development.json
+# Umbraco Cloud manages this per-environment and preserves it on deploy
+# (CI/CD Flow skipPreserveUmbracoCloudJson=false). It contains the Deploy
+# API key + Umbraco ID OAuth secret, so it must never be tracked in git.
+**/umbraco-cloud.json
 
 # Playwright E2E
 tests/e2e/.auth/user.json

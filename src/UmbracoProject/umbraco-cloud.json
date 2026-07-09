@@ -1,0 +1,26 @@
+{
+  "Deploy": {
+    "Project": {
+      "Name": "umbraco 17 demo site",
+      "Alias": "umbraco-17-demo-site",
+      "Id": "0e11e5a0-3a7c-48ca-a5f2-732ad4747bea",
+      "Workspaces": [
+        {
+          "Id": "6a90e25d-509e-48c4-990a-495ae243556c",
+          "Name": "Live",
+          "Type": "live",
+          "Url": "https://umbraco-17-demo-site.useast01.umbraco.io"
+        }
+      ]
+    },
+    "Settings": {
+      "ApiKey": "402474E6A9BE58B38D91A6B5AE428F3EC4527965"
+    }
+  },
+  "Identity": {
+    "ClientId": "0297c0f6-83ad-4481-9ae2-07a3f5475333",
+    "ClientSecret": "Q5~T526ixOHlj47lg7Mu7_.zN1fK.7ua.9",
+    "EnvironmentId": "6a90e25d-509e-48c4-990a-495ae243556c",
+    "LocalLoginRedirectUri": "https://redirect.identity.umbraco.com"
+  }
+}

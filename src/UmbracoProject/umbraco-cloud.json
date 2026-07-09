@@ -1,10 +1,17 @@
 {
   "Deploy": {
     "Project": {
-      "Name": "umbraco 17 demo site",
+      "Name": "Umbraco 17 Demo Site",
       "Alias": "umbraco-17-demo-site",
       "Id": "0e11e5a0-3a7c-48ca-a5f2-732ad4747bea",
+      "Url": "https://www.s1.umbraco.io/project/umbraco-17-demo-site",
       "Workspaces": [
+        {
+          "Id": "7fe35e86-9249-4446-8eb3-dcbda309d6ce",
+          "Name": "Dev",
+          "Type": "dev",
+          "Url": "https://dev-umbraco-17-demo-site.useast01.umbraco.io"
+        },
         {
           "Id": "6a90e25d-509e-48c4-990a-495ae243556c",
           "Name": "Live",

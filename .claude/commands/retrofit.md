@@ -1,6 +1,6 @@
 ---
 description: The "easy button" for a quick change or fix that skipped the spec→plan→feature→build flow. Run it before you commit (or before you push, if already committed) — it reconciles your intent against the diff, code-reviews, surfaces edge cases, then proposes tests + docs for your confirmation.
-argument-hint: ["<what you changed — optional>"] [optional git range/ref, e.g. HEAD~3..HEAD]
+argument-hint: An optional description of what you changed, plus an optional git range/ref (e.g. HEAD~3..HEAD)
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git diff:*), Bash(git status:*), Bash(git merge-base:*), Bash(git branch:*), Bash(git log:*), Bash(git rev-parse:*), Bash(dotnet build:*), Bash(dotnet test:*), Bash(npx playwright:*), Agent(*)
 ---
 

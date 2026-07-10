@@ -263,4 +263,47 @@ test.describe('Updated Footer — Browser E2E', () => {
     const text = await colophon.textContent();
     expect(text!.trim().length).toBeGreaterThan(0);
   });
+
+  // Nav/social list links (.foot .col li a) darken to --text-primary and
+  // thicken their (already-present) underline 1px→2px on hover/focus. Asserting
+  // computed styles (not CSS-file content) per the E2E resilience rules; the
+  // brand .fm link is intentionally excluded and not tested here.
+  test('footer nav link darkens + thickens underline on hover', async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await page.goto(homeDocUrl);
+    const link = page.locator('footer.foot .col li a').first();
+    if ((await link.count()) === 0) {
+      test.skip();
+      return;
+    }
+    await link.hover();
+    // The colour/thickness change animates over --ease-micro (150ms); wait past
+    // it so getComputedStyle reads the settled value, not a mid-transition frame.
+    await page.waitForTimeout(250);
+    const { color, thickness } = await link.evaluate((el) => {
+      const cs = window.getComputedStyle(el);
+      return { color: cs.color, thickness: cs.textDecorationThickness };
+    });
+    // --text-primary resolves to rgb(28, 25, 23)
+    expect(color).toBe('rgb(28, 25, 23)');
+    expect(thickness).toBe('2px');
+  });
+
+  test('footer nav link shows the same cue on keyboard focus', async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await page.goto(homeDocUrl);
+    const link = page.locator('footer.foot .col li a').first();
+    if ((await link.count()) === 0) {
+      test.skip();
+      return;
+    }
+    await link.focus();
+    await page.waitForTimeout(250);
+    const { color, thickness } = await link.evaluate((el) => {
+      const cs = window.getComputedStyle(el);
+      return { color: cs.color, thickness: cs.textDecorationThickness };
+    });
+    expect(color).toBe('rgb(28, 25, 23)');
+    expect(thickness).toBe('2px');
+  });
 });

@@ -76,6 +76,14 @@
    FR6 — padding-block makes each link's interactive box >= 24px tall so
    adjacent stacked targets satisfy WCAG 2.5.8 spacing at every breakpoint. */
 .foot .col li a{text-decoration:underline;text-underline-offset:2px;padding-block:4px}
+/* Hover/focus affordance: these links are already underlined at rest (FR4), so
+   the cue is a darken to --text-primary plus a 1px→2px underline thickening —
+   the site's global a:hover behaviour, which the higher-specificity rule above
+   otherwise suppresses here. Colour + underline-weight is a dual (not colour-
+   only) cue; the colour+thickness transition is inherited from the global `a`
+   rule. :focus-visible is paired in so keyboard users get the same feedback
+   alongside the existing focus outline. */
+.foot .col li a:hover,.foot .col li a:focus-visible{color:var(--text-primary);text-decoration-thickness:2px}
 .foot .colophon{grid-column:1/-1;padding-top:32px;margin-top:24px;border-top:1px solid var(--border-light);display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
 /* WCAG 2.4.7 — re-assert a visible ring on footer links (brand .fm link and
    the nav/social list links). Accent-red matches the site-wide focus signal.

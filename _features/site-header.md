@@ -75,10 +75,19 @@ Scenario: Nav links use dark text on white background
 ```
 
 ```scenario
-Scenario: Nav link hover uses accent color
+Scenario: Nav link reveals an accent underline on hover
   Given a visitor views any page at 1200px viewport width
   When hovering over a navigation link
-  Then the link color changes to "--accent-secondary" (rgb(139, 107, 74))
+  Then a bottom border appears in "--accent-primary" (rgb(194, 61, 46))
+  And the link text does not shift position (a transparent 1px baseline reserves the space)
+```
+
+```scenario
+Scenario: Nav link reveals the same underline on keyboard focus
+  Given a visitor tabs through the header with a keyboard
+  When a navigation link receives focus
+  Then the same "--accent-primary" bottom border appears
+  And the existing focus outline is still shown
 ```
 
 ### Rule: No scroll-triggered JavaScript manipulates the navbar
@@ -143,7 +152,8 @@ Scenario: Short page with no scrollable content
 | Masthead starts below the header with no overlap | `tests/e2e/header/siteHeader.spec.ts:L214` | Covered |
 | Masthead CSS has no nav-height padding compensation | `tests/e2e/header/siteHeader.spec.ts:L109` | Covered |
 | Nav links use dark text on white background | `tests/e2e/header/siteHeader.spec.ts:L102` (CSS), `L193` (browser) | Covered |
-| Nav link hover uses accent color | — | Not covered (hover state difficult to assert in E2E) |
+| Nav link reveals an accent underline on hover | — | Not covered (hover/focus state not yet asserted in E2E) |
+| Nav link reveals the same underline on keyboard focus | — | Not covered (hover/focus state not yet asserted in E2E) |
 | Scripts do not contain navbar class toggling | `tests/e2e/header/siteHeader.spec.ts:L129`, `L133` | Covered |
 | CSS does not contain scroll-triggered navbar rules | `tests/e2e/header/siteHeader.spec.ts:L94`, `L98` | Covered |
 | Expanded mobile menu has dark background | — | Not covered (requires toggling Bootstrap collapse in E2E) |

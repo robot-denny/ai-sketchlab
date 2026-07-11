@@ -115,6 +115,14 @@ const e = [
             data: { tag: "p", class: "pull-quote" }
           },
           {
+            // Toolbar-preview style only (approximates the rendered .pull-quote-accent;
+            // exact parity not needed). #C23D2E = --accent-primary — keep in sync with
+            // assets/css/typography.css and wwwroot/css/dropdownStyles.css.
+            label: "Pull quote (accent)",
+            appearance: { icon: "icon-quote", style: "font-style: italic;border-left: 3px solid #C23D2E;padding-left: 8px;" },
+            data: { tag: "p", class: "pull-quote-accent" }
+          },
+          {
             label: "Caption",
             appearance: { icon: "icon-document", style: "font-size: 0.85em;font-style: italic;" },
             data: { tag: "p", class: "caption" }

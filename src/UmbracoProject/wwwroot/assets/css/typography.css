@@ -393,6 +393,8 @@ blockquote,
   font-style: normal;
 }
 
+/* Base pull-quote — used in the typography showcase block and anywhere the
+   class appears outside the rich-text editor's output. */
 .pull-quote {
   font-family: var(--font-display);
   font-size: 1.75rem;
@@ -405,7 +407,69 @@ blockquote,
   max-width: 36em;
 }
 
-.caption {
+/* Base accent pull-quote — renders outside the RTE (e.g. the type-showcase
+   block). The .richtext-scoped rule below re-asserts the same values at (0,2,0)
+   to win inside article/content reading columns where `.art-body p` competes. */
+.pull-quote-accent {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-align: left;
+  border-left: 3px solid var(--accent-primary);
+  padding-left: 1.5rem;
+  margin: 3rem 0;
+  max-width: 75%;
+}
+
+/* Inside rich-text bodies the reading column's `.art-body p` (0,1,1) outranks a
+   bare .pull-quote (0,1,0) and clobbers its display font + width. Re-assert the
+   shared display font for both variants at (0,2,0), via the always-present
+   .richtext wrapper, so RTE-authored quotes render correctly in the reading
+   column. */
+.richtext .pull-quote,
+.richtext .pull-quote-accent {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.richtext .pull-quote {
+  text-align: center;
+  margin: 3rem auto;
+  max-width: 36em;
+}
+
+/* Second pull-quote (backoffice "Pull quote (accent)"): left-aligned with an
+   accent-red rule to draw the eye, constrained to 75% of the container. Drops
+   to full width once the reading column narrows (matches the article page's
+   760px breakpoint) so it never gets uncomfortably narrow on phones. */
+.richtext .pull-quote-accent {
+  text-align: left;
+  border-left: 3px solid var(--accent-primary);
+  padding-left: 1.5rem;
+  margin: 3rem 0;
+  max-width: 75%;
+}
+
+@media (max-width: 760px) {
+  .pull-quote-accent,
+  .richtext .pull-quote-accent {
+    max-width: 100%;
+  }
+}
+
+/* Caption style — applied both to the backoffice "Caption" dropdown
+   (p.caption) and to <figcaption>s that the rich-text editor emits under
+   images (which carry no class). Deliberately smaller/muted so it reads as
+   ancillary to, and never more prominent than, body copy. */
+.caption,
+.richtext figure figcaption {
   font-family: var(--font-body);
   font-size: 0.8rem;
   font-style: italic;
@@ -454,6 +518,23 @@ kbd {
 .richtext li > p:only-child,
 .markdown-content li > p:only-child {
   margin: 0;
+}
+
+/* Rich-text media — images inserted through the editor must never exceed the
+   reading column (a high-res upload would otherwise bleed past the container).
+   height:auto keeps the aspect ratio when max-width kicks in. Figures the
+   editor wraps captioned images in get matching spacing; their <figcaption>
+   picks up the .caption style above. */
+.richtext img {
+  max-width: 100%;
+  height: auto;
+}
+.richtext figure {
+  margin: 2em 0;
+  max-width: 100%;
+}
+.richtext figure figcaption {
+  margin-top: 0.5em;
 }
 
 /* ── UI: Navigation ────────────────────────────────────────────── */

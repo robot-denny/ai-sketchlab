@@ -99,7 +99,7 @@ Scenario: Heading examples render with live CSS
 
 ```scenario
 Scenario: Editor-available text classes render with their actual styles
-  Given the curated editor-available class list is .lead, .overline, .blockquote, .caption, .pull-quote
+  Given the curated editor-available class list is .lead, .overline, .blockquote, .caption, .pull-quote, .pull-quote-accent
   When a visitor loads /styleguide
   Then the typographyShowcaseBlock shows an example for each class rendered with its production CSS
 ```
@@ -145,10 +145,35 @@ Scenario: Styleguide links to the components page
 Scenario: Authors can apply editorial classes from the rich-text editor
   Given an author is editing any rich-text field in the backoffice
   When they open the Style Select dropdown in the TipTap toolbar
-  Then under the "Editorial" group they see "Lead paragraph", "Overline", "Pull quote", and "Caption"
+  Then under the "Editorial" group they see "Lead paragraph", "Overline", "Pull quote", "Pull quote (accent)", and "Caption"
   And the "Headers" group offers Page header (h2), Section header (h3), Paragraph header (h4), Minor header (h5), Fine header (h6)
   And the "Containers" group offers Block quote and Code block
   And applying an editorial entry wraps the selection in a paragraph with the corresponding class on the published page
+```
+
+### Rule: Rich-text body content renders within the reading column
+
+```scenario
+Scenario: The accent pull-quote is left-aligned behind an accent rule
+  Given an author applies "Pull quote (accent)" to a paragraph
+  When the article renders
+  Then the quote uses the display serif, left-aligned behind a red "--accent-primary" left rule
+  And it is constrained to 75% of the reading column, dropping to full width at 760px and below
+```
+
+```scenario
+Scenario: Editor-inserted images never exceed the container width
+  Given an author inserts a high-resolution image into a rich-text field
+  When the rich-text block ".richtext" renders
+  Then the image is constrained to 100% of the container width with its aspect ratio preserved
+```
+
+```scenario
+Scenario: Image captions render in the caption style
+  Given an author adds a caption to an inserted image (an editor "<figcaption>")
+  When the rich-text block renders
+  Then the figcaption uses the same muted italic style as the ".caption" class
+  And it reads as ancillary to, never more prominent than, body copy
 ```
 
 ---
@@ -187,12 +212,15 @@ Scenario: An unparseable token value is shown gracefully
 | A token without a swatch caption is excluded | [styleguide.spec.ts:240](../tests/e2e/styleguide.spec.ts#L240) (same test asserts `--space-md` absent) | Covered |
 | Changing a token value updates the swatch on next page load | — | Manual QA — implementation re-reads `typography.css` per request via [SwatchTokenParser.cs](../src/UmbracoProject/Helpers/SwatchTokenParser.cs); E2E mutation of fixture CSS skipped per original plan |
 | Heading examples render with live CSS | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) | Covered |
-| Editor-available text classes render with their actual styles | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (asserts `.lead`, `.overline`, `.blockquote`, `.caption`, `.pull-quote`) | Covered |
+| Editor-available text classes render with their actual styles | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (asserts `.lead`, `.overline`, `.blockquote`, `.caption`, `.pull-quote`, `.pull-quote-accent`) | Covered |
 | Updating a typography class in CSS is reflected in the styleguide | — | Manual QA — same rationale as the swatch-mutation scenario |
 | Links, buttons, lists, tables, and form controls are visible | [styleguide.spec.ts:316](../tests/e2e/styleguide.spec.ts#L316) | Covered |
 | Components page lists each block with a label, grouped by category | [styleguide-components.spec.ts:638](../tests/e2e/styleguide-components.spec.ts#L638) (section row order), [:644](../tests/e2e/styleguide-components.spec.ts#L644) (label per block), [:665](../tests/e2e/styleguide-components.spec.ts#L665) (text), [:685](../tests/e2e/styleguide-components.spec.ts#L685) (media), [:695](../tests/e2e/styleguide-components.spec.ts#L695) (lists) | Covered |
 | Styleguide links to the components page | [styleguide.spec.ts:335](../tests/e2e/styleguide.spec.ts#L335) (link visible), [styleguide-components.spec.ts:707](../tests/e2e/styleguide-components.spec.ts#L707) (link click navigates) | Covered |
 | Authors can apply editorial classes from the rich-text editor | — | Manual QA — Style Menu manifest in [richtext/manifest.ts](../src/HelloWorld/Client/src/richtext/manifest.ts) (alias `Site.Tiptap.Toolbar.StyleSelect`, `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'` so the built-in toolbar entry is replaced without any data-type edit); [dropdownStyles.css](../src/UmbracoProject/wwwroot/css/dropdownStyles.css) is loaded into the editor iframe for in-editor preview |
+| The accent pull-quote is left-aligned behind an accent rule | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (`.pull-quote-accent` visible in the showcase); layout in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css) `.pull-quote-accent` / `.richtext .pull-quote-accent` | Covered (visibility); layout via manual QA |
+| Editor-inserted images never exceed the container width | — | Manual QA — `.richtext img{max-width:100%;height:auto}` in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css). Also covered by the `article.png` page-template screenshot baseline when a fixture article carries a body image |
+| Image captions render in the caption style | — | Manual QA — `.caption, .richtext figure figcaption` in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css) |
 | No annotated tokens means an empty palette, not a broken page | — | Skipped — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
 | An unparseable token value is shown gracefully | — | Skipped — same rationale; literal-value fallback is implemented in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
 
@@ -205,4 +233,5 @@ Scenario: An unparseable token value is shown gracefully
 - 2026-04-29: Realigned to typography.css + /**umb_swatch:LABEL**/ convention during planning.
 - 2026-04-30: Plan Steps 7–8 shipped. Test Coverage table refreshed against the live E2E suite (16 tests across both specs); doc-type / element-type ids resolved dynamically per Step 8.
 - 2026-05-01: Architecture change. The styleguide page is now block-driven: three new programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the hardcoded sections. `brandSummary` stays as a top-level field. The Footer Controls composition was dropped (the global footer is rendered from Home, not per-page). `.lead` and `.pull-quote` were added to the TipTap Style Select dropdown. Behaviors and Test Coverage rewritten against the new structure (19 tests now passing).
+- 2026-07-11: Blog content styles. Added a second rich-text pull-quote — "Pull quote (accent)" (`.pull-quote-accent`): same display serif as `.pull-quote` but left-aligned behind an `--accent-primary` left rule, constrained to 75% of the column (full width ≤760px). Also constrained RTE-inserted images to the container (`.richtext img{max-width:100%}`) and applied the existing `.caption` style to image `<figcaption>`s. Editor-iframe preview (`dropdownStyles.css`) resynced. `.pull-quote-accent` added to the type-showcase block + the styleguide visibility test.
 - 2026-05-11: Rich-text Style Select rebuilt as a TipTap `styleMenu` extension manifest (TipTap doesn't parse the TinyMCE `/**umb_name:Label*/` annotation). Added `Overline`, `Caption`, `Minor header` (h5), `Fine header` (h6) entries alongside the existing Headers / Editorial / Containers groups. The manifest declares `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`, so the built-in entry is replaced in-place — no data type edit needed. Editor-iframe preview stylesheet `dropdownStyles.css` resynced with `typography.css` (the TipTap editor prepends its `/css` root path, so the persisted `/dropdownStyles.css` value resolves correctly to `/css/dropdownStyles.css`).

@@ -302,7 +302,7 @@ test.describe('Style Guide — Block-driven layout', () => {
     for (const tag of ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) {
       await expect(block.locator(tag).first()).toBeVisible();
     }
-    for (const cls of ['lead', 'overline', 'blockquote', 'caption', 'pull-quote']) {
+    for (const cls of ['lead', 'overline', 'blockquote', 'caption', 'pull-quote', 'pull-quote-accent']) {
       await expect(block.locator(`.${cls}`).first()).toBeVisible();
     }
   });

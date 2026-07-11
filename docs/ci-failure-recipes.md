@@ -188,3 +188,46 @@ Confirm in the backoffice: **Settings → Search** shows `Umb_PublishedContent` 
 **Why this recurs** — every master merge triggers a fresh Dev deploy; the search indexes come up cold and take ~20-30 min to hydrate (not controllable from CI). The gate makes the *cold window* deterministic and legible; the standing remedy is **wait-then-rerun**. To eliminate the manual rerun, the options are (a) raise the gate budget to the measured warm-up time (slow: ~30 min runner time per master run), or (b) make Playwright fixture creation resilient to the cold window so no long gate is needed — tracked as follow-up.
 
 **v18-upgrade revisit** — the `Umbraco.Cms.Search` / `AI.Search` stack is still beta (core integration lands ~v19; see the `deps-ai-search-version-realignment` ROADMAP item). On the v18 upgrade, re-verify on the new version: (a) whether cold-serving still happens at all, (b) whether a real CI-reachable warm/restart lever appears, and (c) that this gate's readiness marker (`article-grid-card`) and the `/search` path are still correct.
+
+---
+
+### stale screenshot baseline — `toHaveScreenshot` size/pixel mismatch after an intentional visual change
+
+**Failure signature** — `playwright-against-dev` goes red with **one** (or a few) failing tests, all `toHaveScreenshot`, e.g. `Error: expect(locator).toHaveScreenshot(expected) failed — Expected an image 754px by 1020px, received 754px by 1197px. Snapshot: typographyShowcaseBlock.png`. **Gate 1 and all deploy jobs succeed** — only the Playwright job fails. Crucially it is a **size/pixel mismatch naming a specific `*.png` baseline**, not a cluster of `POST /document` 500s.
+
+**Root cause** — an intentional CSS/markup change (new element, changed spacing, a restyle) altered what a screenshotted block or page renders, so the committed **Linux** baseline under `tests/e2e/**/*-snapshots/*` is now correctly *stale*. This is a real diff, **not** a flake and **not** the Examine cascade.
+
+**Diagnostic tell — how to tell this apart from the [cold AI.Search cascade](#cold-aisearch--post-document-500-cascade-after-a-dev-deploy):**
+
+| | Stale baseline | Cold AI.Search cascade |
+|---|---|---|
+| Failing tests | 1–few, all `toHaveScreenshot` | ~7–9, clustered `POST /document` 500 in `beforeAll` + downstream timeouts |
+| Error text | "Expected an image WxH, received WxH′" naming a `.png` | `500 "Unknown error"`, locator/`toBeVisible` timeouts |
+| `/search?q=article` on Dev | fine (`> 0`) | `0` (keyword index corrupt) |
+| Does a **Dev restart** fix it? | **No** — it's a pixel diff, not an index | Yes — restart rebuilds the Examine index |
+| Does `gh run rerun --failed` fix it? | **No** — re-runs the same mismatch | Yes, *after* a restart |
+
+If a restart + rerun "failed a second time" on a screenshot test, it's this recipe, not the cascade.
+
+**THE FIX — regenerate the baseline on Linux, then dispatch a fresh run.** Two steps, and both matter:
+
+```bash
+# 1. Regenerate ONLY the affected baseline against Dev (narrow the filter so
+#    unrelated baselines aren't touched). Commits the new PNG to master as
+#    github-actions[bot].
+gh workflow run update-snapshots.yml --ref master \
+  -f testFilter=tests/e2e/blocks/screenshots/typographyShowcaseBlock.screenshot.spec.ts
+
+# 2. Dispatch a fresh pipeline on master HEAD to verify (see gotcha below).
+gh workflow run main.yml --ref master
+```
+
+**⚠️ Gotcha — the baseline commit does NOT auto-trigger CI.** The `update-snapshots` job pushes with the default `GITHUB_TOKEN`, and GitHub suppresses workflow runs for `GITHUB_TOKEN` pushes (recursion guard). So master will *not* re-run on its own — you must `gh workflow run main.yml --ref master` (main.yml has `workflow_dispatch`, and dispatching on `master` satisfies the `github.ref == master` guard so Gate 2 runs).
+
+**⚠️ Do NOT `gh run rerun <failed-run>`** to verify — a `push`-triggered run re-checks-out its original SHA (the pre-baseline commit), so it just fails again. You need a *new* run on the commit that contains the regenerated baseline.
+
+**⚠️ Do NOT regenerate as a reflex** — confirm the diff is an *intended* visual change first (review the `received` image / the size delta against what you changed). A size change you can't explain may be a real regression; see the "WHEN NOT TO RUN" header in [update-snapshots.yml](../.github/workflows/update-snapshots.yml).
+
+**Verification** — run `29162152715` (2026-07-11, `blog-content-styles` merge): single failure, `typographyShowcaseBlock.png` 1020 → **1197px** tall after a `.pull-quote-accent` demo `<p>` was added to the showcase block; `article.png` and all other screenshots passed (no unintended drift). Regenerated via `update-snapshots.yml` (bot commit `aa13c5e`); dispatched `main.yml` (`29163813003`) → Playwright green. A Dev restart + `--rerun` beforehand had failed twice, confirming the restart path is the wrong lever here.
+
+**Why this recurs** — any intentional restyle/markup change to a block or page that has a committed screenshot baseline. Baselines are Linux-only (macOS/Windows PNGs are `.gitignore`d), so they can only be regenerated on the runner, never locally. The standing habit: after landing a screenshot-affecting change, regenerate its baseline and dispatch a verify run — don't wait for the red to surprise you (see [CLAUDE.md → Screenshot baselines](../CLAUDE.md#screenshot-baselines)).

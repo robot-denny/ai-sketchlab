@@ -1,13 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { shotOf } from './_shimHelpers';
 
-// richTextRow is the most heavily exercised shim. It renders in both contexts:
+// richTextRow is the most heavily exercised block. It renders in both contexts:
 //   - blocklist: /styleguide/components/ (.richtext, multiple instances)
 //   - blockgrid: /experiments/ ([data-content-element-type-alias="richTextRow"])
 //
-// The blockgrid shim delegates to the blocklist partial via Html.PartialAsync,
-// so the inner .richtext element should be byte-identical when the same
-// content data is passed through.
+// Both editors render it from the ONE shared view
+// Views/Partials/blocks/Components/richTextRow.cshtml (the old blockgrid shim
+// was removed by _plans/block-editor-parity-and-reuse-readiness.md), so the
+// inner .richtext element should be byte-identical when the same content data
+// is passed through.
 //
 // As with imageRow.equivalence: this fails if the two surfaces hold different
 // Tiptap content. The test is still useful in that case -- it catches the

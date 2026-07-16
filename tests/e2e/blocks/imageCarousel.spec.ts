@@ -195,7 +195,7 @@ test.describe('Image Carousel Row — Element Type', () => {
 test.describe('Image Carousel Row — Partial View', () => {
   const partialPath = resolve(
     __dirname,
-    '../../../src/UmbracoProject/Views/Partials/blocklist/Components/imageCarouselRow.cshtml'
+    '../../../src/UmbracoProject/Views/Partials/blocks/Components/imageCarouselRow.cshtml'
   );
 
   test('partial view file exists', () => {

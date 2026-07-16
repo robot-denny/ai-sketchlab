@@ -1,20 +1,26 @@
 /**
- * Shim-equivalence helpers (Step 5 of `_plans/arch-safety-net.md`).
+ * Render-equivalence helpers.
  *
- * The four blockgrid shims (alertBanner, iconLinkRow, imageRow, richTextRow)
- * delegate to the blocklist partial via `Html.PartialAsync`. This means the
- * rendered output should be pixel-identical across blocklist and blockgrid
- * contexts -- if it isn't, the shim is doing something wrong (or the wrapper
- * markup has diverged).
+ * Originally added for the four blockgrid->blocklist shims (Step 5 of
+ * `_plans/arch-safety-net.md`). Those shims were removed by
+ * `_plans/block-editor-parity-and-reuse-readiness.md`: the four blocks
+ * (alertBanner, iconLinkRow, imageRow, richTextRow) now render from ONE shared
+ * view under `Views/Partials/blocks/Components/{alias}.cshtml`, dispatched by
+ * both `blocklist/default.cshtml` and `blockgrid/items.cshtml`. The equivalence
+ * assertion is therefore even stronger now: the identical shared partial is
+ * rendered in both editors, so the output should be pixel-identical across the
+ * blocklist (/styleguide/components/) and blockgrid (/experiments/) contexts --
+ * if it isn't, either a dispatcher wrapper has diverged or the two surfaces hold
+ * different authored content.
  *
  * Strategy: capture both screenshots into Buffers and compare byte-for-byte
- * with `toEqual`. The plan offers two implementation choices; this is the
- * "compare-buffers" alternative because it avoids Playwright's shared-baseline
- * file-path semantics (which are easy to misuse and rely on snapshot directory
- * resolution).
+ * with `.equals()`. This avoids Playwright's shared-baseline file-path semantics
+ * (easy to misuse, dependent on snapshot directory resolution) and stays
+ * platform-independent -- it compares two live renders against each other, not
+ * against a committed Linux baseline.
  *
- * Tolerance: zero. Any difference indicates a real divergence between the
- * shim and the canonical blocklist render.
+ * Tolerance: zero. Any difference indicates a real divergence between the two
+ * editors' render of the same shared view.
  */
 
 import { Page, Locator, expect } from '@playwright/test';

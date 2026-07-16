@@ -111,6 +111,24 @@ Scenario: Editor removes a pillar
   And the remaining pillars still display in a readable rhythm
 ```
 
+### Rule: The showcase blocks render in both editors from one shared view (pillarSection excepted)
+
+```scenario
+Scenario: A showcase block reused on a Block List page renders the same as on the grid
+  Given the showcase blocks (featureCard, commandBadge, statCallout, pullQuoteBlock, embeddedSketch, timelineRow, showcaseHero) each have a single view at Views/Partials/blocks/Components/{alias}.cshtml
+  When one of them is placed in a Block List rather than the Experiments Block Grid
+  Then it renders identically in both editors
+  And no editor-specific duplicate view exists for it
+```
+
+```scenario
+Scenario: pillarSection stays grid-only because it uses Block Grid areas
+  Given pillarSection combines named header/body/media areas that only Block Grid provides
+  When a CMS editor opens a Block List body
+  Then pillarSection is not offered in the Block List palette
+  And its view remains at Views/Partials/blockgrid/Components/pillarSection.cshtml
+```
+
 ### Rule: The page uses the Dark Constructivism × Human Signal design system
 
 ```scenario
@@ -258,9 +276,12 @@ Scenario: Editor adds an eighth pillar
 | /check-uda before pushing | — | Not covered (manual gate) |
 | Editor leaves the embedded sketch URL empty | `tests/e2e/experiments/experiments.reducedMotion.spec.ts` | Not covered |
 | Editor adds an eighth pillar | `tests/e2e/experiments/experiments.spec.ts` | Not covered |
+| A showcase block reused on a Block List page renders the same as on the grid | [BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs), [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) | Covered |
+| pillarSection stays grid-only because it uses Block Grid areas | [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) (pillarSection not in Block List) | Covered |
 
 ---
 
 ## Revision Notes
 
 - 2026-05-13: Draft scenarios from initial spec
+- 2026-07-16: Block editor parity. The showcase blocks (featureCard, commandBadge, statCallout, pullQuoteBlock, embeddedSketch, timelineRow, showcaseHero) now render from **one shared, editor-agnostic view** at `Views/Partials/blocks/Components/{alias}.cshtml` and are available in both Block List and Block Grid by default (palette membership is admin-discretionary, parity is the default). **`pillarSection` stays grid-only** — it uses Block Grid areas and keeps its view at `blockgrid/Components/pillarSection.cshtml`; nested sub-lists stay parent-scoped. Content blocks are now offered in the Experiments grid too. Added a Rule + two coverage rows. Cross-cutting change — convention in CLAUDE.md → *Block / component rendering & parity*; spec/plan archived under `_specs/shipped/` and `_plans/shipped/block-editor-parity-and-reuse-readiness.md`. (This doc remains a Draft — the page-behavior scenarios above are still unverified against an implementation.)

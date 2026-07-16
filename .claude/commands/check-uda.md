@@ -158,6 +158,44 @@ Also cross-reference against local: for any local `.uda` file we have that Live 
 
 Summarise drift per category: `data-type: 0 orphans, 2 pending, 0 mismatch`.
 
+## Step 6b — Block palette drift (informational, NON-failing)
+
+This is a **reporting-only** check — it never contributes a conflict severity and never blocks a commit. It surfaces intentional (or accidental) divergence between the two page-body block palettes so one-sided palette membership stays visible. Parity is the shipped default, but deliberate drift is allowed (see the block-editor-parity CLAUDE.md convention); this step just makes it explicit.
+
+The two body palettes are the `.uda` data types named **`[BlockList] Main Content`** and **`[BlockGrid] Experiments Body`**, under `src/UmbracoProject/umbraco/Deploy/Revision/`. Compute the drift purely from local `.uda` files (no Live creds needed):
+
+1. Build an alias map: for every `document-type__*.uda`, take its `Udi` (`umb://document-type/<32-hex>`) and `Alias`; key the map by the hex normalized to lowercase with dashes stripped.
+2. For each palette, read `Configuration.blocks[]` and collect each `contentElementTypeKey` (normalize the same way — dashed GUID → lowercase, dashes stripped), resolving to the element alias via the map. **Only the top-level `blocks[]` are palette membership** — ignore nested `areas[].specifiedAllowance[]` entries (those are area-scoped allowances, not palette-offered blocks).
+3. Report the set difference both ways.
+
+```bash
+python3 - <<'PY'
+import json, glob, os, re
+rev = "src/UmbracoProject/umbraco/Deploy/Revision"
+alias = {}
+for f in glob.glob(os.path.join(rev, "document-type__*.uda")):
+    try: d = json.load(open(f))
+    except Exception: continue
+    m = re.search(r'umb://document-type/([0-9a-fA-F]{32})', d.get("Udi", ""))
+    if m and "Alias" in d:
+        alias[m.group(1).lower()] = d["Alias"]
+def norm(k): return k.replace("-", "").lower()
+def blocks(name):
+    for f in glob.glob(os.path.join(rev, "data-type__*.uda")):
+        d = json.load(open(f))
+        if d.get("Name") == name:
+            return [alias.get(norm(b["contentElementTypeKey"]), "??" + b["contentElementTypeKey"])
+                    for b in d["Configuration"]["blocks"]]
+    return []
+ml, gr = set(blocks("[BlockList] Main Content")), set(blocks("[BlockGrid] Experiments Body"))
+print("Main Content only :", sorted(ml - gr))
+print("Experiments only  :", sorted(gr - ml))
+print("Both (parity)     :", sorted(ml & gr))
+PY
+```
+
+In the report this is **informational only** — list the one-sided blocks under the "Block Palette Drift" heading (below) with no severity attached. If the two sets are identical, state _"Body palettes are at parity."_ Note that `pillarSection` is expected to be `[BlockGrid] Experiments Body`-only (it is grid-only by design — see the render-coverage test's `DocumentedExceptions`).
+
 ## Step 7 — Generate the report
 
 Output a clearly formatted report:
@@ -207,6 +245,20 @@ media-type:     1 orphan   |  0 pending  |  0 mismatch  ⚠
 ```
 
 For each non-zero category, list the specific entities involved.
+
+---
+
+### 🧩 Block Palette Drift (informational — never a conflict)
+
+One-sided membership between the two page-body palettes, from Step 6b. This is **purely informational** — it carries no risk level and never blocks a commit; parity is the default but deliberate drift is allowed.
+
+```
+Main Content only : [ ... ]
+Experiments only  : [ ... ]
+Both (parity)     : [ ... ]
+```
+
+If the two palettes offer the same blocks, state _"Body palettes are at parity."_ `pillarSection` appearing under "Experiments only" is expected (grid-only by design).
 
 ---
 

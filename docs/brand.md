@@ -142,6 +142,14 @@ Terms that should resonate when the new direction is being designed. They are an
 
 A design direction that earns those words is probably on track. One that doesn't is probably off.
 
+### Downstream implementation note
+
+Once a design direction is built, its reusable page-body blocks keep a deliberate seam
+between the CSS that ships with a block (layout/spacing) and the brand/skin values a new
+site overrides (colors, fonts — expressed as CSS custom properties). That portability
+contract lives in [`docs/block-css-seam.md`](block-css-seam.md); it is implementation, not
+brand — this document does not govern it beyond the intent above.
+
 ---
 
 ## What we will never ship

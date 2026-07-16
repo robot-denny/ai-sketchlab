@@ -1,4 +1,4 @@
-﻿@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Models.Blocks
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IEnumerable<BlockGridItem>>
 @{
     if (Model?.Any() != true) { return; }
@@ -17,18 +17,28 @@
             data-row-span="@item.RowSpan"
             style=" --umb-block-grid--item-column-span: @item.ColumnSpan; --umb-block-grid--item-row-span: @item.RowSpan; ">
             @{
-                var partialViewName = "blockgrid/Components/" + item.Content.ContentType.Alias;
+                // Shared, editor-agnostic view first; fall back to a grid-only view
+                // (e.g. area-based blocks like pillarSection) before giving up.
+                var sharedViewName = "blocks/Components/" + item.Content.ContentType.Alias;
+                var gridOnlyViewName = "blockgrid/Components/" + item.Content.ContentType.Alias;
                 try
                 {
-                    @await Html.PartialAsync(partialViewName, item)
+                    @await Html.PartialAsync(sharedViewName, item)
                 }
                 catch (InvalidOperationException)
                 {
-                    <p>
-                        <strong>Could not render component of type: @(item.Content.ContentType.Alias)</strong>
-                        <br/>
-                        This likely happened because the partial view <em>@partialViewName</em> could not be found.
-                    </p>
+                    try
+                    {
+                        @await Html.PartialAsync(gridOnlyViewName, item)
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        <p role="alert">
+                            <strong>Could not render component of type: @(item.Content.ContentType.Alias)</strong>
+                            <br/>
+                            Neither <em>@sharedViewName</em> nor <em>@gridOnlyViewName</em> could be found.
+                        </p>
+                    }
                 }
             }
         </div>

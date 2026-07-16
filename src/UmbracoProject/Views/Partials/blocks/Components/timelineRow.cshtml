@@ -1,5 +1,6 @@
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IBlockReference<IPublishedElement, IPublishedElement>>
 @using Umbraco.Cms.Core.Models
+@using Umbraco.Cms.Core.Models.Blocks
 
 @{
     var c = Model.Content;

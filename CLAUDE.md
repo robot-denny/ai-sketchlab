@@ -32,8 +32,9 @@ For E2E tests, see the **Testing** section below.
 
 - `Views/` — Razor templates using `UmbracoViewPage<T>` base class with auto-generated published content models (`Umbraco.Cms.Web.Common.PublishedModels`)
 - `Views/Partials/` — Reusable partials; navigation and footer use `Html.CachedPartialAsync()` with 60-minute cache
-- `Views/Partials/blocklist/Components/` — Block List content components (richText, image, video, codeSnippet, etc.)
-- `Views/Partials/blockgrid/` — Block Grid layout rendering (default, area, areas, items)
+- `Views/Partials/blocks/Components/` — **shared, editor-agnostic** block views (one per block alias — richText, image, video, codeSnippet, etc.) rendered by both the Block List and Block Grid dispatchers. See *Block / component rendering & parity* below.
+- `Views/Partials/blocklist/` — Block List dispatcher (`default.cshtml`) — resolves the shared `blocks/Components/` folder
+- `Views/Partials/blockgrid/` — Block Grid layout rendering (default, area, areas, items); `items.cshtml` resolves the shared `blocks/Components/` folder, falling back to `blockgrid/Components/` for grid-only blocks (`pillarSection`)
 - `Views/Components/` — MVC View Components (Contact form, Pagination)
 - `wwwroot/` — Static assets (Bootstrap 5 via CDN, custom CSS/JS, Highlight.js, Swiffy Slider)
 - `umbraco/Deploy/Revision/` — Umbraco Deploy `.uda` metadata files (document types, data types, templates). These are auto-managed by Umbraco Deploy and pushed to Cloud for schema sync.
@@ -50,6 +51,24 @@ For E2E tests, see the **Testing** section below.
 **AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 17.0.1, Umbraco.AI.Prompt.Deploy 17.0.0, Umbraco.AI.Agent.Deploy 17.0.0. Auto-registered — no composer code required. **All four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment. (Note: profile *settings* require `Umbraco.AI.Deploy` ≥ 17.0.1 — see *AI schema deployment* below.)
 
 **Search packages** (now stable — the v18-forward replacement for legacy Examine search): Umbraco.Cms.Search.Core 1.0.0, Umbraco.Cms.Search.BackOffice 1.0.0, Umbraco.Cms.Search.DeliveryApi 1.0.0, plus Umbraco.AI.Search 17.0.0 (on the CMS-17-aligned AI versioning, not the Cms.Search 1.0.0 line). The lone exception is Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 (no stable release yet) — see **Pinned betas** below.
+
+## Block / component rendering & parity
+
+Page-body blocks render from **one shared, editor-agnostic view per block alias** at [Views/Partials/blocks/Components/{alias}.cshtml](src/UmbracoProject/Views/Partials/blocks/Components/) — a block is authored once and renders identically whether it sits in a Block List or a Block Grid. This replaced the old split (`blocklist/Components/` + `blockgrid/Components/` with per-editor duplicates and four grid→list shim files); those are gone. `blockgrid/Components/` now holds only the one genuinely grid-only view (`pillarSection.cshtml`).
+
+**Shared view contract.** Each shared view binds to `@model Umbraco.Cms.Core.Models.Blocks.IBlockReference<IPublishedElement, IPublishedElement>` (not a page/model-specific type) and reads its settings through the **composition interfaces** (`ISpacingProperties` → `SpacingHelper`, `…Settings.Hide`, etc.) — never via a page type or a sibling block. That self-containment is what makes a block a restyle-only port to another site (the CSS half of the same contract lives in [docs/block-css-seam.md](docs/block-css-seam.md): functional CSS ships with the block, brand/skin is a `var(--token)` override).
+
+**Both dispatchers are kept and both resolve the shared folder, guarded.** [blocklist/default.cshtml](src/UmbracoProject/Views/Partials/blocklist/default.cshtml) keeps its `ella-wrap` AI-persona logic; [blockgrid/items.cshtml](src/UmbracoProject/Views/Partials/blockgrid/items.cshtml) resolves `blocks/Components/{alias}` first and **falls back to `blockgrid/Components/{alias}`** for grid-only blocks. Both are guarded: a block with no resolvable view renders a friendly message instead of throwing a 500.
+
+**Palette membership is admin-discretionary; parity is the shipped default.** Which blocks a given editor offers is Umbraco admin config (the `data-type__*.uda` allow-lists), not a code constraint. The default is parity — the same shared blocks are offered in both `[BlockList] Main Content` and `[BlockGrid] Experiments Body`. **Code restricts a block from an editor only when it is genuinely incompatible:**
+
+- `pillarSection` is **grid-only** — it uses Block Grid *areas* (has no shared view; its view stays at `blockgrid/Components/pillarSection.cshtml`).
+- Nested sub-lists (`imageCarouselSlide`, `categoryPaletteEntry`, `contentSectionRow`) are **parent-scoped** — only offered inside their owning block.
+- `iconLinkRow`'s list home is the separate **footer Icon List palette**, not Main Content.
+
+**Enforcement + visibility.** The invariant is a build gate: [tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs](tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs) asserts every palette-offered block resolves a view in **both** editors (minus the documented exceptions above) — a block that would render blank fails the build. Intentional one-sided palette membership stays visible via the non-failing **"Block palette drift"** report in [/check-uda](.claude/commands/check-uda.md) (Step 6b). E2E parity coverage is [tests/e2e/blocks/blockParity.spec.ts](tests/e2e/blocks/blockParity.spec.ts).
+
+**Where a new block goes:** author one shared view at `Views/Partials/blocks/Components/{alias}.cshtml` bound to `IBlockReference<…>`, read settings via composition interfaces, add it to whichever palette(s) it belongs in (parity by default), and let the render-coverage test confirm both editors resolve it. Only put a view under `blockgrid/Components/` if the block is genuinely grid-only (uses areas).
 
 ## Solution architecture
 

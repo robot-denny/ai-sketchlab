@@ -139,6 +139,24 @@ Scenario: Styleguide links to the components page
   And following the link takes them to the /styleguide/components page
 ```
 
+### Rule: Showcase blocks render from one shared, editor-agnostic view
+
+```scenario
+Scenario: A showcase block renders identically in Block List and Block Grid
+  Given the showcase blocks (colorPaletteBlock, typographyShowcaseBlock, generalElementsBlock, richTextRow, and the media/list rows) each have a single view at Views/Partials/blocks/Components/{alias}.cshtml
+  When a colorPaletteBlock is placed on a Block List page and on a Block Grid page
+  Then it renders the same swatch markup in both places
+  And no editor-specific duplicate view or shim file exists for it
+```
+
+```scenario
+Scenario: The styleguide's showcase blocks are available in both editors by default
+  Given palette membership is admin-configurable with parity as the default
+  When a CMS editor opens either a Block List or a Block Grid body
+  Then the styleguide showcase blocks are offered in both
+  And the render-coverage test confirms each offered block resolves a view in both editors
+```
+
 ### Rule: Editor-applied typography classes are exposed in the rich-text Style Select
 
 ```scenario
@@ -221,8 +239,10 @@ Scenario: An unparseable token value is shown gracefully
 | The accent pull-quote is left-aligned behind an accent rule | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (`.pull-quote-accent` visible in the showcase); layout in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css) `.pull-quote-accent` / `.richtext .pull-quote-accent` | Covered (visibility); layout via manual QA |
 | Editor-inserted images never exceed the container width | — | Manual QA — `.richtext img{max-width:100%;height:auto}` in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css). Also covered by the `article.png` page-template screenshot baseline when a fixture article carries a body image |
 | Image captions render in the caption style | — | Manual QA — `.caption, .richtext figure figcaption` in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css) |
-| No annotated tokens means an empty palette, not a broken page | — | Skipped — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
-| An unparseable token value is shown gracefully | — | Skipped — same rationale; literal-value fallback is implemented in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocklist/Components/colorPaletteBlock.cshtml) |
+| No annotated tokens means an empty palette, not a broken page | — | Skipped — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocks/Components/colorPaletteBlock.cshtml) |
+| An unparseable token value is shown gracefully | — | Skipped — same rationale; literal-value fallback is implemented in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocks/Components/colorPaletteBlock.cshtml) |
+| A showcase block renders identically in Block List and Block Grid | [BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs) (every palette block resolves a view in both editors), [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) | Covered |
+| The styleguide's showcase blocks are available in both editors by default | [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) (availability), [BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs) | Covered |
 
 ---
 
@@ -234,4 +254,5 @@ Scenario: An unparseable token value is shown gracefully
 - 2026-04-30: Plan Steps 7–8 shipped. Test Coverage table refreshed against the live E2E suite (16 tests across both specs); doc-type / element-type ids resolved dynamically per Step 8.
 - 2026-05-01: Architecture change. The styleguide page is now block-driven: three new programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the hardcoded sections. `brandSummary` stays as a top-level field. The Footer Controls composition was dropped (the global footer is rendered from Home, not per-page). `.lead` and `.pull-quote` were added to the TipTap Style Select dropdown. Behaviors and Test Coverage rewritten against the new structure (19 tests now passing).
 - 2026-07-11: Blog content styles. Added a second rich-text pull-quote — "Pull quote (accent)" (`.pull-quote-accent`): same display serif as `.pull-quote` but left-aligned behind an `--accent-primary` left rule, constrained to 75% of the column (full width ≤760px). Also constrained RTE-inserted images to the container (`.richtext img{max-width:100%}`) and applied the existing `.caption` style to image `<figcaption>`s. Editor-iframe preview (`dropdownStyles.css`) resynced. `.pull-quote-accent` added to the type-showcase block + the styleguide visibility test.
+- 2026-07-16: Block editor parity. The styleguide's showcase blocks (colorPaletteBlock, typographyShowcaseBlock, generalElementsBlock, richTextRow, and the media/list rows) now render from **one shared, editor-agnostic view** at `Views/Partials/blocks/Components/{alias}.cshtml` (moved out of the old `blocklist/Components/` folder; per-editor duplicates/shims removed) bound to `IBlockReference<IPublishedElement, IPublishedElement>`. Palette membership is admin-discretionary with parity as the default, so the showcase blocks are offered in both Block List and Block Grid; a render-coverage xUnit test ([BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs)) gates that every offered block resolves a view in both editors. Fixed two stale `colorPaletteBlock.cshtml` links to the new `blocks/Components/` path; added a Rule + two coverage rows. Cross-cutting change — spec/plan archived under `_specs/shipped/` and `_plans/shipped/block-editor-parity-and-reuse-readiness.md`; convention recorded in CLAUDE.md → *Block / component rendering & parity*.
 - 2026-05-11: Rich-text Style Select rebuilt as a TipTap `styleMenu` extension manifest (TipTap doesn't parse the TinyMCE `/**umb_name:Label*/` annotation). Added `Overline`, `Caption`, `Minor header` (h5), `Fine header` (h6) entries alongside the existing Headers / Editorial / Containers groups. The manifest declares `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`, so the built-in entry is replaced in-place — no data type edit needed. Editor-iframe preview stylesheet `dropdownStyles.css` resynced with `typography.css` (the TipTap editor prepends its `/css` root path, so the persisted `/dropdownStyles.css` value resolves correctly to `/css/dropdownStyles.css`).

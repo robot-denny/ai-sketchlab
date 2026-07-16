@@ -18,7 +18,7 @@ const __dirname = dirname(__filename);
 test.describe('Article List Grid View — Razor Template', () => {
   const razorPath = resolve(
     __dirname,
-    '../../src/UmbracoProject/Views/Partials/blocklist/Components/latestArticlesRow.cshtml'
+    '../../src/UmbracoProject/Views/Partials/blocks/Components/latestArticlesRow.cshtml'
   );
 
   test('reads displayMode from block and branches on isGridView', () => {

@@ -1,6 +1,6 @@
-﻿@inherits UmbracoViewPage<BlockListItem>
 @using Umbraco.Cms.Core.Models.Blocks
 @addTagHelper *, Clean.Core
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IBlockReference<IPublishedElement, IPublishedElement>>
 
 @{
     var row = Model.Content as IconLinkRow;

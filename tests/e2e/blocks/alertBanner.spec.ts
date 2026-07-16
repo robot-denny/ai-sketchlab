@@ -101,7 +101,7 @@ test.describe('Alert Banner — Element Type', () => {
 test.describe('Alert Banner — Partial View', () => {
   const partialPath = resolve(
     __dirname,
-    '../../../src/UmbracoProject/Views/Partials/blocklist/Components/alertBanner.cshtml'
+    '../../../src/UmbracoProject/Views/Partials/blocks/Components/alertBanner.cshtml'
   );
 
   test('partial view file exists', () => {

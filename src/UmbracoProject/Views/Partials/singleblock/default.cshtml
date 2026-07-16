@@ -3,7 +3,10 @@
     if (Model.ContentKey == Guid.Empty) { return; }
     var data = Model.Content;
 }
+@* Fallback points at the shared block folder (blocks/Components/) — the same folder
+   the Block List and Block Grid dispatchers resolve. (No single-block-mode data type
+   uses this today; kept correct so enabling single-block mode later just works.) *@
 @await Html.PartialAsync(
     Html.SingleBlockPartialWithFallback("singleBlock/Components/" + data.ContentType.Alias,
-        "blocklist/Components/" + data.ContentType.Alias )
+        "blocks/Components/" + data.ContentType.Alias )
     , Model)

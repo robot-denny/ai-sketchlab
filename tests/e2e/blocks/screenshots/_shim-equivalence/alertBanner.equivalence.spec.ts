@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { shotOf } from './_shimHelpers';
 
-// The blockgrid alertBanner partial wraps the blocklist alertBanner.cshtml
-// via Html.PartialAsync (see Views/Partials/blockgrid/Components/alertBanner.cshtml).
-// Rendered output should be byte-identical when the same content data flows
-// through both contexts.
+// Both editors now render alertBanner from the ONE shared view
+// Views/Partials/blocks/Components/alertBanner.cshtml (the old blockgrid shim
+// was removed by _plans/block-editor-parity-and-reuse-readiness.md). Rendered
+// output should be byte-identical when the same content data flows through both
+// contexts.
 //
 // Currently the demo site only authors the blocklist version (on
 // /styleguide/components/) -- there's no blockgrid alertBanner instance with

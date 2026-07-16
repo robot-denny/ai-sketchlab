@@ -268,5 +268,6 @@ All automated tests live in `tests/e2e/blocks/imageCarousel.spec.ts`. Manual ent
 
 ## Revision Notes
 
+- 2026-07-16: Block editor parity (rendering only, no behavior change). The `imageCarouselRow` view moved to the shared, editor-agnostic folder at `Views/Partials/blocks/Components/imageCarouselRow.cshtml`, so it renders identically in both Block List and Block Grid from one source. Its nested `imageCarouselSlide` sub-list stays parent-scoped (only offered inside the carousel block). Captions/controls behavior is unchanged. See CLAUDE.md → *Block / component rendering & parity*.
 - 2026-04-13: Added per-slide captions, Show captions toggle, refined control bar with responsive prev/next at the lg breakpoint, icon-only play/pause toggle, 44×44 target sizes, signal-red active indicators on warm-stone inactive bars, and inline-SVG chevrons replacing Bootstrap's PNG arrow sprite. Verified end-to-end against the live About page demo.
 - 2026-04-13: Draft scenarios from initial spec

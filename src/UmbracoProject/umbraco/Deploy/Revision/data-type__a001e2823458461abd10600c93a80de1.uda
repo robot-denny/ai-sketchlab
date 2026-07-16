@@ -458,6 +458,237 @@
         "iconColor": null,
         "thumbnail": null,
         "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "f43c8349-0801-44b8-9113-9f7c62cd44fe",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "f37c2c28-c8ab-48cd-ac07-b13e38bd900f",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "1c43fe2d-4a9a-4336-923f-9d0214950d48",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "60085a63-b77b-4509-9df4-bcb75db2755f",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "66b8b35f-597b-4068-bb92-bc47257eec0c",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "00299553-22a8-4f14-9d76-4ba46e92d833",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
+      },
+      {
+        "contentElementTypeKey": "a5d1d688-2f37-4cb2-8c0c-08a288982e6e",
+        "settingsElementTypeKey": null,
+        "allowAtRoot": false,
+        "allowInAreas": true,
+        "columnSpanOptions": [
+          {
+            "columnSpan": 12
+          },
+          {
+            "columnSpan": 8
+          },
+          {
+            "columnSpan": 6
+          },
+          {
+            "columnSpan": 4
+          }
+        ],
+        "rowMinSpan": 1,
+        "rowMaxSpan": 1,
+        "areas": [],
+        "areaGridColumns": 12,
+        "label": null,
+        "view": null,
+        "stylesheet": null,
+        "editorSize": "medium",
+        "forceHideContentEditorInOverlay": false,
+        "backgroundColor": null,
+        "iconColor": null,
+        "thumbnail": null,
+        "groupKey": null
       }
     ],
     "useLiveEditing": false,
@@ -467,6 +698,9 @@
   },
   "Udi": "umb://data-type/a001e2823458461abd10600c93a80de1",
   "Dependencies": [
+    {
+      "Udi": "umb://document-type/0029955322a84f149d764ba46e92d833"
+    },
     {
       "Udi": "umb://document-type/037658273e794b67b41bec51300188be"
     },
@@ -483,6 +717,9 @@
       "Udi": "umb://document-type/17db13babbd94a44b28f986301156754"
     },
     {
+      "Udi": "umb://document-type/1c43fe2d4a9a4336923f9d0214950d48"
+    },
+    {
       "Udi": "umb://document-type/386dc1ae36c6447ba948675722136d03"
     },
     {
@@ -492,7 +729,16 @@
       "Udi": "umb://document-type/5ea3cc8bff7c42c3a86816bd481cb477"
     },
     {
+      "Udi": "umb://document-type/60085a63b77b45099df4bcb75db2755f"
+    },
+    {
+      "Udi": "umb://document-type/66b8b35f597b4068bb92bc47257eec0c"
+    },
+    {
       "Udi": "umb://document-type/8a8fb9eb5adb4c2b9eaa1d90b4921d89"
+    },
+    {
+      "Udi": "umb://document-type/a5d1d6882f374cb28c0c08a288982e6e"
     },
     {
       "Udi": "umb://document-type/dd183f787d694eda9b4ca25970583a28"
@@ -502,8 +748,14 @@
     },
     {
       "Udi": "umb://document-type/ebd96bcb41f94ad8a151120d44438cb9"
+    },
+    {
+      "Udi": "umb://document-type/f37c2c28c8ab48cdac07b13e38bd900f"
+    },
+    {
+      "Udi": "umb://document-type/f43c8349080144b891139f7c62cd44fe"
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

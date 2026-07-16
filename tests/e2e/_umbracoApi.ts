@@ -123,3 +123,61 @@ export async function getTemplate(id: string): Promise<any | null> {
   const resp = await apiFetch('GET', `/template/${id}`);
   return resp.ok ? await resp.json() : null;
 }
+
+/**
+ * Find a data type by display name (E2E rule #1: never hardcode UUIDs). Walks
+ * the data-type tree (root + folders) and returns the full data-type object
+ * (with its `values` array holding e.g. the block-editor `blocks` config), or
+ * `null` if not found. Mirrors `getDocumentTypeByName`.
+ */
+export async function getDataTypeByName(name: string): Promise<any | null> {
+  async function search(parentId: string | null, depth: number): Promise<any | null> {
+    const path = parentId
+      ? `/tree/data-type/children?parentId=${parentId}&take=100`
+      : `/tree/data-type/root?take=100`;
+    const resp = await apiFetch('GET', path);
+    if (!resp.ok) return null;
+    const items: any[] = ((await resp.json()) as any).items ?? [];
+
+    const hit = items.find((it) => !it.isFolder && it.name === name);
+    if (hit) {
+      const full = await apiFetch('GET', `/data-type/${hit.id}`);
+      return full.ok ? await full.json() : null;
+    }
+
+    if (depth > 0) {
+      for (const it of items) {
+        if (it.hasChildren) {
+          const found = await search(it.id, depth - 1);
+          if (found) return found;
+        }
+      }
+    }
+    return null;
+  }
+  return search(null, 3);
+}
+
+/**
+ * Resolve a block-editor data type's offered element-type aliases. Reads the
+ * `blocks` value from the data type, then resolves each `contentElementTypeKey`
+ * to its element-type alias via the document-type API (E2E rule #1: no
+ * hardcoded UUIDs — keys are resolved live per environment). Returns a
+ * de-duplicated array of aliases.
+ */
+export async function getPaletteBlockAliases(dataTypeName: string): Promise<string[]> {
+  const dt = await getDataTypeByName(dataTypeName);
+  if (!dt) return [];
+  const blocksValue = (dt.values ?? []).find((v: any) => v.alias === 'blocks');
+  const blocks: any[] = blocksValue?.value ?? [];
+  const aliases: string[] = [];
+  for (const block of blocks) {
+    const key = block.contentElementTypeKey;
+    if (!key) continue;
+    const resp = await apiFetch('GET', `/document-type/${key}`);
+    if (!resp.ok) continue;
+    const et = (await resp.json()) as any;
+    if (et.alias) aliases.push(et.alias);
+  }
+  return [...new Set(aliases)];
+}

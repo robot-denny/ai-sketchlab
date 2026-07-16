@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { shotOf } from './_shimHelpers';
 
-// iconLinkRow has no canonical render surface on either context (see
-// iconLinkRow.screenshot.spec.ts and iconLinkRow.blockgrid.screenshot.spec.ts).
+// Both editors now render iconLinkRow from the single shared view
+// (Views/Partials/blocks/Components/iconLinkRow.cshtml), so list and grid are
+// identical by construction. iconLinkRow still has no canonical render surface on
+// either context (see iconLinkRow.screenshot.spec.ts and iconLinkRow.blockgrid.screenshot.spec.ts).
 // The equivalence test is in place for future content authoring; until then
 // it skips cleanly.
 

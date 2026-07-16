@@ -49,6 +49,27 @@
       {
         "contentElementTypeKey": "a5d1d688-2f37-4cb2-8c0c-08a288982e6e",
         "label": "**General Elements**${ heading ? \u0027: \u0027 \u002B heading : \u0027\u0027 }"
+      },
+      {
+        "contentElementTypeKey": "8a8fb9eb-5adb-4c2b-9eaa-1d90b4921d89"
+      },
+      {
+        "contentElementTypeKey": "05bc1291-4f6e-4b34-a7ef-50f8bb9b7faf"
+      },
+      {
+        "contentElementTypeKey": "ebd96bcb-41f9-4ad8-a151-120d44438cb9"
+      },
+      {
+        "contentElementTypeKey": "08922122-b9c5-4f8a-986c-d5a0bffac7a3"
+      },
+      {
+        "contentElementTypeKey": "386dc1ae-36c6-447b-a948-675722136d03"
+      },
+      {
+        "contentElementTypeKey": "58fbccd7-6cbb-44ed-930a-5b1d64bb5fca"
+      },
+      {
+        "contentElementTypeKey": "5ea3cc8b-ff7c-42c3-a868-16bd481cb477"
       }
     ],
     "useSingleBlockMode": false,
@@ -63,6 +84,12 @@
       "Udi": "umb://document-type/0029955322a84f149d764ba46e92d833"
     },
     {
+      "Udi": "umb://document-type/05bc12914f6e4b34a7ef50f8bb9b7faf"
+    },
+    {
+      "Udi": "umb://document-type/08922122b9c54f8a986cd5a0bffac7a3"
+    },
+    {
       "Udi": "umb://document-type/17c66d28107b4934bc013b5777d42c8a"
     },
     {
@@ -72,10 +99,22 @@
       "Udi": "umb://document-type/378fde9651b6450693e3ec3038e636bb"
     },
     {
+      "Udi": "umb://document-type/386dc1ae36c6447ba948675722136d03"
+    },
+    {
+      "Udi": "umb://document-type/58fbccd76cbb44ed930a5b1d64bb5fca"
+    },
+    {
+      "Udi": "umb://document-type/5ea3cc8bff7c42c3a86816bd481cb477"
+    },
+    {
       "Udi": "umb://document-type/60085a63b77b45099df4bcb75db2755f"
     },
     {
       "Udi": "umb://document-type/66b8b35f597b4068bb92bc47257eec0c"
+    },
+    {
+      "Udi": "umb://document-type/8a8fb9eb5adb4c2b9eaa1d90b4921d89"
     },
     {
       "Udi": "umb://document-type/93638715f76c4a1186b16a9d66504901"
@@ -96,6 +135,9 @@
       "Udi": "umb://document-type/e0df4794063a44508f4fc615a5d902e2"
     },
     {
+      "Udi": "umb://document-type/ebd96bcb41f94ad8a151120d44438cb9"
+    },
+    {
       "Udi": "umb://document-type/eef34cebddf64894b1acf96c8c05d3d2"
     },
     {
@@ -109,5 +151,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

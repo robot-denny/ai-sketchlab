@@ -5,10 +5,12 @@ import { shotOf } from './_shimHelpers';
 //   - blocklist: /styleguide/components/ (.image)
 //   - blockgrid: /experiments/ ([data-content-element-type-alias="imageRow"])
 //
-// The blockgrid shim wraps the blocklist partial via Html.PartialAsync, so
-// the inner .image markup should be byte-identical. The blockgrid layout-item
-// wrapper sits OUTSIDE the .image element, so capturing only the .image element
-// inside each context strips the wrapper from comparison.
+// Both editors render it from the ONE shared view
+// Views/Partials/blocks/Components/imageRow.cshtml (the old blockgrid shim was
+// removed by _plans/block-editor-parity-and-reuse-readiness.md), so the inner
+// .image markup should be byte-identical. The blockgrid layout-item wrapper
+// sits OUTSIDE the .image element, so capturing only the .image element inside
+// each context strips the wrapper from comparison.
 //
 // NOTE: The actual image src may differ between contexts (different media
 // assigned by content authors). If this fails purely because the rendered

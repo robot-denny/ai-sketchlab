@@ -1,6 +1,6 @@
-﻿@inherits UmbracoViewPage<BlockListItem>
 @using Umbraco.Cms.Core.Models.Blocks
 @using Clean.Core.Extensions
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IBlockReference<IPublishedElement, IPublishedElement>>
 
 @{
     var row = Model.Content as ImageRow;
@@ -25,4 +25,3 @@
         <p class="block-author">— @row.Author.Name</p>
     }
 </div>
-

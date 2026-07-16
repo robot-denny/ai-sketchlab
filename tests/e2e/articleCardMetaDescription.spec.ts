@@ -29,7 +29,7 @@ test.describe('Article listings — Razor partials read metaDescription with sub
     },
     {
       name: 'latestArticlesRow.cshtml (block list-mode rendering)',
-      path: '../../src/UmbracoProject/Views/Partials/blocklist/Components/latestArticlesRow.cshtml',
+      path: '../../src/UmbracoProject/Views/Partials/blocks/Components/latestArticlesRow.cshtml',
     },
   ];
 

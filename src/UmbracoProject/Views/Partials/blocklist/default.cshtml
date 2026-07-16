@@ -20,6 +20,21 @@
             && blockAuthor.Value<bool>("isAi")
             && !articleIsAllAi;
 
+        // Editor-agnostic shared view. Every page-body block now renders from the
+        // shared blocks/Components/ folder; no list-only fallback remains.
+        var sharedViewName = "blocks/Components/" + data.ContentType.Alias;
+
+        Microsoft.AspNetCore.Html.IHtmlContent rendered;
+        try
+        {
+            rendered = await Html.PartialAsync(sharedViewName, block);
+        }
+        catch (InvalidOperationException)
+        {
+            rendered = new Microsoft.AspNetCore.Html.HtmlString(
+                $"<p role=\"alert\"><strong>Could not render component of type: {data.ContentType.Alias}</strong><br/>{sharedViewName} could not be found.</p>");
+        }
+
         if (wrap)
         {
             var personaName = (blockAuthor.Name ?? string.Empty)
@@ -29,12 +44,12 @@
                 ? blockAuthor.UrlSegment
                 : (blockAuthor.Name ?? "ai").ToLowerInvariant().Replace(" ", "-");
             <div class="ella-wrap" data-attributed-to="@personaSlug" style="--persona-name: '@Html.Raw(personaName)';">
-                @await Html.PartialAsync("blocklist/Components/" + data.ContentType.Alias, block)
+                @rendered
             </div>
         }
         else
         {
-            @await Html.PartialAsync("blocklist/Components/" + data.ContentType.Alias, block)
+            @rendered
         }
     }
 </div>

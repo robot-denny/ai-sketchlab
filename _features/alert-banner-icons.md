@@ -190,3 +190,4 @@ Scenario: Alert content remains accessible if icons fail to load
 ## Revision Notes
 
 - 2026-04-09: Initial feature doc from spec + implementation
+- 2026-07-16: Block editor parity (rendering only, no behavior change). `alertBanner` now renders from a single shared, editor-agnostic view at `Views/Partials/blocks/Components/alertBanner.cshtml`; the old Block Grid → Block List shim file was deleted, so the block renders identically in both editors from one source. Icon defaults/override behavior is unchanged. See CLAUDE.md → *Block / component rendering & parity*.

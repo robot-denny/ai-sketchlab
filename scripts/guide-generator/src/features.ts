@@ -3,7 +3,7 @@
  *
  * Two sources are merged:
  *   - Auto-discovered block features — one per `*.cshtml` file under
- *     `src/UmbracoProject/Views/Partials/blocklist/Components/`.
+ *     `src/UmbracoProject/Views/Partials/blocks/Components/`.
  *   - A hand-curated list of named global features (site header, footer,
  *     site-settings, search, article list). Adding a new global feature is a
  *     single PR — add an entry to {@link CURATED_GLOBAL_FEATURES}.
@@ -25,7 +25,7 @@ export interface Feature {
   alias: string;
   /** Editor-friendly display name. Pages are named "How to use the {displayName}". */
   displayName: string;
-  /** `block` for partials under blocklist/Components; `global` for hand-curated entries. */
+  /** `block` for partials under blocks/Components; `global` for hand-curated entries. */
   kind: FeatureKind;
   /**
    * Files feeding the SHA-256 source signature for this feature.
@@ -41,7 +41,7 @@ const BLOCK_COMPONENTS_DIR = path.join(
   'UmbracoProject',
   'Views',
   'Partials',
-  'blocklist',
+  'blocks',
   'Components',
 );
 
@@ -103,7 +103,7 @@ function toDisplayName(alias: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-/** Auto-discover block features by listing `*.cshtml` files under blocklist/Components. */
+/** Auto-discover block features by listing `*.cshtml` files under blocks/Components. */
 function discoverBlockFeatures(): Feature[] {
   const dir = path.join(REPO_ROOT, BLOCK_COMPONENTS_DIR);
   if (!fs.existsSync(dir)) return [];

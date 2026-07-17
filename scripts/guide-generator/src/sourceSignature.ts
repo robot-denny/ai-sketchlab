@@ -99,7 +99,7 @@ function partialPathFor(featureAlias: string): string {
     'UmbracoProject',
     'Views',
     'Partials',
-    'blocklist',
+    'blocks',
     'Components',
     `${featureAlias}.cshtml`,
   );

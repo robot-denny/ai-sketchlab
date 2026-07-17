@@ -79,7 +79,7 @@ If you need the block list data type ID, retrieve it via MCP tools.
 
 ## Step 5: Create the Razor Partial
 
-Create `src/UmbracoProject/Views/Partials/blocklist/Components/[partialFilename]`.
+Create `src/UmbracoProject/Views/Partials/blocks/Components/[partialFilename]` (the shared, editor-agnostic block folder — one view per block, rendered by both the Block List and Block Grid dispatchers).
 
 Follow existing block conventions exactly:
 - Model type: `IPublishedElement` (or the auto-generated typed model if available)
@@ -87,7 +87,7 @@ Follow existing block conventions exactly:
 - Apply spacing classes via `SpacingHelper` if spacing properties exist
 - Use Bootstrap classes for styling
 
-Reference the existing blocks for patterns — especially [richTextRow.cshtml](src/UmbracoProject/Views/Partials/blocklist/Components/richTextRow.cshtml).
+Reference the existing blocks for patterns — especially [richTextRow.cshtml](src/UmbracoProject/Views/Partials/blocks/Components/richTextRow.cshtml). Bind the view to the shared `IBlockReference<IPublishedElement, IPublishedElement>` model (not `BlockListItem`) so it renders under both editors — see CLAUDE.md → "Block / component rendering & parity".
 
 ## Step 6: Build
 

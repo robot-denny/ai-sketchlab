@@ -20,13 +20,13 @@ const basePartial = '@inherits UmbracoViewPage<BlockListItem>\n@* alertBanner *@
 describe('buildSignaturePayload', () => {
   it('produces a deterministic JSON shape', () => {
     const payload = buildSignaturePayload({
-      partialPath: 'src/UmbracoProject/Views/Partials/blocklist/Components/alertBanner.cshtml',
+      partialPath: 'src/UmbracoProject/Views/Partials/blocks/Components/alertBanner.cshtml',
       partialContent: basePartial,
       elementType: baseElementType,
       agentSystemPromptHash: 'abc123',
     });
 
-    assert.equal(payload.partial, 'src/UmbracoProject/Views/Partials/blocklist/Components/alertBanner.cshtml');
+    assert.equal(payload.partial, 'src/UmbracoProject/Views/Partials/blocks/Components/alertBanner.cshtml');
     assert.equal(payload.partialContent, basePartial);
     assert.equal(payload.schemaVersion, 1);
     assert.equal(payload.agentSystemPromptHash, 'abc123');

@@ -708,7 +708,7 @@ Entry-point commands per layer: `/spec <slug>` → `/plan _specs/<slug>.md` → 
 - `_plans/` — implementation plans for features (TDD steps with paste-ready prompts — the "how"). Shipped plans archive under `_plans/shipped/`.
 - `_features/` — living BDD-style behavioral specifications (current feature behavior as Given/When/Then scenarios — the "what")
 - `_prds/` — optional PRDs for bodies of work spanning 3+ features (see *Workflow layers* above)
-- `_audits/` — architecture audit reports produced by the `architecture-audit` skill. Dated filenames (`YYYY-MM-DD-<slug>.md`). Kept in git as historical baselines and as fixtures for skill-creator eval runs.
+- `_audits/` — dated reference notes for the owner's own consideration (`YYYY-MM-DD-<slug>.md`): `architecture-audit` skill reports plus ad-hoc audits and decision/strategy records. **Gitignored** — personal working reference, not a team artifact for now; these date quickly and can become stale noise, so treat any as a point-in-time snapshot rather than current truth. The two `2026-05-19-*` audits predate the ignore rule and remain tracked as pre-existing history (and as skill-creator eval fixtures); everything added since is local-only.
 
 ## Feature Behavioral Specs
 

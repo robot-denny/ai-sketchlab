@@ -443,3 +443,8 @@ scripts/*
 # Generative skills outputs and large assets
 skills/output/
 skills/canvas-design/canvas-fonts/
+
+# Architecture / audit reports — personal working reference, not tracked.
+# (The two 2026-05-19 audits were committed before this rule and remain tracked;
+#  gitignore does not untrack already-committed files.)
+_audits/

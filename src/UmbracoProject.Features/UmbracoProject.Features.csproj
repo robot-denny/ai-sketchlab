@@ -6,12 +6,15 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <!-- NU1903: Lucene.Net.Replicator 4.8.0-beta00017 (GHSA-2qw8-ppr5-m96c, high severity),
+    <!-- NU1902: AngleSharp 1.4.0 (GHSA-pgww-w46g-26qg, moderate severity), transitive via
+         SmartReader 0.11.0 → AngleSharp. Not directly referenced; cannot pin without risking the
+         SmartReader chain. Remove when SmartReader (or its parent) bumps to a patched AngleSharp.
+         NU1903: Lucene.Net.Replicator 4.8.0-beta00017 (GHSA-2qw8-ppr5-m96c, high severity),
          pulled transitively via Umbraco.Cms.Search.Core → ... → Lucene.Net (same chain the host
          suppresses). We cannot pin a patched version without breaking Umbraco's locked Examine chain.
          Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00017.
          (No CS0618 suppression needed here — this RCL holds no Razor views this increment.) -->
-    <NoWarn>$(NoWarn);NU1903</NoWarn>
+    <NoWarn>$(NoWarn);NU1902;NU1903</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

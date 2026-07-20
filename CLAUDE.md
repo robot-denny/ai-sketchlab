@@ -376,12 +376,14 @@ All three C# projects have `<TreatWarningsAsErrors>true</TreatWarningsAsErrors>`
 
 `<Nullable>enable</Nullable>` is on the same projects, so any new nullable-reference-type warning fails the build (and therefore Gate 1 and the pre-push hook).
 
-**Surgical `<NoWarn>` per warning code with inline justification is the only relaxation pattern.** No project-wide suppression of CS-prefixed warnings. The two NoWarn exemptions currently in the tree:
+**Surgical `<NoWarn>` per warning code with inline justification is the only relaxation pattern.** No project-wide suppression of CS-prefixed warnings. The NoWarn exemptions currently in the tree — each a transitive advisory that can't be pinned without breaking a locked dependency chain, carrying an inline XML comment naming the advisory + the upgrade signal that retires it:
 
-- `UmbracoProject.csproj` — `NoWarn=NU1903` (Lucene.Net.Replicator 4.8.0-beta00017, GHSA-2qw8-ppr5-m96c) — transitive via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net. Cannot pin a patched version without breaking Umbraco's locked Examine chain. (The stable Examine 4.0.0-beta.4 chain bumped Lucene.Net beta00016 → beta00017; the advisory still applies.)
-- `UmbracoProject.Tests.csproj` — `NoWarn=NU1903;NU1904` — same Lucene.Net inheritance plus `NU1904` Microsoft.AspNetCore.DataProtection 10.0.4 (GHSA-9mv3-2cwr-p262), pulled transitively into the test host via `Microsoft.NET.Test.Sdk`. Tests don't exercise those APIs.
+- **`NU1902`** — AngleSharp 1.4.0 (GHSA-pgww-w46g-26qg, moderate) — transitive via `SmartReader 0.11.0` → AngleSharp. On **all three** C# projects (`UmbracoProject`, `UmbracoProject.Features`, `UmbracoProject.Tests`). Added 2026-07-20: when the advisory landed, NuGet audit failed `dotnet restore` under TWAE across the board (Gate 1 red on a docs-only merge — the advisory, not the change). SmartReader is transitive itself, so pinning AngleSharp risks that chain. Retire when SmartReader (or its parent) bumps to a patched AngleSharp.
+- **`NU1903`** — Lucene.Net.Replicator 4.8.0-beta00017 (GHSA-2qw8-ppr5-m96c, high) — transitive via Umbraco.Cms.Search.Provider.Examine → Examine → Lucene.Net. On `UmbracoProject`, `UmbracoProject.Features`, and `UmbracoProject.Tests`. Cannot pin without breaking Umbraco's locked Examine chain. Retire when Umbraco upgrades Examine past that Lucene.Net.
+- **`NU1904`** — Microsoft.AspNetCore.DataProtection 10.0.4 (GHSA-9mv3-2cwr-p262, critical) — transitive into the test host via `Microsoft.NET.Test.Sdk`. `UmbracoProject.Tests` only; those APIs are never exercised in tests. Retire when the Test SDK upgrades past it.
+- **`CS8600;CS8602;CS8603;CS8604`** — pre-existing nullable-reference warnings across ~22 views on `UmbracoProject` only (not a security advisory); incremental cleanup tracked in ROADMAP `arch-view-nullable-hardening`.
 
-Both exemptions have inline XML comments naming the CVE and the upgrade signal that should retire them. **Out of scope**: Razor `.cshtml` files (compile inside the runtime, not the csproj's `dotnet build`) and the auto-generated published-content models under `umbraco/Data/TEMP/InMemoryAuto/` (regenerated on startup).
+**Out of scope**: Razor `.cshtml` files (compile inside the runtime, not the csproj's `dotnet build`) and the auto-generated published-content models under `umbraco/Data/TEMP/InMemoryAuto/` (regenerated on startup).
 
 ### GitHub Secrets / Variables
 

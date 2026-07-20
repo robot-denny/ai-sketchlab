@@ -22,6 +22,22 @@ const FEATURE_ALIAS = 'alertBanner';
 const FEATURE_DISPLAY_NAME = 'Alert Banner';
 const EXPECTED_PAGE_NAME = `How to use the ${FEATURE_DISPLAY_NAME}`;
 
+// Live-agent E2E de-gating (2026-07-20). The two groups below drive the
+// guide-generator CLI, which calls a live Umbraco AI agent (LLM) on the target
+// environment to write/amend guide copy. Against Cloud/Dev (process.env.URL on
+// *.umbraco.io) the agent-run endpoint returns 500 whenever that environment's AI
+// runtime comes up cold after a deploy — a non-deterministic, external-provider
+// dependency that is unfit for a required CI gate (it reddened master repeatedly).
+// These groups stay gating locally (healthy local agent) and self-skip only against
+// Cloud/Dev. Deterministic coverage — sourceSignature + the SSE parser (Vitest unit
+// tests) and the `guide --audit` group below — remains gating everywhere.
+// Durable follow-up: mock the agent or make these opt-in. See docs/ci-failure-recipes.md.
+const RUNS_AGAINST_CLOUD = (process.env.URL ?? '').includes('umbraco.io');
+const LIVE_AGENT_SKIP_REASON =
+  'Skipped against Cloud/Dev: drives a live AI agent whose run endpoint 500s on a cold ' +
+  'post-deploy AI runtime (non-deterministic external dependency, unfit for a required gate). ' +
+  'Runs locally; deterministic coverage is in the Vitest unit tests + the `guide --audit` group.';
+
 let _token: string;
 let _tokenIssued = 0;
 
@@ -104,6 +120,7 @@ async function deleteGuidesNamed(token: string, namePrefix: string): Promise<num
 
 test.describe('guide create-fresh', () => {
   test.describe.configure({ mode: 'serial' });
+  test.skip(RUNS_AGAINST_CLOUD, LIVE_AGENT_SKIP_REASON);
 
   test.beforeAll(async () => {
     const token = await freshToken();
@@ -263,6 +280,7 @@ async function setStoredSignature(
 
 test.describe('guide skip / amend', () => {
   test.describe.configure({ mode: 'serial' });
+  test.skip(RUNS_AGAINST_CLOUD, LIVE_AGENT_SKIP_REASON);
 
   let guidePageId: string;
 

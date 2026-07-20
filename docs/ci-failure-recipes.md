@@ -231,3 +231,15 @@ gh workflow run main.yml --ref master
 **Verification** — run `29162152715` (2026-07-11, `blog-content-styles` merge): single failure, `typographyShowcaseBlock.png` 1020 → **1197px** tall after a `.pull-quote-accent` demo `<p>` was added to the showcase block; `article.png` and all other screenshots passed (no unintended drift). Regenerated via `update-snapshots.yml` (bot commit `aa13c5e`); dispatched `main.yml` (`29163813003`) → Playwright green. A Dev restart + `--rerun` beforehand had failed twice, confirming the restart path is the wrong lever here.
 
 **Why this recurs** — any intentional restyle/markup change to a block or page that has a committed screenshot baseline. Baselines are Linux-only (macOS/Windows PNGs are `.gitignore`d), so they can only be regenerated on the runner, never locally. The standing habit: after landing a screenshot-affecting change, regenerate its baseline and dispatch a verify run — don't wait for the red to surprise you (see [CLAUDE.md → Screenshot baselines](../CLAUDE.md#screenshot-baselines)).
+
+### guides-cli — `Error: Agent request failed: 500` (live AI agent, cold Dev runtime)
+
+**Symptom:** Gate 2 `Playwright (against Dev)` — Gate 1 green, deploy green, ~296 specs pass, but the two live-agent groups in [tests/e2e/guides-cli.spec.ts](../tests/e2e/guides-cli.spec.ts) (`guide create-fresh`, `guide skip / amend`) fail with `Error: Agent request failed: 500`, repeated across retries. The search-readiness gate passes (semantic search serves), so the AI *connection/embeddings* are fine — it's the agent-*run* (LLM) endpoint 500ing.
+
+**Cause:** those groups drive the guide-generator CLI, which calls a live Umbraco AI agent to write/amend guide copy. After a Dev deploy the AI *agent runtime* can come up cold/unhealthy (same family as the cold-AI.Search cascade above, which the readiness gate only covers for *search*). A live-LLM dependency is non-deterministic and unfit for a required gate.
+
+**Fix (durable, shipped 2026-07-20):** both agent-dependent groups now **self-skip against Cloud/Dev** (`RUNS_AGAINST_CLOUD = (process.env.URL ?? '').includes('umbraco.io')`) — they still run locally against a healthy agent, and the deterministic coverage (Vitest unit tests for `sourceSignature` + the SSE parser, and the `guide --audit` group) stays gating everywhere. So this should no longer redden master.
+
+**If you still see it** (locally, or a future un-skip): it's the Dev AI runtime, not the code — check Dev → Settings → AI (agent/connection health, `$Anthropic`/`$OpenAI` keys in Cloud Secrets, the config-key allow-list), and a Portal restart rehydrates the AI runtime (like the search cold case). Do NOT chase it as a guide-generator regression — the deterministic wiring is unit-tested.
+
+**Further follow-up:** mock the agent, or gate on a healthy-agent probe (like `keywordSearchAvailable` for search), so these can run in CI deterministically.

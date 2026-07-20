@@ -26,8 +26,11 @@
          the host's hand-written C# that most benefits from nullable strictness is migrating into
          the UmbracoProject.Features RCL (which keeps <Nullable>enable</Nullable>), so the lasting
          gap is only Program.cs + a few Helpers. Tracked for incremental cleanup in ROADMAP
-         (`arch-view-nullable-hardening`); remove these once views carry explicit null handling. -->
-    <NoWarn>$(NoWarn);NU1903;CS8600;CS8602;CS8603;CS8604</NoWarn>
+         (`arch-view-nullable-hardening`); remove these once views carry explicit null handling.
+         NU1902: AngleSharp 1.4.0 (GHSA-pgww-w46g-26qg, moderate severity), transitive via
+         SmartReader 0.11.0 → AngleSharp — not directly referenced; cannot pin without risking the
+         SmartReader chain. Remove when SmartReader (or its parent) bumps to a patched AngleSharp. -->
+    <NoWarn>$(NoWarn);NU1902;NU1903;CS8600;CS8602;CS8603;CS8604</NoWarn>
     <CompressionEnabled>false</CompressionEnabled> <!-- Disable compression. E.g. for umbraco backoffice files. These files should be precompressed by node and not let dotnet handle it -->
     <!-- ErrorOnDuplicatePublishOutputFiles=false: Umbraco.Cms.Targets' `CopyUmbracoJsonSchemaFiles`
          target runs unconditionally in EVERY project that references Umbraco.Cms, so both this host

@@ -1,0 +1,26 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IReadOnlyList<KeyValuePair<string, string>>>
+
+@*
+    Left-column "On this page" table of contents for a Guide Page.
+    Model is an ordered list of (Title -> Slug) entries built in guidePage.cshtml
+    from the shared GuideToc slug map. Markup mirrors the .styleguide__nav used by
+    _StyleGuideSectionRows.cshtml so the existing styleguide.css layout applies.
+    Renders only when there is more than one section.
+*@
+
+@{
+    var entries = Model;
+    if (entries == null || entries.Count <= 1) { return; }
+}
+
+<div class="container">
+    <nav class="styleguide__nav" aria-labelledby="guide-toc-heading">
+        <p class="overline" id="guide-toc-heading">On this page</p>
+        <ol>
+            @foreach (var entry in entries)
+            {
+                <li><a href="#@entry.Value">@entry.Key</a></li>
+            }
+        </ol>
+    </nav>
+</div>

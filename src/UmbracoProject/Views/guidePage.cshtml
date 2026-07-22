@@ -1,0 +1,54 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.GuidePage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Cms.Core.Models.Blocks
+@using UmbracoProject.Features.Services.Guides
+
+@{
+    Layout = "master.cshtml";
+
+    var body = Model.Body;
+
+    // Single source of truth for section slugs: the TOC anchors below and each
+    // guideSection's <section id> both come from this map (keyed on Content.Key),
+    // so anchor hrefs and section ids always agree. guideSection.cshtml reads it
+    // back from ViewData; it falls back to plain slugify if the key is absent.
+    // NOTE: this ViewData write MUST precede GetBlockGridHtmlAsync below — the map is
+    // copied forward into each nested block partial at render time, so a write after
+    // the render call would never reach guideSection.cshtml.
+    var slugMap = GuideToc.BuildSlugMap(body);
+    ViewData["GuideSlugMap"] = slugMap;
+
+    // Ordered TOC entries (title -> slug), derived from the same map so every
+    // anchor resolves to a real on-page section id.
+    var tocEntries = new List<KeyValuePair<string, string>>();
+    if (body != null)
+    {
+        foreach (var item in body)
+        {
+            // Content can be null when a referenced element was trashed/unpublished while the
+            // layout entry remains — skip rather than NRE the whole page (mirrors BuildSlugMap).
+            var content = item.Content;
+            if (content is null) { continue; }
+            if (!string.Equals(content.ContentType.Alias, "guideSection", StringComparison.Ordinal)) { continue; }
+            if (!slugMap.TryGetValue(content.Key, out var slug) || string.IsNullOrWhiteSpace(slug)) { continue; }
+            var title = content.Value<string>("sectionTitle");
+            if (string.IsNullOrWhiteSpace(title)) { continue; }
+            tocEntries.Add(new KeyValuePair<string, string>(title, slug));
+        }
+    }
+}
+
+@section Styles {
+    <link href="/assets/css/styleguide.css" rel="stylesheet" asp-append-version="true" />
+}
+
+@await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
+{
+    Title = Model.Name,
+    Eyebrow = "Guide"
+})
+
+<article class="styleguide">
+    @await Html.PartialAsync("~/Views/Partials/_GuideToc.cshtml", tocEntries)
+    @await Html.GetBlockGridHtmlAsync(body)
+</article>

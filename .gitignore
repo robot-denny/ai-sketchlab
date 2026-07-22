@@ -399,6 +399,9 @@ healthchecksdb
 
 # Umbraco Models Builder out of date flag file
 **/umbraco/models/ood.flag
+# ModelsBuilder also drops ood.flag next to the committed source models (SourceCodeManual,
+# relocated into the Features RCL) — transient marker, never commit it.
+**/Models/Generated/ood.flag
 
 # Umbraco HQ Package - UmbracoID Login
 **/App_Plugins/UmbracoId/

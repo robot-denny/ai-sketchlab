@@ -23,6 +23,8 @@
           "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
           "ValueType": "System.String",
           "Description": "Heading for this section; the on-page table of contents is auto-derived from these titles.",
+          "Mandatory": true,
+          "MandatoryMessage": "A section title is required \u2014 the table of contents and the section heading are built from it.",
           "Name": "Section Title",
           "SortOrder": 10
         }

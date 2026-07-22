@@ -1,7 +1,10 @@
 {
   "Name": "Guide Page",
   "Alias": "guidePage",
-  "AllowedTemplates": [],
+  "DefaultTemplate": "umb://template/cdd72ffcacfa41c6ae84e11446425b7f",
+  "AllowedTemplates": [
+    "umb://template/cdd72ffcacfa41c6ae84e11446425b7f"
+  ],
   "HistoryCleanup": {},
   "Icon": "icon-book color-blue",
   "Thumbnail": "folder.png",
@@ -46,6 +49,11 @@
     {
       "Udi": "umb://document-type/e0a344ad686a4b23b31b8801ee6d1c61",
       "Ordering": true
+    },
+    {
+      "Udi": "umb://template/cdd72ffcacfa41c6ae84e11446425b7f",
+      "Ordering": true,
+      "Mode": "Exist"
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",

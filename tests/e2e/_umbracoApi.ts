@@ -80,6 +80,43 @@ export async function getDocumentPath(docId: string): Promise<string> {
 }
 
 /**
+ * Like {@link getDocumentPath} but returns `null` instead of throwing when the
+ * document has no published URL — for specs that treat "no URL yet" as an
+ * expected state (e.g. a page authored in a later step) rather than an error.
+ */
+export async function tryGetDocumentPath(docId: string): Promise<string | null> {
+  const resp = await apiFetch('GET', `/document/urls?id=${docId}`);
+  if (!resp.ok) return null;
+  const data = (await resp.json()) as any;
+  return data[0]?.urlInfos?.[0]?.url ?? null;
+}
+
+/** Walk the whole document tree, returning every content node of a given doc type. */
+export async function collectContentNodesByDocType(
+  docTypeId: string
+): Promise<Array<{ id: string; name: string }>> {
+  const found: Array<{ id: string; name: string }> = [];
+  async function walk(parentId: string | null) {
+    const path = parentId
+      ? `/tree/document/children?parentId=${parentId}&skip=0&take=100`
+      : `/tree/document/root?skip=0&take=100`;
+    const resp = await apiFetch('GET', path);
+    if (!resp.ok) return;
+    const data = (await resp.json()) as any;
+    for (const item of data.items ?? []) {
+      if (item.documentType?.id === docTypeId) {
+        found.push({ id: item.id, name: item.variants?.[0]?.name ?? '' });
+      }
+      if (item.hasChildren) {
+        await walk(item.id);
+      }
+    }
+  }
+  await walk(null);
+  return found;
+}
+
+/**
  * Find a document type / element type by display name, walking the tree
  * (root + nested folders such as Elements / Pages / Compositions). Returns the
  * full document-type object (flat `properties` array, `allowedTemplates`, etc.)

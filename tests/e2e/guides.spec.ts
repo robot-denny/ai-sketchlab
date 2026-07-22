@@ -173,14 +173,18 @@ test.describe('Guides schema', () => {
       ).toContain(expectedCompositionIds[i]);
     }
 
-    // Allowed children: only howToGuidePage
+    // Allowed children: howToGuidePage + the consolidated guidePage (Styleguide /
+    // Component Guide live under Guides too — see _plans/consolidated-guides.md).
     const howToId = await findDocTypeIdByName(token, 'How-To Guide Page');
+    const guidePageId = await findDocTypeIdByName(token, 'Guide Page');
     expect(howToId, '"How-To Guide Page" should exist for allowedChildren check').toBeTruthy();
+    expect(guidePageId, '"Guide Page" should exist for allowedChildren check').toBeTruthy();
     const allowedChildIds = (dt.allowedDocumentTypes ?? []).map(
       (a: any) => a.documentType?.id
     );
     expect(allowedChildIds, 'Guides must allow How-To Guide Page as child').toContain(howToId);
-    expect(allowedChildIds.length, 'Guides should have exactly one allowed child type').toBe(1);
+    expect(allowedChildIds, 'Guides must allow Guide Page as child').toContain(guidePageId);
+    expect(allowedChildIds.length, 'Guides should allow exactly two child types').toBe(2);
 
     // No own properties
     expect(

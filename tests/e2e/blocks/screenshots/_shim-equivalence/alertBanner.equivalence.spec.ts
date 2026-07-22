@@ -8,7 +8,7 @@ import { shotOf } from './_shimHelpers';
 // contexts.
 //
 // Currently the demo site only authors the blocklist version (on
-// /styleguide/components/) -- there's no blockgrid alertBanner instance with
+// /guides/component-guide/) -- there's no blockgrid alertBanner instance with
 // equivalent content. The test skips cleanly when no blockgrid instance is
 // found, but the assertion is in place for the day the equivalence becomes
 // testable.
@@ -30,7 +30,7 @@ test.describe('Shim equivalence: alertBanner (blocklist == blockgrid)', () => {
 
     const blocklistShot = await shotOf(
       page,
-      '/styleguide/components/',
+      '/guides/component-guide/',
       '.alert',
     );
     const blockgridShot = await shotOf(

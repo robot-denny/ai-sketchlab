@@ -26,17 +26,17 @@
  * Block-to-page mapping (canonical render surfaces on the running site):
  *
  *   --- blocklist (11 components) ---
- *   alertBanner             -> /styleguide/components/ (.alert)
- *   codeSnippetRow          -> /styleguide/components/ (pre:has(code))
- *   colorPaletteBlock       -> /styleguide/ ([data-block-alias="colorPaletteBlock"])
- *   generalElementsBlock    -> /styleguide/ ([data-block-alias="generalElementsBlock"])
+ *   alertBanner             -> /guides/component-guide/ (.alert)
+ *   codeSnippetRow          -> /guides/component-guide/ (pre:has(code))
+ *   colorPaletteBlock       -> /guides/styleguide/ ([data-block-alias="colorPaletteBlock"])
+ *   generalElementsBlock    -> /guides/styleguide/ ([data-block-alias="generalElementsBlock"])
  *   iconLinkRow             -> NO RENDER SURFACE on the demo site (skipped, see spec)
- *   imageCarouselRow        -> /styleguide/components/ (.image-carousel, first)
- *   imageRow                -> /styleguide/components/ (.image, first)
- *   latestArticlesRow       -> /styleguide/components/ (.latest-articles-row, mask cards)
- *   richTextRow             -> /styleguide/components/ (.richtext, first non-label instance)
- *   typographyShowcaseBlock -> /styleguide/ ([data-block-alias="typographyShowcaseBlock"])
- *   videoRow                -> /styleguide/components/ (.row:has(.youtube-player))
+ *   imageCarouselRow        -> /guides/component-guide/ (.image-carousel, first)
+ *   imageRow                -> /guides/component-guide/ (.image, first)
+ *   latestArticlesRow       -> /guides/component-guide/ (.latest-articles-row, mask cards)
+ *   richTextRow             -> /guides/component-guide/ (.richtext, first non-label instance)
+ *   typographyShowcaseBlock -> /guides/styleguide/ ([data-block-alias="typographyShowcaseBlock"])
+ *   videoRow                -> /guides/component-guide/ (.row:has(.youtube-player))
  *
  *   --- blockgrid (12 components) ---
  *   All blockgrid components render on the /experiments/ page. Each block is
@@ -45,7 +45,7 @@
  *
  *   alertBanner          -> /experiments/ ([data-content-element-type-alias="alertBanner"])
  *                            (NOTE: not currently authored on /experiments/; falls back to
- *                             /styleguide/components/ for the shim equivalence spec)
+ *                             /guides/component-guide/ for the shim equivalence spec)
  *   commandBadge         -> /experiments/ ([data-content-element-type-alias="commandBadge"])
  *   embeddedSketch       -> /experiments/ ([data-content-element-type-alias="embeddedSketch"])
  *   featureCard          -> /experiments/ ([data-content-element-type-alias="featureCard"])

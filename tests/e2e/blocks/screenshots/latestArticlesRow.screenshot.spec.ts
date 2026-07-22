@@ -1,7 +1,7 @@
 import { test } from '@umbraco/playwright-testhelpers';
 import { discoverBlockOnPage, dynamicRegionMasks, expect, screenshotOptions } from '../../_helpers';
 
-// Canonical surface: /styleguide/components/ -- partial emits
+// Canonical surface: /guides/component-guide/ -- partial emits
 // `<section class="latest-articles-row">`. The inner article-card grid is
 // dynamic (article order/titles/dates change as content authors publish), so
 // we mask the entries grid + any timestamps via dynamicRegionMasks. The
@@ -16,7 +16,7 @@ test.describe('Screenshot: Block List latestArticlesRow', () => {
   test('renders latestArticlesRow matching baseline', async ({ page }) => {
     const block = await discoverBlockOnPage(
       page,
-      '/styleguide/components/',
+      '/guides/component-guide/',
       '.latest-articles-row',
     );
     const masks = dynamicRegionMasks(page);

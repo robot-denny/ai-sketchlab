@@ -9,7 +9,7 @@
  * both `blocklist/default.cshtml` and `blockgrid/items.cshtml`. The equivalence
  * assertion is therefore even stronger now: the identical shared partial is
  * rendered in both editors, so the output should be pixel-identical across the
- * blocklist (/styleguide/components/) and blockgrid (/experiments/) contexts --
+ * blocklist (/guides/component-guide/) and blockgrid (/experiments/) contexts --
  * if it isn't, either a dispatcher wrapper has diverged or the two surfaces hold
  * different authored content.
  *

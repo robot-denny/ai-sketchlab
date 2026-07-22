@@ -1,7 +1,7 @@
 import { test } from '@umbraco/playwright-testhelpers';
 import { discoverBlockOnPage, expect, screenshotOptions } from '../../_helpers';
 
-// Canonical surface: /styleguide/components/ -- partial emits a wrapping
+// Canonical surface: /guides/component-guide/ -- partial emits a wrapping
 // `<div class="row ...">` with `.youtube-player` inside it. We target the
 // row containing the youtube-player so the screenshot includes the caption
 // and surrounding spacing.
@@ -14,7 +14,7 @@ test.describe('Screenshot: Block List videoRow', () => {
   test('renders videoRow matching baseline', async ({ page }) => {
     const block = await discoverBlockOnPage(
       page,
-      '/styleguide/components/',
+      '/guides/component-guide/',
       '.row:has(.youtube-player)',
     );
     await expect(block).toHaveScreenshot(

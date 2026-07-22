@@ -54,6 +54,11 @@
          so we resolve the vulnerability rather than suppress NU1903. Revisit when Umbraco's Search
          chain ships a newer MessagePack itself. -->
     <PackageReference Include="MessagePack" Version="3.1.7" />
+    <!-- NB: System.Security.Cryptography.Xml (GHSA-23rf-6693-g89p et al.) is deliberately NOT pinned
+         here — the host is an executable, so .NET 10 prunes that package to the shared-framework copy
+         (an explicit pin trips NU1510). The advisory only bites HelloWorld, a packable RCL that doesn't
+         prune it; the pin lives there. -->
+
     <!-- Umbraco.AI suite, pinned to each package's latest 17.x. The vendor realigned to the
          CMS major (17.0.0, 2026-06-25) and now patches each package independently — hence the
          mixed 17.0.0 / 17.0.1 / 17.1.0 below (all the same major, internally range-compatible).

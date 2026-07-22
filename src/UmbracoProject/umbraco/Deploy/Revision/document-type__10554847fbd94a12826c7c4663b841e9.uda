@@ -1,0 +1,42 @@
+{
+  "Name": "Guide Section",
+  "Alias": "guideSection",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-layout color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "A titled section wrapper for a Guide Page. Its title is the heading the table of contents derives from; its single content area holds the shared content blocks.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "ef5d409d-f96e-4d3d-889c-675aaa438d44",
+      "Name": "Content",
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "ec4b1987-873b-4cf5-afa4-3d510346a029",
+          "Alias": "sectionTitle",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "Heading for this section; the on-page table of contents is auto-derived from these titles.",
+          "Name": "Section Title",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/10554847fbd94a12826c7c4663b841e9",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.0"
+}

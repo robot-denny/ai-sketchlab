@@ -1,4 +1,4 @@
-# Feature: Living Style Guide
+# Feature: Styleguide and Component Guide
 
 A `/styleguide` page acts as a self-updating brand and design reference for site admins, content authors, and new contributors. The page is **composed in the CMS from blocks** so editors can reorder sections, retitle them, and add narrative copy around the programmatic content. Three "programmatic" blocks (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) read live from the production CSS so design-system changes propagate automatically. A child `/styleguide/components` page, also assembled in the CMS, demonstrates each reusable content block by example.
 

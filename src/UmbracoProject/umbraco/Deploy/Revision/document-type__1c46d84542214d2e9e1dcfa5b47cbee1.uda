@@ -1,0 +1,53 @@
+{
+  "Name": "Guide Page",
+  "Alias": "guidePage",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-book color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "Consolidated guide page backing the Styleguide and the Component Guide. Body is a Guide Body block grid of titled sections; the table of contents is auto-derived from section titles.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "CompositionContentTypes": [
+    "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+    "umb://document-type/e0a344ad686a4b23b31b8801ee6d1c61"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "392cee52-b873-4a4c-aee1-dcc2a16958d8",
+      "Name": "Content",
+      "Type": 1,
+      "Alias": "content",
+      "PropertyTypes": [
+        {
+          "Key": "d5bb0f04-19b4-4803-b01a-114b3e090e60",
+          "Alias": "body",
+          "DataType": "umb://data-type/32deaf6058fe4ce4a21cf6d88f206c75",
+          "ValueType": "Umbraco.Cms.Core.Models.Blocks.BlockGridModel",
+          "Description": "Guide body \u2014 add Guide Section blocks; each section holds the shared content blocks.",
+          "Name": "Body",
+          "SortOrder": 10
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/1c46d84542214d2e9e1dcfa5b47cbee1",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/32deaf6058fe4ce4a21cf6d88f206c75",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/e0a344ad686a4b23b31b8801ee6d1c61",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.0"
+}

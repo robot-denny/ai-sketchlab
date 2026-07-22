@@ -12,23 +12,7 @@
     // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
 #pragma warning disable CS0618
     var eyebrow = Model.Parent?.Name;
-
-    // When this content page is a child of a Style Guide Page (e.g.
-    // /styleguide/components), render its section rows with the same
-    // narrow-width / no-row-border / in-page-nav treatment used on
-    // /styleguide. Other content pages render unchanged.
-    var inStyleGuideTree = string.Equals(
-        Model.Parent?.ContentType?.Alias,
-        "styleGuidePage",
-        StringComparison.Ordinal);
 #pragma warning restore CS0618
-}
-
-@if (inStyleGuideTree)
-{
-    @section Styles {
-        <link href="/assets/css/styleguide.css" rel="stylesheet" asp-append-version="true" />
-    }
 }
 
 @await Html.PartialAsync("~/Views/Partials/v2/_PageHead.cshtml", new
@@ -56,17 +40,8 @@
 {
     var rows = Model.Value<Umbraco.Cms.Core.Models.Blocks.BlockListModel>("sectionRows");
 
-    if (inStyleGuideTree)
+    foreach (var row in rows)
     {
-        <article class="styleguide">
-            @await Html.PartialAsync("~/Views/Partials/_StyleGuideSectionRows.cshtml", rows)
-        </article>
-    }
-    else
-    {
-        foreach (var row in rows)
-        {
-            @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
-        }
+        @await Html.PartialAsync("~/Views/Partials/contentSectionRow.cshtml", row)
     }
 }

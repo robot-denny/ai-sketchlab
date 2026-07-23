@@ -26,70 +26,9 @@ main.experiments {
   color: var(--text-primary);
 }
 
-/* The Umbraco Block Grid markup is opaque; we map its CSS custom
-   properties onto a real 12-track grid so column-span values
-   chosen in the backoffice (12 / 8 / 6 / 4) actually take effect. */
-main.experiments .umb-block-grid {
-  display: block;
-}
-
-main.experiments .umb-block-grid__layout-container {
-  display: grid;
-  grid-template-columns: repeat(var(--umb-block-grid--grid-columns, 12), 1fr);
-  gap: var(--space-lg);
-}
-
-main.experiments .umb-block-grid__layout-item {
-  grid-column: span var(--umb-block-grid--item-column-span, 12);
-  min-width: 0;
-  max-width: 100%;
-}
-
-main.experiments .umb-block-grid__area-container {
-  display: grid;
-  grid-template-columns: repeat(var(--umb-block-grid--area-grid-columns, 12), 1fr);
-  gap: var(--space-lg);
-  width: 100%;
-}
-
-main.experiments .umb-block-grid__area {
-  grid-column: span var(--umb-block-grid--area-column-span, 12);
-  min-width: 0;
-}
-
-/* Collapse Block-Grid spans on phone viewports. The structural
-   intent (3-card row, side-by-side pull quote) reads better as a
-   single column on phones than a half-broken multi-column layout.
-   Tablet (≥600px) keeps a 2-column intermediate — see below. */
-@media (max-width: 599px) {
-  main.experiments .umb-block-grid__layout-container,
-  main.experiments .umb-block-grid__area-container {
-    grid-template-columns: 1fr;
-  }
-  main.experiments .umb-block-grid__layout-item,
-  main.experiments .umb-block-grid__area {
-    grid-column: 1 / -1;
-  }
-}
-
-/* Two-column intermediate at tablet for card / stat rows. */
-@media (min-width: 600px) and (max-width: 1099px) {
-  main.experiments .umb-block-grid__layout-container {
-    grid-template-columns: repeat(6, 1fr);
-  }
-  main.experiments .umb-block-grid__layout-item {
-    grid-column: span min(6, var(--umb-block-grid--item-column-span, 12));
-  }
-  /* Cards (4-span on a 12-col grid → 2-span on a 6-col grid) */
-  main.experiments .umb-block-grid__layout-item[data-col-span="4"] {
-    grid-column: span 3;
-  }
-  /* 8 / 4 split → still 2 columns */
-  main.experiments .umb-block-grid__layout-item[data-col-span="8"],
-  main.experiments .umb-block-grid__layout-item[data-col-span="6"] {
-    grid-column: span 6;
-  }
-}
+/* The Block Grid layout engine (.umb-block-grid*) now lives, de-scoped and
+   globally loaded, in blocks.css — so page-body blocks lay out on any page,
+   not just inside main.experiments. See docs/block-css-seam.md. */
 
 /* ── Hero band ──────────────────────────────────────────────── */
 .exp-hero {

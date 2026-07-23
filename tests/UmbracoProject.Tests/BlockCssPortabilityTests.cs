@@ -88,6 +88,89 @@ public class BlockCssPortabilityTests
         Assert.Contains(".exp-pillar > .umb-block-grid__area-container", stripped);
     }
 
+    [Fact]
+    public void BlocksCss_ContainsTheSixReusableBlocksBaseRules()
+    {
+        string css = File.ReadAllText(BlocksCssPath);
+        // Strip comments so a section-header comment mentioning a class name can't
+        // satisfy an assertion (parity with the experiments.css test below).
+        string stripped = Regex.Replace(css, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+
+        // Each reusable block's BASE rule now lives in the global stylesheet, so the
+        // block lays out and skins on ANY page — not only inside main.experiments.
+        Assert.Matches(new Regex(@"\.exp-card\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Matches(new Regex(@"\.exp-cmd\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Matches(new Regex(@"\.exp-stat\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Matches(new Regex(@"\.exp-pullquote\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Matches(new Regex(@"\.exp-timeline__row\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Matches(new Regex(@"\.exp-sketch\s*\{", RegexOptions.Singleline), stripped);
+
+        // A representative __child rule per block — proves the child rules moved too,
+        // not just the block roots.
+        Assert.Contains(".exp-card__title", stripped);
+        Assert.Contains(".exp-cmd__name", stripped);
+        Assert.Contains(".exp-stat__figure", stripped);
+        Assert.Contains(".exp-pullquote__quote", stripped);
+        Assert.Contains(".exp-timeline__feature", stripped);
+        Assert.Contains(".exp-sketch__caption", stripped);
+
+        // pullQuoteBlock's block-OWNED tone modifiers (pillar-INDEPENDENT) ship globally
+        // with the block — both the border AND the text-color recolor — so a dark/accent
+        // pullquote renders correctly off-Experiments (the review Major fix). The
+        // `.exp-pillar--* .exp-pullquote__*` context form stays page-scoped in experiments.css.
+        Assert.Matches(new Regex(@"\.exp-pullquote--dark\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Matches(new Regex(@"\.exp-pullquote--accent\s*\{", RegexOptions.Singleline), stripped);
+        Assert.Contains(".exp-pullquote--dark .exp-pullquote__quote", stripped);
+        Assert.Contains(".exp-pullquote--accent .exp-pullquote__quote", stripped);
+
+        // ...and the whole file stays GLOBAL — never re-scoped under main.experiments.
+        Assert.DoesNotContain("main.experiments", stripped);
+    }
+
+    [Fact]
+    public void ExperimentsCss_RetainsPageCompositionAndPillarToneContext()
+    {
+        string css = File.ReadAllText(ExperimentsCssPath);
+
+        // Ignore comments so a pointer comment can't satisfy an assertion.
+        string stripped = Regex.Replace(css, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+
+        // Page-composition blocks stay put (out of scope for portability).
+        Assert.Contains(".exp-hero", stripped);
+        Assert.Contains(".exp-pillar", stripped);
+
+        // Pillar-tone context that recolors a moved block stays behind — a block off a
+        // pillar renders in its default tone (correct). These reference a moved block
+        // but are Experiments pillar composition, not the block's own base CSS.
+        Assert.Contains(".exp-pillar--dark .exp-stat__figure", stripped);
+        Assert.Contains(".exp-pillar--light:nth-of-type(even) .exp-card", stripped);
+        // The pullquote PILLAR-context form stays; its block-modifier twin (pillar-
+        // independent) moved to blocks.css. This locks the review Major split from both
+        // sides (blocks.css test asserts the block-modifier form is now global).
+        Assert.Contains(".exp-pillar--dark .exp-pullquote__quote", stripped);
+        Assert.DoesNotContain(".exp-pullquote--dark .exp-pullquote__quote", stripped);
+
+        // The Experiments page reset + richtext / CTA overrides stay.
+        Assert.Contains("main.experiments", stripped);
+        Assert.Contains(".exp-cta", stripped);
+
+        // Stronger guard: the six blocks' BASE rules are no longer in the page
+        // stylesheet. The pillar-tone rules legitimately still contain
+        // `.exp-card` / `.exp-stat` / `.exp-timeline__row` substrings, so match the
+        // *base selector form* — a bare `.exp-<block> {` preceded by a rule boundary
+        // (`}`, `,`, `;`), never a descendant combinator off a pillar selector.
+        // NOTE: the `{`-exclusion in the boundary class is deliberate — it lets the
+        // retained `@media (...) { .exp-cta { … } }` carve-out pass. It leaves a narrow
+        // blind spot (a base rule reintroduced as the first selector right after a `{`),
+        // accepted as a trade-off; do not add `{` to the class or the media carve-out fails.
+        Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-card\s*\{", RegexOptions.Singleline), stripped);
+        Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-cmd\s*\{", RegexOptions.Singleline), stripped);
+        Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-stat\s*\{", RegexOptions.Singleline), stripped);
+        Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-pullquote\s*\{", RegexOptions.Singleline), stripped);
+        Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-timeline__row\s*\{", RegexOptions.Singleline), stripped);
+        Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-sketch\s*\{", RegexOptions.Singleline), stripped);
+    }
+
     /// <summary>
     /// Walks up from the test-run directory to the repo root (identified by the committed
     /// revision directory). Avoids hardcoded absolute paths. Mirrors

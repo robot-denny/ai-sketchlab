@@ -1,12 +1,12 @@
 /* ================================================================
    Living Style Guide
    ----------------------------------------------------------------
-   Visual chrome for /styleguide and /styleguide/components.
-   The reference content (typography, swatches, elements) uses real
-   site classes — this file only adds layout, the swatch grid, and
-   the on-page nav.
+   Visual chrome for the consolidated Guide pages (/guides/styleguide,
+   /guides/component-guide). The reference content (typography, swatches,
+   elements) uses real site classes — this file only adds layout, the
+   swatch grid, the on-page nav, and the guide type hierarchy.
 
-   Loaded on: styleGuidePage.cshtml.
+   Loaded on: guidePage.cshtml.
    ================================================================ */
 
 .styleguide{padding:32px 0 80px}
@@ -34,8 +34,20 @@
 
 .styleguide__section{margin:0 0 64px;padding:0 0 56px;border-bottom:1px solid var(--border-light)}
 .styleguide__section:last-of-type{border-bottom:none}
-.styleguide__section h2{font-family:var(--font-display);font-weight:400;font-size:clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);line-height:1.1;letter-spacing:-.01em;margin:0 0 20px}
+/* The guideSection wrapper's title is the section-level heading. Give it the same
+   large display treatment used elsewhere in the styleguide so it out-ranks the
+   block-level headings inside the section (which step down below). */
+.styleguide__section h2,
+.styleguide__section-anchor > .section-row__title{font-family:var(--font-display);font-weight:400;font-size:clamp(1.875rem, 1.4rem + 1.6vw, 2.5rem);line-height:1.1;letter-spacing:-.01em;margin:0 0 20px}
 .styleguide__section h3{margin:32px 0 16px}
+
+/* Type hierarchy inside a guide section: the section title (above) is the heading;
+   a block's own title (e.g. the colour-palette / general-elements block headings,
+   emitted as .styleguide-block__heading) reads as SUBORDINATE. Step it down from the
+   global h2 size to the h4 scale so it never reads as a second, competing section
+   heading. Scoped to .styleguide, so the same shared blocks keep their normal h2 size
+   on Main Content / Experiments pages. */
+.styleguide .styleguide-block__heading{font-size:clamp(1.125rem, 1rem + 0.3vw, 1.25rem);margin:0 0 var(--space-md)}
 .styleguide__brand-summary{font-size:1.0625rem;line-height:1.6;color:var(--text-primary);max-width:60ch}
 
 /* ── Color palette ────────────────────────────────────────────── */

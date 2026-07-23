@@ -50,5 +50,12 @@
 
 <article class="styleguide">
     @await Html.PartialAsync("~/Views/Partials/_GuideToc.cshtml", tocEntries)
-    @await Html.GetBlockGridHtmlAsync(body)
+    @* Constrain the grid body to the styleguide reading measure. `.styleguide .container`
+       (styleguide.css) caps this at 780px — the same single-column width the legacy
+       /styleguide used (via contentSectionRow's own .container). Without this wrapper the
+       Block Grid renders full-bleed to the viewport edge. The TOC partial above brings its
+       own .container, mirroring the legacy nav + section-row pairing. *@
+    <div class="container">
+        @await Html.GetBlockGridHtmlAsync(body)
+    </div>
 </article>

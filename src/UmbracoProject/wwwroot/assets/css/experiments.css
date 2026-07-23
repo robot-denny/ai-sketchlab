@@ -9,7 +9,15 @@
 
    Load order (see master.cshtml @section Styles):
      styles.css → typography.css → tokens-extras.css
-     → site-chrome.css → experiments.css
+     → site-chrome.css → blocks.css → experiments.css
+
+   The reusable page-body blocks' BASE (functional) CSS now lives,
+   globally loaded, in blocks.css — so featureCard / commandBadge /
+   statCallout / pullQuoteBlock / timelineRow / embeddedSketch lay
+   out and skin on ANY page, not only inside main.experiments. What
+   stays here is Experiments page composition (hero, pillar) plus the
+   pillar-tone context that recolors those blocks inside a light /
+   dark / accent pillar. See docs/block-css-seam.md.
    ================================================================ */
 
 /* ── Scope reset: every surface in the experiments scope is square */
@@ -26,70 +34,9 @@ main.experiments {
   color: var(--text-primary);
 }
 
-/* The Umbraco Block Grid markup is opaque; we map its CSS custom
-   properties onto a real 12-track grid so column-span values
-   chosen in the backoffice (12 / 8 / 6 / 4) actually take effect. */
-main.experiments .umb-block-grid {
-  display: block;
-}
-
-main.experiments .umb-block-grid__layout-container {
-  display: grid;
-  grid-template-columns: repeat(var(--umb-block-grid--grid-columns, 12), 1fr);
-  gap: var(--space-lg);
-}
-
-main.experiments .umb-block-grid__layout-item {
-  grid-column: span var(--umb-block-grid--item-column-span, 12);
-  min-width: 0;
-  max-width: 100%;
-}
-
-main.experiments .umb-block-grid__area-container {
-  display: grid;
-  grid-template-columns: repeat(var(--umb-block-grid--area-grid-columns, 12), 1fr);
-  gap: var(--space-lg);
-  width: 100%;
-}
-
-main.experiments .umb-block-grid__area {
-  grid-column: span var(--umb-block-grid--area-column-span, 12);
-  min-width: 0;
-}
-
-/* Collapse Block-Grid spans on phone viewports. The structural
-   intent (3-card row, side-by-side pull quote) reads better as a
-   single column on phones than a half-broken multi-column layout.
-   Tablet (≥600px) keeps a 2-column intermediate — see below. */
-@media (max-width: 599px) {
-  main.experiments .umb-block-grid__layout-container,
-  main.experiments .umb-block-grid__area-container {
-    grid-template-columns: 1fr;
-  }
-  main.experiments .umb-block-grid__layout-item,
-  main.experiments .umb-block-grid__area {
-    grid-column: 1 / -1;
-  }
-}
-
-/* Two-column intermediate at tablet for card / stat rows. */
-@media (min-width: 600px) and (max-width: 1099px) {
-  main.experiments .umb-block-grid__layout-container {
-    grid-template-columns: repeat(6, 1fr);
-  }
-  main.experiments .umb-block-grid__layout-item {
-    grid-column: span min(6, var(--umb-block-grid--item-column-span, 12));
-  }
-  /* Cards (4-span on a 12-col grid → 2-span on a 6-col grid) */
-  main.experiments .umb-block-grid__layout-item[data-col-span="4"] {
-    grid-column: span 3;
-  }
-  /* 8 / 4 split → still 2 columns */
-  main.experiments .umb-block-grid__layout-item[data-col-span="8"],
-  main.experiments .umb-block-grid__layout-item[data-col-span="6"] {
-    grid-column: span 6;
-  }
-}
+/* The Block Grid layout engine (.umb-block-grid*) now lives, de-scoped and
+   globally loaded, in blocks.css — so page-body blocks lay out on any page,
+   not just inside main.experiments. See docs/block-css-seam.md. */
 
 /* ── Hero band ──────────────────────────────────────────────── */
 .exp-hero {
@@ -327,199 +274,14 @@ main.experiments .umb-block-grid__area {
   outline-color: var(--text-on-dark);
 }
 
-/* ── Feature cards ─────────────────────────────────────────── */
-.exp-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  height: 100%;
-  padding: var(--space-lg);
-  background-color: var(--surface-primary);
-  border: 1px solid var(--border-light);
-  box-shadow: none;
-  transition: transform var(--ease-standard), box-shadow var(--ease-standard), border-color var(--ease-standard);
-}
-
+/* ── Feature cards — pillar-tone context (base CSS in blocks.css) ── */
+/* Even light pillars use the secondary surface; reset nested cards
+   back to the primary surface so they read as raised panels. */
 .exp-pillar--light:nth-of-type(even) .exp-card {
   background-color: var(--surface-primary);
 }
 
-.exp-card:hover,
-.exp-card:focus-within {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px -12px rgba(26, 26, 30, 0.35);
-  border-color: var(--border-medium);
-}
-
-.exp-card__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  width: 2rem;
-  height: 2rem;
-  background-color: var(--accent-primary);
-  color: var(--text-on-dark);
-}
-
-.exp-card__icon--fa {
-  font-family: inherit;
-  font-size: 1.125rem;
-  letter-spacing: normal;
-  text-transform: none;
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.exp-card__icon--fa .svg-inline--fa,
-.exp-card__icon--fa i {
-  width: 1em;
-  height: 1em;
-  line-height: 1;
-}
-
-.exp-card__eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.exp-card__title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.exp-card__body {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.55;
-  color: var(--text-secondary);
-}
-
-.exp-card__body p:last-child {
-  margin-bottom: 0;
-}
-
-.exp-card__link {
-  margin-top: auto;
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent-primary);
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-}
-
-.exp-card__link:hover {
-  color: var(--accent-primary-hover);
-  text-decoration-thickness: 2px;
-}
-
-/* ── Command badge ─────────────────────────────────────────── */
-.exp-cmd {
-  position: relative;
-  padding: var(--space-md) var(--space-md) var(--space-md) calc(var(--space-md) + 12px);
-  background-color: var(--surface-secondary);
-  border: 1px solid var(--border-light);
-}
-
-.exp-cmd::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  background-color: var(--accent-primary);
-}
-
-.exp-cmd__name {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-primary);
-  background-color: var(--surface-primary);
-  padding: 2px var(--space-sm);
-  border: 1px solid var(--border-light);
-  margin-bottom: var(--space-sm);
-}
-
-.exp-cmd__oneliner {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.exp-cmd__meta {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  margin: var(--space-sm) 0 0;
-}
-
-/* ── Stat callout ──────────────────────────────────────────── */
-.exp-stat {
-  margin: 0;
-  padding: var(--space-lg) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.exp-stat__display {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-}
-
-.exp-stat__figure {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(3rem, 2rem + 4vw, 5.5rem);
-  line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--accent-secondary);
-}
-
-.exp-stat__unit {
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-}
-
-.exp-stat__supporting {
-  font-family: var(--font-body);
-  font-size: 1rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin: 0;
-  max-width: 32ch;
-}
-
+/* ── Stat callout — pillar-tone context (base CSS in blocks.css) ── */
 /* Stat tones: signal red on dark, on-dark on accent (red on red
    would vanish), warm bronze stays as the default for light. */
 .exp-pillar--dark .exp-stat__figure {
@@ -540,162 +302,44 @@ main.experiments .umb-block-grid__area {
   color: var(--text-on-dark);
 }
 
-/* ── Pull quote ────────────────────────────────────────────── */
-.exp-pullquote {
-  margin: var(--space-lg) 0;
-  padding: var(--space-md) 0 var(--space-md) var(--space-lg);
-  border-left: 3px solid var(--accent-primary);
-}
-
-.exp-pullquote__quote {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-md);
-  padding: 0;
-  border: 0;
-}
-
-.exp-pullquote__attribution {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1em;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.exp-pullquote__name {
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--text-primary);
-}
-
-.exp-pullquote__role {
-  font-style: italic;
-  color: var(--text-tertiary);
-}
-
-/* Negative-left-margin treatment on large screens: pull the quote
-   into the editorial gutter. On small viewports the negative margin
-   collapses and the left border becomes the sole identifier. */
-@media (min-width: 1100px) {
-  .exp-pullquote {
-    margin-left: calc(-1 * var(--space-xl));
-    padding-left: var(--space-xl);
-  }
-}
-
-.exp-pullquote--dark {
-  border-left-color: var(--text-on-dark);
-}
-.exp-pillar--dark .exp-pullquote__quote,
-.exp-pullquote--dark .exp-pullquote__quote {
+/* ── Pull quote — pillar-tone context ONLY ─────────────────────
+   The block's OWN tone modifiers (.exp-pullquote--dark/--accent, which
+   are pillar-independent) ship globally in blocks.css. These rules are
+   the Experiments *pillar* context: a plain pullquote inside a dark/
+   accent pillar inherits the pillar's on-dark text. Pillars are grid-
+   only Experiments composition, so these correctly stay page-scoped. */
+.exp-pillar--dark .exp-pullquote__quote {
   color: var(--text-on-dark);
 }
-.exp-pillar--dark .exp-pullquote__name,
-.exp-pullquote--dark .exp-pullquote__name {
+.exp-pillar--dark .exp-pullquote__name {
   color: var(--text-on-dark);
 }
-.exp-pillar--dark .exp-pullquote__role,
-.exp-pullquote--dark .exp-pullquote__role {
+.exp-pillar--dark .exp-pullquote__role {
   color: var(--text-on-dark-secondary);
 }
 
-.exp-pullquote--accent {
-  border-left-color: var(--text-on-dark);
-}
-.exp-pillar--accent .exp-pullquote__quote,
-.exp-pullquote--accent .exp-pullquote__quote {
+.exp-pillar--accent .exp-pullquote__quote {
   color: var(--text-on-dark);
 }
-.exp-pillar--accent .exp-pullquote__attribution,
-.exp-pullquote--accent .exp-pullquote__attribution {
+.exp-pillar--accent .exp-pullquote__attribution {
   color: var(--text-on-dark);
 }
-.exp-pillar--accent .exp-pullquote__name,
-.exp-pullquote--accent .exp-pullquote__name {
+.exp-pillar--accent .exp-pullquote__name {
   color: var(--text-on-dark);
 }
-.exp-pillar--accent .exp-pullquote__role,
-.exp-pullquote--accent .exp-pullquote__role {
+.exp-pillar--accent .exp-pullquote__role {
   color: var(--text-on-dark);
 }
 
-/* ── Timeline ──────────────────────────────────────────────── */
-/* Timeline rows render inside a Block-Grid layout-container as
-   <div> children of a generated wrapper. Style each row as a self-
-   contained grid so dates and bodies align across rows. */
-.exp-timeline__row {
-  display: grid;
-  grid-template-columns: 6em 1fr;
-  gap: var(--space-md);
-  padding: var(--space-md) 0;
-  border-top: 1px solid var(--border-light);
-}
-
-.exp-timeline__row:first-child {
-  border-top: 0;
-}
-
+/* ── Timeline — pillar-tone context (base CSS in blocks.css) ── */
 .exp-pillar--dark .exp-timeline__row,
 .exp-pillar--accent .exp-timeline__row {
   border-top-color: var(--border-dark);
 }
 
-.exp-timeline__date {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  padding-top: 0.4em;
-}
-
 .exp-pillar--dark .exp-timeline__date,
 .exp-pillar--accent .exp-timeline__date {
   color: var(--text-on-dark-secondary);
-}
-
-.exp-timeline__body {
-  min-width: 0;
-}
-
-.exp-timeline__feature {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 1.25rem;
-  line-height: 1.25;
-  text-transform: none;
-  letter-spacing: -0.01em;
-  margin: 0 0 var(--space-xs);
-  color: var(--text-primary);
-}
-
-.exp-timeline__feature a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  text-decoration-color: rgba(139, 107, 74, 0.4);
-}
-
-.exp-timeline__feature a:hover {
-  text-decoration-color: currentColor;
-  text-decoration-thickness: 2px;
-}
-
-.exp-timeline__oneliner {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 .exp-pillar--dark .exp-timeline__feature,
@@ -705,67 +349,6 @@ main.experiments .umb-block-grid__area {
 
 .exp-pillar--dark .exp-timeline__oneliner,
 .exp-pillar--accent .exp-timeline__oneliner {
-  color: var(--text-on-dark-secondary);
-}
-
-@media (max-width: 640px) {
-  .exp-timeline__row {
-    grid-template-columns: 1fr;
-    gap: var(--space-xs);
-  }
-  .exp-timeline__date {
-    padding-top: 0;
-  }
-}
-
-/* ── Embedded sketch ───────────────────────────────────────── */
-.exp-sketch {
-  margin: 0;
-  padding: var(--space-md);
-  background-color: var(--dc-obsidian);
-  border: 1px solid var(--dc-graphite);
-  color: var(--text-on-dark);
-  max-width: 100%;
-}
-
-.exp-sketch__slot {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background-color: var(--dc-obsidian);
-  overflow: hidden;
-}
-
-.exp-sketch__slot iframe,
-.exp-sketch__poster {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-  object-fit: cover;
-  display: block;
-}
-
-.exp-sketch__poster {
-  z-index: 1;
-  transition: opacity var(--ease-emphasis);
-}
-
-.exp-sketch__slot.is-running .exp-sketch__poster {
-  opacity: 0;
-}
-
-.exp-sketch__slot iframe {
-  z-index: 0;
-}
-
-.exp-sketch__caption {
-  margin-top: var(--space-sm);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--text-on-dark-secondary);
 }
 
@@ -855,9 +438,11 @@ main.experiments .richtext a.exp-cta:focus-visible {
 }
 
 /* Honour OS reduced-motion preference for all custom transitions. */
+/* .exp-card / .exp-sketch__poster reduced-motion suppression is handled
+   globally by the `*` catch-all in styles.css (loaded site-wide), so their
+   base CSS moving to blocks.css needs no per-page reduced-motion rule.
+   Only .exp-cta (Experiments richtext CTA) is referenced here. */
 @media (prefers-reduced-motion: reduce) {
-  .exp-card,
-  .exp-sketch__poster,
   .exp-cta {
     transition: none;
   }

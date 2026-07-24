@@ -7,10 +7,13 @@
     derived from sectionTitle (or first inner block's heading), and HR
     separators between sections.
 
-    Used by:
-      - styleGuidePage.cshtml (the canonical /styleguide page)
-      - content.cshtml when the page sits under a styleGuidePage parent
-        (e.g. /styleguide/components)
+    Used by (the Block-List section-row surfaces):
+      - guides.cshtml (the Guides landing page)
+      - howToGuidePage.cshtml (editor how-to guide pages)
+    The consolidated Styleguide + Component Guide moved to the guidePage
+    doc type, which lays out its body with Block Grid and renders its TOC
+    via _GuideToc.cshtml — NOT this partial. (The legacy styleGuidePage
+    and the content-under-styleguide coupling were retired 2026-07.)
 
     Pass the BlockListModel of section rows as the Model.
 *@

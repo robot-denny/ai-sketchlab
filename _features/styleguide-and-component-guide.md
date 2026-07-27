@@ -1,17 +1,18 @@
 # Feature: Styleguide and Component Guide
 
-A `/styleguide` page acts as a self-updating brand and design reference for site admins, content authors, and new contributors. The page is **composed in the CMS from blocks** so editors can reorder sections, retitle them, and add narrative copy around the programmatic content. Three "programmatic" blocks (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) read live from the production CSS so design-system changes propagate automatically. A child `/styleguide/components` page, also assembled in the CMS, demonstrates each reusable content block by example.
+A **Styleguide** and a **Component Guide** live side by side under the site's `/guides/` section as self-updating references for site admins, content authors, and new contributors. Both are the **same kind of page**, composed in the CMS from blocks so editors can reorder sections, retitle them, and add narrative copy around the programmatic content. The Styleguide (at `/guides/styleguide`) showcases the brand's building blocks — color swatches, typefaces, the type scale, and button/table/form/rich-text styles — read live from the production CSS so design-system changes propagate automatically. The Component Guide (at `/guides/component-guide`) demonstrates every reusable content block by live example, each with a short description and a link to that block's how-to guide where one exists. Each guide renders an auto-derived left-column table of contents from its section titles, and the legacy `/styleguide` URLs 301-redirect to the new homes.
 
-**Source spec**: `_specs/living-style-guide.md`
-**Last verified**: 2026-05-01 (E2E suite green — see [Test Coverage](#test-coverage) below)
+**Source spec**: `_specs/shipped/consolidated-guides.md` (consolidation); `_specs/shipped/living-style-guide.md` (original)
+**Last verified**: 2026-07-24 (consolidated onto the `guidePage` doc type)
 
 ---
 
 ## Increments
 
-- [x] 2026-04-29 — Initial styleguide page with brand summary and hardcoded showcase sections (spec: `_specs/living-style-guide.md`)
+- [x] 2026-04-29 — Initial styleguide page with brand summary and hardcoded showcase sections (spec: `_specs/shipped/living-style-guide.md`)
 - [x] 2026-05-01 — Block-driven architecture: `colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock` element types; editor-arrangeable section rows; `/styleguide/components` child page
 - [x] 2026-05-11 — TipTap `styleMenu` extension manifest for editorial classes (replaces TinyMCE `/**umb_name*/` annotations); editor-iframe preview stylesheet resynced
+- [x] 2026-07-24 — **Consolidated onto one `guidePage` doc type** under `/guides/`: Styleguide (`/guides/styleguide`) + Component Guide (`/guides/component-guide`) share a doc type, a Block Grid body of `guideSection` wrappers, an auto-derived TOC, and SEO + Guide Visibility controls (no section-nav toggle). Legacy `styleGuidePage` retired; `/styleguide` + `/styleguide/components` 301-redirect (spec: `_specs/shipped/consolidated-guides.md`)
 
 ---
 
@@ -19,142 +20,225 @@ A `/styleguide` page acts as a self-updating brand and design reference for site
 
 Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.
 
-### Rule: The styleguide page is composed of editor-arrangeable blocks
+### Rule: One consolidated Guide Page doc type backs both the Styleguide and the Component Guide
 
 ```scenario
-Scenario: Editors compose the styleguide from blocks in the CMS
-  Given the styleguide page exists at /styleguide
-  And it has a top-level brand summary field plus a sectionRows block list
-  When a CMS editor adds, reorders, or removes section rows containing showcase blocks (colorPaletteBlock, typographyShowcaseBlock, generalElementsBlock, richTextRow)
-  Then the rendered /styleguide page reflects the editor's arrangement on the next request
+Scenario: Both guides are the same doc type under /guides/
+  Given the Styleguide is published at /guides/styleguide
+  And the Component Guide is published at /guides/component-guide
+  When a CMS editor inspects each page's document type in the backoffice
+  Then both report the "Guide Page" document type (alias guidePage)
+  And both are children of the Guides parent
+  And both expose the same properties and compositions
+```
+
+```scenario
+Scenario: The Component Guide is no longer a parent-alias-detected content page
+  Given the Component Guide is a Guide Page at /guides/component-guide
+  When a visitor loads it
+  Then it renders through the Guide Page template
+  And no generic "content" page relies on being a child of the Styleguide to pick up guide styling
+```
+
+### Rule: The legacy /styleguide URLs 301-redirect to the new /guides/ homes
+
+```scenario
+Scenario: A crawler follows an old Styleguide bookmark
+  Given a visitor or search engine requests /styleguide
+  When the request reaches the site
+  Then it receives a 301 redirect to /guides/styleguide
+```
+
+```scenario
+Scenario: The old Component Guide URL redirects to its new home
+  Given a request for /styleguide/components
+  When the request reaches the site
+  Then it receives a 301 redirect to /guides/component-guide
+  And the shorter /styleguide rule does not capture the longer path (longest match wins)
+```
+
+```scenario
+Scenario: The redirect is forgiving of casing, trailing slashes, and query strings
+  Given a request for /StyleGuide?foo=bar&baz=1
+  When the request reaches the site
+  Then it receives a 301 redirect to /guides/styleguide?foo=bar&baz=1
+  And a request for /styleguide/ (trailing slash) also 301s to /guides/styleguide
+```
+
+### Rule: A Guide Page offers SEO + search/nav/sitemap controls but no section-navigation toggle
+
+```scenario
+Scenario: An editor sets a guide's visibility
+  Given an editor is editing the Component Guide page
+  When they open its settings
+  Then they can set SEO controls (metaName, metaDescription, metaKeywords, isIndexable, isFollowable)
+  And they can set "Hide From Top Navigation", "Hide From Search" (umbracoNaviHide), and "Hide From XML Sitemap"
+  And there is no "Show section navigation" toggle
+  And there is no "Hide from section navigation" toggle
+```
+
+```scenario
+Scenario: A new Guide Page defaults to hidden from the main top navigation
+  Given an editor creates a Guide Page under Guides
+  When they save it for the first time without changing the visibility toggle
+  Then "Hide From Top Navigation" is already set to true
+  And neither the Styleguide nor the Component Guide appears in the site's top navigation
+```
+
+### Rule: A Guide Page lays out its body with Block Grid sections
+
+```scenario
+Scenario: An editor arranges styleguide sections on a grid
+  Given the Styleguide page uses a Block Grid body ([BlockGrid] Guide Body)
+  When an editor adds guideSection blocks, gives each a section title, fills each with content blocks, and reorders them
+  Then the published Styleguide reflects the new grid arrangement on the next request
   And no code change or deploy is required
 ```
+
+```scenario
+Scenario: The grid body offers only guideSection at the root, with a mandatory title
+  Given an editor opens the Guide Page Block Grid palette at the top level
+  When they add a block
+  Then the only root-level block offered is guideSection
+  And each guideSection requires a section title before it can be saved
+  And inside a guideSection's content area the shared site blocks (richTextRow, colorPaletteBlock, imageRow, …) are offered
+```
+
+### Rule: Each guide renders an auto-derived left-column table of contents
+
+```scenario
+Scenario: The TOC links to each on-page section
+  Given a guide has sections titled "Alpha Section" and "Beta Section"
+  When a visitor loads the guide
+  Then the left column shows a TOC with anchors "#alpha-section" and "#beta-section"
+  And each anchor resolves to exactly one on-page section id
+  And each section heading renders its title
+```
+
+```scenario
+Scenario: Adding a section updates the TOC without a code change
+  Given a guide's TOC lists its current sections
+  When an editor (or an agentic workflow) adds a new guideSection with a title and publishes
+  Then the left-column TOC includes a new anchor derived from that title
+  And the section id and TOC href always agree (both come from one slug map)
+  And no code change or deploy was required
+```
+
+```scenario
+Scenario: Two sections with the same title get distinct anchors
+  Given a guide has two sections both titled "Examples"
+  When a visitor loads the guide
+  Then the two section ids are "examples" and "examples-2"
+  And the TOC shows two anchors "#examples" and "#examples-2", each resolving to exactly one section
+```
+
+```scenario
+Scenario: A single-section guide renders no table of contents
+  Given a guide has exactly one section
+  When a visitor loads it
+  Then the section renders
+  And no left-column TOC nav is rendered (the TOC appears only with more than one section)
+```
+
+### Rule: The Guides parent page is a wayfinding page linking to all three guide types
+
+```scenario
+Scenario: The Guides landing links out to each guide
+  Given the Guides parent page is published at /guides/
+  When a visitor loads it
+  Then the page returns 200 and renders editor-composed pathways to the Styleguide, the Component Guide, and the How-To Guides
+  And the how-to guides remain direct children of /guides/ alongside the two consolidated guides
+  And the Guides section is hidden from the main top navigation
+```
+
+### Rule: The Styleguide showcases the brand's building blocks and patterns
 
 ```scenario
 Scenario: Each programmatic block exposes an editable heading and intro
-  Given a colorPaletteBlock is placed on the styleguide page with heading "Color Palette" and a rich-text intro
-  When a visitor loads /styleguide
-  Then the rendered block shows the editor's heading above the swatches
-  And the editor's intro rich-text appears between the heading and the swatches
-  And the swatches themselves are still derived from typography.css
+  Given a colorPaletteBlock, typographyShowcaseBlock, and generalElementsBlock are placed on the Styleguide
+  When a visitor loads /guides/styleguide
+  Then each block renders the editor's heading above its programmatic content
+  And the swatches, type examples, and elements are still derived from the production CSS
 ```
-
-### Rule: CMS editors can edit the brand summary text without code changes
-
-```scenario
-Scenario: Editing the brand summary updates the live page
-  Given the styleguide page exists at /styleguide
-  And the brand summary currently reads "Honest human–AI collaboration"
-  When a CMS editor changes the brand summary to "Editorial precision and craft consciousness" and publishes
-  Then visiting /styleguide shows "Editorial precision and craft consciousness" near the top of the page
-  And no code change or deploy is required
-```
-
-```scenario
-Scenario: An empty brand summary is omitted gracefully
-  Given the styleguide page has an empty brand summary
-  When a visitor loads /styleguide
-  Then no empty .styleguide__brand-summary panel renders above the section rows
-  And the section rows below render normally
-```
-
-### Rule: The color palette is derived from CSS tokens at render time
 
 ```scenario
 Scenario: A token annotated with a swatch caption appears as a swatch
   Given the CSS token file contains:
     /**umb_swatch:Primary action / signal red*/
     --accent-primary: #C23D2E;
-  When a visitor loads /styleguide
-  Then the colorPaletteBlock shows a swatch labelled "--accent-primary"
-  And the swatch displays the value "#C23D2E"
-  And the swatch caption reads "Primary action / signal red"
-  And the visible color sample matches #C23D2E
+  When a visitor loads /guides/styleguide
+  Then the colorPaletteBlock shows a swatch for "--accent-primary"
+  And the swatch displays the value "#C23D2E" and the role "Primary action / signal red"
+  And a spacing token like "--space-md" is NOT surfaced as a colour swatch
 ```
 
 ```scenario
-Scenario: A token without a swatch caption is excluded
-  Given the CSS token file contains a token "--space-md: 1rem;" with no umb_swatch annotation
-  When a visitor loads /styleguide
-  Then no swatch for "--space-md" appears in the colorPaletteBlock
+Scenario: Typography examples use real CSS so style changes propagate automatically
+  Given the Styleguide page contains a typographyShowcaseBlock
+  When a visitor loads /guides/styleguide
+  Then the block shows a visible h1, h2, h3, h4, h5, and h6 example rendered with the production CSS
+  And it shows an example for each editor-available class: .lead, .overline, .blockquote, .caption, .pull-quote, .pull-quote-accent
 ```
 
 ```scenario
-Scenario: Changing a token value updates the swatch on next page load
-  Given the styleguide currently renders --accent-primary as "#C23D2E"
-  When a developer changes --accent-primary to "#B83A2C" in the CSS file and reloads the page
-  Then the swatch for --accent-primary displays "#B83A2C"
-  And the visible color sample matches #B83A2C
-```
-
-### Rule: Typography examples use real CSS so style changes propagate automatically
-
-```scenario
-Scenario: Heading examples render with live CSS
-  Given the styleguide page contains a typographyShowcaseBlock
-  When a visitor loads /styleguide
-  Then the block contains a visible h1, h2, h3, h4, h5, and h6 example
-  And each heading is rendered with the production CSS for that level
-```
-
-```scenario
-Scenario: Editor-available text classes render with their actual styles
-  Given the curated editor-available class list is .lead, .overline, .blockquote, .caption, .pull-quote, .pull-quote-accent
-  When a visitor loads /styleguide
-  Then the typographyShowcaseBlock shows an example for each class rendered with its production CSS
-```
-
-```scenario
-Scenario: Updating a typography class in CSS is reflected in the styleguide
-  Given the styleguide currently renders ".lead" at 1.25rem
-  When a developer changes .lead's font-size to "1.4rem" in CSS and reloads the page
-  Then the .lead example in the typographyShowcaseBlock renders at 1.4rem
-```
-
-### Rule: The general elements block demonstrates real HTML using current CSS
-
-```scenario
-Scenario: Links, buttons, lists, tables, and form controls are visible
-  Given the styleguide page contains a generalElementsBlock
-  When a visitor loads /styleguide
-  Then the block contains an example link, button, ordered list, unordered list, table, and form input
+Scenario: The general elements block demonstrates real HTML using current CSS
+  Given the Styleguide page contains a generalElementsBlock
+  When a visitor loads /guides/styleguide
+  Then the block contains an example link, button, ordered list, unordered list, table, text input, email input, and textarea
   And each element is rendered with the production CSS
 ```
 
-### Rule: A child /styleguide/components page demonstrates every showcase block
+### Rule: The Component Guide shows every editor-available block with a description and how-to link when one exists
 
 ```scenario
-Scenario: Components page lists each block with a label, grouped by category
-  Given the /styleguide/components page is published and assembled with Block List
-  When a visitor loads /styleguide/components
-  Then they see the showcase blocks grouped in this order: text (richTextRow, codeSnippetRow, alertBanner), media (imageRow, imageCarouselRow, videoRow), lists (latestArticlesRow)
-  And each block is preceded by a Rich Text Row containing the block's display name as a heading
+Scenario: Each showcase section carries a live example and a description
+  Given the Component Guide is published at /guides/component-guide
+  When a visitor loads it
+  Then it renders a left-column TOC (it is multi-section)
+  And every showcase section contains a rich-text description of the block's purpose
 ```
 
 ```scenario
-Scenario: Styleguide links to the components page
-  Given a visitor is on /styleguide
-  When they reach the section row containing the components-reference link
-  Then they see a visible link to /styleguide/components
-  And following the link takes them to the /styleguide/components page
+Scenario: A block that has a how-to guide links to it, with no broken links
+  Given a how-to guide exists for the Alert Banner block under /guides/
+  When a visitor reaches the Alert Banner section in the Component Guide
+  Then the section shows a link to that how-to guide
+  And every in-app /guides/ link on the page resolves to a success status (not a 404/500)
+```
+
+```scenario
+Scenario: Page-composition blocks are excluded from the Component Guide
+  Given showcaseHero and pillarSection are page-composition blocks, not portable content specimens
+  When a visitor browses the Component Guide
+  Then those blocks are intentionally not demonstrated there
+```
+
+### Rule: Guide content stays editable by content editors with no deploy
+
+```scenario
+Scenario: An editor rewrites a guide section's copy
+  Given a guide has a rich-text section reading "Our design system"
+  When an editor changes it to "Brand & design reference" and publishes
+  Then visiting the guide shows "Brand & design reference"
+  And no code change or deploy is required
 ```
 
 ### Rule: Showcase blocks render from one shared, editor-agnostic view
 
 ```scenario
 Scenario: A showcase block renders identically in Block List and Block Grid
-  Given the showcase blocks (colorPaletteBlock, typographyShowcaseBlock, generalElementsBlock, richTextRow, and the media/list rows) each have a single view at Views/Partials/blocks/Components/{alias}.cshtml
-  When a colorPaletteBlock is placed on a Block List page and on a Block Grid page
+  Given the showcase blocks each have a single view at Views/Partials/blocks/Components/{alias}.cshtml
+  When a colorPaletteBlock is placed on a Block List page and inside a Guide Page's Block Grid
   Then it renders the same swatch markup in both places
   And no editor-specific duplicate view or shim file exists for it
 ```
 
 ```scenario
-Scenario: The styleguide's showcase blocks are available in both editors by default
+Scenario: The guide's showcase blocks are available in both editors by default
   Given palette membership is admin-configurable with parity as the default
-  When a CMS editor opens either a Block List or a Block Grid body
-  Then the styleguide showcase blocks are offered in both
-  And the render-coverage test confirms each offered block resolves a view in both editors
+  When a CMS editor opens either a Block List body or a Guide Page Block Grid body
+  Then the showcase blocks are offered
+  And the render-coverage test confirms each offered block resolves a view in both editors (guideSection is the documented grid-only exception)
 ```
 
 ### Rule: Editor-applied typography classes are exposed in the rich-text Style Select
@@ -174,7 +258,7 @@ Scenario: Authors can apply editorial classes from the rich-text editor
 ```scenario
 Scenario: The accent pull-quote is left-aligned behind an accent rule
   Given an author applies "Pull quote (accent)" to a paragraph
-  When the article renders
+  When the content renders
   Then the quote uses the display serif, left-aligned behind a red "--accent-primary" left rule
   And it is constrained to 75% of the reading column, dropping to full width at 760px and below
 ```
@@ -198,12 +282,12 @@ Scenario: Image captions render in the caption style
 
 ## Edge Cases
 
-### Rule: The styleguide page is robust to missing or unannotated source data
+### Rule: The guide pages are robust to missing or unannotated source data
 
 ```scenario
 Scenario: No annotated tokens means an empty palette, not a broken page
   Given the CSS token file contains tokens but none are annotated with /**umb_swatch:...*/
-  When a visitor loads /styleguide
+  When a visitor loads the Styleguide
   Then the colorPaletteBlock renders without crashing
   And it shows an empty-state hint (e.g. "No swatches configured")
 ```
@@ -211,9 +295,25 @@ Scenario: No annotated tokens means an empty palette, not a broken page
 ```scenario
 Scenario: An unparseable token value is shown gracefully
   Given a token "--accent-primary: var(--legacy-red);" has a /**umb_swatch:...*/ caption
-  When a visitor loads /styleguide
+  When a visitor loads the Styleguide
   Then the swatch for --accent-primary appears
   And it displays the literal value "var(--legacy-red)" rather than a broken color sample
+```
+
+```scenario
+Scenario: A blank section title still produces a stable, non-degenerate anchor
+  Given a guideSection has an empty or whitespace-only title
+  When the TOC and section ids are derived
+  Then the section receives a synthetic slug ("section", then "section-2", …)
+  And no anchor id is empty or starts with a hyphen
+```
+
+```scenario
+Scenario: A trashed or unpublished section element is skipped, not fatal
+  Given a guideSection's content element was trashed while its grid layout entry remains
+  When a visitor loads the guide
+  Then that entry is skipped from the TOC and body rather than throwing
+  And the rest of the page renders normally
 ```
 
 ---
@@ -222,37 +322,55 @@ Scenario: An unparseable token value is shown gracefully
 
 | Scenario | Test File | Status |
 |----------|-----------|--------|
-| Editors compose the styleguide from blocks in the CMS | [styleguide.spec.ts:126](../tests/e2e/styleguide.spec.ts#L126) (composition + sectionRows), [:184](../tests/e2e/styleguide.spec.ts#L184) (3 element types exist), [:288](../tests/e2e/styleguide.spec.ts#L288) (block rendering) | Covered |
-| Each programmatic block exposes an editable heading and intro | [styleguide.spec.ts:184](../tests/e2e/styleguide.spec.ts#L184) (schema), [:288](../tests/e2e/styleguide.spec.ts#L288) (rendered heading) | Covered |
-| Editing the brand summary updates the live page | — | Manual QA — covered by the [verification section](../_plans/living-style-guide.md#verification) of the original plan |
-| An empty brand summary is omitted gracefully | — | Not yet automated — `if (hasSummary)` guard in [styleGuidePage.cshtml](../src/UmbracoProject/Views/styleGuidePage.cshtml); manual QA |
-| A token annotated with a swatch caption appears as a swatch | [styleguide.spec.ts:240](../tests/e2e/styleguide.spec.ts#L240) | Covered |
-| A token without a swatch caption is excluded | [styleguide.spec.ts:240](../tests/e2e/styleguide.spec.ts#L240) (same test asserts `--space-md` absent) | Covered |
-| Changing a token value updates the swatch on next page load | — | Manual QA — implementation re-reads `typography.css` per request via [SwatchTokenParser.cs](../src/UmbracoProject/Helpers/SwatchTokenParser.cs); E2E mutation of fixture CSS skipped per original plan |
-| Heading examples render with live CSS | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) | Covered |
-| Editor-available text classes render with their actual styles | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (asserts `.lead`, `.overline`, `.blockquote`, `.caption`, `.pull-quote`, `.pull-quote-accent`) | Covered |
-| Updating a typography class in CSS is reflected in the styleguide | — | Manual QA — same rationale as the swatch-mutation scenario |
-| Links, buttons, lists, tables, and form controls are visible | [styleguide.spec.ts:316](../tests/e2e/styleguide.spec.ts#L316) | Covered |
-| Components page lists each block with a label, grouped by category | [styleguide-components.spec.ts:638](../tests/e2e/styleguide-components.spec.ts#L638) (section row order), [:644](../tests/e2e/styleguide-components.spec.ts#L644) (label per block), [:665](../tests/e2e/styleguide-components.spec.ts#L665) (text), [:685](../tests/e2e/styleguide-components.spec.ts#L685) (media), [:695](../tests/e2e/styleguide-components.spec.ts#L695) (lists) | Covered |
-| Styleguide links to the components page | [styleguide.spec.ts:335](../tests/e2e/styleguide.spec.ts#L335) (link visible), [styleguide-components.spec.ts:707](../tests/e2e/styleguide-components.spec.ts#L707) (link click navigates) | Covered |
-| Authors can apply editorial classes from the rich-text editor | — | Manual QA — Style Menu manifest in [richtext/manifest.ts](../src/HelloWorld/Client/src/richtext/manifest.ts) (alias `Site.Tiptap.Toolbar.StyleSelect`, `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'` so the built-in toolbar entry is replaced without any data-type edit); [dropdownStyles.css](../src/UmbracoProject/wwwroot/css/dropdownStyles.css) is loaded into the editor iframe for in-editor preview |
-| The accent pull-quote is left-aligned behind an accent rule | [styleguide.spec.ts:305](../tests/e2e/styleguide.spec.ts#L305) (`.pull-quote-accent` visible in the showcase); layout in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css) `.pull-quote-accent` / `.richtext .pull-quote-accent` | Covered (visibility); layout via manual QA |
-| Editor-inserted images never exceed the container width | — | Manual QA — `.richtext img{max-width:100%;height:auto}` in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css). Also covered by the `article.png` page-template screenshot baseline when a fixture article carries a body image |
-| Image captions render in the caption style | — | Manual QA — `.caption, .richtext figure figcaption` in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css) |
-| No annotated tokens means an empty palette, not a broken page | — | Skipped — too implementation-coupled (would require fixture CSS mutation); empty-state hint is in place in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocks/Components/colorPaletteBlock.cshtml) |
-| An unparseable token value is shown gracefully | — | Skipped — same rationale; literal-value fallback is implemented in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocks/Components/colorPaletteBlock.cshtml) |
-| A showcase block renders identically in Block List and Block Grid | [BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs) (every palette block resolves a view in both editors), [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) | Covered |
-| The styleguide's showcase blocks are available in both editors by default | [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) (availability), [BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs) | Covered |
+| Both guides are the same doc type; compositions correct; no section-nav property | [styleguide.spec.ts:61](../tests/e2e/styleguide.spec.ts#L61) | Covered |
+| Guide Page body is a Block Grid | [styleguide.spec.ts:109](../tests/e2e/styleguide.spec.ts#L109) | Covered |
+| Grid root offers only guideSection with a mandatory sectionTitle | [styleguide.spec.ts:120](../tests/e2e/styleguide.spec.ts#L120) | Covered |
+| Three programmatic block element types exist with heading + intro | [styleguide.spec.ts:142](../tests/e2e/styleguide.spec.ts#L142) | Covered |
+| Guide Visibility Controls composition (hideFromTopNavigation / umbracoNaviHide / hideFromXMLSitemap; default-true) | [guides.spec.ts:106](../tests/e2e/guides.spec.ts#L106) | Covered |
+| Guides parent allows guidePage + howToGuidePage children; expected compositions | [guides.spec.ts:146](../tests/e2e/guides.spec.ts#L146) | Covered |
+| /guides/ returns 200 and renders the landing page | [guides.spec.ts:280](../tests/e2e/guides.spec.ts#L280) | Covered |
+| Guides section hidden from main top navigation | [guides.spec.ts:287](../tests/e2e/guides.spec.ts#L287) | Covered |
+| /styleguide → 301 /guides/styleguide (+ trailing-slash variant) | [guide-redirects.spec.ts:22](../tests/e2e/guide-redirects.spec.ts#L22), [:28](../tests/e2e/guide-redirects.spec.ts#L28) | Covered |
+| /styleguide/components → 301 /guides/component-guide; longest-match wins | [guide-redirects.spec.ts:34](../tests/e2e/guide-redirects.spec.ts#L34), [:60](../tests/e2e/guide-redirects.spec.ts#L60) | Covered |
+| Redirect is case-insensitive and preserves the query string | [guide-redirects.spec.ts:48](../tests/e2e/guide-redirects.spec.ts#L48), [:54](../tests/e2e/guide-redirects.spec.ts#L54) | Covered |
+| Styleguide reachable at /guides/styleguide + hidden from top nav | [styleguide.spec.ts:175](../tests/e2e/styleguide.spec.ts#L175) | Covered (RED on Dev until canonical content lands — see Deployment / follow-ups) |
+| Color palette renders one swatch per annotation with token / value / role | [styleguide.spec.ts:185](../tests/e2e/styleguide.spec.ts#L185) | Covered (canonical-content-gated) |
+| Each programmatic block renders its editable heading | [styleguide.spec.ts:202](../tests/e2e/styleguide.spec.ts#L202) | Covered (canonical-content-gated) |
+| Typography block shows h1–h6 plus the six editor classes | [styleguide.spec.ts:217](../tests/e2e/styleguide.spec.ts#L217) | Covered (canonical-content-gated) |
+| General elements block includes link, button, lists, table, inputs | [styleguide.spec.ts:228](../tests/e2e/styleguide.spec.ts#L228) | Covered (canonical-content-gated) |
+| Canonical Styleguide TOC: one anchor per section, each resolving to an id | [styleguide.spec.ts:247](../tests/e2e/styleguide.spec.ts#L247) | Covered (canonical-content-gated) |
+| Multi-section guide derives one TOC anchor per section (self-contained fixture) | [styleguide.spec.ts:407](../tests/e2e/styleguide.spec.ts#L407) | Covered |
+| A single-section guide renders no TOC | [styleguide.spec.ts:433](../tests/e2e/styleguide.spec.ts#L433) | Covered |
+| Duplicate section titles get distinct anchors | [styleguide.spec.ts:441](../tests/e2e/styleguide.spec.ts#L441) | Covered |
+| Component Guide reachable at /guides/component-guide + hidden from top nav | [styleguide-components.spec.ts:73](../tests/e2e/styleguide-components.spec.ts#L73), [:79](../tests/e2e/styleguide-components.spec.ts#L79) | Covered (canonical-content-gated) |
+| Component Guide renders a left-column TOC (multi-section) | [styleguide-components.spec.ts:86](../tests/e2e/styleguide-components.spec.ts#L86) | Covered (canonical-content-gated) |
+| Every showcase section carries a rich-text description | [styleguide-components.spec.ts:98](../tests/e2e/styleguide-components.spec.ts#L98) | Covered (canonical-content-gated) |
+| Links to how-to guides where one exists, and no /guides link is broken | [styleguide-components.spec.ts:111](../tests/e2e/styleguide-components.spec.ts#L111) | Covered (canonical-content-gated) |
+| Slugify produces a stable slug (punctuation, casing, spacing, non-ASCII) | [GuideTocTests.cs:14](../tests/UmbracoProject.Tests/GuideTocTests.cs#L14) | Covered |
+| Duplicate titles de-dupe to `examples` / `examples-2` / `examples-3` | [GuideTocTests.cs:20](../tests/UmbracoProject.Tests/GuideTocTests.cs#L20), [:28](../tests/UmbracoProject.Tests/GuideTocTests.cs#L28) | Covered |
+| Blank titles get stable, non-degenerate synthetic slugs | [GuideTocTests.cs:43](../tests/UmbracoProject.Tests/GuideTocTests.cs#L43), [:51](../tests/UmbracoProject.Tests/GuideTocTests.cs#L51) | Covered |
+| A showcase block renders identically in Block List and Block Grid (guideSection is the grid-only exception) | [BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs), [blockParity.spec.ts](../tests/e2e/blocks/blockParity.spec.ts) | Covered |
+| Editing the brand summary / a guide section's copy updates the live page | — | Manual QA — Umbraco-native editability; no regression risk |
+| Changing a CSS token / typography class value updates the showcase on next load | — | Manual QA — colorPaletteBlock / typographyShowcaseBlock re-read the CSS per request; fixture CSS mutation skipped per original plan |
+| Authors can apply editorial classes from the rich-text Style Select | — | Manual QA — Style Menu manifest in [richtext/manifest.ts](../src/HelloWorld/Client/src/richtext/manifest.ts) (`overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`); [dropdownStyles.css](../src/UmbracoProject/wwwroot/css/dropdownStyles.css) loaded into the editor iframe |
+| Accent pull-quote layout / RTE image + caption styling | — | Manual QA — layout in [typography.css](../src/UmbracoProject/wwwroot/assets/css/typography.css); visibility asserted by [styleguide.spec.ts:217](../tests/e2e/styleguide.spec.ts#L217) |
+| Empty palette / unparseable token render gracefully | — | Skipped — implementation-coupled; empty-state + literal-value fallback in [colorPaletteBlock.cshtml](../src/UmbracoProject/Views/Partials/blocks/Components/colorPaletteBlock.cshtml) |
+| Trashed/unpublished section element is skipped, not fatal | — | Guarded in [guidePage.cshtml](../src/UmbracoProject/Views/guidePage.cshtml) and `GuideToc.BuildSlugMap`; not separately automated |
+
+---
+
+## Deployment / follow-ups
+
+- **Cloud content-before-schema.** The legacy `styleGuidePage` doc-type deletion (shipped locally) only applies safely on a Cloud environment once that environment's published `/styleguide` + `/styleguide/components` **content** has been removed there first — content flows local → Live, and Dev is mirrored from Live. Until then the environment keeps the old nodes; the `GuideRedirectMiddleware` 301s cover the old URLs throughout, so visitors are never 404'd during the transition.
+- **Screenshot baselines are the pixel gate, still pending.** The guide-page and retargeted-block Linux screenshot baselines must be regenerated via `update-snapshots.yml` once the canonical Styleguide/Component-Guide content reaches Dev. Until the content is present on Dev, the canonical-content + screenshot E2E specs (the rows marked "canonical-content-gated" above) read RED on Dev — this is expected, not a regression, and clears when Step 6's content lands and the baselines are regenerated.
 
 ---
 
 ## Revision Notes
 
-- 2026-04-29: Draft scenarios from initial spec
-- 2026-04-29: Updated to reflect resolved spec decisions — components page is a child at `/styleguide/components`, blocks grouped by category (text → media → lists), each preceded by a Rich Text Row label
-- 2026-04-29: Realigned to typography.css + /**umb_swatch:LABEL**/ convention during planning.
-- 2026-04-30: Plan Steps 7–8 shipped. Test Coverage table refreshed against the live E2E suite (16 tests across both specs); doc-type / element-type ids resolved dynamically per Step 8.
-- 2026-05-01: Architecture change. The styleguide page is now block-driven: three new programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replace the hardcoded sections. `brandSummary` stays as a top-level field. The Footer Controls composition was dropped (the global footer is rendered from Home, not per-page). `.lead` and `.pull-quote` were added to the TipTap Style Select dropdown. Behaviors and Test Coverage rewritten against the new structure (19 tests now passing).
-- 2026-07-11: Blog content styles. Added a second rich-text pull-quote — "Pull quote (accent)" (`.pull-quote-accent`): same display serif as `.pull-quote` but left-aligned behind an `--accent-primary` left rule, constrained to 75% of the column (full width ≤760px). Also constrained RTE-inserted images to the container (`.richtext img{max-width:100%}`) and applied the existing `.caption` style to image `<figcaption>`s. Editor-iframe preview (`dropdownStyles.css`) resynced. `.pull-quote-accent` added to the type-showcase block + the styleguide visibility test.
-- 2026-07-16: Block editor parity. The styleguide's showcase blocks (colorPaletteBlock, typographyShowcaseBlock, generalElementsBlock, richTextRow, and the media/list rows) now render from **one shared, editor-agnostic view** at `Views/Partials/blocks/Components/{alias}.cshtml` (moved out of the old `blocklist/Components/` folder; per-editor duplicates/shims removed) bound to `IBlockReference<IPublishedElement, IPublishedElement>`. Palette membership is admin-discretionary with parity as the default, so the showcase blocks are offered in both Block List and Block Grid; a render-coverage xUnit test ([BlockRenderCoverageTests.cs](../tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs)) gates that every offered block resolves a view in both editors. Fixed two stale `colorPaletteBlock.cshtml` links to the new `blocks/Components/` path; added a Rule + two coverage rows. Cross-cutting change — spec/plan archived under `_specs/shipped/` and `_plans/shipped/block-editor-parity-and-reuse-readiness.md`; convention recorded in CLAUDE.md → *Block / component rendering & parity*.
-- 2026-05-11: Rich-text Style Select rebuilt as a TipTap `styleMenu` extension manifest (TipTap doesn't parse the TinyMCE `/**umb_name:Label*/` annotation). Added `Overline`, `Caption`, `Minor header` (h5), `Fine header` (h6) entries alongside the existing Headers / Editorial / Containers groups. The manifest declares `overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`, so the built-in entry is replaced in-place — no data type edit needed. Editor-iframe preview stylesheet `dropdownStyles.css` resynced with `typography.css` (the TipTap editor prepends its `/css` root path, so the persisted `/dropdownStyles.css` value resolves correctly to `/css/dropdownStyles.css`).
+- 2026-04-29: Draft scenarios from initial spec; realigned to `typography.css` + `/**umb_swatch:LABEL*/` convention.
+- 2026-04-30 / 2026-05-01: Block-driven architecture — three programmatic block element types (`colorPaletteBlock`, `typographyShowcaseBlock`, `generalElementsBlock`) replaced the hardcoded sections; components page added at `/styleguide/components`.
+- 2026-07-11: Blog content styles — added the `.pull-quote-accent` rich-text style; constrained RTE-inserted images and applied `.caption` to image `<figcaption>`s.
+- 2026-07-16: Block editor parity — showcase blocks render from one shared, editor-agnostic view bound to `IBlockReference<IPublishedElement, IPublishedElement>`; render-coverage xUnit test gates that every offered block resolves a view in both editors.
+- 2026-05-11: Rich-text Style Select rebuilt as a TipTap `styleMenu` extension manifest (`overwrites: 'Umb.Tiptap.Toolbar.StyleSelect'`); editor-iframe preview stylesheet resynced.
+- 2026-07-24: **Consolidation onto `guidePage` (spec: `_specs/shipped/consolidated-guides.md`, shipped 2026-07-22 → 2026-07-24).** The Styleguide and Component Guide are now two instances of **one `guidePage` doc type** under the `Guides` parent (`/guides/styleguide`, `/guides/component-guide`), replacing the legacy root-level `styleGuidePage` (retired) and the `content`-page-under-styleguide Component Guide (which was detected by a parent-alias string in `content.cshtml`). Each guide's body is a **Block Grid** (`[BlockGrid] Guide Body`) of top-level `guideSection` wrappers — each a mandatory `sectionTitle` plus a content area holding the shared editor-agnostic blocks — and the **TOC is auto-derived** from those titles via a single dedup-aware slug map (`GuideToc.BuildSlugMap` → `_GuideToc.cshtml`), so section `<section id>` and TOC `href` always agree, duplicate titles get distinct anchors, and the nav appears only with more than one section. The control surface composes **SEO Controls** + **Guide Visibility Controls** (hideFromTopNavigation / umbracoNaviHide "Hide From Search" / hideFromXMLSitemap) and drops the section-navigation toggle entirely (`showSectionNavigation` / `hideFromSectionNavigation` are absent). Legacy `/styleguide` and `/styleguide/components` **301-redirect** to the new homes via `GuideRedirectMiddleware` (case-insensitive, trailing-slash tolerant, query preserved, longest-match wins). The Component Guide demonstrates every editor-available Guide-Body block with a rich-text description and a how-to link where one exists; page-composition blocks (`showcaseHero`, `pillarSection`) are intentionally excluded. Art direction (block-grid-css-portability increment): the grid body is constrained to the `.styleguide` reading container (780px, no longer full-bleed), sections use the `.styleguide__section-anchor` rhythm, and the heading hierarchy is resolved (section title `h2` dominant, block headings subordinate). How-to guides are untouched — they remain direct children of `/guides/` and the `guide-generator` CLI / `howToGuidePage` / `generationMetadata` contract is unchanged. Behaviors, Edge Cases, and Test Coverage rewritten against the shipped `guidePage`; the URL-stability scenario in `_features/editor-how-to-guides.md` was revised to the redirect behavior. See **Deployment / follow-ups** for the Cloud content-before-schema and screenshot-baseline caveats.

@@ -209,16 +209,23 @@ Scenario: An editor rewrites a generated guide entirely
   And any subsequent /guide run with no source change leaves the description alone
 ```
 
-### Rule: The existing Style Guide and Components page URLs are unchanged
+### Rule: The Styleguide and Component Guide live under /guides/, and their legacy URLs redirect
 
 ```scenario
-Scenario: This feature does not move or rename the Style Guide
-  Given the existing Style Guide is published at /styleguide/
-  And the existing Components page is published at /styleguide/components
-  When the Guides section is added under Home
-  Then /styleguide/ continues to load with a 200 response
-  And /styleguide/components continues to load with a 200 response
-  And neither URL has changed
+Scenario: The Guides section houses all three guide types
+  Given the Guides parent page is published at /guides/
+  When a visitor loads it
+  Then it links to the Styleguide (/guides/styleguide), the Component Guide (/guides/component-guide), and the How-To Guides
+  And how-to guides remain direct children of /guides/ alongside the two consolidated guides
+```
+
+```scenario
+Scenario: The old /styleguide URLs 301-redirect to their new /guides/ homes
+  Given the Styleguide and Component Guide were consolidated onto the guidePage doc type (see _features/styleguide-and-component-guide.md)
+  When a visitor requests the legacy /styleguide or /styleguide/components
+  Then /styleguide 301-redirects to /guides/styleguide
+  And /styleguide/components 301-redirects to /guides/component-guide
+  And no legacy guide URL 404s
 ```
 
 ---
@@ -293,7 +300,7 @@ Scenario: /guide is invoked from a non-interactive shell with a source change pe
 | Editor prose additions are preserved when the agent amends | — | Not covered (depends on agent behavior; amend prompt instructs preservation) |
 | Brand-voice context change flows into next generation | — | Not covered (manual verification only) |
 | Generated content remains editable in the backoffice | — | Not covered (Umbraco-native behavior — no regression risk) |
-| /styleguide and /styleguide/components URLs are unchanged | — | Not covered (this feature does not touch them) |
+| /styleguide and /styleguide/components 301-redirect to the /guides/ homes | `tests/e2e/guide-redirects.spec.ts:22` | Covered (via the consolidated-guides work — see `_features/styleguide-and-component-guide.md`) |
 | Missing agent emits an error and writes nothing | — | Not covered (relies on Umbraco AI runtime errors) |
 | SSE stream drop aborts cleanly | — | Not covered (covered by `agentClient.ts` unit tests in `scripts/guide-generator/test/agentClient.test.ts`) |
 | Unknown alias exits with a partial-not-found error | — | Not covered (thrown by `computeSourceSignature`) |
@@ -303,4 +310,5 @@ Scenario: /guide is invoked from a non-interactive shell with a source change pe
 ## Revision Notes
 
 - 2026-05-01: Draft scenarios from initial spec
+- 2026-07-24: Consolidated-guides cross-update. The Styleguide + Component Guide moved off the legacy `/styleguide` URLs onto the `guidePage` doc type under `/guides/` (`/guides/styleguide`, `/guides/component-guide`) — see `_features/styleguide-and-component-guide.md`. Replaced the "URLs unchanged" rule with the new-URL + 301-redirect behavior (`GuideRedirectMiddleware`), added the Guides-parent wayfinding scenario linking all three guide types (how-to guides stay direct children of `/guides/`), and pointed the coverage row at `tests/e2e/guide-redirects.spec.ts`.
 - 2026-05-04: Verified against implementation. Removed Draft banner. Replaced single-section audit output with the three-bucket reality (`Missing guides — Blocks`, `Missing guides — Global`, `Orphaned guides`), each with explicit `(N)` count headers and an exit-code-1-when-gaps-exist convention. Tightened all CLI message strings to the verified literals (`created /guides/how-to-use-the-alert-banner/`, `no changes — alertBanner guide is up to date`, `no changes written`, `amend pending — re-run interactively or pass --auto-apply`, `amended /guides/ guide for "alertBanner"`). Added the `--auto-apply` scenario, the live-example-slot preservation rule (the CLI never touches `sectionRows` after creation), and the everything-in-sync audit scenario. Replaced the "Guides landing links to Style Guide and Components" rule (not enforced by the Razor view — landing content is editor-driven via `sectionRows`) with the narrower URL-stability rule. Reframed the unknown-alias edge case to match the real `Partial not found for feature "..."` error from `computeSourceSignature`. Filled in the test coverage table with `tests/e2e/guides.spec.ts` and `tests/e2e/guides-cli.spec.ts` paths and line numbers.

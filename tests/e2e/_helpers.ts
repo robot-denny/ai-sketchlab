@@ -100,6 +100,7 @@
  */
 
 import { expect, Page, Locator } from '@playwright/test';
+import { test } from '@umbraco/playwright-testhelpers';
 
 /**
  * Subset of Playwright's screenshot assertion options that this helper
@@ -179,6 +180,16 @@ export async function discoverBlockOnPage(
   selector: string,
 ): Promise<Locator> {
   const resp = await page.goto(path);
+  // Content-transfer gate: on an environment where the canonical guide page
+  // hasn't been authored/transferred yet — e.g. Dev before the local→Live→Dev
+  // content transfer — the page 404s. SKIP that specific case (so a code-only
+  // master merge keeps Gate 2 green); the spec auto-runs once the content lands.
+  // Only a 404 is content-absence — any OTHER non-OK status (5xx, etc.) is a real
+  // failure (asserted just below), and a page that LOADS but is missing the block
+  // still fails further down. This deliberately does NOT skip on non-404 errors.
+  if (resp?.status() === 404) {
+    test.skip(true, `guide content not on this environment yet (404): ${path}`);
+  }
   expect(resp?.ok(), `navigation to ${path} should succeed`).toBeTruthy();
   await prepareForScreenshot(page);
   const locator = page.locator(selector).first();

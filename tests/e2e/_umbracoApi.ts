@@ -86,7 +86,12 @@ export async function getDocumentPath(docId: string): Promise<string> {
  */
 export async function tryGetDocumentPath(docId: string): Promise<string | null> {
   const resp = await apiFetch('GET', `/document/urls?id=${docId}`);
-  if (!resp.ok) return null;
+  // Throw on an API failure (real error); return null ONLY for the legitimate
+  // "node exists but has no published URL yet" case — so a content-gated caller's
+  // null means genuine not-ready, never a swallowed API error.
+  if (!resp.ok) {
+    throw new Error(`tryGetDocumentPath: /document/urls failed for ${docId} → ${resp.status}`);
+  }
   const data = (await resp.json()) as any;
   return data[0]?.urlInfos?.[0]?.url ?? null;
 }
@@ -101,7 +106,13 @@ export async function collectContentNodesByDocType(
       ? `/tree/document/children?parentId=${parentId}&skip=0&take=100`
       : `/tree/document/root?skip=0&take=100`;
     const resp = await apiFetch('GET', path);
-    if (!resp.ok) return;
+    // Throw (don't silently return) on a non-OK tree response: a failed API call
+    // mid-walk is a real error, not "content absent". Callers use a null/empty
+    // result to mean genuine not-found (→ a content-gated spec may skip); an API
+    // failure must surface loudly instead of masquerading as absence.
+    if (!resp.ok) {
+      throw new Error(`collectContentNodesByDocType: tree walk failed at ${path} → ${resp.status}`);
+    }
     const data = (await resp.json()) as any;
     for (const item of data.items ?? []) {
       if (item.documentType?.id === docTypeId) {

@@ -11,7 +11,8 @@
   "Description": "Parent for editor how-to guides. Hidden from main top navigation, reachable by URL.",
   "Permissions": {
     "AllowedChildContentTypes": [
-      "umb://document-type/1e441c00f1774ae480845353a5607dba"
+      "umb://document-type/1e441c00f1774ae480845353a5607dba",
+      "umb://document-type/1c46d84542214d2e9e1dcfa5b47cbee1"
     ]
   },
   "CompositionContentTypes": [
@@ -24,6 +25,10 @@
   "PropertyTypes": [],
   "Udi": "umb://document-type/d977a895b8904bed8742a89a1926f55d",
   "Dependencies": [
+    {
+      "Udi": "umb://document-type/1c46d84542214d2e9e1dcfa5b47cbee1",
+      "Mode": "Exist"
+    },
     {
       "Udi": "umb://document-type/1e441c00f1774ae480845353a5607dba",
       "Mode": "Exist"

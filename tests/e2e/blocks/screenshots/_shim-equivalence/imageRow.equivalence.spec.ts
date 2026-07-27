@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { shotOf } from './_shimHelpers';
 
 // imageRow renders in both contexts:
-//   - blocklist: /styleguide/components/ (.image)
+//   - blocklist: /guides/component-guide/ (.image)
 //   - blockgrid: /experiments/ ([data-content-element-type-alias="imageRow"])
 //
 // Both editors render it from the ONE shared view
@@ -20,7 +20,7 @@ import { shotOf } from './_shimHelpers';
 
 test.describe('Shim equivalence: imageRow (blocklist == blockgrid)', () => {
   // SKIPPED — showcase-content divergence, not a shim bug. The byte-identical check
-  // needs /styleguide/components/ (.image) and /experiments/ (blockgrid .image) to
+  // needs /guides/component-guide/ (.image) and /experiments/ (blockgrid .image) to
   // reference the SAME media; their authored content has diverged, so the screenshots
   // differ for a content reason. The alertBanner + iconLinkRow equivalence pairs still
   // pass, confirming the shim itself renders identically. Re-enable after aligning the
@@ -29,7 +29,7 @@ test.describe('Shim equivalence: imageRow (blocklist == blockgrid)', () => {
   test.skip('blocklist and blockgrid render byte-identically', async ({ page }) => {
     const blocklistShot = await shotOf(
       page,
-      '/styleguide/components/',
+      '/guides/component-guide/',
       '.image',
     );
     const blockgridShot = await shotOf(

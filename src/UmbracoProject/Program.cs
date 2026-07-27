@@ -23,6 +23,12 @@ app.UseHttpsRedirection();
 // SitemapRewriteMiddleware for the full rationale.
 app.UseSitemapRewrite();
 
+// Legacy-URL 301 redirects for the consolidated guide pages (/styleguide → /guides/styleguide,
+// /styleguide/components → /guides/component-guide). Must run before UseUmbraco() so the redirect
+// fires ahead of Umbraco's content routing/static-file handling. See GuideRedirectMiddleware for
+// the full rationale (new nodes, so URL Tracker won't auto-redirect).
+app.UseGuideRedirects();
+
 app.UseUmbraco()
     .WithMiddleware(u =>
     {

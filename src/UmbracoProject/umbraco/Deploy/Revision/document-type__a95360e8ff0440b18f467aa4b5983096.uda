@@ -22,7 +22,6 @@
       "umb://document-type/ac6ebe34fc2b4ee09b26e7a22adbe591",
       "umb://document-type/2cf4d65039ec41ef8bd65085ee9f780a",
       "umb://document-type/7b2f3de2c7ab449288e8c6bb02eaa6a3",
-      "umb://document-type/89f686616e424541bf8e029eef0325ab",
       "umb://document-type/d977a895b8904bed8742a89a1926f55d",
       "umb://document-type/5c3c3536d2804a8f80bddccbe9222e20"
     ]
@@ -91,10 +90,6 @@
       "Ordering": true
     },
     {
-      "Udi": "umb://document-type/89f686616e424541bf8e029eef0325ab",
-      "Mode": "Exist"
-    },
-    {
       "Udi": "umb://document-type/8e37a6b6fe2a43b0adbce41822d005c4",
       "Ordering": true
     },
@@ -149,5 +144,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

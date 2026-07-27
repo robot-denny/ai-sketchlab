@@ -18,14 +18,14 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.Common.PublishedModels
 {
-	/// <summary>Style Guide Page</summary>
-	[PublishedModel("styleGuidePage")]
-	public partial class StyleGuidePage : PublishedContentModel, IHeaderControls, IPageHeadPatternControls, ISectionRowControls, ISEocontrols, IVisibilityControls
+	/// <summary>Guide Page</summary>
+	[PublishedModel("guidePage")]
+	public partial class GuidePage : PublishedContentModel, IGuideVisibilityControls, ISEocontrols
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		public new const string ModelTypeAlias = "styleGuidePage";
+		public new const string ModelTypeAlias = "guidePage";
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
 		public new const PublishedItemType ModelItemType = PublishedItemType.Content;
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
@@ -34,14 +34,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 			=> PublishedModelUtility.GetModelContentType(contentTypeCache, ModelItemType, ModelTypeAlias);
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
 		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedContentTypeCache contentTypeCache, Expression<Func<StyleGuidePage, TValue>> selector)
+		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedContentTypeCache contentTypeCache, Expression<Func<GuidePage, TValue>> selector)
 			=> PublishedModelUtility.GetModelPropertyType(GetModelContentType(contentTypeCache), selector);
 #pragma warning restore 0109
 
 		private IPublishedValueFallback _publishedValueFallback;
 
 		// ctor
-		public StyleGuidePage(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
+		public GuidePage(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
 			: base(content, publishedValueFallback)
 		{
 			_publishedValueFallback = publishedValueFallback;
@@ -50,44 +50,33 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
-		/// Brand Summary
+		/// Body: Guide body — add Guide Section blocks; each section holds the shared content blocks.
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("brandSummary")]
-		public virtual global::Umbraco.Cms.Core.Strings.IHtmlEncodedString BrandSummary => this.Value<global::Umbraco.Cms.Core.Strings.IHtmlEncodedString>(_publishedValueFallback, "brandSummary");
+		[ImplementPropertyType("body")]
+		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel Body => this.Value<global::Umbraco.Cms.Core.Models.Blocks.BlockGridModel>(_publishedValueFallback, "body");
 
 		///<summary>
-		/// Subtitle: Enter a subtitle for this page
+		/// Hide From Top Navigation: Tick this box if you want to hide this page from the navigation in the header
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("subtitle")]
-		public virtual string Subtitle => global::Umbraco.Cms.Web.Common.PublishedModels.HeaderControls.GetSubtitle(this, _publishedValueFallback);
+		[ImplementPropertyType("hideFromTopNavigation")]
+		public virtual bool HideFromTopNavigation => global::Umbraco.Cms.Web.Common.PublishedModels.GuideVisibilityControls.GetHideFromTopNavigation(this, _publishedValueFallback);
 
 		///<summary>
-		/// Title: Enter the title for the page. If this is empty the name of the page will be used.
+		/// Hide From XML Sitemap: Tick this if you want to hide this page from the XML sitemap
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("title")]
-		public virtual string Title => global::Umbraco.Cms.Web.Common.PublishedModels.HeaderControls.GetTitle(this, _publishedValueFallback);
+		[ImplementPropertyType("hideFromXMLSitemap")]
+		public virtual bool HideFromXmlsitemap => global::Umbraco.Cms.Web.Common.PublishedModels.GuideVisibilityControls.GetHideFromXmlsitemap(this, _publishedValueFallback);
 
 		///<summary>
-		/// Page Head Pattern
+		/// Hide From Search: Tick this box if you want to hide this page from search results
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("pageHeadPattern")]
-		public virtual string PageHeadPattern => global::Umbraco.Cms.Web.Common.PublishedModels.PageHeadPatternControls.GetPageHeadPattern(this, _publishedValueFallback);
-
-		///<summary>
-		/// Section Rows: Add one or more styled section rows below the main content area.
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("sectionRows")]
-		public virtual global::Umbraco.Cms.Core.Models.Blocks.BlockListModel SectionRows => global::Umbraco.Cms.Web.Common.PublishedModels.SectionRowControls.GetSectionRows(this, _publishedValueFallback);
+		[ImplementPropertyType("umbracoNaviHide")]
+		public virtual bool UmbracoNaviHide => global::Umbraco.Cms.Web.Common.PublishedModels.GuideVisibilityControls.GetUmbracoNaviHide(this, _publishedValueFallback);
 
 		///<summary>
 		/// Is Followable: Set this to true if you want the page to be followable by robots   {details} {summary} {uui-icon name="icon-help-alt"}{/uui-icon} More information {/summary}  This sets the *follow* aspect of the [`robots` meta tag](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/meta/name/robots)  {/details}
@@ -126,33 +115,5 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("metaName")]
 		public virtual string MetaName => global::Umbraco.Cms.Web.Common.PublishedModels.SEocontrols.GetMetaName(this, _publishedValueFallback);
-
-		///<summary>
-		/// Hide From Section Navigation: Tick this box if you want to hide this page from the section navigation sidebar
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[ImplementPropertyType("hideFromSectionNavigation")]
-		public virtual bool HideFromSectionNavigation => global::Umbraco.Cms.Web.Common.PublishedModels.VisibilityControls.GetHideFromSectionNavigation(this, _publishedValueFallback);
-
-		///<summary>
-		/// Hide From Top Navigation: Tick this box if you want to hide this page from the navigation in the header
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[ImplementPropertyType("hideFromTopNavigation")]
-		public virtual bool HideFromTopNavigation => global::Umbraco.Cms.Web.Common.PublishedModels.VisibilityControls.GetHideFromTopNavigation(this, _publishedValueFallback);
-
-		///<summary>
-		/// Hide From XML Sitemap: Tick this if you want to hide this page from the XML sitemap
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[ImplementPropertyType("hideFromXMLSitemap")]
-		public virtual bool HideFromXmlsitemap => global::Umbraco.Cms.Web.Common.PublishedModels.VisibilityControls.GetHideFromXmlsitemap(this, _publishedValueFallback);
-
-		///<summary>
-		/// Hide From Search: Tick this box if you want to hide this page from search results
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "17.5.3+a9649da")]
-		[ImplementPropertyType("umbracoNaviHide")]
-		public virtual bool UmbracoNaviHide => global::Umbraco.Cms.Web.Common.PublishedModels.VisibilityControls.GetUmbracoNaviHide(this, _publishedValueFallback);
 	}
 }

@@ -26,17 +26,17 @@
  * Block-to-page mapping (canonical render surfaces on the running site):
  *
  *   --- blocklist (11 components) ---
- *   alertBanner             -> /styleguide/components/ (.alert)
- *   codeSnippetRow          -> /styleguide/components/ (pre:has(code))
- *   colorPaletteBlock       -> /styleguide/ ([data-block-alias="colorPaletteBlock"])
- *   generalElementsBlock    -> /styleguide/ ([data-block-alias="generalElementsBlock"])
+ *   alertBanner             -> /guides/component-guide/ (.alert)
+ *   codeSnippetRow          -> /guides/component-guide/ (pre:has(code))
+ *   colorPaletteBlock       -> /guides/styleguide/ ([data-block-alias="colorPaletteBlock"])
+ *   generalElementsBlock    -> /guides/styleguide/ ([data-block-alias="generalElementsBlock"])
  *   iconLinkRow             -> NO RENDER SURFACE on the demo site (skipped, see spec)
- *   imageCarouselRow        -> /styleguide/components/ (.image-carousel, first)
- *   imageRow                -> /styleguide/components/ (.image, first)
- *   latestArticlesRow       -> /styleguide/components/ (.latest-articles-row, mask cards)
- *   richTextRow             -> /styleguide/components/ (.richtext, first non-label instance)
- *   typographyShowcaseBlock -> /styleguide/ ([data-block-alias="typographyShowcaseBlock"])
- *   videoRow                -> /styleguide/components/ (.row:has(.youtube-player))
+ *   imageCarouselRow        -> /guides/component-guide/ (.image-carousel, first)
+ *   imageRow                -> /guides/component-guide/ (.image, first)
+ *   latestArticlesRow       -> /guides/component-guide/ (.latest-articles-row, mask cards)
+ *   richTextRow             -> /guides/component-guide/ (.richtext, first non-label instance)
+ *   typographyShowcaseBlock -> /guides/styleguide/ ([data-block-alias="typographyShowcaseBlock"])
+ *   videoRow                -> /guides/component-guide/ (.row:has(.youtube-player))
  *
  *   --- blockgrid (12 components) ---
  *   All blockgrid components render on the /experiments/ page. Each block is
@@ -45,7 +45,7 @@
  *
  *   alertBanner          -> /experiments/ ([data-content-element-type-alias="alertBanner"])
  *                            (NOTE: not currently authored on /experiments/; falls back to
- *                             /styleguide/components/ for the shim equivalence spec)
+ *                             /guides/component-guide/ for the shim equivalence spec)
  *   commandBadge         -> /experiments/ ([data-content-element-type-alias="commandBadge"])
  *   embeddedSketch       -> /experiments/ ([data-content-element-type-alias="embeddedSketch"])
  *   featureCard          -> /experiments/ ([data-content-element-type-alias="featureCard"])
@@ -100,6 +100,7 @@
  */
 
 import { expect, Page, Locator } from '@playwright/test';
+import { test } from '@umbraco/playwright-testhelpers';
 
 /**
  * Subset of Playwright's screenshot assertion options that this helper
@@ -179,6 +180,16 @@ export async function discoverBlockOnPage(
   selector: string,
 ): Promise<Locator> {
   const resp = await page.goto(path);
+  // Content-transfer gate: on an environment where the canonical guide page
+  // hasn't been authored/transferred yet — e.g. Dev before the local→Live→Dev
+  // content transfer — the page 404s. SKIP that specific case (so a code-only
+  // master merge keeps Gate 2 green); the spec auto-runs once the content lands.
+  // Only a 404 is content-absence — any OTHER non-OK status (5xx, etc.) is a real
+  // failure (asserted just below), and a page that LOADS but is missing the block
+  // still fails further down. This deliberately does NOT skip on non-404 errors.
+  if (resp?.status() === 404) {
+    test.skip(true, `guide content not on this environment yet (404): ${path}`);
+  }
   expect(resp?.ok(), `navigation to ${path} should succeed`).toBeTruthy();
   await prepareForScreenshot(page);
   const locator = page.locator(selector).first();

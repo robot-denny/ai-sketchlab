@@ -11,13 +11,13 @@ import { shotOf } from './_shimHelpers';
 test.describe('Shim equivalence: iconLinkRow (blocklist == blockgrid)', () => {
   test.skip(
     true,
-    'TODO: iconLinkRow has no render surface in either context yet. Add it to /styleguide/components/ (blocklist) and /experiments/ (blockgrid) and un-skip.',
+    'TODO: iconLinkRow has no render surface in either context yet. Add it to /guides/component-guide/ (blocklist) and /experiments/ (blockgrid) and un-skip.',
   );
 
   test('blocklist and blockgrid render byte-identically', async ({ page }) => {
     const blocklistShot = await shotOf(
       page,
-      '/styleguide/components/',
+      '/guides/component-guide/',
       'li.list-inline-item:has(our-svg.social-icon)',
     );
     const blockgridShot = await shotOf(

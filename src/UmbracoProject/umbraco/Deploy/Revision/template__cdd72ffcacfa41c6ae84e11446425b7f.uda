@@ -1,12 +1,12 @@
 {
-  "Name": "Style Guide Page",
-  "Alias": "styleGuidePage",
-  "File": "umb://template-file/styleGuidePage.cshtml",
+  "Name": "Guide Page",
+  "Alias": "guidePage",
+  "File": "umb://template-file/guidePage.cshtml",
   "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
-  "Udi": "umb://template/a4f8c1b27d3e4f9a8b6c1e2f3a4b5c6d",
+  "Udi": "umb://template/cdd72ffcacfa41c6ae84e11446425b7f",
   "Dependencies": [
     {
-      "Udi": "umb://template-file/styleGuidePage.cshtml",
+      "Udi": "umb://template-file/guidePage.cshtml",
       "Ordering": true,
       "Mode": "Exist"
     },
@@ -17,5 +17,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
-  "__version": "17.1.0"
+  "__version": "17.2.0"
 }

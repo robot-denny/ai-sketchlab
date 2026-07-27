@@ -8,16 +8,19 @@ namespace UmbracoProject.Tests;
 /// Render-coverage guardrail (Step 3 of block-editor-parity-and-reuse-readiness).
 ///
 /// Every block offered by a page-body palette (<c>[BlockList] Main Content</c>,
-/// <c>[BlockGrid] Experiments Body</c>) must resolve a Razor view so an admin can
-/// never 500 the site by adding a block to a palette:
+/// <c>[BlockGrid] Experiments Body</c>, <c>[BlockGrid] Guide Body</c>) must resolve a
+/// Razor view so an admin can never 500 the site by adding a block to a palette:
 ///   - List-palette membership requires a shared view at
 ///     <c>Views/Partials/blocks/Components/{alias}.cshtml</c>.
 ///   - Grid-palette membership requires the shared view OR the grid-only view at
 ///     <c>Views/Partials/blockgrid/Components/{alias}.cshtml</c> (for area-based blocks).
 ///
-/// The only sanctioned gap is <see cref="DocumentedExceptions"/> — blocks that are
-/// deliberately editor-specific and have no shared view. Today that is only
-/// <c>pillarSection</c> (grid-only; it renders Block Grid areas the shared model can't expose).
+/// The only sanctioned gaps are <see cref="DocumentedExceptions"/> — blocks that are
+/// deliberately editor-specific and have no shared view:
+///   - <c>pillarSection</c> (grid-only; renders Block Grid areas the shared model can't expose).
+///   - <c>guideSection</c> (grid-only; the Guide Body's titled-section wrapper — renders its
+///     Block Grid area and drives the auto-derived TOC; view at
+///     <c>blockgrid/Components/guideSection.cshtml</c>).
 ///
 /// This test parses the <c>.uda</c> schema directly with <see cref="System.Text.Json"/> —
 /// it needs no Umbraco types or a running site.
@@ -31,10 +34,12 @@ public class BlockRenderCoverageTests
     private static readonly HashSet<string> DocumentedExceptions = new(StringComparer.OrdinalIgnoreCase)
     {
         "pillarSection", // grid-only: renders Block Grid areas; view lives at blockgrid/Components/pillarSection.cshtml
+        "guideSection", // grid-only: Guide Body section wrapper; view lives at blockgrid/Components/guideSection.cshtml
     };
 
     private const string MainContentPalette = "[BlockList] Main Content";
     private const string ExperimentsBodyPalette = "[BlockGrid] Experiments Body";
+    private const string GuideBodyPalette = "[BlockGrid] Guide Body";
 
     [Fact]
     public void EveryOfferedBlockResolvesAView()
@@ -50,9 +55,11 @@ public class BlockRenderCoverageTests
 
         List<string> listBlocks = OfferedBlockAliases(revisionDir, MainContentPalette, aliasByKey);
         List<string> gridBlocks = OfferedBlockAliases(revisionDir, ExperimentsBodyPalette, aliasByKey);
+        List<string> guideBodyBlocks = OfferedBlockAliases(revisionDir, GuideBodyPalette, aliasByKey);
 
         Assert.NotEmpty(listBlocks);
         Assert.NotEmpty(gridBlocks);
+        Assert.NotEmpty(guideBodyBlocks);
 
         var missing = new List<string>();
 
@@ -86,6 +93,22 @@ public class BlockRenderCoverageTests
             }
         }
 
+        // Guide Body palette: same rule as any grid palette (shared view OR grid-only fallback).
+        foreach (string alias in guideBodyBlocks)
+        {
+            if (DocumentedExceptions.Contains(alias))
+            {
+                continue;
+            }
+
+            bool shared = File.Exists(Path.Combine(sharedDir, alias + ".cshtml"));
+            bool grid = File.Exists(Path.Combine(gridDir, alias + ".cshtml"));
+            if (!shared && !grid)
+            {
+                missing.Add($"[BlockGrid] Guide Body → '{alias}': expected blocks/Components/{alias}.cshtml or blockgrid/Components/{alias}.cshtml");
+            }
+        }
+
         Assert.True(
             missing.Count == 0,
             "Palette-offered blocks with no resolvable view (an admin adding these would break rendering):"
@@ -107,6 +130,7 @@ public class BlockRenderCoverageTests
         var offered = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         offered.UnionWith(OfferedBlockAliases(revisionDir, MainContentPalette, aliasByKey));
         offered.UnionWith(OfferedBlockAliases(revisionDir, ExperimentsBodyPalette, aliasByKey));
+        offered.UnionWith(OfferedBlockAliases(revisionDir, GuideBodyPalette, aliasByKey));
 
         foreach (string exception in DocumentedExceptions)
         {

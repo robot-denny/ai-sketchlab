@@ -1,0 +1,48 @@
+@using Umbraco.Cms.Core.Models.Blocks
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using UmbracoProject.Features.Services.Guides
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IBlockReference<IPublishedElement, IPublishedElement>>
+
+@*
+    Grid-only guideSection wrapper (documented render-coverage exception — offered
+    only in the [BlockGrid] Guide Body, never in a Block List). Emits the section's
+    anchor + heading, then renders its Block Grid area(s) so the shared, editor-
+    agnostic content-block views (richTextRow, imageRow, colorPaletteBlock, …) render
+    its children.
+
+    The section slug comes from ViewData["GuideSlugMap"] (built once by guidePage.cshtml
+    and keyed on Content.Key) so it always matches the TOC anchor. Falls back to a plain
+    slugify of the title if the map is unavailable.
+*@
+
+@{
+    var content = Model.Content;
+    var sectionTitle = content.Value<string>("sectionTitle");
+
+    string? slug = null;
+    if (ViewData["GuideSlugMap"] is IReadOnlyDictionary<Guid, string> slugMap
+        && slugMap.TryGetValue(content.Key, out var mapped))
+    {
+        slug = mapped;
+    }
+    if (string.IsNullOrWhiteSpace(slug))
+    {
+        slug = GuideToc.Slugify(sectionTitle);
+    }
+
+    // Name the <section> region by its heading so it surfaces as a landmark in AT; omitted
+    // (Razor drops null-valued attributes) when there is no title. tabindex="-1" makes the
+    // section a valid focus target so keyboard focus follows a TOC anchor into the content.
+    var headingId = string.IsNullOrWhiteSpace(sectionTitle) ? null : $"{slug}-heading";
+}
+
+<section id="@slug" class="styleguide__section-anchor" tabindex="-1" aria-labelledby="@headingId">
+    @if (!string.IsNullOrWhiteSpace(sectionTitle))
+    {
+        <h2 id="@headingId" class="section-row__title">@sectionTitle</h2>
+    }
+    @if (Model is BlockGridItem gridItem)
+    {
+        @await Html.GetBlockGridItemAreasHtmlAsync(gridItem)
+    }
+</section>

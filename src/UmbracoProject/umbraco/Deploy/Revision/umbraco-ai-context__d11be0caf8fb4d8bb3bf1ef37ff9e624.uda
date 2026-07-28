@@ -3,7 +3,7 @@
   "Alias": "how-to-guide-style",
   "Resources": [
     {
-      "Id": "2d3b8967-a09a-41bb-9f97-34ac911e479e",
+      "Id": "ee01bf3c-b2a0-4ec4-8deb-fe6ec488b957",
       "ResourceTypeId": "text",
       "Name": "Structural Template",
       "Description": "Section-by-section structure every generated guide must follow.",

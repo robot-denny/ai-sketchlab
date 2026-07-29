@@ -3,7 +3,7 @@ import { test } from '@umbraco/playwright-testhelpers';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { readFileSync } from 'fs';
-import { getDocumentTypeByName } from './_umbracoApi';
+import { getDocumentTypeByName, TEST_FIXTURE_PREFIX } from './_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -220,6 +220,11 @@ let articleTemplateId: string | undefined;
 let firstAuthorId: string | undefined;
 const createdArticleIds: string[] = [];
 
+// Fixture names carry the shared corral prefix (clusters CI content under Home);
+// the sub-label ("ALGV Test …") is preserved so this spec finds only its own.
+const ARTICLE_NO_IMAGE_NAME = `${TEST_FIXTURE_PREFIX} ALGV Test No Image`;
+const ARTICLE_NO_CATEGORIES_NAME = `${TEST_FIXTURE_PREFIX} ALGV Test No Categories`;
+
 /**
  * Update the latestArticlesRow block's displayMode on the article list page and publish.
  * Updates the module-level articleListDocValues so subsequent helpers see the latest state.
@@ -398,7 +403,7 @@ test.describe.skip('Article List Grid View — Browser E2E', () => {
       const childrenData = (await childrenResp.json()) as any;
       for (const child of childrenData.items ?? []) {
         const childName: string = child.variants?.[0]?.name ?? child.name ?? '';
-        if (childName.startsWith('ALGV Test')) {
+        if (childName.startsWith(`${TEST_FIXTURE_PREFIX} ALGV Test`)) {
           await apiFetch(token, 'DELETE', `/document/${child.id}`);
         }
       }
@@ -434,11 +439,11 @@ test.describe.skip('Article List Grid View — Browser E2E', () => {
           ? [{ alias: 'author', culture: null, segment: null, value: authorValue }]
           : []),
       ],
-      variants: [{ culture: null, segment: null, name: 'ALGV Test No Image' }],
+      variants: [{ culture: null, segment: null, name: ARTICLE_NO_IMAGE_NAME }],
     });
     if (!art1Resp.ok) {
       const text = await art1Resp.text();
-      throw new Error(`Create "ALGV Test No Image" failed: ${art1Resp.status} - ${text}`);
+      throw new Error(`Create "${ARTICLE_NO_IMAGE_NAME}" failed: ${art1Resp.status} - ${text}`);
     }
     const art1Id = (art1Resp.headers.get('Location') || '').split('/').pop()!;
     createdArticleIds.push(art1Id);
@@ -465,12 +470,12 @@ test.describe.skip('Article List Grid View — Browser E2E', () => {
           ? [{ alias: 'author', culture: null, segment: null, value: authorValue }]
           : []),
       ],
-      variants: [{ culture: null, segment: null, name: 'ALGV Test No Categories' }],
+      variants: [{ culture: null, segment: null, name: ARTICLE_NO_CATEGORIES_NAME }],
     });
     if (!art2Resp.ok) {
       const text = await art2Resp.text();
       throw new Error(
-        `Create "ALGV Test No Categories" failed: ${art2Resp.status} - ${text}`
+        `Create "${ARTICLE_NO_CATEGORIES_NAME}" failed: ${art2Resp.status} - ${text}`
       );
     }
     const art2Id = (art2Resp.headers.get('Location') || '').split('/').pop()!;
@@ -565,10 +570,10 @@ test.describe.skip('Article List Grid View — Browser E2E', () => {
   // Test 4: Grid card shows .card-sub with the article meta description
   test('grid card shows .card-sub containing meta description', async ({ page }) => {
     await page.goto(articleListUrl);
-    // Test article "ALGV Test No Image" has a known metaDescription (sorts to top)
+    // Test article ARTICLE_NO_IMAGE_NAME has a known metaDescription (sorts to top)
     const noImageCard = page
       .locator('.article-grid-card')
-      .filter({ hasText: 'ALGV Test No Image' });
+      .filter({ hasText: ARTICLE_NO_IMAGE_NAME });
     await expect(noImageCard).toBeVisible();
     await expect(noImageCard.locator('.card-sub')).toBeVisible();
     await expect(noImageCard.locator('.card-sub')).toContainText(
@@ -583,7 +588,7 @@ test.describe.skip('Article List Grid View — Browser E2E', () => {
     await page.goto(articleListUrl);
     const noImageCard = page
       .locator('.article-grid-card')
-      .filter({ hasText: 'ALGV Test No Image' });
+      .filter({ hasText: ARTICLE_NO_IMAGE_NAME });
     await expect(noImageCard).toBeVisible();
     // The v2 article card renders an empty .card-thumb link when the article has
     // no mainImage — no placeholder element, just no <img>.
@@ -595,7 +600,7 @@ test.describe.skip('Article List Grid View — Browser E2E', () => {
     await page.goto(articleListUrl);
     const noCatCard = page
       .locator('.article-grid-card')
-      .filter({ hasText: 'ALGV Test No Categories' });
+      .filter({ hasText: ARTICLE_NO_CATEGORIES_NAME });
     await expect(noCatCard).toBeVisible();
     await expect(noCatCard.locator('.badge')).toHaveCount(0);
   });

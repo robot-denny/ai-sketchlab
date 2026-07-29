@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { randomUUID } from 'crypto';
+import { TEST_FIXTURE_PREFIX } from '../_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -154,7 +155,10 @@ async function cleanStaleTransientPages(homeId: string, namePrefix: string): Pro
 
 // ── Fixture state ──
 
-const TRANSIENT_NAME_PREFIX = 'Exp BG Test';
+// Prefixed with the shared corral marker so the transient experiments page
+// clusters under [E2E] in the Home children list; cleanStaleTransientPages
+// filters on this same prefix, keeping create + cleanup in lockstep.
+const TRANSIENT_NAME_PREFIX = `${TEST_FIXTURE_PREFIX} Exp BG Test`;
 
 let docTypeIndex: Map<string, DocTypeRef>;
 let experimentsDocType: DocTypeRef;

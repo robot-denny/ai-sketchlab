@@ -323,13 +323,18 @@ Because the gate now probes the semantic path, **routine keyword corruption no l
 
 CI **never deploys to Live**. The `cloud-deployment` job's `targetEnvironmentAlias` is wired to Dev only. Promotion from Dev to Live (or via Staging if you add one later) is a human action via the Umbraco Cloud Portal, on whatever cadence makes sense.
 
-This is deliberate: Live is the canonical content/media surface and shouldn't be redeployed every time master moves. A failed Playwright run on Dev gives you a chance to investigate without Live being affected.
+This is deliberate: Live is the production content/media surface and shouldn't be redeployed every time master moves. A failed Playwright run on Dev gives you a chance to investigate without Live being affected.
 
 ### Content workflow under CI
 
-Live is canonical for content; Dev is a periodic mirror via Cloud Portal **"restore from Live to Dev"**. The existing local → Live content-transfer habit (see [Media files](#media-files) for the parallel pattern with binaries) is preserved — local is still where you author content if you're not in the Live backoffice directly.
+**Content flows local → Dev → Live**, riding the same pipeline as schema. You author content locally (local SQLite, preview locally first), transfer it *up* to Dev via the Cloud Deploy dashboard, verify it on the tested Dev environment, then promote it to Live. Because content follows the same local → Dev → Live path as the code, content that depends on new schema can't reach Live ahead of the code it needs — and everything (including MCP/Ella-authored content) is gated through the tested Dev environment before it lands on Live. The full by-hop discipline is the [content-transfer workflow runbook](docs/content-transfer-workflow.md); the short version:
 
-**Do not use local → Dev content transfers.** Dev's content lifecycle is "periodically re-mirrored from Live" — anything you push to Dev directly will get clobbered the next time someone restores. If you need Dev content to match a local edit, push the schema first via master, then content via Live, then restore Dev from Live.
+- **local → Dev**: root-queue freely. Low stakes — Dev already hosts CI fixtures and is the staging surface everything passes through.
+- **Dev → Live**: selective / per-item by default. A root-level Dev → Live transfer is only safe **just after a green CI run with the test fixtures cleaned** — otherwise published `[E2E]`-prefixed fixtures can ride up to Live (the decisive test-content-pollution risk).
+- **Live → Dev restores**: forbidden by default. A restore is overwrite-not-merge, so it clobbers any unpromoted content sitting on Dev. Live hotfixes are made upstream (local → Dev → Live) and re-promoted, or accepted as small drift.
+- **Rule of thumb**: transfer WIP *up* before pulling anything *down* — Umbraco Cloud has no merge story for concurrent same-node edits anywhere.
+
+**Media rides separately** — content transfers and restores do **not** carry media binaries; the separate media restore / `media:sync` step is still required (see [Media files](#media-files)).
 
 ### Pre-push hook
 
@@ -521,7 +526,7 @@ Without `UMBRACO_LIVE_*` entries, `/check-uda` degrades gracefully to git-only m
 
 **Restoring content from Cloud to local:**
 
-1. In the local backoffice, open **Settings → Deploy** and do a content restore from the target Cloud environment (typically Live).
+1. In the local backoffice, open **Settings → Deploy** and do a content restore from a Cloud environment — **Dev** for the full superset (including content not yet promoted to Live), or **Live** for published-only content. (A restore overwrites local records, so transfer any local WIP *up* first — see [content workflow under CI](#content-workflow-under-ci).)
 2. In that same dashboard, also do a **media restore** for the same environment. This is the step that's easy to forget — content restore pulls document records (including the media picker references like `/media/<hash>/<name>.png`), but **does not** pull the media binaries.
 3. Verify: browse the restored articles. If `mainImage` fields show broken links, step 2 was skipped.
 

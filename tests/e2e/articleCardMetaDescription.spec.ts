@@ -3,6 +3,7 @@ import { test } from '@umbraco/playwright-testhelpers';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { readFileSync } from 'fs';
+import { TEST_FIXTURE_PREFIX } from './_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -108,8 +109,8 @@ let articleTemplateId: string | undefined;
 let firstAuthorId: string | undefined;
 const createdArticleIds: string[] = [];
 
-const ARTICLE_WITH_META_NAME = 'ACM Test With Meta';
-const ARTICLE_NO_META_NAME = 'ACM Test No Meta';
+const ARTICLE_WITH_META_NAME = `${TEST_FIXTURE_PREFIX} ACM Test With Meta`;
+const ARTICLE_NO_META_NAME = `${TEST_FIXTURE_PREFIX} ACM Test No Meta`;
 const STALE_SUBTITLE = 'ACM STALE SUBTITLE DO NOT SHOW';
 const FRESH_META = 'ACM FRESH META DESCRIPTION';
 const FALLBACK_SUBTITLE = 'ACM FALLBACK SUBTITLE';
@@ -204,7 +205,8 @@ test.describe('Article Card metaDescription — Browser E2E', () => {
     }
     articleListId = foundNode.id;
 
-    // 3. Clean stale "ACM Test" articles from prior runs (rule #3)
+    // 3. Clean stale "ACM Test" articles from prior runs (rule #3).
+    //    Filter matches the shared-prefix name so cleanup stays in lockstep.
     token = await freshToken();
     const childrenResp = await apiFetch(
       token,
@@ -215,7 +217,7 @@ test.describe('Article Card metaDescription — Browser E2E', () => {
       const childrenData = (await childrenResp.json()) as any;
       for (const child of childrenData.items ?? []) {
         const childName: string = child.variants?.[0]?.name ?? child.name ?? '';
-        if (childName.startsWith('ACM Test')) {
+        if (childName.startsWith(`${TEST_FIXTURE_PREFIX} ACM Test`)) {
           await apiFetch(token, 'DELETE', `/document/${child.id}`);
         }
       }

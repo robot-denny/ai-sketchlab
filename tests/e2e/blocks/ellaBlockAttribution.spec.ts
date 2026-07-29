@@ -1,6 +1,7 @@
 import { expect } from '@playwright/test';
 import { test } from '@umbraco/playwright-testhelpers';
 import { randomUUID } from 'crypto';
+import { TEST_FIXTURE_PREFIX } from '../_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,7 +14,10 @@ const AUTHOR_DOC_TYPE_ID = 'eb9fd2d1-5258-4bf8-beab-a2415b2e365a';
 const RICH_TEXT_ROW_CT_KEY = 'dd183f78-7d69-4eda-9b4c-a25970583a28';
 const IMAGE_ROW_CT_KEY = 'e0df4794-063a-4450-8f4f-c615a5d902e2';
 
-const TEST_PREFIX = 'EBA';
+// All fixture document names derive from TEST_PREFIX, which carries the shared
+// corral prefix so CI-created authors/articles cluster under the [E2E] marker.
+// Cleanup (deleteByNamePrefix) filters on this same prefix, so it stays in lockstep.
+const TEST_PREFIX = `${TEST_FIXTURE_PREFIX} EBA`;
 const ELLA_NAME = `${TEST_PREFIX} Ella`;
 const HUGH_NAME = `${TEST_PREFIX} Hugh`;
 const HUMAN_ARTICLE_NAME = `${TEST_PREFIX} Test Human Article`;

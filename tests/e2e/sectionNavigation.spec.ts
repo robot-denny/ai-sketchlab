@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import { randomUUID } from 'crypto';
+import { TEST_FIXTURE_PREFIX } from './_umbracoApi';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,6 +20,15 @@ const API_BASE = process.env.URL || 'https://localhost:44367';
 // identical across environments), like the element-type keys hardcoded in
 // alertBanner.spec.ts / articleListGridView.spec.ts.
 const RICH_TEXT_ROW_CT_KEY = 'dd183f78-7d69-4eda-9b4c-a25970583a28';
+
+// The three top-level fixture parents this spec creates directly under Home.
+// They carry the shared corral prefix so CI content clusters in the Home
+// children list; nested descendants (Section Child A, SN Grandchild, …) keep
+// their own names since they're not direct Home children. Create names and the
+// clean-before-setup list must stay in lockstep.
+const SN_TEST_PARENT_NAME = `${TEST_FIXTURE_PREFIX} SN Test Parent`;
+const SN_LONE_PARENT_NAME = `${TEST_FIXTURE_PREFIX} SN Lone Parent`;
+const SN_SECNAV_LONE_PARENT_NAME = `${TEST_FIXTURE_PREFIX} SN SecNav Lone Parent`;
 
 /**
  * Minimal contentRows Block List value containing a single Rich Text Row block.
@@ -529,7 +539,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     contentDtId = contentDTNode.id;
 
     // 3. Clean up stale test data from previous failed runs (rule #3)
-    await cleanStaleTestPages(token, homeId, ['SN Test Parent', 'SN Lone Parent', 'SN SecNav Lone Parent']);
+    await cleanStaleTestPages(token, homeId, [SN_TEST_PARENT_NAME, SN_LONE_PARENT_NAME, SN_SECNAV_LONE_PARENT_NAME]);
 
     // 4. GET the Content doc type for template and allowed children
     token = await freshToken();
@@ -568,7 +578,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     // Home > SN Test Parent
     const parentId = await createAndPublish(token, {
       ...base,
-      name: 'SN Test Parent',
+      name: SN_TEST_PARENT_NAME,
       parentId: homeId,
     });
     createdIds.push(parentId);
@@ -646,7 +656,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     // Suppression test: lone parent with single child (no siblings, no children → suppressed)
     const loneParentId = await createAndPublish(token, {
       ...base,
-      name: 'SN Lone Parent',
+      name: SN_LONE_PARENT_NAME,
       parentId: homeId,
     });
     createdIds.push(loneParentId);
@@ -668,7 +678,7 @@ test.describe('Section Navigation — Browser E2E (Step 5)', () => {
     token = await freshToken();
     const secNavLoneParentId = await createAndPublish(token, {
       ...base,
-      name: 'SN SecNav Lone Parent',
+      name: SN_SECNAV_LONE_PARENT_NAME,
       parentId: homeId,
     });
     createdIds.push(secNavLoneParentId);

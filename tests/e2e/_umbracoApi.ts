@@ -20,6 +20,18 @@ dotenv.config();
 const API_BASE = process.env.URL || 'https://localhost:44367';
 const TOKEN_TTL = 250_000; // refresh well before the 299 s expiry
 
+/**
+ * Shared root prefix for every CI-created content fixture. Composing all
+ * fixture names from this constant means they cluster together in the Home
+ * children list (the leading bracket also sorts them to the top of the tree)
+ * and are trivially greppable — a naming-convention "corral" that needs no
+ * dedicated doc type or schema change. Each spec keeps its own sub-label after
+ * the prefix (e.g. `[E2E] EBA`, `[E2E] Exp BG Test`) so a spec still finds and
+ * cleans up only its own fixtures. When you change this value, update every
+ * spec's clean-before-setup filter in lockstep (they match on the prefixed name).
+ */
+export const TEST_FIXTURE_PREFIX = '[E2E]';
+
 let _token = '';
 let _tokenTs = 0;
 

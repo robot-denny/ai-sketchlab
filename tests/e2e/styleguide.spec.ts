@@ -7,6 +7,7 @@ import {
   freshToken,
   getDataTypeByName,
   getDocumentTypeByName,
+  TEST_FIXTURE_PREFIX,
   tryGetDocumentPath as getDocumentPath,
 } from './_umbracoApi';
 import dotenv from 'dotenv';
@@ -270,7 +271,9 @@ test.describe('Style Guide — canonical page (content-gated)', () => {
 // Section 3 — Self-contained TOC fixtures (GREEN now — independent of Step 6)
 // ==============================
 
-const FIXTURE_PREFIX = 'E2E-Guide-Fixture';
+// Carries the shared corral prefix so throwaway guidePage fixtures cluster under
+// the [E2E] marker; cleanStaleFixtures filters on this same prefix (lockstep).
+const FIXTURE_PREFIX = `${TEST_FIXTURE_PREFIX} Guide-Fixture`;
 
 let GUIDE_PAGE_DT!: string;
 let GUIDE_PAGE_TEMPLATE!: string;

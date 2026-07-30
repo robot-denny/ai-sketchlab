@@ -135,23 +135,23 @@ done
 
 Both `altText` values should be non-empty descriptive strings. If `.altText` is `null` or absent from the `values` array, the media has no alt text — and the test will fail.
 
-**Fix step** — per `[[project_content_authoring_direction]]`, content fixes flow local → Live → Dev:
+**Fix step** — content is authored/fixed **locally** and transferred **up** the hop chain (local → Dev → Live). To get this fix onto Dev, transfer local → Dev; promotion to Live is a later selective hop. See [content-transfer-workflow.md](content-transfer-workflow.md) for the by-hop discipline.
 
 1. Open the local Umbraco backoffice → Media → set Alt Text on the affected media items (at minimum the first two by tree-walk order; ideally all of them as a content-policy improvement). Publish.
-2. Local → Live content transfer via the Deploy dashboard.
-3. Cloud Portal → Live → restore content + media to Dev.
-4. Re-run verification command above.
+2. Local → Dev content + media transfer via the Deploy dashboard (the media transfer is the step that carries the binaries and the alt-text property edits — see [content-transfer-workflow.md](content-transfer-workflow.md)).
+3. Re-run verification command above against Dev.
+4. Promote local → Live as a separate, later hop when the fix is ready to go live.
 
 **Verified 2026-05-29**: 50/50 imageCarousel tests pass on Dev (~31s) after the content transfer + restore landed.
 
 **Why this recurs** — **two distinct failure modes** under the same symptom:
 
 1. *Content drift*: an editor uploads a new media item without alt text, OR existing alt text gets cleared. As long as the failing media is in the "first 3 by tree-walk order" zone, the test fails. The "first 3" set is unstable — any media reshuffle changes which items it picks.
-2. *Cross-environment drift*: editing alt text on Live but skipping the media restore to Dev (content restore alone doesn't pull binaries OR property edits to Dev's pre-existing records — see [Media files](../CLAUDE.md#media-files) in CLAUDE.md).
+2. *Cross-environment drift*: fixing alt text locally but transferring content without the accompanying **media** transfer (a content transfer alone doesn't carry binaries OR property edits to the target's pre-existing records — see [Media files](../CLAUDE.md#media-files) in CLAUDE.md and the by-hop discipline in [content-transfer-workflow.md](content-transfer-workflow.md)), or landing the fix on Dev but never promoting it up the hop chain to Live.
 
 **Followup ROADMAP entry**: `fix-imagecarousel-first-image-picker` — make the test deterministic (seed a known media item with known altText, or set altText in `beforeAll` with restoration in `afterAll`). Captured 2026-05-29.
 
-**Lesson — what the original spec missed** — assumed Live was a usable "source of truth" without probing Live's actual content. Always verify the suspected source environment matches the desired end state BEFORE planning a restore as the fix. And: when a test passes locally but fails on Dev+Live, suspect a local-only content drift (someone set the alt text locally but never pushed up) more than a Live→Dev sync gap.
+**Lesson — what the original spec missed** — assumed Live was a usable "source of truth" without probing Live's actual content. Always verify the suspected source environment matches the desired end state BEFORE planning a restore as the fix. And: when a test passes locally but fails on Dev+Live, suspect a local-only content drift (someone set the alt text locally but never transferred it up the hop chain) more than a cross-environment sync gap.
 
 ### cold AI.Search — `POST /document` 500 cascade after a Dev deploy
 

@@ -10,3 +10,45 @@ index d9013d3..7956773 100644
 +  "__version": "17.2.1"
  }
 \ No newline at end of file
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
+index a339c80..bc7f764 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
+@@ -3,7 +3,7 @@
+   "Alias": "site-content-guidelines",
+   "Resources": [
+     {
+-      "Id": "cf83a36c-b7e8-48a9-8907-12fdca38b6e8",
++      "Id": "fe84315b-6b82-4a24-a730-afbc126d2b49",
+       "ResourceTypeId": "brand-voice",
+       "Name": "Brand Voice",
+       "Description": null,
+@@ -20,5 +20,5 @@
+   "Udi": "umb://umbraco-ai-context/1d2c0e55ffab48db92a3d6d589af4f80",
+   "Dependencies": [],
+   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
+-  "__version": "17.2.0"
++  "__version": "17.2.1"
+ }
+\ No newline at end of file
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
+index c99c0a3..5ea773c 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
+@@ -3,7 +3,7 @@
+   "Alias": "how-to-guide-style",
+   "Resources": [
+     {
+-      "Id": "1f038b58-b90a-4730-a6cb-f2a1d3cc554c",
++      "Id": "0ba8617a-d994-432c-8b2e-daede1a98b50",
+       "ResourceTypeId": "text",
+       "Name": "Structural Template",
+       "Description": "Section-by-section structure every generated guide must follow.",
+@@ -17,5 +17,5 @@
+   "Udi": "umb://umbraco-ai-context/d11be0caf8fb4d8bb3bf1ef37ff9e624",
+   "Dependencies": [],
+   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
+-  "__version": "17.2.0"
++  "__version": "17.2.1"
+ }
+\ No newline at end of file

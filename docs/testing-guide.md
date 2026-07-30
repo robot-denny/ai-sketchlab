@@ -166,7 +166,7 @@ Umbraco's backoffice is a single-page app, so the tests **don't** type a usernam
 
 Many behavior specs need content to exist — e.g. section-navigation needs a parent page with children. Rather than depending on whatever happens to be in the CMS, these specs **create their own fixtures** via the Management API in a `beforeAll` block and **delete them** in `afterAll`.
 
-The rules these follow (documented in full in `CLAUDE.md` → *E2E Test Resilience Rules*) are worth internalizing because they're the difference between a test that works everywhere and one that breaks the moment it runs on Dev:
+The rules these follow (documented in full in [`docs/e2e-testing.md`](e2e-testing.md) → *E2E Test Resilience Rules*) are worth internalizing because they're the difference between a test that works everywhere and one that breaks the moment it runs on Dev:
 
 1. **Never hardcode Umbraco IDs (UUIDs).** Document, doc-type, and template IDs differ between environments. Always look them up dynamically (walk the tree, search by name) — e.g. `sectionNavigation.spec.ts` finds the "Home" node and "Content" doc type by name in `beforeAll`.
 2. **Never hardcode URL slugs.** Umbraco appends `-2`, `-3` to duplicate names, so fetch the actual published URL after creating a page.
@@ -176,7 +176,7 @@ The rules these follow (documented in full in `CLAUDE.md` → *E2E Test Resilien
 
 **What "cleanup" looks like in practice:** a spec keeps a list of the IDs it created, and its `afterAll` deletes them and restores any config it temporarily changed (e.g. re-tightening which doc types are allowed as children). If a run crashes mid-way and leaves junk behind, the *next* run's `beforeAll` "clean stale data" step sweeps it up by name prefix. This is why fixtures use recognizable prefixes.
 
-**Important environment rule:** locally, tests create/delete content in your local SQLite database — harmless. In CI, the Playwright job runs **against the deployed Dev environment** and creates fixtures there via the API. Dev's content is periodically re-mirrored from Live, so this test content is transient by design. **Never point E2E fixture creation at Live.**
+**Important environment rule:** locally, tests create/delete content in your local SQLite database — harmless. In CI, the Playwright job runs **against the deployed Dev environment** and creates fixtures there via the API. This test content is transient by design — the specs create it in `beforeAll` and clean it up in `afterAll` (and sweep any leftovers by name prefix on the next run), so nothing is meant to persist between runs. **Never point E2E fixture creation at Live.**
 
 ---
 
@@ -235,7 +235,7 @@ So the order of operations for a brand-new block is:
 
 1. **Build the block and its screenshot spec locally.** Confirm it looks right on your Mac (`npm run test:e2e:ui`). The spec will "fail" for now because there's no baseline — that's expected at this stage, not a mistake.
 2. **Merge to `master`.** This deploys the block's view + schema to the **Dev** environment (Gate 2). The screenshot spec will go red on Dev too — *still expected*, because the baseline doesn't exist yet. This is the one moment where a red test is normal.
-3. **Make sure the block actually appears on Dev.** The screenshot specs photograph blocks on real content pages (e.g. `/styleguide/components/`, `/experiments/`). An instance of your block needs to be present there on Dev. (Code and schema arrive via git/master; the *content instance* arrives the normal content way — authored on Live and mirrored down to Dev. See `CLAUDE.md` → *Content workflow under CI*.)
+3. **Make sure the block actually appears on Dev.** The screenshot specs photograph blocks on real content pages (e.g. `/styleguide/components/`, `/experiments/`). An instance of your block needs to be present there on Dev. (Code and schema arrive via git/master; the *content instance* arrives the normal content way — authored **locally** and transferred **up** to Dev, local → Dev → Live. See [`docs/content-transfer-workflow.md`](content-transfer-workflow.md).)
 4. **Run the baseline workflow against Dev:**
    ```bash
    gh workflow run update-snapshots.yml --ref master
@@ -420,7 +420,7 @@ gh workflow run update-snapshots.yml --ref <branch>
 npm run clean:reports
 ```
 
-**Related docs:** `docs/ci-failure-recipes.md` (fixing known CI failures) · `CLAUDE.md` (CI/CD & Build hygiene, E2E Test Resilience Rules, Screenshot baselines) · `_features/*.md` (per-feature Test Coverage tables) · `tests/e2e/_helpers.ts` (screenshot helper scope notes).
+**Related docs:** `docs/ci-failure-recipes.md` (fixing known CI failures) · `docs/e2e-testing.md` (Management-API quirks + E2E resilience rules) · `CLAUDE.md` (CI/CD & Build hygiene, Screenshot baselines) · `_features/*.md` (per-feature Test Coverage tables) · `tests/e2e/_helpers.ts` (screenshot helper scope notes).
 
 ---
 

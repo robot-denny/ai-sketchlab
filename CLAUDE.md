@@ -44,13 +44,13 @@ For E2E tests, see the **Testing** section below.
 
 **Backoffice extension**: `src/HelloWorld/` — a backoffice extension project referenced from the main `.csproj`. Uses TypeScript + Vite with a `Client/` subfolder for the frontend build. Includes a dashboard, property actions, an image generator module, and an auto-generated OpenAPI client.
 
-**Key NuGet packages**: Umbraco.Cms 17.5.3, Umbraco.Cms.DevelopmentMode.Backoffice 17.5.3, Umbraco.Cloud.Cms 17.2.0, Umbraco.Cloud.StorageProviders.AzureBlob 17.1.0, Umbraco.Forms 17.4.5, Umbraco.Forms.Deploy 17.0.0, Umbraco.Deploy.Cloud 17.2.0, Clean.Core 7.0.5 (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor 17.0.5.
+**Key NuGet packages** (exact versions live in the `.csproj` files — the source of truth): Umbraco.Cms, Umbraco.Cms.DevelopmentMode.Backoffice, Umbraco.Cloud.Cms, Umbraco.Cloud.StorageProviders.AzureBlob, Umbraco.Forms, Umbraco.Forms.Deploy, Umbraco.Deploy.Cloud, Clean.Core (view models for contact form/page headers), jcdcdev.Umbraco.ExtendedMarkdownEditor.
 
-**AI packages** (the whole suite is on the CMS-17-aligned versioning — see `[[project_ai_suite_17_version_alignment]]`): Umbraco.AI 17.1.0, Umbraco.AI.Agent 17.1.0, Umbraco.AI.Agent.Copilot 17.0.0 (copilot chat surface), Umbraco.AI.Agent.UI 17.0.1 (shared chat UI components), Umbraco.AI.AGUI 17.1.0 (AG-UI protocol SDK), Umbraco.AI.Anthropic 17.0.0, Umbraco.AI.Google 17.0.0, Umbraco.AI.OpenAI 17.1.0, Umbraco.AI.Prompt 17.0.1. **As of the Umbraco.AI 17.x line** (the feature landed in the pre-alignment 1.14.0 release), `$`-referenced configuration keys must be allow-listed — see *AI config-key allow-list* under AI & Copilot.
+**AI packages** (the whole suite is on the CMS-17-aligned versioning — see `[[project_ai_suite_17_version_alignment]]`): Umbraco.AI, Umbraco.AI.Agent, Umbraco.AI.Agent.Copilot (copilot chat surface), Umbraco.AI.Agent.UI (shared chat UI components), Umbraco.AI.AGUI (AG-UI protocol SDK), Umbraco.AI.Anthropic, Umbraco.AI.Google, Umbraco.AI.OpenAI, Umbraco.AI.Prompt. **As of the Umbraco.AI 17.x line** (the feature landed in the pre-alignment 1.14.0 release), `$`-referenced configuration keys must be allow-listed — see *AI config-key allow-list* under AI & Copilot.
 
-**AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy 17.0.1, Umbraco.AI.Prompt.Deploy 17.0.0, Umbraco.AI.Agent.Deploy 17.0.0. Auto-registered — no composer code required. **All four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment. (Note: profile *settings* require `Umbraco.AI.Deploy` ≥ 17.0.1 — see *AI schema deployment* below.)
+**AI Deploy packages** (serializes AI entities as `.uda` artifacts for schema deploy to Umbraco Cloud): Umbraco.AI.Deploy, Umbraco.AI.Prompt.Deploy, Umbraco.AI.Agent.Deploy. Auto-registered — no composer code required. **All four AI entity families (connections/profiles/contexts/prompts, plus agents) deploy as `.uda`** — agents no longer need to be recreated manually per Cloud environment. (Note: profile *settings* require `Umbraco.AI.Deploy` ≥ 17.0.1 — see *AI schema deployment* below.)
 
-**Search packages** (now stable — the v18-forward replacement for legacy Examine search): Umbraco.Cms.Search.Core 1.0.0, Umbraco.Cms.Search.BackOffice 1.0.0, Umbraco.Cms.Search.DeliveryApi 1.0.0, plus Umbraco.AI.Search 17.0.0 (on the CMS-17-aligned AI versioning, not the Cms.Search 1.0.0 line). The lone exception is Umbraco.Cms.Search.Provider.Examine 1.0.0-beta.9 (no stable release yet) — see **Pinned betas** below.
+**Search packages** (now stable — the v18-forward replacement for legacy Examine search): Umbraco.Cms.Search.Core, Umbraco.Cms.Search.BackOffice, Umbraco.Cms.Search.DeliveryApi, plus Umbraco.AI.Search (on the CMS-17-aligned AI versioning, not the Cms.Search 1.0.0 line). The lone exception is Umbraco.Cms.Search.Provider.Examine, pinned to a beta (no stable release yet) — see **Pinned betas** below.
 
 ## Block / component rendering & parity
 
@@ -96,7 +96,7 @@ The RCL is organized **by kind**, not by feature — mirroring the reference. Th
 
 ### Composer cross-assembly auto-discovery
 
-Umbraco's `TypeLoader` scans **every assembly in the host's dependency graph that references Umbraco**. Because the RCL references `Umbraco.Cms`, it is in that scanned graph, so an `IComposer` placed in `UmbracoProject.Features/Composer/` is discovered and run **with no `Program.cs` edit and no central manifest**. This was the single biggest "does the boundary actually work" risk and is **runtime-verified**: after the pilot, `SearchServiceComposer` (now in the RCL) still registers `ISearchService`, and `/search` keyword + AI-semantic modes both work.
+Umbraco's `TypeLoader` scans **every assembly in the host's dependency graph that references Umbraco**. Because the RCL references `Umbraco.Cms`, it is in that scanned graph, so an `IComposer` placed in `UmbracoProject.Features/Composer/` is discovered and run **with no `Program.cs` edit and no central manifest** (runtime-verified: `SearchServiceComposer` in the RCL registers `ISearchService` and `/search` works).
 
 ### Stays in the host (`src/UmbracoProject/`)
 
@@ -119,7 +119,7 @@ These remain in the thin host and are **not** moved into the RCL:
 
 After studying the reference in full, the agency standard decomposes into three tiers; this project **adopts** the project split + folder-by-kind taxonomy and **defers/declines** the third. Two decisions are recorded here so later slices don't re-decide them:
 
-1. **ModelsBuilder `InMemoryAuto` → source-mode switch — SHIPPED (2026-06-29, `arch-modelsbuilder-source-mode`).** This was the gating deferral: under `InMemoryAuto`, **any C# or view that references a generated `PublishedModels.*` type could not live in the build-time-compiled RCL** — it failed `CS0234` at build. Search was RCL-safe (it touches generated models only in a doc comment), so the pilot needed no switch; migrating *model-coupled* code (most page controllers, some handlers, any RCL-embedded view) was gated on it. **It has now shipped** — ModelsBuilder runs in `SourceCodeManual` with committed models under `src/UmbracoProject.Features/Models/Generated/`, so model-coupled C# can now build-time-compile in the RCL. It also turned build-time Razor compilation back on, making obsolete-API detection a build gate. See the [`## ModelsBuilder`](#modelsbuilder) section below for the full mechanism.
+1. **ModelsBuilder `InMemoryAuto` → source-mode switch — SHIPPED** (2026-06-29, `arch-modelsbuilder-source-mode`). This was the gating deferral (model-coupled C# couldn't build-time-compile in the RCL under `InMemoryAuto`); it now runs in `SourceCodeManual` with committed models in the RCL. Full mechanism in the [`## ModelsBuilder`](#modelsbuilder) section below.
 2. **Embedded-views rendering framework — DECLINED (parity-only).** The reference embeds Razor views *in the RCL* as `<EmbeddedResource>`, enabled by a substantial homegrown framework: per-page route-hijacking controllers, an `IViewModelFactory`, an `ITemplateCoordinator` (alias→view registration), a `BaseController`, and custom `HtmlExtensions`. This is a large port whose value is mostly already achieved here by stock Umbraco block/template conventions + the already-extracted `SearchService`. It was **declined** as parity-for-parity (low marginal resilience). Views stay in the host's stock `Views/` locations; **no `IViewLocationExpander`, `ViewModelFactory`, or `TemplateCoordinator` is introduced.** Recorded as an explicitly-optional future increment under `arch-feature-folder-migration` — pursue only if pages accrete logic that justifies it.
 
 ## ModelsBuilder
@@ -164,7 +164,7 @@ The search stack went stable 1.0.0, so this table collapsed to a single remainin
 
 | Package | Pinned version | Why pinned |
 |---|---|---|
-| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.9 | No stable release exists yet — beta.9 is the head pre-release and declares `Umbraco.Cms.Search.Core [1.0.0, )`, so it's the correct companion to the stable Core. It's the keyword provider the Core façade routes to (`.AddExamineSearchProvider()` in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs)) — `Cms.Search.BackOffice 1.0.0`'s direct `Examine.Lucene` dependency does **not** supersede it. **Known beta.9 bug:** `CreateAggregatedTextQuery` throws `NullReferenceException` (via Examine `GetFieldInternalQuery`) on some multi-word keyword queries — it wraps the full query in `MultipleCharacterWildcard`. [SearchService.cs](src/UmbracoProject.Features/Services/Search/SearchService.cs) guards the keyword path (try/catch → zero hits) so `/search` degrades to the empty state instead of a 500. Drop the guard and bump when a fixed/stable Provider.Examine ships. |
+| Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.9 | No stable release exists yet — beta.9 is the head pre-release and declares `Umbraco.Cms.Search.Core [1.0.0, )`, so it's the correct companion to the stable Core. It's the keyword provider the Core façade routes to (`.AddExamineSearchProvider()` in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs)) — `Cms.Search.BackOffice`'s direct `Examine.Lucene` dependency does **not** supersede it. **Known beta.9 bug:** some multi-word keyword queries throw `NullReferenceException` inside Examine, so [SearchService.cs](src/UmbracoProject.Features/Services/Search/SearchService.cs) guards the keyword path (try/catch → zero hits) and `/search` degrades to the empty state instead of a 500. Drop the guard and bump when a fixed/stable Provider.Examine ships. |
 
 The four previously-pinned packages are off beta: `Cms.Search.Core`/`.BackOffice`/`.DeliveryApi` on stable 1.0.0, and `AI.Search` on the CMS-17-aligned 17.0.0 — the old `MissingMethodException`-on-`Settings → Search` and the `AddBackOfficeSearch()` list-view crash are both fixed, so `AddBackOfficeSearch()` is now enabled in [SearchComposer.cs](src/UmbracoProject/SearchComposer.cs).
 
@@ -187,7 +187,7 @@ The **Umbraco MCP server** enables Claude Code to interact with backoffice conte
 
 With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` + `Umbraco.AI.Agent.Deploy` packages installed, every AI Connection, Context, Guardrail, Chat Profile, Embedding Profile, Prompt, Agent, and AI Setting saved in **Settings > AI** auto-serializes to a `umbraco-ai-*.uda` artifact under [src/UmbracoProject/umbraco/Deploy/Revision/](src/UmbracoProject/umbraco/Deploy/Revision/). Those artifacts flow through the same git → Umbraco Cloud pipeline as document types.
 
-**Profile settings (Max Tokens, Temperature, System Prompt, Context IDs) require `Umbraco.AI.Deploy` ≥ 17.0.1.** Earlier versions (17.0.0 and the pre-alignment 1.x line) shipped a bug: `UmbracoAIProfileServiceConnector.GetArtifactAsync` serialized a profile's `Settings` via the `IAIProfileSettings` **interface** type, so the `.uda` always wrote `Settings: {}`. Profile tuning therefore couldn't deploy (it was DB-only, per-environment) and — worse — deploying a profile artifact **overwrote** the target's settings with empty. **17.0.1** ("Deploy capability-specific profile settings and default profiles") serializes the concrete type, so profile settings now flow through the normal path: edit in local **Settings > AI**, **Save** (the Save is what serializes — nothing auto-exports on its own), then commit the updated `umbraco-ai-profile__*.uda` and push. **Tell/symptom:** a profile `.uda` with `Settings: {}` right after a save means you're on a pre-17.0.1 Deploy package.
+**Profile settings (Max Tokens, Temperature, System Prompt, Context IDs) require `Umbraco.AI.Deploy` ≥ 17.0.1.** Earlier versions wrote `Settings: {}` to the `.uda` (a serialization bug), so profile tuning couldn't deploy and deploying a profile artifact **overwrote** the target's settings with empty. On ≥ 17.0.1 profile settings flow through the normal path: edit in local **Settings > AI**, **Save** (the Save is what serializes — nothing auto-exports on its own), then commit the updated `umbraco-ai-profile__*.uda` and push. **Tell/symptom:** a profile `.uda` with `Settings: {}` right after a save means you're on a pre-17.0.1 Deploy package.
 
 **Secrets stay per-environment**: `.uda` artifacts reference API keys via placeholders (e.g. `$OpenAI:ApiKey`, `$Anthropic:ApiKey`), never the raw value. Each Cloud environment (Development, Staging, Live) must have its own keys set in that environment's app settings via the Cloud portal — **never paste raw keys into the backoffice connection form** (they get encrypted to the DB and break on Data Protection key rotation).
 
@@ -202,14 +202,7 @@ With the `Umbraco.AI.Deploy` + `Umbraco.AI.Prompt.Deploy` + `Umbraco.AI.Agent.De
 
 Because it lives in the committed `appsettings.json`, it applies to local + every Cloud environment with no per-environment portal action. This is the least-invasive fix (preserves the `$OpenAI:ApiKey` convention everywhere); relocating keys under `Umbraco:AI:Secrets` would rewrite the whole secret convention and re-serialize `.uda` — avoid.
 
-**Bootstrapping existing AI config into Deploy** (one-time, when adopting the Deploy packages on an established install): existing DB-only entities do **not** auto-export on package install — the serializer only writes on save. Open **Settings → AI** and click Save on every entity once, in this order (matches Deploy's dependency chain):
-
-1. Connections → Contexts → Guardrails
-2. Chat Profiles → Embedding Profiles
-3. Prompts → Settings (default chat profile, default embedding profile)
-4. Agents
-
-Verify new `umbraco-ai-*.uda` files appear under `umbraco/Deploy/Revision/`. Before committing, grep the folder for raw secrets (`grep -rE '(sk-[A-Za-z0-9]{20,}|ANTHROPIC_)' src/UmbracoProject/umbraco/Deploy/Revision/`) to make sure only placeholder references are present. Run `/check-uda` for the usual schema-conflict pre-commit scan.
+**Bootstrapping existing AI config into Deploy** (one-time, when adopting the Deploy packages on an established install): existing DB-only entities do **not** auto-export on package install — the serializer only writes on save. Open **Settings → AI** and click Save on every entity once, in Deploy's dependency order: Connections/Contexts/Guardrails → Chat & Embedding Profiles → Prompts & Settings (default chat/embedding profile) → Agents. Verify new `umbraco-ai-*.uda` files appear under `umbraco/Deploy/Revision/`; before committing, grep the folder for raw secrets (`grep -rE '(sk-[A-Za-z0-9]{20,}|ANTHROPIC_)' src/UmbracoProject/umbraco/Deploy/Revision/`) to confirm only placeholder references are present, then run `/check-uda`.
 
 **What still needs manual per-environment work**: only the vector search index (see Search section below) — every AI entity, agents included, now flows through Deploy.
 
@@ -307,17 +300,9 @@ The three Cloud jobs (`cloud-sync` / `cloud-artifact` / `cloud-deployment`) are 
 
 ### Post-deploy search readiness gate (between Dev deploy and Playwright)
 
-`cloud-deployment` reports "finished" before Dev search actually *serves* — and the cause is specific (confirmed 2026-07-06): the **Examine keyword index `Umb_PublishedContent` comes up CORRUPTED** after the deploy (beta.9 `Provider.Examine` fragility — "index was locked and could not be unlocked"). `/search` is **hybrid**: short queries use the keyword index (dead when corrupt → 0 results), long natural-language queries use the AI vector index `UmbAI_Search` (stays **Healthy**, keeps working). While the search subsystem is unhealthy `POST /document` also 500s — and `playwright-against-dev` creates its fixtures via `POST /document`, so one corrupt index cascades into ~7-9 misleading test failures needing a hand Portal restart + `gh run rerun --failed`.
+`cloud-deployment` reports "finished" before Dev search actually *serves*, so the `playwright-against-dev` job runs [`.github/scripts/wait_for_search_warm.sh`](.github/scripts/wait_for_search_warm.sh) (env `URL` only) right after checkout, *before* Playwright. It **polls `GET $URL/search` with a long/semantic query** (every 10s, budget `TOTAL_BUDGET` default **180s**) to exercise the **Healthy `UmbAI_Search` vector path** — not the fragile Examine keyword index, which routinely comes up corrupt after a deploy. It logs a **non-gating WARNING** if the keyword check (`q=article`) is down but opens the gate as soon as semantic search serves.
 
-The `playwright-against-dev` job runs [`.github/scripts/wait_for_search_warm.sh`](.github/scripts/wait_for_search_warm.sh) (env `URL` only) right after checkout, replacing the old thin "Sanity check Dev is up" home-page curl and running *before* the Playwright step. It **polls `GET $URL/search` with a long/semantic query** (`$PROBE_QUERY`) for the `article-grid-card` serving marker (every 10s) — deliberately exercising the **Healthy `UmbAI_Search` vector path**, not the fragile keyword index (changed 2026-07-06), so routine post-deploy keyword corruption no longer fails the gate. As soon as semantic search serves the gate opens and Playwright proceeds; it also logs a **non-gating WARNING** if the one-shot keyword check (`q=article`) is down. If semantic search never serves within the budget (`TOTAL_BUDGET`, default **180s**) it **fails fast and does NOT launch Playwright** — which now signals a *worse* problem than keyword corruption (UmbAI_Search unhealthy / embeddings failing / broken deploy).
-
-**This gate detects and fails fast; it does NOT self-heal. THE FIX IS A PORTAL RESTART (confirmed 2026-07-06).** On boot the app rebuilds the Examine indexes cleanly and keyword `/search` serves within a few minutes (post-restart `q=article` went 0 → 10). CI can't restart (no restart endpoint in the Cloud CI/CD Flow API), so the gate fails fast and a human restarts + reruns. Two things NOT to do:
-- **Don't use the dashboard "Rebuild" on `Umb_PublishedContent`** — it fails (row goes Corrupted → **Empty** + *"A fatal server error occurred"*); beta.9 can't rebuild the corrupt index in place. Only a restart rebuilds it.
-- **Don't rebuild `UmbAI_Search`** — it's Healthy; it was never the problem (an earlier "self-heal" targeted this wrong index and was removed).
-
-Two earlier theories in this repo's history were WRONG (don't loop back): (1) "rebuild `UmbAI_Search` self-heals it" — wrong index; (2) "it self-warms in ~20-30 min, just wait" — a confounded 2026-07-02 reading, **disproven 2026-07-06** when a clean deploy sat cold 90+ min untouched.
-
-Because the gate now probes the semantic path, **routine keyword corruption no longer fails CI** (it's logged, non-gating). If the gate *does* fail, semantic search is down — check Dev's log + Settings → Search (is `UmbAI_Search` Healthy? are embeddings erroring? — see the AI config-key allow-list note), a Portal restart may clear it, then `gh run rerun <id> --failed`. Separately, if you need **keyword** search working on Dev (short queries), that still requires a **Portal restart** to rebuild the corrupt Examine index (the dashboard "Rebuild" fails). Remaining durable fixes: cold-resilient fixtures, and a stable `Provider.Examine` at v18 — the real root fix (pinned at beta.9 only because no stable exists). Full playbook: [CI Failure Recipes → cold AI.Search 500 cascade](docs/ci-failure-recipes.md).
+Load-bearing facts: (1) The gate **detects and fails fast; it does NOT self-heal** — if it fails within budget, semantic search itself is down (worse than keyword corruption: check `UmbAI_Search` health / embeddings — see the AI config-key allow-list note — then `gh run rerun <id> --failed`). (2) Routine post-deploy **keyword** corruption is non-gating but leaves short-query `/search` dead on Dev; the fix is a **Portal restart** (the dashboard "Rebuild" on `Umb_PublishedContent` fails, and don't touch the Healthy `UmbAI_Search`). Full forensics + the disproven theories: [CI Failure Recipes → cold AI.Search 500 cascade](docs/ci-failure-recipes.md).
 
 ### Master → Dev → manual promotion to Live
 
@@ -363,7 +348,7 @@ Playwright visual-regression specs live under [tests/e2e/blocks/screenshots/](te
 gh workflow run update-snapshots.yml --ref <branch>
 ```
 
-The workflow runs Playwright with `--update-snapshots=all` against Dev (using the `URL` GitHub variable), then commits any new/changed PNGs back to the branch as `github-actions[bot]`. Two non-obvious requirements, both learned the hard way (`db1df8f` / `5d4cdb1`) and easy to re-break: Playwright 1.56+ needs an explicit **mode** on the flag (the bare `--update-snapshots` swallows the `testFilter` path as its mode arg), and the job must set `UMBRACO_BASE_URL: ${{ vars.URL }}` — `guides.spec.ts` drives the guide-generator CLI, which otherwise hits localhost and fails the run *before* the baseline-commit step. The default `testFilter` input is `tests/e2e/`, covering both block and page-template specs; pass a narrower path to regenerate a subset.
+The workflow runs Playwright with `--update-snapshots=all` against Dev (using the `URL` GitHub variable), then commits any new/changed PNGs back to the branch as `github-actions[bot]`. The default `testFilter` input is `tests/e2e/`, covering both block and page-template specs; pass a narrower path to regenerate a subset. (The workflow's own setup gotchas — the explicit `--update-snapshots=all` mode Playwright 1.56+ needs, and the `UMBRACO_BASE_URL` env it must set — are recorded in `[[project_screenshot_baselines_never_committed]]`.)
 
 **When to run**: first time you add a new screenshot spec (initial baseline), or after an intentional visual change where existing baselines are now correctly stale. Always review the resulting commit diff before merging. **A new screenshot spec with no committed baseline does not skip — it _fails_** every Gate 2 Playwright run until its PNG lands, and reads as "pre-existing red" (this is exactly how 26 specs sat red for weeks; see *Diagnosing a red CI run* below). So after adding any spec, run this workflow and confirm the bot's baseline commit before moving on.
 
@@ -417,55 +402,15 @@ The two Live/Staging environments (if they exist) each have their own Cloud Secr
 
 ## Diagnosing a red CI run
 
-When master's pipeline goes red, work through three questions in order: **which gate failed → which job inside it → was it failing before my commit?** Skipping straight to "fix the test" without answering all three is the habit that lets a perpetually-red gate become background noise.
+When master's pipeline goes red, work through three questions in order before touching anything:
 
-The recipes for previously-seen failures live in the [CI Failure Recipes runbook](docs/ci-failure-recipes.md). The procedure below is the generic method — use it when you face a failure not already captured in that runbook.
+1. **Which gate failed?** Gate 1 (`gate-1-build-test`, every branch) vs Gate 2 (`cloud-sync` → `cloud-artifact` → `cloud-deployment` → `playwright-against-dev`, master only). See [CI/CD & Build hygiene](#cicd--build-hygiene).
+2. **Which job inside it?** Gate 1 reproduces locally in one command: `cd src/UmbracoProject && dotnet build -c Release && dotnet test --no-build`. The four Gate 2 jobs each have a different first move.
+3. **New or pre-existing?** If the same failure was already red on the previous master run, it's structural — **file a ROADMAP entry under "Next" and unblock your work**, don't bundle a pre-existing infra/content issue into an unrelated PR. If it's new with your push, it's yours to fix (and likely deserves a `/spec` if non-trivial).
 
-### 1. Which gate failed?
+Skipping straight to "fix the test" without answering all three is the habit that lets a perpetually-red gate become background noise — always run the three questions before dismissing a red, and file (don't absorb) pre-existing failures.
 
-```bash
-# List the last few runs on your branch; note the failing run id
-gh run list --branch <branch> --limit 3
-
-# For that run, show each job's conclusion and name
-gh run view <run-id> --json jobs -q '.jobs[] | "\(.conclusion)\t\(.name)"'
-```
-
-Two gates exist (see [CI/CD & Build hygiene](#cicd--build-hygiene)):
-
-- **Gate 1** (`gate-1-build-test`) runs on every branch — `dotnet build -c Release` + `dotnet test --no-build`. Failing here means the same thing the pre-push hook checks, so reproducing is one command: `cd src/UmbracoProject && dotnet build -c Release && dotnet test --no-build`.
-- **Gate 2** (`cloud-sync` → `cloud-artifact` → `cloud-deployment` → `playwright-against-dev`) runs only on master pushes. Failures here split four ways, see the table below.
-
-### 2. Which job inside the gate?
-
-| Failure surface | First diagnostic next step |
-|---|---|
-| Gate 1 (build or test) | Reproduce locally with the commands above; the failure should be identical. If it isn't, check `dotnet --info` parity (CI uses the .NET SDK pinned by `global.json` if present). |
-| `cloud-sync` (Gate 2) | Cloud's `.uda` sync produced a conflict or pushed normalized commits back. Run [/check-uda](.claude/commands/check-uda.md) locally; also `git fetch` to see if Cloud committed via `Umbraco Cloud <support@umbraco.io>`. |
-| `cloud-artifact` (Gate 2) | The deploy artifact build failed inside Cloud's Kudu Lite container. See `[[project-cloud-no-wildcard-versions]]` and `[[project_cloud_build_no_npm]]` for the two most-common traps. |
-| `cloud-deployment` (Gate 2) | Schema deploy hit a database conflict, or runtime Razor compile rejected something. Cloud Portal → Dev → Deploy log is the source of truth; `[[project_cloud_razor_honors_twae]]` covers the most-common CS-warnings-as-errors trap. |
-| `playwright-against-dev` (Gate 2) | Read the actual error first (next subsection); then go to question 3. |
-
-### 3. New or pre-existing?
-
-For Playwright failures especially, distinguish "I broke this" from "this was already broken." A failure that's been red for 5 master pushes is structural — it shouldn't gate your PR, and acting like it does is how red becomes background noise. A failure that's new with your push is a real regression.
-
-```bash
-# The go-to command for actually reading the error (replace <job-id>)
-gh run view --job <job-id> --log 2>&1 | grep -B 1 -A 5 "Error:" | head -50
-
-# Compare against the previous master run — does the same test fail there too?
-gh run list --branch master --limit 10
-gh run view <previous-run-id> --json jobs -q '.jobs[] | select(.conclusion == "failure") | .name'
-```
-
-If the failure was already red on the previous master run, it's pre-existing. **File a ROADMAP entry under "Next" and unblock your work** — don't bundle a pre-existing infra/content issue into an unrelated feature PR. (The `fix-e2e-dev-only-failures` work — see `_specs/shipped/fix-e2e-dev-only-failures.md` and the [CI Failure Recipes runbook](docs/ci-failure-recipes.md) — happened specifically because this hygiene was missing for several weeks.)
-
-If the failure is new with your push, it's yours to fix — and likely deserves a `/spec` if non-trivial.
-
-### Habituation avoidance
-
-Every recurring red run without diagnosis is a broken-window signal. The cost compounds: the first ignored red costs zero, the tenth costs the team's faith in CI. Tools alone can't prevent this — the discipline is to (a) always run questions 1–3 before dismissing a red, and (b) file pre-existing failures as ROADMAP work rather than letting them sit. When in doubt, treat the feature doc's *Diagnosis & Fix Recipes* section as the durable record of "we already learned this lesson; here's the playbook."
+The [CI Failure Recipes runbook](docs/ci-failure-recipes.md) is the home for the rest: the `gh run list` / `gh run view` command walkthrough, the per-job diagnostic table (which trap each Gate 2 job hits — see also `[[project_cloud_no_wildcard_versions]]`, `[[project_cloud_build_no_npm]]`, `[[project_cloud_razor_honors_twae]]`), and the previously-seen failure recipes. Check it first before diagnosing from scratch.
 
 ## Modifying Umbraco Content from Claude Code
 
@@ -530,11 +475,11 @@ Without `UMBRACO_LIVE_*` entries, `/check-uda` degrades gracefully to git-only m
 2. In that same dashboard, also do a **media restore** for the same environment. This is the step that's easy to forget — content restore pulls document records (including the media picker references like `/media/<hash>/<name>.png`), but **does not** pull the media binaries.
 3. Verify: browse the restored articles. If `mainImage` fields show broken links, step 2 was skipped.
 
-**Authoring:** Create and edit media in the Cloud backoffice (Live or a shared non-prod environment). Use the Cloud Deploy dashboard to transfer media between environments in either direction. Do not commit `wwwroot/media/` changes — the gitignore rule will block them, but don't bypass it.
+**Authoring:** Create and generate media **locally** (backoffice upload or the image-generator CLI — the local `wwwroot/media/` is where new binaries land), then transfer it **up** the same direction as content: local → Dev → Live, via the Cloud Deploy dashboard. Do not commit `wwwroot/media/` changes — the gitignore rule will block them, but don't bypass it.
 
 ### When local media breaks
 
-The usual cause is skipping the media restore after a partial content restore: local DB now points to `/media/<hash>/<filename>` paths whose binaries live on Live but not on disk. To heal:
+The usual cause is skipping the media restore after a partial content restore: local DB now points to `/media/<hash>/<filename>` paths whose binaries live on Dev-or-Live (Dev is the superset) but not on disk. To heal:
 
 ```bash
 npm run media:sync                  # pull every missing binary from $UMBRACO_LIVE_URL
@@ -597,66 +542,7 @@ Credentials come from `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`). The
 
 Use the `/block` command for the full RED → GREEN TDD workflow for building blocklist components. See [.claude/commands/block.md](.claude/commands/block.md) for details.
 
-### Umbraco 17 Management API Quirks
-
-Hard-won lessons from building tests against the live API:
-
-**Reserved property aliases** — These aliases are rejected silently or cause validation errors:
-- `level` — reserved (use `alertLevel`, `severityLevel`, etc.)
-- When in doubt, prefix with the block name (e.g., `alertContent` not `content`)
-
-**Correct dropdown editor UI alias:**
-```
-Umb.PropertyEditorUi.Dropdown
-```
-`SelectBox` does not exist. The property editor alias (schema) is `Umbraco.DropDown.Flexible`.
-
-**`getByName()` returns `false`, not `null`** when an entity isn't found. Use `.toBeTruthy()` / `.toBeFalsy()`, not `.toBeNull()` / `.not.toBeNull()`.
-
-**Flat `properties` array** — The Management API returns document type properties directly on the object:
-```typescript
-// WRONG — no groups nesting in the API response
-elementType.groups?.flatMap((g) => g.properties)
-
-// CORRECT
-elementType.properties ?? []
-```
-
-**Token lifetime** — the 299-second expiry (see *Auth Setup* above) bites long-running scripts too: re-authenticate before each logical operation group, don't reuse one token across a whole multi-call `beforeAll`.
-
-### E2E Test Resilience Rules
-
-Follow these rules when writing or planning Playwright E2E tests to avoid fragile, environment-coupled, or non-portable tests.
-
-**1. Never hardcode Umbraco UUIDs.** Document IDs, document type IDs, folder IDs, and template IDs change between environments. Always look them up dynamically via the Management API (walk tree roots, search by name). Store the lookup in `beforeAll` and pass to tests via shared variables.
-
-**2. Never hardcode URL slugs.** Don't assume `/parent-name/child-name/` — Umbraco may append `-2`, `-3` etc. when duplicate names exist (e.g., leftover from a failed test run). After creating and publishing a page, fetch its actual URL from the API response or document `urls` property.
-
-**3. Always clean up stale test data before setup.** In `beforeAll`, search for and delete any leftover pages from previous failed runs *before* creating new ones. This prevents name collisions and slug suffixes. Pattern: search by a unique prefix (e.g., `SN Test`) in the document tree, delete matches in reverse-depth order.
-
-**4. Re-acquire tokens before each logical operation group.** Don't rely on a single token for an entire `beforeAll` that does many sequential API calls. Add a helper that refreshes the token if it's near expiry, or re-authenticate at the start of each phase (setup, test, teardown).
-
-**5. Use regex for CSS/file assertions — tolerate whitespace.** When asserting on CSS or file content, never match exact formatting like `.toContain('.section-nav {')`. Use `.toMatch(/\.section-nav\s*\{/)` to survive minification, auto-formatting, or whitespace changes.
-
-**6. Prefer browser assertions over file-content assertions.** Don't assert on specific CSS class names (e.g., `col-lg-3`) or implementation details inside `.cshtml` files — these are implementation details, not behavior. If the browser E2E tests already verify the rendered behavior (sidebar visible, layout correct), file-content checks for the same thing are redundant and fragile. File-content tests should only verify structural concerns that can't be tested in the browser (e.g., which Razor helper method is used).
-
-**7. Make API lookups resilient to testhelpers bugs.** The `getByName()` method in `@umbraco/playwright-testhelpers` has a known bug where `recurseChildren` short-circuits. When looking up entities, always have a fallback strategy (e.g., `getChildren(folderId)` for a known parent). Document the workaround with a comment explaining *why*, so it can be removed when the upstream fix lands.
-
-**General patterns for test setup/teardown:**
-```typescript
-// Good: dynamic lookup
-const home = (await api.document.getRoot()).find(d => d.name === 'Home');
-const contentDT = await api.documentType.getByName('Content');
-
-// Good: clean before create
-async function cleanStaleTestData(token, prefix) {
-  // Search tree for pages starting with prefix, delete them
-}
-
-// Good: get actual URL after publish
-const doc = await apiFetch(token, 'GET', `/document/${id}`);
-const actualUrl = doc.urls?.[0]?.url;
-```
+**Authoring E2E specs?** The Management-API quirks and the E2E resilience rules (dynamic ID/slug lookup, stale-data cleanup, token refresh, resilient assertions) live in [docs/e2e-testing.md](docs/e2e-testing.md).
 
 ## Image Generator
 

@@ -6,7 +6,7 @@ branch: claude/feature/content-transfer-topology
 **Work type**: fix-infra — see CLAUDE.md → Workflow layers → "Work types"; no `_features/` doc (this changes how content flows through environments and how local Deploy config is maintained, not a visitor-facing site capability)
 figma_component (if used): (none)
 
-Source discovery: [docs/discovery/content-transfer-topology.md](../docs/discovery/content-transfer-topology.md) (`/explore`, 2026-07-28, lean scope)
+Source discovery: `/explore`, 2026-07-28, lean scope (discovery doc retired post-ship — its rationale is summarized in this spec)
 
 ## Summary
 

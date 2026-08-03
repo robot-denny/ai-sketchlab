@@ -8,7 +8,7 @@
 > block to another site should be a restyle (override tokens), never a markup edit.
 
 This is the implementation companion to `docs/brand.md` (north-star intent) and
-`_specs/design-system.md` (the token vocabulary). Where those two describe *what
+`docs/design-system.md` (the token vocabulary). Where those two describe *what
 the site should feel like*, this describes *how a block stays reusable*.
 
 ---
@@ -30,7 +30,7 @@ the de-facto mechanism across the block CSS; this note makes the contract explic
   Style Guide (`styleguide.css`) sheets.
 - **Brand/skin is a token.** Every color, font family, border color, surface, and the
   spacing/easing scale itself resolve through `var(--token)`. A new site redefines the
-  tokens in `:root` (see `_specs/design-system.md` → Color Palette / Spacing system /
+  tokens in `:root` (see `docs/design-system.md` → Color Palette / Spacing system /
   Easing tokens) and the blocks restyle with no markup or block-CSS edit.
 
 The tokens are declared in `wwwroot/assets/css/typography.css` (warm-stone palette,

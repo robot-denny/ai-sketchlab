@@ -11586,7 +11586,7 @@ header.masthead .site-heading .h1 {
 /* ================================================================
    Design System Overrides: The Human Signal
    Loaded at end of styles.css to override all Bootstrap defaults.
-   Reference: _specs/design-system.md
+   Reference: docs/design-system.md
    ================================================================ */
 
 /* ── Global: Sharp Geometry ────────────────────────────────── */
@@ -11871,8 +11871,9 @@ header.masthead code,
    --border-medium, --ease-micro, --space-*) are scoped to
    `.image-carousel { ... }` rather than `:root` so they
    don't activate other in-file references that have been
-   waiting on the broader design-system rollout (Phase 1 in
-   _specs/design-system.md). When that rollout lands and the
+   waiting on the broader design-system rollout (see the
+   Color Palette / Spacing system tokens in docs/design-system.md).
+   When that rollout lands and the
    tokens move to `:root`, this scoped block can be removed
    and the carousel will inherit the global values seamlessly.
    ============================================================ */
@@ -12063,7 +12064,7 @@ header.masthead code,
   height: 1.25rem;
 }
 
-/* Focus-visible outline (per _specs/design-system.md) */
+/* Focus-visible outline (per docs/design-system.md) */
 .image-carousel__arrow:focus-visible,
 .image-carousel__indicator:focus-visible,
 .image-carousel__toggle:focus-visible {

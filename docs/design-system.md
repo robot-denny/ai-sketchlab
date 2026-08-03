@@ -459,27 +459,6 @@ The following inherited Clean Blog / Umbraco Starter Site patterns should be sys
 
 ---
 
-## Implementation Priority
-
-The design system should be implemented in phases, each producing a visible and testable result:
-
-### Phase 1: Color tokens and surfaces
-Replace the inherited color values with CSS custom properties. This is the highest-leverage change — it touches everything but can be done entirely in CSS without Razor template changes.
-
-### Phase 2: Component sharpening
-Remove border-radius, update card/alert/form treatments, apply the new border and shadow system. Still primarily CSS.
-
-### Phase 3: Layout refinements
-Update the footer to dark surface treatment, refine section row backgrounds, implement breakout patterns for images and pull quotes. Requires some Razor partial changes.
-
-### Phase 4: Motion system
-Replace navbar scroll behavior, add section reveal animations, implement the easing token system. Requires JS changes.
-
-### Phase 5: Navigation and structural chrome
-~~Rework the mobile navigation overlay, implement the transparent → solid nav transition, update the masthead overlay approach.~~ **Done** — nav is now `position: sticky` with permanent white background; scroll-triggered JS removed; mobile bar is white with dark collapsed overlay. See `_features/site-header.md`.
-
----
-
 ## Guiding Principles
 
 1. **Contrast through complement, not similarity.** The typography doesn't mimic the imagery. Where the imagery is geometric, the text is calligraphic. Where the imagery is dense, the text breathes.

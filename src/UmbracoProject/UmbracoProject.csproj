@@ -68,18 +68,18 @@
          in the .uda (GetArtifactAsync serialized via the IAIProfileSettings interface), so they
          now deploy to Cloud instead of being per-environment-only. Keep each on its latest 17.x;
          do NOT cross to 18.x until the planned v18 upgrade. Provider.Examine has no fix yet. -->
-    <PackageReference Include="Umbraco.AI" Version="17.1.0" />
-    <PackageReference Include="Umbraco.AI.Agent" Version="17.1.0" />
-    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI" Version="17.2.0" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="17.1.1" />
+    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.1" />
     <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="17.0.0" />
     <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.AGUI" Version="17.1.0" />
-    <PackageReference Include="Umbraco.AI.Anthropic" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.Deploy" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.Google" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.1.0" />
-    <PackageReference Include="Umbraco.AI.Prompt" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.0" />
+    <PackageReference Include="Umbraco.AI.AGUI" Version="17.1.1" />
+    <PackageReference Include="Umbraco.AI.Anthropic" Version="17.0.2" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="17.0.2" />
+    <PackageReference Include="Umbraco.AI.Google" Version="17.0.1" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.1.2" />
+    <PackageReference Include="Umbraco.AI.Prompt" Version="17.2.0" />
+    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.1" />
     <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.1" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.1.0" />
@@ -97,7 +97,7 @@
     <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.9" />
     <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.2.1" />
     <PackageReference Include="Umbraco.Forms" Version="17.4.7" />
-    <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.0" />
+    <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.1" />
   </ItemGroup>
 
   <ItemGroup>

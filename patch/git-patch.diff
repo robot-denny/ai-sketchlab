@@ -1,8 +1,20 @@
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda
-index d9013d3..7956773 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__b871f83c23954894be0f5422c1a71e48.uda
-@@ -81,5 +81,5 @@
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/data-type__32deaf6058fe4ce4a21cf6d88f206c75.uda b/src/UmbracoProject/umbraco/Deploy/Revision/data-type__32deaf6058fe4ce4a21cf6d88f206c75.uda
+index c01f1c5..f8e65fe 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/data-type__32deaf6058fe4ce4a21cf6d88f206c75.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/data-type__32deaf6058fe4ce4a21cf6d88f206c75.uda
+@@ -768,5 +768,5 @@
+     }
+   ],
+   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+-  "__version": "17.2.0"
++  "__version": "17.2.1"
+ }
+\ No newline at end of file
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__10554847fbd94a12826c7c4663b841e9.uda b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__10554847fbd94a12826c7c4663b841e9.uda
+index 4a33ac3..a40d5f3 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__10554847fbd94a12826c7c4663b841e9.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__10554847fbd94a12826c7c4663b841e9.uda
+@@ -40,5 +40,5 @@
      }
    ],
    "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
@@ -10,44 +22,50 @@ index d9013d3..7956773 100644
 +  "__version": "17.2.1"
  }
 \ No newline at end of file
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-index a339c80..bc7f764 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-@@ -3,7 +3,7 @@
-   "Alias": "site-content-guidelines",
-   "Resources": [
-     {
--      "Id": "cf83a36c-b7e8-48a9-8907-12fdca38b6e8",
-+      "Id": "fe84315b-6b82-4a24-a730-afbc126d2b49",
-       "ResourceTypeId": "brand-voice",
-       "Name": "Brand Voice",
-       "Description": null,
-@@ -20,5 +20,5 @@
-   "Udi": "umb://umbraco-ai-context/1d2c0e55ffab48db92a3d6d589af4f80",
-   "Dependencies": [],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__1c46d84542214d2e9e1dcfa5b47cbee1.uda b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__1c46d84542214d2e9e1dcfa5b47cbee1.uda
+index 848c2f1..6c31aa8 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__1c46d84542214d2e9e1dcfa5b47cbee1.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__1c46d84542214d2e9e1dcfa5b47cbee1.uda
+@@ -57,5 +57,5 @@
+     }
+   ],
+   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
 -  "__version": "17.2.0"
 +  "__version": "17.2.1"
  }
 \ No newline at end of file
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-index c99c0a3..5ea773c 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-@@ -3,7 +3,7 @@
-   "Alias": "how-to-guide-style",
-   "Resources": [
-     {
--      "Id": "1f038b58-b90a-4730-a6cb-f2a1d3cc554c",
-+      "Id": "0ba8617a-d994-432c-8b2e-daede1a98b50",
-       "ResourceTypeId": "text",
-       "Name": "Structural Template",
-       "Description": "Section-by-section structure every generated guide must follow.",
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__a95360e8ff0440b18f467aa4b5983096.uda b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__a95360e8ff0440b18f467aa4b5983096.uda
+index eda8955..e071b06 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__a95360e8ff0440b18f467aa4b5983096.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__a95360e8ff0440b18f467aa4b5983096.uda
+@@ -144,5 +144,5 @@
+     }
+   ],
+   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+-  "__version": "17.2.0"
++  "__version": "17.2.1"
+ }
+\ No newline at end of file
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__d977a895b8904bed8742a89a1926f55d.uda b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__d977a895b8904bed8742a89a1926f55d.uda
+index dce246e..07ff01f 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/document-type__d977a895b8904bed8742a89a1926f55d.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/document-type__d977a895b8904bed8742a89a1926f55d.uda
+@@ -56,5 +56,5 @@
+     }
+   ],
+   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+-  "__version": "17.2.0"
++  "__version": "17.2.1"
+ }
+\ No newline at end of file
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/template__cdd72ffcacfa41c6ae84e11446425b7f.uda b/src/UmbracoProject/umbraco/Deploy/Revision/template__cdd72ffcacfa41c6ae84e11446425b7f.uda
+index 31e74cd..2ed62b5 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/template__cdd72ffcacfa41c6ae84e11446425b7f.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/template__cdd72ffcacfa41c6ae84e11446425b7f.uda
 @@ -17,5 +17,5 @@
-   "Udi": "umb://umbraco-ai-context/d11be0caf8fb4d8bb3bf1ef37ff9e624",
-   "Dependencies": [],
-   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
+     }
+   ],
+   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
 -  "__version": "17.2.0"
 +  "__version": "17.2.1"
  }

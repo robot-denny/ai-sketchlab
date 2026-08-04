@@ -256,11 +256,16 @@ test.describe('Article card imageless placeholder — Browser E2E', () => {
   });
 
   test.afterAll(async () => {
-    for (const id of [...createdArticleIds].reverse()) {
+    // Sibling documents, no ordering dependency. Warn on failure (parity with the
+    // publish step) so a silent cleanup miss is visible in CI, not just next run's sweep.
+    for (const id of createdArticleIds) {
       try {
-        await apiFetch('DELETE', `/document/${id}`);
-      } catch {
-        /* best-effort cleanup */
+        const delResp = await apiFetch('DELETE', `/document/${id}`);
+        if (!delResp.ok) {
+          console.warn(`Cleanup delete of article ${id} failed: ${delResp.status}`);
+        }
+      } catch (err) {
+        console.warn(`Cleanup delete of article ${id} threw: ${String(err)}`);
       }
     }
   });
@@ -312,33 +317,44 @@ test.describe('Article card imageless placeholder — Browser E2E', () => {
     ).toHaveCount(0);
   });
 
-  test('every card still exposes exactly one accessible link', async ({ page }) => {
+  test('the placeholder fixtures each keep exactly one accessible link and a hidden-safe placeholder', async ({
+    page,
+  }) => {
     await page.goto(articleListUrl);
     await page.waitForLoadState('networkidle').catch(() => {});
 
-    const cards = page.locator('.article-grid-card');
-    const cardCount = await cards.count();
-    expect(cardCount, 'expected at least one .article-grid-card in the archive').toBeGreaterThan(0);
-
-    for (let i = 0; i < cardCount; i++) {
-      const card = cards.nth(i);
+    // Scoped to this feature's own fixtures — the site-wide one-link-per-card
+    // contract is owned by accessibility/cardLinks.spec.ts. Keeping this local
+    // means a failure here is attributable to the placeholder, not to unrelated
+    // published content drifting on the archive.
+    for (const name of [ARTICLE_NO_IMAGE_NAME, ARTICLE_WITH_IMAGE_NAME]) {
+      const card = page
+        .locator('.article-grid-card')
+        .filter({ has: page.locator('.card-title', { hasText: name }) });
+      await expect(card, `fixture card "${name}" should be visible`).toBeVisible();
 
       const links = card.locator('a');
-      expect(await links.count(), `card #${i + 1} should expose exactly one link`).toBe(1);
+      expect(await links.count(), `"${name}" should expose exactly one link`).toBe(1);
 
       await expect(
         links.first(),
-        `card #${i + 1} link should have a non-empty accessible name`
+        `"${name}" link should have a non-empty accessible name`
       ).toHaveAccessibleName(/.+/);
 
-      // The placeholder (added in Step 2) must stay out of the a11y tree — no
-      // focusable node inside an aria-hidden subtree (matches cardLinks.spec.ts).
+      // No focusable node inside an aria-hidden subtree...
       const hiddenFocusable = card.locator(
         '[aria-hidden="true"] a, [aria-hidden="true"] button, [aria-hidden="true"] [tabindex]'
       );
       expect(
         await hiddenFocusable.count(),
-        `card #${i + 1} should have no focusable element inside an aria-hidden subtree`
+        `"${name}" should have no focusable element inside an aria-hidden subtree`
+      ).toBe(0);
+
+      // ...and the aria-hidden placeholder host itself must not carry tabindex
+      // (a hidden-but-focusable node is the anti-pattern this guards against).
+      expect(
+        await card.locator('.card-thumb__placeholder[aria-hidden="true"][tabindex]').count(),
+        `"${name}" placeholder host must not itself carry tabindex`
       ).toBe(0);
     }
   });

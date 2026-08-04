@@ -50,6 +50,16 @@
 .article-grid-card{display:flex;flex-direction:column;gap:10px}
 .article-grid-card .card-thumb{aspect-ratio:4/3;background:var(--surface-tertiary);overflow:hidden;display:block}
 .article-grid-card .card-thumb img{width:100%;height:100%;object-fit:cover}
+/* No-image placeholder — a miniature Dark Constructivism field: an overlapping
+   near-black plane, a graphite force line, and one sparing signal-red wedge.
+   Pure CSS (layered hard-stop gradients), zero radius, self-contained on any
+   card surface. Deterministic per-article via the --0..3 angle/offset variants
+   (same system, different arrangement — screenshot-stable, no motion). */
+/* Imageless-card placeholder — dark constructivist mark; seed 0 uses this base rule, --1..3 override the geometry. */
+.article-grid-card .card-thumb__placeholder{width:100%;height:100%;background-color:var(--surface-dark);background-repeat:no-repeat;--pl-a:122deg;--pl-b:28deg;--pl-split:46%;--pl-line:31%;--pl-red:67%;background-image:linear-gradient(var(--pl-b),transparent 0 var(--pl-red),var(--accent-primary) var(--pl-red) calc(var(--pl-red) + 1.6%),transparent calc(var(--pl-red) + 1.6%)),linear-gradient(var(--pl-b),transparent 0 var(--pl-line),var(--border-dark) var(--pl-line) calc(var(--pl-line) + 1.3%),transparent calc(var(--pl-line) + 1.3%)),linear-gradient(var(--pl-a),var(--surface-dark-elevated) 0 var(--pl-split),transparent var(--pl-split))}
+.article-grid-card .card-thumb__placeholder--1{--pl-a:58deg;--pl-b:152deg;--pl-split:42%;--pl-line:34%;--pl-red:64%}
+.article-grid-card .card-thumb__placeholder--2{--pl-a:142deg;--pl-b:44deg;--pl-split:52%;--pl-line:26%;--pl-red:72%}
+.article-grid-card .card-thumb__placeholder--3{--pl-a:34deg;--pl-b:118deg;--pl-split:48%;--pl-line:29%;--pl-red:69%}
 .article-grid-card .card-num{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--accent-secondary);margin:6px 0 0}
 .article-grid-card .card-title{font-family:var(--font-display);font-weight:400;font-size:1.5rem;line-height:1.12;letter-spacing:-.01em;text-transform:none;margin:0}
 .article-grid-card .card-title em{font-style:italic;font-weight:300}

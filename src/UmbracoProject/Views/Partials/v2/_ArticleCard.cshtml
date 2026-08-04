@@ -50,11 +50,6 @@
     }
 
     string readingTime = ReadingTime.Estimate(a, MemoryCache);
-
-    // Deterministic 0..3 variant for the no-image placeholder — stable per article
-    // so a grid of imageless cards looks varied but renders identically every time.
-    // Guard against Math.Abs(int.MinValue) overflow by masking the sign bit.
-    var placeholderSeed = (a.Key.GetHashCode() & int.MaxValue) % 4;
 }
 
 <article class="article-grid-card">
@@ -73,6 +68,10 @@
         }
         else
         {
+            // Deterministic 0..3 variant, byte-stable across runtimes/.NET versions
+            // (Guid.GetHashCode() is an implementation detail, not a stable value) so a
+            // grid of imageless cards looks varied but renders identically every time.
+            var placeholderSeed = a.Key.ToByteArray()[0] % 4;
             <div class="card-thumb__placeholder card-thumb__placeholder--@placeholderSeed" aria-hidden="true"></div>
         }
     </div>

@@ -187,3 +187,22 @@ empty-slot fallback misfired. Date each entry.
   context clean; the `## Step N — DONE` report relayed cleanly. This is the mechanism cantrip ran inline
   and could never validate — it works. Bonus: self-authored fixtures mean the RED reproduces in CI with
   no pre-seeded content, closing the fixture-prerequisite risk the plan flagged.
+- **2026-08-04 · /implement-step · headless dispatch vs "verify by eye" steps.** Step 3's validation is
+  visual, which a headless worker cannot self-judge. Mitigation that worked well: instruct the worker to
+  capture a screenshot (create a temp fixture → screenshot → clean up → save PNG) so the orchestrator
+  eyeballs it. Grounding the worker in the design-system tokens + the constructivist design language
+  produced genuinely on-brand output (not generic AI aesthetics). **Suggest:** `/implement-step`'s
+  envelope could note that for by-eye validation steps the worker should produce visual evidence
+  (a screenshot) rather than self-attesting "looks good" — otherwise the automated dispatch silently
+  skips the one check that step defines.
+- **2026-08-04 · /code-review · parallel dispatch works; tailored-reviewer memory paid off (positive).**
+  All three reviewers ran concurrently (the last untested surface — validated). Using the project's KEPT
+  tailored reviewers (not cantrip's unregistered generics) produced project-aware findings a generic
+  reviewer would miss — `umbraco-code-reviewer` flagged that the new test duplicates the site-wide
+  one-link contract already owned by `cardLinks.spec.ts`, and cited `playwright.config` `workers:1` and the
+  Location-header convention across sibling specs. Strong validation of "keep your tailored reviewers" +
+  parallel dispatch. Two friction notes: **(a)** the spell names `code-reviewer` but this project kept
+  `umbraco-code-reviewer`; **(b)** `/code-review` scopes to UNCOMMITTED changes, which misses most of an
+  increment built via `/implement-step`'s per-step commits — I reviewed the full branch-vs-base diff
+  instead. Suggest `/code-review` accept a scope (uncommitted | branch-vs-base), since the `/implement-step`
+  flow commits per step.

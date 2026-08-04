@@ -148,3 +148,21 @@ empty-slot fallback misfired. Date each entry.
   **editorial/readability** decision, not a per-increment classification output — the classifier
   should bias toward *amend*. Applied here: renamed the sliver `article-card-placeholders` doc →
   area-level `_features/article-card.md`.
+- **2026-08-03 · /plan · ADR 0003 pack routing works (positive).** `/plan` consulted the installed
+  `umbraco-17-planning` reference skill, which correctly **self-scoped out** for a view+CSS change
+  (it says skip for "Razor/.NET patterns clearly visible in the codebase"), so no schema/model step
+  was forced onto a change that has none. The filled L2 slots were all consumed — build/test
+  commands (`stack.md`), the `## Unit of work` slice, `## Code layout`, and `## Planning gotchas`
+  (Linux-only screenshot baselines) all shaped the plan. Clean "filled-path" signal.
+- **2026-08-03 · /plan · Step 1 "path or description" doesn't cover a bare slug.** `/spec` ends with
+  `Next: /plan <slug>`, but `/plan` Step 1 branches only on "looks like a path" vs "is a
+  description" — a bare slug is neither. Resolving `<slug>` → `_work/<slug>/spec.md` relied on
+  knowing the `workflow` layout. **Suggest:** `/plan` Step 1 should explicitly resolve a bare slug
+  via the workspace layout. Minor.
+- **2026-08-03 · /plan · feature-doc identity ≠ increment slug (consequence of area-level naming).**
+  The `new-capability` final step is templated as `/feature update <feature_slug>`, but the
+  area-level rename means the capability doc is `article-card` while the increment slug is
+  `placeholder-graphics-imageless-cards`. The `/feature` step must target the **capability doc**,
+  not the slug. The spells assume `slug == doc-name`; that breaks (correctly) whenever a doc is
+  named at area level. **Suggest:** carry an explicit `feature-doc:` field from `/spec` so `/plan`
+  and `/feature` target the doc by name, not by re-deriving it from the slug.

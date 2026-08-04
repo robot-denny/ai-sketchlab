@@ -114,3 +114,37 @@ empty-slot fallback misfired. Date each entry.
   ("working configuration — infers and asks"). **Caveat:** this run cannot confirm whether
   check-install *detects the 4-location scatter*, because cleanup ran before the checker —
   worth a fresh-install test of that path.
+- **2026-08-03 · /spec · `_work/` vs existing `_specs/` divergence (biggest finding).** With
+  `paths.md → ## Workspace` empty, the `workflow` skill's default put the spec at
+  `_work/<slug>/spec.md` — but this repo already uses `_specs/` (3 files). A naive consumer ends
+  up with a new `_work/` dir *alongside* their existing `_specs/`, an easy-to-miss split.
+  Graceful degradation "worked" (it wrote somewhere sensible) but the fallback can't know the
+  repo's real convention. **Suggest:** the setup skill should detect an existing `_specs/`/`_plans/`
+  and either seed `paths.md → ## Workspace` or ask; and `/spec`'s fallback could note when it's
+  creating a *new* workspace dir next to an existing one.
+- **2026-08-03 · /spec · work-type model has no bucket for "enhancement to an undocumented
+  existing component."** The placeholder enhances the existing (but undocumented) article card.
+  `change-to <slug>` assumes an existing capability doc to fold into — there was none — and
+  `fix-infra` is wrong (standing visitor behavior). Forced to `new-capability` + a narrow
+  `article-card-placeholders` doc. This is the direction doc's open "brownfield adoption story"
+  showing up concretely. **Suggest:** guidance (or a 4th path) for "new behavior on an existing,
+  yet-undocumented capability → new-capability now, flag for later merge via `/feature` from-code."
+- **2026-08-03 · /spec · branch inference good; nesting is context-dependent.** Branch-naming
+  fallback correctly inferred `claude/feature/<slug>` from git history (worked well). It then
+  created that branch off the current `cantrip-trial`, nesting a branch under the trial branch —
+  fine here, but a `conventions.md → ## Unit of work`/branch-strategy signal would let a
+  trial-on-a-branch stay put. Minor.
+- **2026-08-03 · /spec · work-type classification is coverage-dependent (design finding, ADR-worthy).**
+  The SAME work classifies differently based only on whether the surrounding capability is already
+  documented: undocumented → `new-capability` (spawns a doc); documented → `change-to` (appends a
+  Rule). The deciding factor is doc debt, not the nature of the change. Two proposed additions to
+  the `workflow` skill: **(1)** an "area-noun vs behavior" naming tell for amend-vs-create — if the
+  doc name you'd create reads as a *behavior* (`article-card-placeholders`) rather than an *area* a
+  stakeholder names (`article-card`), it should be a Rule inside the area doc, not a new file
+  (parallels the existing "transition vs standing" tell). **(2)** When `new-capability` is chosen
+  but the nearest area is undocumented, NAME THE DOC AT AREA LEVEL so the `new-capability` path
+  converges with what `change-to` would have produced — the debt shows as an under-populated doc,
+  flagged for from-code backfill. Also: "when to split one capability doc into several" is an
+  **editorial/readability** decision, not a per-increment classification output — the classifier
+  should bias toward *amend*. Applied here: renamed the sliver `article-card-placeholders` doc →
+  area-level `_features/article-card.md`.

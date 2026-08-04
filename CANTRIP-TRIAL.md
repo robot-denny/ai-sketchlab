@@ -220,3 +220,14 @@ empty-slot fallback misfired. Date each entry.
   /commit-message → /feature update`, plus `/update-toolkit` mid-stream to pull fixes. Every spell cantrip
   could not validate inline is now validated on a real Umbraco repo with .uda schema, Playwright tests, and
   BDD feature docs.
+- **2026-08-04 · /feature from-code · brownfield backfill works + surfaces real issues (last surface validated).**
+  Cast `/feature article-card` to complete the pre-existing card's behavior (only the placeholder had been
+  documented). Update-mode on the existing doc + from-code technique (read schema/model/view, one Rule per
+  field/branch) backfilled the full card — featured image, date + estimated reading time, teaser
+  (meta-over-subtitle), author byline, title→name fallback, and the omit-when-absent rules. Beyond
+  documentation it surfaced two genuine findings a hand-written doc would miss: an **orphaned
+  `.article-grid-card__no-image` CSS rule** (no view emits it after the placeholder increment) and a **stale
+  view comment** claiming reading time isn't rendered. This is the direction doc's open "brownfield adoption
+  story" — the last unexercised surface — and it works: from-code is a real onboarding/backfill tool, not
+  just a cold-start fallback. The coverage table honestly separates test-verified rules from
+  code-derived-untested ones.

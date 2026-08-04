@@ -6,7 +6,7 @@ allowed-tools: Bash(git diff), Bash(git diff --staged)
 Your job is to coordinate three reviewer subagents in parallel:
 
 - **accessibility-reviewer**
-- **umbraco-code-reviewer**
+- **code-reviewer**
 - **perf-reviewer**
 
 Goal:

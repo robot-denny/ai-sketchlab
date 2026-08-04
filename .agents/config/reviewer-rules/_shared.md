@@ -1,7 +1,7 @@
 # Reviewer shared context
 
 Filled during the cantrip trial (2026-08-03). Per-reviewer rule files are deferred: this repo's
-existing tailored reviewers (`umbraco-code-reviewer` / `accessibility-reviewer` / `perf-reviewer`
+existing tailored reviewers (`code-reviewer` / `accessibility-reviewer` / `perf-reviewer`
 under `.claude/agents/`) carry their own project rules and remain in use for the trial; cantrip's
 generic reviewers are installed but unregistered (no force-link, per the cantrip package's
 `check-install.sh` — which ships with the external toolkit, not this repo).

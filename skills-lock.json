@@ -52,7 +52,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/plan/SKILL.md",
-      "computedHash": "9afb99a16f8d5c806302784dd8b1326c508974632bc5e4b1a090a3eaef107eaf"
+      "computedHash": "75e154cf1e35d8c9b705351ada46303141b816feba3af788a1b2e809a517a6f6"
     },
     "retrofit": {
       "source": "robot-denny/cantrip",
@@ -64,13 +64,13 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/reviewer-discipline/SKILL.md",
-      "computedHash": "3731136ca2b816833a505e56d086acbc74a5800cad1915d2261e3c1cec9df072"
+      "computedHash": "3c3b2c8386f15f23a8f123fa0f430f71ad962bcc70a391493bf0c6f764317717"
     },
     "spec": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/spec/SKILL.md",
-      "computedHash": "21a933d91dc92c8c2fc6d6ba9b22480bae469def0b2558db837c8e0c6d44fe7b"
+      "computedHash": "656f13e7a77dd9e7ff676ce06dcab957e290b34fa087f5b927c1bd7c6c3c2771"
     },
     "umbraco-17-feature-backfill": {
       "source": "robot-denny/cantrip",
@@ -94,7 +94,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/workflow/SKILL.md",
-      "computedHash": "e9756f1fdeb0a09f0ab435908c9f4969f2b26f0019fc3bd786c5b707c75509ad"
+      "computedHash": "7248214f53578feacb1e0b273732bade5274454d72639c79eefba929097b2723"
     }
   }
 }

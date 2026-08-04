@@ -240,3 +240,36 @@ empty-slot fallback misfired. Date each entry.
   reviewer *identity*, not just name matches. Every sync #1–#3 fix is now present and verified
   in-canary. The pack **spellbook** was deliberately NOT pulled — its `check-uda`/`umbraco-edit`/`block`
   spells would shadow this repo's stronger tailored versions (held per cantrip's own recommendation).
+- **2026-08-04 · adoption /spec + /plan · the guards from my earlier findings now fire correctly (positive).**
+  Casting `/spec` + `/plan` for the toolkit-adoption increment exercised the Phases 0–7 fixes: `/spec`'s
+  Step 3 "don't nest a branch inside another working branch" guard correctly paused on `cantrip-trial`
+  (not the default) and asked before branching; the workspace guard covers `_work/`-beside-`_specs/`.
+  `/plan` self-scoped `umbraco-17-planning` out for a dev-tooling change (no schema step). The reported
+  findings are landing.
+- **2026-08-04 · /implement-step on infra (git-heavy, non-code) · works; two notes.** Step 1 (port the
+  toolkit to master) dispatched cleanly to a fresh worker — branch management, the stale-local-master
+  fast-forward, scope discipline (held the pack spellbook), and evidence-over-attestation (pasted
+  check-install + build output) all held on a NON-code step. Two frictions: **(a)** the plan's terminal
+  step said "commit + PR" but the `/implement-step` envelope says "do not commit" — for a per-PR migration
+  plan these pull against each other; I reconciled it in the dispatch, but the plan-template wording and the
+  review-first envelope should agree. **(b)** a transient security-classifier false-positive fired on the
+  worker (flagged as a stage-2 error, "retrying often succeeds"); verified the worker's actions independently
+  as fully in-scope. Not cantrip's to fix — noted for awareness.
+- **2026-08-04 · /code-review (updated) · all three of my findings' fixes validated + a real Blocker caught
+  by *running* commands (strong positive).** The updated spell discovered reviewers BY IDENTITY (found the
+  tailored `umbraco-code-reviewer`, not the assumed `code-reviewer`), handled scope, and reported coverage
+  honestly (accessibility/perf n/a for a config diff — stated, not silently dropped). The tailored reviewer
+  verified the L2 slots by running `dotnet test` + grepping the csprojs, and caught a **Blocker**: the
+  `stack.md → ## Tests` command `cd src/UmbracoProject && dotnet test` runs ZERO tests and exits 0 (silent
+  false pass — the host project isn't a test project). Fixed to `dotnet test <sln> --no-build -c Release`
+  from repo root (verified 70 passed). Textbook "keep your tailored reviewer" payoff.
+- **⚠️ 2026-08-04 · FOR CANTRIP — /setup answer-key bug.** The `stack.md → ## Tests` slot in the config
+  "answer key" I sent for the `/setup` skill design carried this zero-test-pass bug. Correct example:
+  `dotnet test <sln> --no-build -c Release` from the **repo root**, never cd'd into the host project. Worth
+  correcting the setup-skill example — and `/setup` detecting a test command could **verify it actually runs
+  tests**: exit-0 with zero tests is a silent trap the detection interview can't catch by inference alone.
+- **2026-08-04 · #49 lesson (not a spell bug).** Removing "dead" CSS in the placeholder increment broke a
+  test that asserted that rule's *presence* — missed locally (pre-push runs xUnit only; I ran just the new
+  spec), surfaced on Dev Gate 2. Toolkit nudge worth considering: when a change **removes** a symbol/rule,
+  grep tests for it and run the affected suite — `/implement-step`'s envelope or `/code-review` could flag
+  the removed-symbol-with-test-references case.

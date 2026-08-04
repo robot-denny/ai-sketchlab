@@ -12,7 +12,10 @@ project-scoped — absolute paths are fine here (that is exactly what it exists 
 
 ## Tests
 
-- xUnit: `cd src/UmbracoProject && dotnet test --no-build` (project: `tests/UmbracoProject.Tests/`).
+- xUnit: `dotnet test umbraco-17-demo-site.sln --no-build -c Release` — run from the **repo root**
+  against the solution (matches Gate 1 and the pre-push hook). Test project: `tests/UmbracoProject.Tests/`.
+  **Do NOT** `cd src/UmbracoProject` first — that project is the web host, not a test project, so it
+  runs **zero** tests and still exits 0 (silent false pass — caught in /code-review on 2026-08-04).
 - Playwright E2E (Node is managed via nvm — prefix PATH):
   `PATH="/Users/dkardys/.nvm/versions/node/v22.22.2/bin:$PATH" npx playwright test`
   First-time setup: `npm install` then `npx playwright install chromium`.

@@ -75,9 +75,14 @@ test.describe('Article List Grid View — CSS', () => {
     expect(css).toMatch(/\.article-grid-card:hover[\s\S]*?box-shadow/);
   });
 
-  test('has .article-grid-card__no-image rule', () => {
-    const css = readFileSync(cssPath, 'utf-8');
-    expect(css).toMatch(/\.article-grid-card__no-image\s*\{/);
+  test('imageless grid cards have a placeholder rule', () => {
+    // The old .article-grid-card__no-image rule was replaced by the shared card's
+    // constructivist placeholder (in listings.css) — see the article-card feature doc.
+    const listingsCss = readFileSync(
+      resolve(__dirname, '../../src/UmbracoProject/wwwroot/assets/css/listings.css'),
+      'utf-8'
+    );
+    expect(listingsCss).toMatch(/\.card-thumb__placeholder\s*\{/);
   });
 });
 

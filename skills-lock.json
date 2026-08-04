@@ -1,10 +1,100 @@
 {
   "version": 1,
   "skills": {
+    "bdd-principles": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/reference/bdd-principles/SKILL.md",
+      "computedHash": "9e74a796e74e998d990ab7b072800c14df9b4b824855d5900772a9c9ff2a4fe6"
+    },
+    "code-review": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/code-review/SKILL.md",
+      "computedHash": "baeb3e2087f9996dc24f213771b1eabf7bf3d3290d67d78b92d84a91a1a04cbd"
+    },
+    "commit-message": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/commit-message/SKILL.md",
+      "computedHash": "3233aba329c07c5dd5ab6835a0f6a2b8d430f3ae2b1e6f0c82ae0d0e08a29475"
+    },
+    "explore": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/explore/SKILL.md",
+      "computedHash": "03b743b8863999fd75921d102e3d28ce74e1575d37ade3489618d0fef0da9957"
+    },
+    "feature": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/feature/SKILL.md",
+      "computedHash": "a3abfda266edbce9077c3ebc4f4fbd1693ccac26b5c235a501f20b58be29dee6"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "computedHash": "063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67"
+    },
+    "implement-step": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/implement-step/SKILL.md",
+      "computedHash": "ee0cb882088b37c369e64e4e6d6eb47373a71c07faf865d73d0d381a00dd97ee"
+    },
+    "memory-discipline": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/reference/memory-discipline/SKILL.md",
+      "computedHash": "948e164bbafeb827c6ba35f45f4fab175afe9ae64545f827819e04c2806cd883"
+    },
+    "plan": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/plan/SKILL.md",
+      "computedHash": "9afb99a16f8d5c806302784dd8b1326c508974632bc5e4b1a090a3eaef107eaf"
+    },
+    "retrofit": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/retrofit/SKILL.md",
+      "computedHash": "1dfbcb594c6f858d3c7a302311f2f8b60d5455c641942370484ec5f5cccec205"
+    },
+    "reviewer-discipline": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/reference/reviewer-discipline/SKILL.md",
+      "computedHash": "3731136ca2b816833a505e56d086acbc74a5800cad1915d2261e3c1cec9df072"
+    },
+    "spec": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/spec/SKILL.md",
+      "computedHash": "21a933d91dc92c8c2fc6d6ba9b22480bae469def0b2558db837c8e0c6d44fe7b"
+    },
+    "umbraco-17-feature-backfill": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/umbraco-17/reference/umbraco-17-feature-backfill/SKILL.md",
+      "computedHash": "0cc32f2f07ec21644b89b2d0754bda13cebd29ed22b4fc467f55a6873aee36fc"
+    },
+    "umbraco-17-planning": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/umbraco-17/reference/umbraco-17-planning/SKILL.md",
+      "computedHash": "00b64b561c52dcbed84e94a01a5569bc86183ceaa75678bb0a73aaddf7c90745"
+    },
+    "update-toolkit": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/spellbook/update-toolkit/SKILL.md",
+      "computedHash": "c7d81b551e54dddd8656789682f9b0f4fb121876013f64162dafdbbee42006f2"
+    },
+    "workflow": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/reference/workflow/SKILL.md",
+      "computedHash": "e9756f1fdeb0a09f0ab435908c9f4969f2b26f0019fc3bd786c5b707c75509ad"
     }
   }
 }

@@ -97,4 +97,20 @@ Record every point where a spell was unclear, asked for a slot it should have
 inferred, produced generic-when-it-should-be-stack-aware output, or where an
 empty-slot fallback misfired. Date each entry.
 
-- _(none yet — begins at first cast)_
+- **2026-08-03 · install · CLI scatters skills into 4 locations (worse than ADR 0004).**
+  `DISABLE_TELEMETRY=1 npx skills add robot-denny/cantrip/skills/core --all` (skills@1.5.x)
+  wrote the skills into **four** places: the canonical `.agents/skills/` (real) +
+  `.claude/skills/` (symlinks) — correct — **plus** a full redundant copy inside the
+  repo's pre-existing top-level `skills/` folder, **plus** the top-level `agent/` wart.
+  ADR 0004 documented only the `agent/skills/` wart; the `skills/`-folder pollution is
+  undocumented and only bites repos that already use a top-level `skills/` dir. A blanket
+  `rm -rf skills/` would have destroyed tracked `algorithmic-art`/`canvas-design`; correct
+  cleanup was surgical `git clean -fd agent skills`. **Suggest:** CLI should not write into
+  a pre-existing `skills/` dir, and/or `check-install.sh` should detect+flag the scatter.
+- **2026-08-03 · install · `check-install.sh` worked well (positive finding).** Correctly
+  reported 13/13 core + 2 pack, 0 broken; detected the 2 reviewer name-collisions
+  (`accessibility-reviewer`, `perf-reviewer`) and gave exactly-right guidance including the
+  "do NOT force-link" warning; the 0/14-slots message clearly conveyed graceful degradation
+  ("working configuration — infers and asks"). **Caveat:** this run cannot confirm whether
+  check-install *detects the 4-location scatter*, because cleanup ran before the checker —
+  worth a fresh-install test of that path.

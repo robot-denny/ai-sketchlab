@@ -59,7 +59,7 @@ A change in the diff that the description didn't mention, or a described change 
 Run the same three reviewers `/code-review` orchestrates — but feed them the **Step 1 retrofit diff**, not a freshly recomputed staged+unstaged diff (which would be empty for already-committed work). Launch all three in one turn so they run in parallel (`Agent` tool):
 
 - **accessibility-reviewer** — WCAG 2.2, semantic HTML, ARIA, focus, keyboard, alt text. Especially relevant for the front-end/backoffice UI tweaks retrofit is built for.
-- **umbraco-code-reviewer** — secrets, validation, clarity, naming, duplication, Umbraco-17 API correctness, E2E resilience rules.
+- **code-reviewer** — secrets, validation, clarity, naming, duplication, Umbraco-17 API correctness, E2E resilience rules.
 - **perf-reviewer** — render cost, caching (`Html.CachedPartialAsync`), N+1, async correctness.
 
 Give each the retrofit diff and brief repo context; tell them to be evidence-based (file:line, no guessing) and to review only what's in the diff. Collect their findings by severity — you'll fold them into the single consolidated proposal in Step 7, de-duplicating overlap but never silently dropping a unique finding.

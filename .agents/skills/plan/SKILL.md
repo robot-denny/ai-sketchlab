@@ -202,10 +202,14 @@ names, property aliases, endpoints, attribute names.]
 
 ---
 
-### Step {final} — Record the durable behavior *(branch on work type)*
+### Final — Record the durable behavior *(a spell you cast, not an implement-step)*
 
-Pick the variant matching the plan header's **Work type**. Author the step for that one variant
-only.
+**Do not number this as an implementation step.** It is cast directly — `/feature update <the Feature doc
+name>` — after the implement-step loop finishes. Numbering it would invite `/implement-step <plan> N`,
+which dispatches a code worker to run a spell: the wrong mechanism, and it blurs the chain's own
+boundary between building and recording.
+
+Pick the variant matching the plan header's **Work type**. Author it for that one variant only.
 
 **If `new-capability`:**
 
@@ -273,6 +277,11 @@ Then check the plan against the project's own known pitfalls.
 **If empty:** skip this check — do not invent constraints. If the codebase makes a
 non-obvious structural requirement evident (a directory that must match a build glob, a registry
 a new file must be added to), note it in Key Decisions and suggest recording it in the slot.
+
+Scope: **constraints a plan must satisfy** — a directory that must match a build glob, a verification
+step only a particular command surfaces, a package-version rule a validator enforces. **Not operational
+topology** — which environment deploys where, how promotion works, who restarts what. That is runbook
+material for `docs/`, and folding it in here turns one slot into a catch-all a planner reads past.
 
 ## Step 7 — Save and report
 

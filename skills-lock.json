@@ -11,7 +11,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/code-review/SKILL.md",
-      "computedHash": "baeb3e2087f9996dc24f213771b1eabf7bf3d3290d67d78b92d84a91a1a04cbd"
+      "computedHash": "cea8cf600dc4b685558b5d408dce6c42021441d2ade8d5318dbf2dd440c2c453"
     },
     "commit-message": {
       "source": "robot-denny/cantrip",
@@ -29,7 +29,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/feature/SKILL.md",
-      "computedHash": "a3abfda266edbce9077c3ebc4f4fbd1693ccac26b5c235a501f20b58be29dee6"
+      "computedHash": "89738ae4185a8654d2e5a42e5f6b0e72d91f35bde833c904cd900d670255f545"
     },
     "frontend-design": {
       "source": "anthropics/skills",
@@ -40,7 +40,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/implement-step/SKILL.md",
-      "computedHash": "ee0cb882088b37c369e64e4e6d6eb47373a71c07faf865d73d0d381a00dd97ee"
+      "computedHash": "c870109f1f51c346cd568a4e65fa77c5bdb8e7f2f212b2afac319f2a38f5d2d3"
     },
     "memory-discipline": {
       "source": "robot-denny/cantrip",
@@ -52,7 +52,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/plan/SKILL.md",
-      "computedHash": "75e154cf1e35d8c9b705351ada46303141b816feba3af788a1b2e809a517a6f6"
+      "computedHash": "8fc06f0c4c42ea2d1894717ebece31007546d887a4ea8e285574aedba33819c5"
     },
     "retrofit": {
       "source": "robot-denny/cantrip",
@@ -70,7 +70,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/spec/SKILL.md",
-      "computedHash": "656f13e7a77dd9e7ff676ce06dcab957e290b34fa087f5b927c1bd7c6c3c2771"
+      "computedHash": "794e3dd68f0bd2503fcd0b2cf79fa6860e0a671f74ce6db0b982af888b71b157"
     },
     "umbraco-17-feature-backfill": {
       "source": "robot-denny/cantrip",
@@ -82,7 +82,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/umbraco-17/reference/umbraco-17-planning/SKILL.md",
-      "computedHash": "00b64b561c52dcbed84e94a01a5569bc86183ceaa75678bb0a73aaddf7c90745"
+      "computedHash": "60a38ce11cc110c9d6acf83e63b38f96188b268affbe1ca508085eab82aab9c6"
     },
     "update-toolkit": {
       "source": "robot-denny/cantrip",
@@ -94,7 +94,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/workflow/SKILL.md",
-      "computedHash": "7248214f53578feacb1e0b273732bade5274454d72639c79eefba929097b2723"
+      "computedHash": "67f8808cc0e99d0a996425a04d0e03d28e73dfc8fc0b8bbf6c9d5e381ff0d6ce"
     }
   }
 }

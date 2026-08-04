@@ -231,3 +231,12 @@ empty-slot fallback misfired. Date each entry.
   story" — the last unexercised surface — and it works: from-code is a real onboarding/backfill tool, not
   just a cold-start fallback. The coverage table honestly separates test-verified rules from
   code-derived-untested ones.
+- **2026-08-04 · /update-toolkit (Phases 0–7 pull) · all nine fixes land clean; L2 discipline holds again (close-out).**
+  `skills update -y` refreshed 15 skills to the Phases 0–7 head — `code-review` (scope arg),
+  `feature` (update-vs-code compare + the third `Not covered (code-derived)` coverage state),
+  `implement-step` (artifact-required for by-eye checks), `plan` (unnumbered final step), `spec`,
+  `workflow`, `umbraco-17-planning`. **0 tailorings reverted** (again — all tailoring lives in L2
+  slots), no re-scatter on update. `check-install` now reports slot fill (12 filled / 3 empty) and
+  reviewer *identity*, not just name matches. Every sync #1–#3 fix is now present and verified
+  in-canary. The pack **spellbook** was deliberately NOT pulled — its `check-uda`/`umbraco-edit`/`block`
+  spells would shadow this repo's stronger tailored versions (held per cantrip's own recommendation).

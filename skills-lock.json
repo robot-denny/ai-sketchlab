@@ -84,6 +84,18 @@
       "skillPath": "skills/umbraco-17/reference/umbraco-17-planning/SKILL.md",
       "computedHash": "60a38ce11cc110c9d6acf83e63b38f96188b268affbe1ca508085eab82aab9c6"
     },
+    "umbraco-17-review-rules": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/umbraco-17/reference/umbraco-17-review-rules/SKILL.md",
+      "computedHash": "4288f6d420c90e1839d14d37f5e5d384cbe36cf07c348f506ab54df2b17be7f0"
+    },
+    "umbraco-17-starter-facts": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/umbraco-17/reference/umbraco-17-starter-facts/SKILL.md",
+      "computedHash": "5e790d0340e42401e526a2ef173adbf3ee94302aaaeaa6eff3ba8e5dd6014e6f"
+    },
     "update-toolkit": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",

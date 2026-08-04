@@ -129,25 +129,19 @@ Each step is designed to be completed independently in its own context window.
 
 ---
 
-### Step 4 — Screenshot baseline via CI (Linux-only)
+### Step 4 — Visual regression: DEFERRED (decision recorded 2026-08-04)
 
-> **Prompt**: Implement Step 4 of `_work/placeholder-graphics-imageless-cards/plan.md`. Add a
-> screenshot assertion covering an imageless card — either extend
-> `tests/e2e/pages/articleList.screenshot.spec.ts` or add a focused
-> `tests/e2e/pages/articleCardPlaceholder.screenshot.spec.ts` following that file's use of
-> `prepareForScreenshot`, `screenshotOptions`, and `dynamicRegionMasks`. Do **not** capture the
-> baseline on macOS. Generate the Linux baseline via
-> `gh workflow run update-snapshots.yml --ref claude/feature/placeholder-graphics-imageless-cards`,
-> then review and confirm the bot's committed PNG(s). Note that the existing article-list baseline
-> may also shift because the placeholder changes that page — expect and review that diff.
+No CI pixel baseline this increment. The placeholder's variant is deterministic per the article's
+Key, so a stable baseline needs a *stable-Key* imageless card — real imageless content appears only
+as non-blog results in search (index-fragile on Dev), and ephemeral fixtures get random Keys (hence
+random variant). Weighed against the repo's documented screenshot-baseline flakiness tax and the
+element's low churn, a pixel baseline is a poor trade here. Step 1 already covers the placeholder's
+existence, decorative/a11y correctness, and the image-card-unchanged contract; only pixel-appearance
+is unprotected, and it is verified by eye when the placeholder CSS changes. (A fixed-Key-fixture
+baseline remains available later if the element becomes higher-churn.)
 
-**What to build**: a screenshot spec (new or extended) + the CI-generated Linux baseline PNG(s).
-
-**Validation**:
-- [Automated]: the update-snapshots workflow run is green and commits the baseline; the subsequent
-  Gate 2 Playwright run passes against it.
-- [Manual]: review the committed PNG diff — the placeholder renders as intended, no unintended
-  regressions elsewhere.
+**Validation**: none automated — decision recorded in the spec's Testing Guidelines and the feature
+doc's coverage table (visual row = Manual).
 
 ---
 
@@ -170,8 +164,6 @@ Each step is designed to be completed independently in its own context window.
 | Action | File |
 |--------|------|
 | Create | `tests/e2e/articleCardPlaceholder.spec.ts` |
-| Create | `tests/e2e/pages/articleCardPlaceholder.screenshot.spec.ts` (or extend `articleList.screenshot.spec.ts`) |
-| Create (CI) | Linux screenshot baseline PNG(s) under `tests/e2e/pages/…-snapshots/` |
 | Modify | `src/UmbracoProject/Views/Partials/v2/_ArticleCard.cshtml` |
 | Modify | `src/UmbracoProject/wwwroot/assets/css/listings.css` |
 | _(new-capability)_ Update | `_features/article-card.md` (verify scenarios, fill coverage, drop Draft banner) |

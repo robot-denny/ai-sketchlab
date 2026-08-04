@@ -1,8 +1,5 @@
 # Feature: Article Card
 
-> **Draft** — These scenarios have not yet been verified against an implementation. They will be
-> refined during planning and verified after implementation.
-
 The article card is the shared tile that represents an article wherever articles are listed —
 the blog landing page, author pages, topic/tag listings, search results, and related-article
 widgets. This doc captures the card's observable behavior.
@@ -13,7 +10,7 @@ widgets. This doc captures the card's observable behavior.
 > candidate.
 
 **Source**: `_work/placeholder-graphics-imageless-cards/spec.md`
-**Last verified**: not yet verified (draft)
+**Last verified**: 2026-08-04
 
 ---
 
@@ -72,7 +69,8 @@ Scenario: A visitor sees the real image for an article that has one
 Scenario: A visitor sees an on-brand placeholder
   Given an article card with no featured image is shown
   Then the placeholder has square corners, not rounded ones
-  And it uses the site's warm near-black and stone palette rather than a generic grey box
+  And it shows the site's dark constructivist mark — near-black planes with a single
+  signal-red force line — rather than a generic grey box
 ```
 
 ---
@@ -96,11 +94,11 @@ Scenario: A screen-reader visitor encounters an imageless card
 
 | Scenario | Test File | Status |
 |----------|-----------|--------|
-| Placeholder shown for imageless card | — | Not covered |
-| Placeholder appears across card locations | — | Not covered |
-| Real image unchanged when present | — | Not covered |
-| Placeholder decorative for screen readers | — | Not covered |
-| Placeholder matches visual identity | — | Not covered |
+| Imageless card shows the placeholder | `tests/e2e/articleCardPlaceholder.spec.ts:273` | Covered |
+| Placeholder appears wherever cards appear | `tests/e2e/articleCardPlaceholder.spec.ts:273` | Covered — one shared partial, asserted on the archive grid |
+| Article with an image is unchanged | `tests/e2e/articleCardPlaceholder.spec.ts:298` | Covered |
+| Placeholder is decorative for screen readers | `tests/e2e/articleCardPlaceholder.spec.ts:320` | Covered |
+| Placeholder matches the visual identity | — | Manual — not pixel-locked (baseline deferred; verified by eye) |
 
 ---
 
@@ -108,3 +106,6 @@ Scenario: A screen-reader visitor encounters an imageless card
 
 - 2026-08-03: Draft scenarios from the imageless-placeholder spec (doc named at area level so it
   can grow to hold the card's other behaviors)
+- 2026-08-04: Verified against implementation + E2E; Draft banner removed. Corrected the visual
+  scenario to the dark constructivist mark (the spec had said "stone"). Pixel baseline deferred —
+  the placeholder's look is verified by eye (see the spec's Testing Guidelines).

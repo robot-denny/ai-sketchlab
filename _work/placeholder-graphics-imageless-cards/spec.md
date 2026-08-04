@@ -154,6 +154,10 @@ Meaningful tests for the cases below, without going too heavy:
   an image does **not** (AC1, AC3).
 - An accessibility assertion that the card still exposes exactly one accessible link and the
   placeholder is absent from the accessibility tree (AC4).
-- One screenshot baseline for the placeholder (Linux-only baseline per repo convention), masking
-  any non-deterministic region.
+- Visual/pixel baseline **DEFERRED** for this increment. The placeholder's variant is deterministic
+  per the article Key, so a stable baseline needs a stable-Key imageless card — real imageless content
+  appears only as non-blog search results (search-index-fragile on Dev), and ephemeral fixtures get
+  random Keys (random variant). Against the repo's screenshot-baseline flakiness tax and the element's
+  low churn, a pixel baseline is a poor trade; the look is verified **by eye** when the placeholder CSS
+  changes. (A fixed-Key-fixture baseline remains available if it becomes higher-churn.)
 - Keep coverage light — one or two behavioral specs, not the same assertion duplicated per page.

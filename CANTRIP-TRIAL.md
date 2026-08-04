@@ -206,3 +206,17 @@ empty-slot fallback misfired. Date each entry.
   increment built via `/implement-step`'s per-step commits — I reviewed the full branch-vs-base diff
   instead. Suggest `/code-review` accept a scope (uncommitted | branch-vs-base), since the `/implement-step`
   flow commits per step.
+- **2026-08-04 · /feature update · works well; "test = truth" caught a real spec↔impl conflict (positive).**
+  Update mode verified the draft scenarios against the implementation + E2E and, per the skill's precedence
+  rule (test assertions are the strongest signal), caught that the spec's "warm… stone palette" visual
+  scenario didn't match the shipped dark constructivist mark — corrected the doc to reality. Coverage table
+  filled with real test line numbers; the deferred visual row honestly reads "Manual". Mild friction: the
+  plan's final "Step 5" is *cast /feature update* — a spell, not a code-implementation step — so
+  `/implement-step step 5` is a slight category blur (the workflow's own chain treats /feature update as a
+  separate entry point after the /implement-step loop). Ran /feature directly. Suggest the plan's final step
+  not be numbered as an /implement-step step, or that /implement-step recognize a "cast <spell>" step.
+- **2026-08-04 · MILESTONE · full toolkit surface exercised end-to-end.** One real increment has now driven
+  `/spec → /plan → /implement-step (×3, fresh-context) → /code-review (3 reviewers in parallel) →
+  /commit-message → /feature update`, plus `/update-toolkit` mid-stream to pull fixes. Every spell cantrip
+  could not validate inline is now validated on a real Umbraco repo with .uda schema, Playwright tests, and
+  BDD feature docs.

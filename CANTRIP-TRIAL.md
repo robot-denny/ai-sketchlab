@@ -177,3 +177,13 @@ empty-slot fallback misfired. Date each entry.
   now resolves to `_work/<slug>/spec.md` (no re-derivation), and the Feature-doc line threads
   spec → plan header → final step, which targets the area-level `article-card` doc rather than the
   increment slug. The manual workaround the first cast needed is now automated. Both closed.
+- **2026-08-04 · /implement-step · fresh-context dispatch works (validates the untested mechanism).**
+  Step 1 dispatched to a general-purpose worker with a self-contained prompt (Context + Key Decisions +
+  Step block + envelope + the `## Implementation rules` slot + E2E-resilience conventions). The worker
+  stayed strictly in scope (test only — no partial/CSS/commit), resolved the fixture prerequisite the
+  right way (no imageless article existed, so it self-authored + cleaned up `[E2E]` fixtures per the
+  repo's resilient E2E pattern rather than hardcoding), and produced the intended RED (missing
+  `.card-thumb__placeholder`), with (b)/(c) passing as regression guards. Isolation kept the main
+  context clean; the `## Step N — DONE` report relayed cleanly. This is the mechanism cantrip ran inline
+  and could never validate — it works. Bonus: self-authored fixtures mean the RED reproduces in CI with
+  no pre-seeded content, closing the fixture-prerequisite risk the plan flagged.

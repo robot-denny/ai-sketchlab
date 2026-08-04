@@ -50,6 +50,11 @@
     }
 
     string readingTime = ReadingTime.Estimate(a, MemoryCache);
+
+    // Deterministic 0..3 variant for the no-image placeholder — stable per article
+    // so a grid of imageless cards looks varied but renders identically every time.
+    // Guard against Math.Abs(int.MinValue) overflow by masking the sign bit.
+    var placeholderSeed = (a.Key.GetHashCode() & int.MaxValue) % 4;
 }
 
 <article class="article-grid-card">
@@ -65,6 +70,10 @@
         @if (img != null)
         {
             <img src="@img.GetCropUrl(640, 480)" alt="" loading="lazy" />
+        }
+        else
+        {
+            <div class="card-thumb__placeholder card-thumb__placeholder--@placeholderSeed" aria-hidden="true"></div>
         }
     </div>
     @if (date.HasValue || !string.IsNullOrWhiteSpace(readingTime))

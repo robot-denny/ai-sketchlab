@@ -3,6 +3,7 @@
 **Spec**: `_work/placeholder-graphics-imageless-cards/spec.md`
 **Branch**: claude/feature/placeholder-graphics-imageless-cards
 **Work type**: new-capability
+**Feature doc**: article-card
 
 ## Context
 

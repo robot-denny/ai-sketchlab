@@ -166,3 +166,14 @@ empty-slot fallback misfired. Date each entry.
   not the slug. The spells assume `slug == doc-name`; that breaks (correctly) whenever a doc is
   named at area level. **Suggest:** carry an explicit `feature-doc:` field from `/spec` so `/plan`
   and `/feature` target the doc by name, not by re-deriving it from the slug.
+- **2026-08-04 · /update-toolkit · clean pull; L2 discipline validated (positive).** `skills update -y`
+  (telemetry off) refreshed 15 skills from robot-denny/cantrip with **0 tailorings reverted** — because
+  all tailoring lives in L2 slots, the "never edit vendored" contract held and there was nothing to
+  reconcile. No re-scatter on `update` (the 4-location scatter is an `add`-only behavior, so
+  check-install's new scatter detection couldn't be exercised on this path). Both `/plan` fixes verified
+  present in the pulled spell (bare-slug resolution + `**Feature doc**:` threading).
+- **2026-08-04 · /plan (re-cast) · both prior `/plan` findings fixed.** With the fixed spell + the spec
+  backfilled with `**Feature doc**: article-card`: the bare slug `placeholder-graphics-imageless-cards`
+  now resolves to `_work/<slug>/spec.md` (no re-derivation), and the Feature-doc line threads
+  spec → plan header → final step, which targets the area-level `article-card` doc rather than the
+  increment slug. The manual workaround the first cast needed is now automated. Both closed.

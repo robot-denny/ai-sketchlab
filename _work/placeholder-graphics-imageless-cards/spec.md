@@ -7,6 +7,7 @@
 branch: claude/feature/placeholder-graphics-imageless-cards
 design reference (if any): docs/design-system.md (Dark Constructivism × Human Signal)
 
+**Feature doc**: article-card
 **Work type**: new-capability
 <!--
   No existing capability doc owns article-card rendering (the component exists in code but is

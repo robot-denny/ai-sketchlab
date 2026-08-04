@@ -21,9 +21,8 @@
                        latestArticlesRow.cshtml)
         subtitle      string
 
-    readingTime is NOT on the Article doc type today — see
-    README-PACKAGE-B.md "Known gaps". The byline degrades to
-    author-only until Package C adds the field.
+    readingTime is a computed estimate (ReadingTime.Estimate), not an Article
+    doc-type field — it renders next to the date in the card's meta line.
 
     Class vocabulary matches D-blog.html .article-grid-card style;
     keeps the existing Clean Blog typography hooks alive.

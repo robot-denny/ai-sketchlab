@@ -21,17 +21,6 @@ remaining behaviors backfilled from implementation (2026-08-04).
 
 ---
 
-## Open Issues
-
-1. **Orphaned `.article-grid-card__no-image` CSS.** A rule of that name remains in `styles.css`, but
-   no view emits the class — the card renders its imageless state via the constructivist placeholder
-   added by the placeholder increment. It appears dead; verify against git history and remove if so.
-2. **Stale card comment.** The `_ArticleCard` header comment states reading time "is NOT on the
-   Article doc type today" and the byline "degrades to author-only," but the card computes and
-   renders an estimated reading time. The comment predates that helper and should be corrected.
-
----
-
 ## Behaviors
 
 Scenarios are grouped by Rule — the business rule each proves. Concrete values (Specification by
@@ -206,3 +195,5 @@ Scenario: No byline when the article has no author
   omit-when-absent rules) by reverse-engineering the implementation via `/feature` from-code. The
   date/reading-time, byline, and fallback rules have no dedicated test yet — see coverage. Flagged an
   orphaned `.article-grid-card__no-image` CSS rule and a stale view comment as Open Issues.
+- 2026-08-04: Resolved both Open Issues — removed the orphaned `.article-grid-card__no-image` CSS
+  rule (no view emitted it) and corrected the stale reading-time comment in the card view.

@@ -2,7 +2,7 @@
 
 The site serves the three SEO surfaces crawlers expect at their standard URLs — a sitemap at `/sitemap.xml`, a `/robots.txt` that points crawlers at it, and a branded 404 page for unknown URLs — all from in-tree code and static files that flow through the normal master → Dev → Live pipeline, with no per-environment backoffice configuration. The custom meta-tag system and the SEO Assistant AI agent continue to drive per-page `<head>` metadata.
 
-**Source spec**: `_specs/shipped/remove-seotoolkit.md` _(the in-tree SEO surface was introduced when the `SeoToolkit.Umbraco` package was removed — that spec is the design rationale)_
+**Source spec**: `_work/shipped/remove-seotoolkit/spec.md` _(the in-tree SEO surface was introduced when the `SeoToolkit.Umbraco` package was removed — that spec is the design rationale)_
 **Last verified**: 2026-06-02
 
 ---
@@ -11,7 +11,7 @@ The site serves the three SEO surfaces crawlers expect at their standard URLs �
 
 The per-feature mini-roadmap: shipped increments + planned increments + parking-lot ideas. Newest planned items first.
 
-- [x] 2026-06-02 — Serve `/sitemap.xml`, `/robots.txt`, and a branded 404 from in-tree code (replacing the removed `SeoToolkit.Umbraco` package) (spec: [`_specs/shipped/remove-seotoolkit.md`](../_specs/shipped/remove-seotoolkit.md))
+- [x] 2026-06-02 — Serve `/sitemap.xml`, `/robots.txt`, and a branded 404 from in-tree code (replacing the removed `SeoToolkit.Umbraco` package) (spec: [`_work/shipped/remove-seotoolkit/spec.md`](../_work/shipped/remove-seotoolkit/spec.md))
 - [ ] (parking lot) Manual redirects UI — for inbound links to URLs that never existed in Umbraco. Deferred until Google Search Console reveals a real need.
 - [ ] (parking lot) 404 logging dashboard — internal aggregation of 404 hits. Deferred in favor of Search Console.
 - [ ] (parking lot) Editor-facing meta override UI — the "resolved preview + override input" pattern. Deferred because the current direct-field-editing flow is fine for the site's editor count.
@@ -169,4 +169,4 @@ Scenario: An editor hides a thank-you page from the sitemap
 
 - 2026-06-01: Draft scenarios from the `remove-seotoolkit` spec.
 - 2026-06-02: Verified against the shipped implementation. Sitemap routing landed as a URL-rewrite middleware in `Program.cs` (not the originally-specified SurfaceController — UmbracoContext lifecycle issues forced the change); `/xmlsitemap` returns 200 with the sitemap body (not the originally-planned 301); `NotFoundContentFinder` added a defensive `/umbraco` + `/api/` path-prefix guard during code review. Coverage table populated against `tests/e2e/seoRouting.spec.ts` (4/4 GREEN).
-- 2026-06-16: Renamed from `remove-seotoolkit` to `seo-routing` to make the doc an evergreen capability spec rather than a record of the package-removal work. Dropped the migration-only acceptance criteria (no SeoToolkit trace in the codebase / no SeoToolkit assemblies in the build / existing Playwright baselines unchanged / wiring discoverable from CLAUDE.md) — those were point-in-time ACs and live in `_specs/shipped/remove-seotoolkit.md`. Reframed scenario preconditions from "the SeoToolkit removal is deployed" to evergreen "a published site is deployed."
+- 2026-06-16: Renamed from `remove-seotoolkit` to `seo-routing` to make the doc an evergreen capability spec rather than a record of the package-removal work. Dropped the migration-only acceptance criteria (no SeoToolkit trace in the codebase / no SeoToolkit assemblies in the build / existing Playwright baselines unchanged / wiring discoverable from CLAUDE.md) — those were point-in-time ACs and live in `_work/shipped/remove-seotoolkit/spec.md`. Reframed scenario preconditions from "the SeoToolkit removal is deployed" to evergreen "a published site is deployed."

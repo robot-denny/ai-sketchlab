@@ -2,14 +2,14 @@
 
 A new **Guides** section under Home gives CMS editors a single place to learn how each feature on the site works — block components, site settings, and global elements. Each guide is one page combining a live example of the feature (when it is a block), an editable AI-written description, and an optional editor-uploaded screenshot for features that cannot be embedded as a block. Generation runs through the Umbraco backoffice AI Agent so brand voice stays editable in the CMS, and a `/guide` slash command keeps guides in sync with the site without ever silently overwriting editor work.
 
-**Source spec**: `_specs/editor-how-to-guides.md`
+**Source spec**: `_work/shipped/editor-how-to-guides/spec.md`
 **Last verified**: 2026-05-04
 
 ---
 
 ## Increments
 
-- [x] 2026-05-04 — `/guide` command, Guides section, How-To Guide Page doc type, audit mode, `--auto-apply` (spec: `_specs/editor-how-to-guides.md`)
+- [x] 2026-05-04 — `/guide` command, Guides section, How-To Guide Page doc type, audit mode, `--auto-apply` (spec: `_work/shipped/editor-how-to-guides/spec.md`)
 - [ ] Structure the generated description output (sections, headings, screenshot placement) — no spec yet
 - [ ] Add new fields / options to the How-To Guide Page type to support richer guides — no spec yet
 

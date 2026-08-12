@@ -54,7 +54,7 @@ For E2E tests, see [docs/testing-guide.md](docs/testing-guide.md).
 **Search packages** (now stable — the v18-forward replacement for legacy Examine search): Umbraco.Cms.Search.Core, Umbraco.Cms.Search.BackOffice, Umbraco.Cms.Search.DeliveryApi, plus Umbraco.AI.Search (on the CMS-17-aligned AI versioning, not the Cms.Search 1.0.0 line). The lone exception is Umbraco.Cms.Search.Provider.Examine, pinned to a beta (no stable release yet) — see [docs/pinned-betas.md](docs/pinned-betas.md).
 ## Solution architecture
 
-The solution is a **two-project Razor Class Library (RCL) split**, matching the agency-standard Umbraco layout (reference: `dev-kittitas-county`, whose `Kittitas.Features` RCL this mirrors). The split exists to put a **compile-enforced boundary** between business logic and the runnable host — the lever the [2026-05-19 audit](_audits/2026-05-19-umbraco-17-demo-site.md) rewards on Pillar 2 (architectural separation, scored 2/5). It shipped via the `arch-feature-folder-architecture` pilot (2026-06-19; spec/plan archived under `_specs/shipped/` and `_plans/shipped/`), which proved the pattern by migrating the **Search** slice with behavior preserved.
+The solution is a **two-project Razor Class Library (RCL) split**, matching the agency-standard Umbraco layout (reference: `dev-kittitas-county`, whose `Kittitas.Features` RCL this mirrors). The split exists to put a **compile-enforced boundary** between business logic and the runnable host — the lever the [2026-05-19 audit](_audits/2026-05-19-umbraco-17-demo-site.md) rewards on Pillar 2 (architectural separation, scored 2/5). It shipped via the `arch-feature-folder-architecture` pilot (2026-06-19; spec/plan archived under `_work/shipped/feature-folder-architecture/`), which proved the pattern by migrating the **Search** slice with behavior preserved.
 
 ### The two projects
 
@@ -188,9 +188,9 @@ This repo runs on the **cantrip toolkit** as its developer tooling. The layout:
   (branch/commit/impl discipline), and `reviewer-rules/`.
 - **The `workflow` skill** owns the workflow spine and the **work-type classification**
   (new-capability / change-to-existing / fix-infra) that decides which durable artifacts a piece
-  of work earns — consult it before creating a spec, plan, or feature doc. Specs and plans currently
-  land in `_specs/`/`_plans/`; the toolkit's target layout is one increment bundle per slug under
-  `_work/<slug>/`, which the in-progress workspace migration establishes (see
+  of work earns — consult it before creating a spec, plan, or feature doc. Specs and plans live as
+  one increment bundle per slug under `_work/<slug>/` (`spec.md`, `plan.md`), archived to
+  `_work/shipped/<slug>/` once shipped (see
   [.agents/config/paths.md](.agents/config/paths.md)). Living capability docs stay in
   [_features/](_features/).
 - **Reviewers** — `code-reviewer`, `accessibility-reviewer`, `perf-reviewer` under

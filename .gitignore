@@ -451,3 +451,6 @@ skills/canvas-design/canvas-fonts/
 # (The two 2026-05-19 audits were committed before this rule and remain tracked;
 #  gitignore does not untrack already-committed files.)
 _audits/
+
+# Scratch working files for the _work/ increment bundles — not tracked.
+_scratch/

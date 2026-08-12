@@ -2,7 +2,7 @@
 
 {2-3 sentence summary from the user's perspective. No implementation details. Use ubiquitous language — business terms ("CMS editor", "visitor", "page"), not technical terms ("document type", "controller", "API endpoint").}
 
-**Source spec**: `_specs/{slug}.md`
+**Source spec**: `_work/{slug}/spec.md`
 **Last verified**: {date}
 
 ---
@@ -11,8 +11,8 @@
 
 The per-feature mini-roadmap: shipped increments + planned increments + parking-lot ideas. Newest planned items first. When an item ships, flip the checkbox and point it at the shipped spec.
 
-- [x] {YYYY-MM-DD} — {shipped increment name} (spec: `_specs/shipped/{slug}-v1.md`)
-- [ ] {planned increment} (spec: `_specs/{slug}-v2.md`, no plan yet)
+- [x] {YYYY-MM-DD} — {shipped increment name} (spec: `_work/shipped/{slug}/spec.md`)
+- [ ] {planned increment} (spec: `_work/{slug}/spec.md`, no plan yet)
 - [ ] {parking lot idea} (no spec yet)
 
 ---

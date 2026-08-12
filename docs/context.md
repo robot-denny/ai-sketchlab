@@ -7,6 +7,6 @@ For current, maintained information, see:
 - **Brand & voice** (authors, tone, Diagram positioning) → [brand.md](brand.md)
 - **Capabilities & schema** (what the site does today, document types, block types, current state) → [capabilities.md](capabilities.md)
 - **Current behavior per capability** (Given/When/Then specs, source of truth for how each feature behaves) → [`_features/`](../_features/)
-- **Architecture & agent instructions** (solution layout, RCL split, conventions, workflows) → [CLAUDE.md](../CLAUDE.md)
+- **Architecture & agent instructions** (solution layout, RCL split, conventions, workflows) → [AGENTS.md](../AGENTS.md) (Claude-Code notes → [CLAUDE.md](../CLAUDE.md))
 
 The one framing worth carrying forward: this site exists as Diagram's playground for Umbraco + AI — education, experimentation, demos, and modeling transparent AI attribution (human author Dennis Kardys alongside the AI author "Ella M"). That intent lives on in [brand.md](brand.md).

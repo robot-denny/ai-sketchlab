@@ -18,7 +18,7 @@ git clone https://github.com/robot-denny/ai-sketchlab.git
 cd ai-sketchlab
 ```
 
-> Umbraco Cloud SCM remotes (Live and Dev) also exist, but they are **not** used for day-to-day development — GitHub Actions drives the Cloud deploy pipeline. See [CLAUDE.md → "Git remotes"](CLAUDE.md#git-remotes--always-push-to-github-never-origin) for the full remote map and why `origin` is a trap.
+> Umbraco Cloud SCM remotes (Live and Dev) also exist, but they are **not** used for day-to-day development — GitHub Actions drives the Cloud deploy pipeline. See [docs/deployment.md → "Git remotes"](docs/deployment.md#git-remotes--always-push-to-github-never-origin) for the full remote map and why `origin` is a trap.
 
 ### 2. Add the required config files
 
@@ -106,7 +106,7 @@ When committing intentional schema changes, the pre-commit hook checks for remot
 
 ## Project Structure
 
-The solution is a two-project Razor Class Library (RCL) split — a thin runnable host plus an RCL holding business logic — alongside a backoffice-extension project. See [CLAUDE.md → "Solution architecture"](CLAUDE.md#solution-architecture) for the full rationale.
+The solution is a two-project Razor Class Library (RCL) split — a thin runnable host plus an RCL holding business logic — alongside a backoffice-extension project. See [AGENTS.md → "Solution architecture"](AGENTS.md#solution-architecture) for the full rationale.
 
 ```
 .
@@ -126,9 +126,9 @@ The solution is a two-project Razor Class Library (RCL) split — a thin runnabl
 
 ## Deployment & CI/CD
 
-Deploys run through **GitHub Actions → Umbraco Cloud CI/CD Flow** (two gates, master-only deploy to Dev, manual promotion to Live in the Cloud Portal). See [CLAUDE.md → "CI/CD & Build hygiene"](CLAUDE.md#cicd--build-hygiene) for the pipeline and [CLAUDE.md → "Deployment"](CLAUDE.md#deployment) for the remote map.
+Deploys run through **GitHub Actions → Umbraco Cloud CI/CD Flow** (two gates, master-only deploy to Dev, manual promotion to Live in the Cloud Portal). See [docs/ci-cd.md](docs/ci-cd.md) for the pipeline and [docs/deployment.md](docs/deployment.md) for the remote map.
 
 # Documentation
 
-- Architecture, conventions, and agent instructions → [CLAUDE.md](CLAUDE.md)
+- Architecture, conventions, and agent instructions → [AGENTS.md](AGENTS.md) (Claude-Code notes → [CLAUDE.md](CLAUDE.md))
 - Umbraco Cloud platform docs → [Umbraco Docs](https://docs.umbraco.com/umbraco-cloud)

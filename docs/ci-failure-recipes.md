@@ -2,7 +2,7 @@
 
 Durable diagnosis-and-fix playbooks for previously-seen CI failures. This is a **runbook**, not a feature behavioral spec — it records "we already learned this lesson; here's the playbook" so future contributors don't re-derive a dead end or habituate to a red pipeline.
 
-- The **generic method** for any red run (which gate → which job → new or pre-existing?) lives in [CLAUDE.md → "Diagnosing a red CI run"](../CLAUDE.md#diagnosing-a-red-ci-run).
+- The **generic method** for any red run (which gate → which job → new or pre-existing?) lives in the [Diagnosing a red CI run](#diagnosing-a-red-ci-run) section at the foot of this runbook.
 - The **per-failure recipes** below are the specific cases seen so far. Each captures the failure signature, the *actual* root cause (not the initial hypothesis where they differ), the verification command, the fix, and why it can recur.
 
 > History: these recipes were authored during the `fix-e2e-dev-only-failures` work (2026-05-29) — see `_specs/shipped/fix-e2e-dev-only-failures.md` for that effort's spec and acceptance criteria. They were relocated here from the former `_features/fix-e2e-dev-only-failures.md` on 2026-06-16, when that transition-style feature doc was retired (the `_features/` folder is reserved for evergreen capability behavior, not records of fix work).
@@ -147,7 +147,7 @@ Both `altText` values should be non-empty descriptive strings. If `.altText` is 
 **Why this recurs** — **two distinct failure modes** under the same symptom:
 
 1. *Content drift*: an editor uploads a new media item without alt text, OR existing alt text gets cleared. As long as the failing media is in the "first 3 by tree-walk order" zone, the test fails. The "first 3" set is unstable — any media reshuffle changes which items it picks.
-2. *Cross-environment drift*: fixing alt text locally but transferring content without the accompanying **media** transfer (a content transfer alone doesn't carry binaries OR property edits to the target's pre-existing records — see [Media files](../CLAUDE.md#media-files) in CLAUDE.md and the by-hop discipline in [content-transfer-workflow.md](content-transfer-workflow.md)), or landing the fix on Dev but never promoting it up the hop chain to Live.
+2. *Cross-environment drift*: fixing alt text locally but transferring content without the accompanying **media** transfer (a content transfer alone doesn't carry binaries OR property edits to the target's pre-existing records — see [Media files](media.md) and the by-hop discipline in [content-transfer-workflow.md](content-transfer-workflow.md)), or landing the fix on Dev but never promoting it up the hop chain to Live.
 
 **Followup ROADMAP entry**: `fix-imagecarousel-first-image-picker` — make the test deterministic (seed a known media item with known altText, or set altText in `beforeAll` with restoration in `afterAll`). Captured 2026-05-29.
 
@@ -230,7 +230,7 @@ gh workflow run main.yml --ref master
 
 **Verification** — run `29162152715` (2026-07-11, `blog-content-styles` merge): single failure, `typographyShowcaseBlock.png` 1020 → **1197px** tall after a `.pull-quote-accent` demo `<p>` was added to the showcase block; `article.png` and all other screenshots passed (no unintended drift). Regenerated via `update-snapshots.yml` (bot commit `aa13c5e`); dispatched `main.yml` (`29163813003`) → Playwright green. A Dev restart + `--rerun` beforehand had failed twice, confirming the restart path is the wrong lever here.
 
-**Why this recurs** — any intentional restyle/markup change to a block or page that has a committed screenshot baseline. Baselines are Linux-only (macOS/Windows PNGs are `.gitignore`d), so they can only be regenerated on the runner, never locally. The standing habit: after landing a screenshot-affecting change, regenerate its baseline and dispatch a verify run — don't wait for the red to surprise you (see [CLAUDE.md → Screenshot baselines](../CLAUDE.md#screenshot-baselines)).
+**Why this recurs** — any intentional restyle/markup change to a block or page that has a committed screenshot baseline. Baselines are Linux-only (macOS/Windows PNGs are `.gitignore`d), so they can only be regenerated on the runner, never locally. The standing habit: after landing a screenshot-affecting change, regenerate its baseline and dispatch a verify run — don't wait for the red to surprise you (see [CI/CD → Screenshot baselines](ci-cd.md#screenshot-baselines)).
 
 ### guides-cli — `Error: Agent request failed: 500` (live AI agent, cold Dev runtime)
 
@@ -243,3 +243,17 @@ gh workflow run main.yml --ref master
 **If you still see it** (locally, or a future un-skip): it's the Dev AI runtime, not the code — check Dev → Settings → AI (agent/connection health, `$Anthropic`/`$OpenAI` keys in Cloud Secrets, the config-key allow-list), and a Portal restart rehydrates the AI runtime (like the search cold case). Do NOT chase it as a guide-generator regression — the deterministic wiring is unit-tested.
 
 **Further follow-up:** mock the agent, or gate on a healthy-agent probe (like `keywordSearchAvailable` for search), so these can run in CI deterministically.
+
+---
+
+## Diagnosing a red CI run
+
+When master's pipeline goes red, work through three questions in order before touching anything:
+
+1. **Which gate failed?** Gate 1 (`gate-1-build-test`, every branch) vs Gate 2 (`cloud-sync` → `cloud-artifact` → `cloud-deployment` → `playwright-against-dev`, master only). See [CI/CD & Build hygiene](ci-cd.md#cicd--build-hygiene).
+2. **Which job inside it?** Gate 1 reproduces locally in one command: `dotnet build -c Release && dotnet test umbraco-17-demo-site.sln --no-build -c Release` (run from the **repo root** — `cd src/UmbracoProject` first runs **zero** tests and still exits 0). The four Gate 2 jobs each have a different first move.
+3. **New or pre-existing?** If the same failure was already red on the previous master run, it's structural — **file a ROADMAP entry under "Next" and unblock your work**, don't bundle a pre-existing infra/content issue into an unrelated PR. If it's new with your push, it's yours to fix (and likely deserves a `/spec` if non-trivial).
+
+Skipping straight to "fix the test" without answering all three is the habit that lets a perpetually-red gate become background noise — always run the three questions before dismissing a red, and file (don't absorb) pre-existing failures.
+
+The recipes below are the home for the rest: the `gh run list` / `gh run view` command walkthrough, the per-job diagnostic table (which trap each Gate 2 job hits — see also `[[project_cloud_no_wildcard_versions]]`, `[[project_cloud_build_no_npm]]`, `[[project_cloud_razor_honors_twae]]`), and the previously-seen failure recipes. Check it first before diagnosing from scratch.

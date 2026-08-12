@@ -188,7 +188,7 @@ The rules these follow (documented in full in [`docs/e2e-testing.md`](e2e-testin
 
 **What the test does:** it reads the CMS schema files (`.uda` files under `umbraco/Deploy/Revision/`) directly, finds every block offered by the two page-body palettes (`[BlockList] Main Content` and `[BlockGrid] Experiments Body`), and asserts each one resolves to an actual `.cshtml` view. If someone adds a block to a palette but forgets the view, **the build fails** — before it ever reaches the site.
 
-The only allowed exception is `pillarSection` (a grid-only block), which is explicitly listed and itself checked for staleness by a second test. This is the "build gate" referenced throughout `CLAUDE.md` under *Block / component rendering & parity*.
+The only allowed exception is `pillarSection` (a grid-only block), which is explicitly listed and itself checked for staleness by a second test. This is the "build gate" referenced throughout `AGENTS.md` under *Block / component rendering & parity*.
 
 **Takeaway for editors/PMs:** this is why you can safely experiment with blocks in the backoffice — the combinations that would break a page are prevented at build time.
 
@@ -348,7 +348,7 @@ So what *does* a red Playwright run block? **Promotion to Live.** CI never deplo
 
 ### The pre-push hook (local Gate 1)
 
-`.githooks/pre-push` runs `dotnet build -c Release` + `dotnet test` before each push, so you catch Gate-1 failures before they hit CI. It prints a timing line on success. To bypass in a pinch: `SKIP_PREPUSH=1 git push` (see `CLAUDE.md` → *Pre-push hook* for all bypass options). Enable it once with `git config core.hooksPath .githooks`.
+`.githooks/pre-push` runs `dotnet build -c Release` + `dotnet test` before each push, so you catch Gate-1 failures before they hit CI. It prints a timing line on success. To bypass in a pinch: `SKIP_PREPUSH=1 git push` (see [ci-cd.md](ci-cd.md) → *Pre-push hook* for all bypass options). Enable it once with `git config core.hooksPath .githooks`.
 
 ---
 
@@ -360,7 +360,7 @@ So what *does* a red Playwright run block? **Promotion to Live.** CI never deplo
 
 ### Reading a red CI run
 
-`CLAUDE.md` → *Diagnosing a red CI run* is the full playbook, but the three questions in order are: **which gate failed → which job → was it already red before my commit?** A failure that was red on the previous `master` run is pre-existing and structural (file it, don't bundle it into your PR); a failure new with your push is yours. The recipes for known failures live in **`docs/ci-failure-recipes.md`** — check there first before diagnosing from scratch.
+`docs/ci-failure-recipes.md` → *Diagnosing a red CI run* is the full playbook, but the three questions in order are: **which gate failed → which job → was it already red before my commit?** A failure that was red on the previous `master` run is pre-existing and structural (file it, don't bundle it into your PR); a failure new with your push is yours. The recipes for known failures live in **`docs/ci-failure-recipes.md`** — check there first before diagnosing from scratch.
 
 ---
 
@@ -420,7 +420,7 @@ gh workflow run update-snapshots.yml --ref <branch>
 npm run clean:reports
 ```
 
-**Related docs:** `docs/ci-failure-recipes.md` (fixing known CI failures) · `docs/e2e-testing.md` (Management-API quirks + E2E resilience rules) · `CLAUDE.md` (CI/CD & Build hygiene, Screenshot baselines) · `_features/*.md` (per-feature Test Coverage tables) · `tests/e2e/_helpers.ts` (screenshot helper scope notes).
+**Related docs:** `docs/ci-failure-recipes.md` (fixing known CI failures) · `docs/e2e-testing.md` (Management-API quirks + E2E resilience rules) · `docs/ci-cd.md` (CI/CD & Build hygiene, Screenshot baselines) · `_features/*.md` (per-feature Test Coverage tables) · `tests/e2e/_helpers.ts` (screenshot helper scope notes).
 
 ---
 
@@ -467,3 +467,52 @@ Plain-language definitions for the jargon used above. Terms are grouped roughly 
 - **API (Application Programming Interface)** — a way for code to talk to the site programmatically instead of through the UI. Our E2E tests create test content by calling Umbraco's **Management API**.
 - **OAuth / token / client credentials** — the login mechanism the tests use: they exchange an ID + secret for a short-lived access **token** that proves they're allowed in, instead of typing a password into a form. See §4.
 - **`master` / branch / merge** — `master` is the main line of code that gets deployed. A *branch* is a separate line of work; *merging* folds a branch's changes into `master`.
+
+---
+
+## Appendix A — Playwright setup & auth (ported from CLAUDE.md)
+
+### E2E Tests (Playwright)
+
+Tests live in `tests/e2e/`. The test runner and dependencies are in the root `package.json` (separate from the C# project).
+
+```bash
+# Node is managed via nvm — prefix commands with PATH if node isn't in your shell PATH
+PATH="/Users/dkardys/.nvm/versions/node/v22.22.2/bin:$PATH" npx playwright test
+
+# Run with visual UI (great for debugging)
+PATH="..." npx playwright test --ui
+
+# Run a specific file
+PATH="..." npx playwright test tests/e2e/blocks/alertBanner.spec.ts
+```
+
+**Packages** (root `package.json`):
+- `@playwright/test` ^1.56
+- `@umbraco/playwright-testhelpers` 17.1.0-beta.7 — must match Umbraco major version
+- `@umbraco/json-models-builders` ^2.0.42 — for building element type payloads
+
+**First-time setup:**
+```bash
+PATH="..." npm install
+PATH="..." npx playwright install chromium
+```
+
+### Auth Setup
+
+`tests/e2e/auth.setup.ts` uses **OAuth client credentials** (not UI login). The Umbraco 17 backoffice is a Lit SPA — `LoginUiHelper` from testhelpers won't find `[name="username"]` in the DOM. Instead, auth setup:
+
+1. POSTs to `/umbraco/management/api/v1/security/back-office/token` with `grant_type=client_credentials`
+2. Writes `tests/e2e/.auth/user.json` with the token in `umb:userAuthTokenResponse` localStorage format
+
+Credentials come from `.env` (`UMBRACO_CLIENT_ID`, `UMBRACO_CLIENT_SECRET`). The testhelpers package reads `process.env.URL` (not `UMBRACO_URL`) for the base URL — both are set in `.env`.
+
+**In CI** (the Gate 2 `playwright-against-dev` job in [.github/workflows/main.yml](../.github/workflows/main.yml)) auth points at **Dev's URL, not localhost**, via the `URL` GitHub variable. `UMBRACO_CLIENT_ID` / `UMBRACO_CLIENT_SECRET` come from GitHub Secrets and must match an OAuth client registered on the Dev backoffice. See [CI/CD & Build hygiene > GitHub Secrets / Variables](ci-cd.md#github-secrets--variables) for the full mapping.
+
+**Tokens expire in 299 seconds.** Auth re-runs automatically before each Playwright session.
+
+### Block Development Workflow (TDD)
+
+Use the `/block` command for the full RED → GREEN TDD workflow for building blocklist components. See [.claude/commands/block.md](../.claude/commands/block.md) for details.
+
+**Authoring E2E specs?** The Management-API quirks and the E2E resilience rules (dynamic ID/slug lookup, stale-data cleanup, token refresh, resilient assertions) live in [docs/e2e-testing.md](e2e-testing.md).

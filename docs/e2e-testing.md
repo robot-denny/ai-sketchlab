@@ -1,6 +1,6 @@
 # E2E Testing Reference
 
-Technical reference for authoring Playwright E2E specs against this project's Umbraco 17 backoffice — the API quirks and resilience rules. CLAUDE.md's Testing section and the `/block` skill point here.
+Technical reference for authoring Playwright E2E specs against this project's Umbraco 17 backoffice — the API quirks and resilience rules. The testing guide ([testing-guide.md](testing-guide.md)) and the `/block` skill point here.
 
 ## Umbraco 17 Management API Quirks
 
@@ -27,7 +27,7 @@ elementType.groups?.flatMap((g) => g.properties)
 elementType.properties ?? []
 ```
 
-**Token lifetime** — the 299-second expiry (see *Auth Setup* in CLAUDE.md → Testing) bites long-running scripts too: re-authenticate before each logical operation group, don't reuse one token across a whole multi-call `beforeAll`.
+**Token lifetime** — the 299-second expiry (see *Auth Setup* in [testing-guide.md](testing-guide.md)) bites long-running scripts too: re-authenticate before each logical operation group, don't reuse one token across a whole multi-call `beforeAll`.
 
 ## E2E Test Resilience Rules
 

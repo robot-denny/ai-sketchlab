@@ -2,18 +2,18 @@
 
 CMS editors can add optional captions to individual slides in an Image Carousel Row and toggle whether captions are displayed for the whole carousel. Carousel controls (pagination, play/pause, prev/next) sit below the image area in a refined, accessible layout — with prev/next arrows adapting to viewport width so they never obscure the imagery on wide screens.
 
-**Source spec**: `_specs/shipped/image-carousel-captions-controls.md`
-**Plan**: `_plans/shipped/image-carousel-captions-controls.md`
-**Design notes**: `_plans/notes/image-carousel-controls-design.md`
+**Source spec**: `_work/shipped/image-carousel-captions-controls/spec.md`
+**Plan**: `_work/shipped/image-carousel-captions-controls/plan.md`
+**Design notes**: `_work/shipped/image-carousel-captions-controls/notes/image-carousel-controls-design.md`
 **Last verified**: 2026-04-13
 
 ---
 
 ## Increments
 
-- [x] 2026-04-13 — per-slide captions, Show captions toggle, refined control bar with responsive prev/next, icon-only play/pause, 44×44 targets (spec: `_specs/shipped/image-carousel-captions-controls.md`)
+- [x] 2026-04-13 — per-slide captions, Show captions toggle, refined control bar with responsive prev/next, icon-only play/pause, 44×44 targets (spec: `_work/shipped/image-carousel-captions-controls/spec.md`)
 
-The original Image Carousel Row block shipped earlier as part of `_specs/shipped/image-carousel-block.md` (no dedicated feature doc — the block is documented through this captions+controls iteration).
+The original Image Carousel Row block shipped earlier as part of `_work/shipped/image-carousel-block/spec.md` (no dedicated feature doc — the block is documented through this captions+controls iteration).
 
 ---
 
@@ -233,7 +233,7 @@ Scenario: Arrow remains legible against bright imagery on a narrow viewport
 
 ## Test Coverage
 
-All automated tests live in `tests/e2e/blocks/imageCarousel.spec.ts`. Manual entries indicate behaviours validated in Step 9 of `_plans/shipped/image-carousel-captions-controls.md`.
+All automated tests live in `tests/e2e/blocks/imageCarousel.spec.ts`. Manual entries indicate behaviours validated in Step 9 of `_work/shipped/image-carousel-captions-controls/plan.md`.
 
 | Scenario | Test name (or note) | Status |
 |----------|---------------------|--------|
@@ -254,13 +254,13 @@ All automated tests live in `tests/e2e/blocks/imageCarousel.spec.ts`. Manual ent
 | Manual pause persists across focus changes | `manual pause persists when keyboard focus leaves the carousel` + `manual pause persists after mouse leaves carousel` | Covered |
 | Reduced-motion disables auto-play | `prefers-reduced-motion: carousel does not auto-advance` | Covered |
 | Alt text and caption are independent | `captions ON: alt text and caption are independent (alt from media item, caption from slide)` | Covered |
-| Refined controls are design-system compatible | `all clickable controls have zero border-radius (constructivist sharp corners)` + `captions (when shown) are left-aligned`; design rationale recorded in `_plans/notes/image-carousel-controls-design.md` | Covered |
+| Refined controls are design-system compatible | `all clickable controls have zero border-radius (constructivist sharp corners)` + `captions (when shown) are left-aligned`; design rationale recorded in `_work/shipped/image-carousel-captions-controls/notes/image-carousel-controls-design.md` | Covered |
 | Zero slides renders nothing | Razor partial returns early when `slideItems.Count == 0`; no E2E exercising the empty path | Code-covered |
 | Single-slide carousel has no controls | `single-slide block renders a plain img with no carousel controls` + `single-slide block has no indicator buttons` | Covered |
 | Show captions on, no captions authored (no extra vertical space) | `captions ON: the second slide (no caption authored) has no figcaption` (proves the no-figcaption branch; layout consequence follows from CSS) | Covered |
 | Very long caption wraps gracefully | Not directly tested — `figcaption` uses normal block flow with the supporting-content type scale, so wrapping is the browser default | Not covered |
 | Arrow legible against bright imagery | `narrow viewport (600px): prev/next arrows overlay the image with a solid background` asserts `background-color` alpha ≥ 0.95 (bronze, opaque) | Covered |
-| Play/pause toggle announces correct state via screen reader | VoiceOver sign-off in Step 9 (`_plans/notes/image-carousel-controls-design.md` § Verified) | Manual |
+| Play/pause toggle announces correct state via screen reader | VoiceOver sign-off in Step 9 (`_work/shipped/image-carousel-captions-controls/notes/image-carousel-controls-design.md` § Verified) | Manual |
 
 **Summary:** 19 covered by automated assertions, 2 manually verified, 1 code-covered (empty-slide early return), 1 partial (focus-out resume positive case), 1 not covered (very-long-caption wrap). Total automated assertions across the spec file: 50 / 50 GREEN.
 

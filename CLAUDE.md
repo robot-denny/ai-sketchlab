@@ -15,7 +15,7 @@ only the Claude-Code-specific operating notes.
 The workflow spine (roadmap → feature → spec → plan → implement) and the **work-type
 classification** (new-capability / change-to-existing / fix-infra — which decides the durable
 artifacts a piece of work earns) are owned by the installed **`workflow` skill**. Consult it before
-creating a spec, plan, or feature doc. Project-specific paths live in [.agents/config/paths.md](.agents/config/paths.md): specs and plans currently in `_specs/`/`_plans/` (migrating to `_work/<slug>/` bundles), capability docs in `_features/`.
+creating a spec, plan, or feature doc. Project-specific paths live in [.agents/config/paths.md](.agents/config/paths.md): increment bundles in `_work/<slug>/` (archived to `_work/shipped/<slug>/`), capability docs in `_features/`.
 
 Project-specific planning facts not carried by the skill:
 
@@ -47,7 +47,7 @@ Five skills are installed in this project — three from [anthropics/skills](htt
 **From [anthropics/skills](https://github.com/anthropics/skills):**
 - `/algorithmic-art` — Interactive p5.js generative art for decorative hero visuals. Outputs self-contained HTML with seed navigation and parameter controls. Export PNG via the built-in download button.
 - `/canvas-design` — Static PNG visual design with curated typography. Requires fonts (see `skills/README.md` for fetch instructions).
-- `frontend-design` — Refined UI design exploration (used during the image-carousel-captions-controls work; see [_plans/shipped/image-carousel-captions-controls.md](_plans/shipped/image-carousel-captions-controls.md) Step 3 for an example invocation).
+- `frontend-design` — Refined UI design exploration (used during the image-carousel-captions-controls work; see [_work/shipped/image-carousel-captions-controls/plan.md](_work/shipped/image-carousel-captions-controls/plan.md) Step 3 for an example invocation).
 - `skill-creator` — Anthropic's official scaffolding for building, evaluating, and tuning new skills. Used to build `architecture-audit`; available for future skills.
 
 **Project-authored:**

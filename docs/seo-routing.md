@@ -1,6 +1,6 @@
 # SEO Routing
 
-Three URLs power the site's SEO surface: `/sitemap.xml`, `/robots.txt`, and the branded 404 page. Each is wired up in-tree with C# / static files that flow through the normal `master → Dev → Live` pipeline — no per-environment backoffice configuration. We deliberately removed the `SeoToolkit.Umbraco` package because it had no Umbraco Deploy integration and would have permanently parked its config in each environment's DB; see [_specs/shipped/remove-seotoolkit.md](../_specs/shipped/remove-seotoolkit.md) for the full rationale.
+Three URLs power the site's SEO surface: `/sitemap.xml`, `/robots.txt`, and the branded 404 page. Each is wired up in-tree with C# / static files that flow through the normal `master → Dev → Live` pipeline — no per-environment backoffice configuration. We deliberately removed the `SeoToolkit.Umbraco` package because it had no Umbraco Deploy integration and would have permanently parked its config in each environment's DB; see [_work/shipped/remove-seotoolkit/spec.md](../_work/shipped/remove-seotoolkit/spec.md) for the full rationale.
 
 The existing custom SEO surface stays untouched: [Views/Partials/metaData.cshtml](../src/UmbracoProject/Views/Partials/metaData.cshtml) renders ~25 meta/link tags from the `SEO Controls` doc-type composition (field aliases `metaName` / `metaDescription` / `metaKeywords` / `isIndexable` / `isFollowable`), and the `SEO Assistant` AI agent's system prompt hard-codes those aliases.
 

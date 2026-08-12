@@ -5,7 +5,7 @@ Durable diagnosis-and-fix playbooks for previously-seen CI failures. This is a *
 - The **generic method** for any red run (which gate → which job → new or pre-existing?) lives in the [Diagnosing a red CI run](#diagnosing-a-red-ci-run) section at the foot of this runbook.
 - The **per-failure recipes** below are the specific cases seen so far. Each captures the failure signature, the *actual* root cause (not the initial hypothesis where they differ), the verification command, the fix, and why it can recur.
 
-> History: these recipes were authored during the `fix-e2e-dev-only-failures` work (2026-05-29) — see `_specs/shipped/fix-e2e-dev-only-failures.md` for that effort's spec and acceptance criteria. They were relocated here from the former `_features/fix-e2e-dev-only-failures.md` on 2026-06-16, when that transition-style feature doc was retired (the `_features/` folder is reserved for evergreen capability behavior, not records of fix work).
+> History: these recipes were authored during the `fix-e2e-dev-only-failures` work (2026-05-29) — see `_work/shipped/fix-e2e-dev-only-failures/spec.md` for that effort's spec and acceptance criteria. They were relocated here from the former `_features/fix-e2e-dev-only-failures.md` on 2026-06-16, when that transition-style feature doc was retired (the `_features/` folder is reserved for evergreen capability behavior, not records of fix work).
 
 ---
 
@@ -40,7 +40,7 @@ curl -sk -X POST -H "Authorization: Bearer $TOKEN" \
   "$DEV_URL/umbraco/api/image-generator/generate/$ARTICLE_ID?force=true" | jq .
 ```
 
-**Fix step** — *deferred to `_specs/cloud-image-generator-launch-path.md`* (ROADMAP entry filed 2026-05-29). Real fix requires (a) Windows-compat patch in `CliImageGenerator`, (b) `node_modules` deployment strategy, (c) `ImageGenerator__NodeBinPath` Cloud App Setting on Dev (and Live when promoting). In the meantime, `dashboard.spec.ts:141` is `test.skip`-ed on Cloud URLs (`API_BASE` matches `/.umbraco.io/i`) with a comment pointing at the spec. Local dev still exercises the test.
+**Fix step** — *deferred to `_work/cloud-image-generator-launch-path/spec.md`* (ROADMAP entry filed 2026-05-29). Real fix requires (a) Windows-compat patch in `CliImageGenerator`, (b) `node_modules` deployment strategy, (c) `ImageGenerator__NodeBinPath` Cloud App Setting on Dev (and Live when promoting). In the meantime, `dashboard.spec.ts:141` is `test.skip`-ed on Cloud URLs (`API_BASE` matches `/.umbraco.io/i`) with a comment pointing at the spec. Local dev still exercises the test.
 
 **Why this recurs** — three independent surfaces (code, deploy artifact, Cloud App Settings) all need to stay in sync. If any one regresses (Node version pinned to a path that gets GC'd; node_modules dropped from artifact; App Setting cleared during a portal refactor) the launch path breaks again. The recipe should be hit before assuming "OpenAI key" the next time this fails.
 

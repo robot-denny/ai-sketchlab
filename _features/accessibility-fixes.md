@@ -2,7 +2,7 @@
 
 Visitors — including keyboard-only and screen-reader users — can perceive and operate the site's links, footer, and article cards without barriers. Following a WCAG audit, the site's accessibility gaps are remediated in independent batches; Batch 1 fixed the most severe and widespread issues (link contrast, visible focus, footer link spacing, non-colour link cues, single accessible card links, footer landmark/list semantics), and later batches are tracked on the roadmap.
 
-**Source spec**: `_specs/accessibility-fixes.md`
+**Source spec**: `_work/shipped/accessibility-fixes/spec.md`
 **Last verified**: 2026-06-04
 
 ---
@@ -11,7 +11,7 @@ Visitors — including keyboard-only and screen-reader users — can perceive an
 
 The per-feature mini-roadmap: shipped increments + planned increments + parking-lot ideas. Newest planned items first. When an item ships, flip the checkbox and point it at the shipped spec.
 
-- [x] 2026-06-04 — Batch 1: link contrast, focus visibility (consistent accent-red ring), footer link spacing + underline, non-colour link cues, single accessible card links, footer landmark/list semantics (spec: `_specs/accessibility-fixes.md`, plan: `_plans/accessibility-fixes.md`)
+- [x] 2026-06-04 — Batch 1: link contrast, focus visibility (consistent accent-red ring), footer link spacing + underline, non-colour link cues, single accessible card links, footer landmark/list semantics (spec: `_work/shipped/accessibility-fixes/spec.md`, plan: `_work/shipped/accessibility-fixes/plan.md`)
 - [ ] Batch 2 — forms & semantics: visible form labels, `<fieldset>` grouping, submit button, heading semantics, missing link name (ROADMAP: `a11y-batch-2-forms-semantics`)
 - [ ] Batch 3 — content & landmark sweep: content-in-landmark, `<q>`/`<blockquote>` quoting, blockquote attribution, focus-obscured elements (ROADMAP: `a11y-batch-3-content-landmark-sweep`)
 - [ ] Batch 4 — long tail: sensory instructions, 200% text scaling, background-image alt, deprecated attributes, high-contrast mode, script-as-link, complementary label, figure label, new-window warning, redundant ARIA role (ROADMAP: `a11y-batch-4-long-tail`)

@@ -2,15 +2,15 @@
 
 Section navigation is a contextual sidebar that helps visitors orient themselves within a section of the site. CMS editors can enable it per page, and when active it shows the current page's siblings and child pages, highlighting the current page. On smaller screens the sidebar collapses into an expandable "In this Section" toggle so the navigation is accessible without consuming screen space.
 
-**Source spec**: `_specs/shipped/section-navigation.md`
+**Source spec**: `_work/shipped/section-navigation/spec.md`
 **Last verified**: 2026-04-09
 
 ---
 
 ## Increments
 
-- [x] 2026-04-09 — Section Navigation Controls composition, contextual sidebar with desktop/mobile responsive collapse, current-page highlight (spec: `_specs/shipped/section-navigation.md`)
-- [x] 2026-07-07 — `hideFromSectionNavigation` toggle on the Visibility Controls composition: a page can be removed from the section-nav sidebar independently of "Hide From Search" (default unticked, existing content unaffected) (spec: `_specs/shipped/section-nav-hide-toggle.md`)
+- [x] 2026-04-09 — Section Navigation Controls composition, contextual sidebar with desktop/mobile responsive collapse, current-page highlight (spec: `_work/shipped/section-navigation/spec.md`)
+- [x] 2026-07-07 — `hideFromSectionNavigation` toggle on the Visibility Controls composition: a page can be removed from the section-nav sidebar independently of "Hide From Search" (default unticked, existing content unaffected) (spec: `_work/shipped/section-nav-hide-toggle/spec.md`)
 
 ---
 
@@ -252,5 +252,5 @@ Scenario: Base styles, active states, children styles, toggle, and responsive br
 ## Revision Notes
 
 - 2026-04-09: Initial feature doc from spec + implementation
-- 2026-07-07: Added the "Hide From Section Navigation" toggle (`hideFromSectionNavigation` boolean on the Visibility Controls composition). The section-nav partial now filters siblings and children by `IsVisible() && !hideFromSectionNavigation`, so a page can be removed from the section-nav sidebar independently of "Hide From Search". Default unticked (existing content unaffected); the current page is never filtered from its own list; suppression recomputes against the filtered lists. New scenarios and coverage rows added; behavior folds into this existing capability doc (change to `section-navigation`, spec `_specs/shipped/section-nav-hide-toggle.md`).
+- 2026-07-07: Added the "Hide From Section Navigation" toggle (`hideFromSectionNavigation` boolean on the Visibility Controls composition). The section-nav partial now filters siblings and children by `IsVisible() && !hideFromSectionNavigation`, so a page can be removed from the section-nav sidebar independently of "Hide From Search". Default unticked (existing content unaffected); the current page is never filtered from its own list; suppression recomputes against the filtered lists. New scenarios and coverage rows added; behavior folds into this existing capability doc (change to `section-navigation`, spec `_work/shipped/section-nav-hide-toggle/spec.md`).
 - 2026-07-08: Attempted to mirror the toggle onto the **Guide Visibility Controls** composition (`guideVisibilityControls`) for Guides / How-To Guide pages, then **reverted it**. Two reasons: (1) guide page types render no section navigation of their own, so the toggle was latent (no visible effect); (2) the schema addition got stuck in Cloud propagation — the initial deploy failed at extraction, leaving the property in git but never in any Cloud DB, and Cloud kept re-serializing the composition from its 3-property DB (reverting the file) and blocking content transfer to Live with a schema mismatch. Reverting `guideVisibilityControls` back to its three toggles restored a consistent git ↔ Cloud state and unblocked local→live content flow. The standard `Visibility Controls` toggle (2026-07-07) is unaffected and still works. Guide-side section-nav visibility will be reconsidered if/when guides are reworked — see ROADMAP `guides-rework`.

@@ -4,14 +4,14 @@
 
 A standalone landing page at `/experiments` that tells the story of the seven capabilities this Umbraco site has unlocked — the feature-shipping pipeline, custom slash commands, in-CMS AI, human + AI co-writing, AI-driven CMS operations, metadata-driven featured images, and algorithmic art. The page doubles as a "show and share" prop for an upcoming Umbraco developer meet-up and as the project's first production use of Block Grid layout, demonstrating areas, multi-column rows, and nested grids that other Block-List-only pages can learn from.
 
-**Source spec**: `_specs/innovation-showcase.md`
+**Source spec**: `_work/shipped/innovation-showcase/spec.md`
 **Last verified**: —
 
 ---
 
 ## Increments
 
-- [ ] 2026-05-13 — v1: seven-pillar Experiments landing page on Block Grid, with hero, closing CTA, and bespoke `pillarSection` / `featureCard` / `commandBadge` / `statCallout` / `pullQuoteBlock` / `embeddedSketch` / `timelineRow` element types. Registered against any Block Grid property on the site (general abstraction). (spec: `_specs/innovation-showcase.md`)
+- [ ] 2026-05-13 — v1: seven-pillar Experiments landing page on Block Grid, with hero, closing CTA, and bespoke `pillarSection` / `featureCard` / `commandBadge` / `statCallout` / `pullQuoteBlock` / `embeddedSketch` / `timelineRow` element types. Registered against any Block Grid property on the site (general abstraction). (spec: `_work/shipped/innovation-showcase/spec.md`)
 - [ ] Future: editor "pillar template" picker so editors can drop a pre-arranged pillar (header + body + media) in one click (no spec yet)
 - [ ] Future: a second landing page that re-uses `pillarSection` on a different topic, once the abstraction is battle-tested
 
@@ -284,4 +284,4 @@ Scenario: Editor adds an eighth pillar
 ## Revision Notes
 
 - 2026-05-13: Draft scenarios from initial spec
-- 2026-07-16: Block editor parity. The showcase blocks (featureCard, commandBadge, statCallout, pullQuoteBlock, embeddedSketch, timelineRow, showcaseHero) now render from **one shared, editor-agnostic view** at `Views/Partials/blocks/Components/{alias}.cshtml` and are available in both Block List and Block Grid by default (palette membership is admin-discretionary, parity is the default). **`pillarSection` stays grid-only** — it uses Block Grid areas and keeps its view at `blockgrid/Components/pillarSection.cshtml`; nested sub-lists stay parent-scoped. Content blocks are now offered in the Experiments grid too. Added a Rule + two coverage rows. Cross-cutting change — convention in CLAUDE.md → *Block / component rendering & parity*; spec/plan archived under `_specs/shipped/` and `_plans/shipped/block-editor-parity-and-reuse-readiness.md`. (This doc remains a Draft — the page-behavior scenarios above are still unverified against an implementation.)
+- 2026-07-16: Block editor parity. The showcase blocks (featureCard, commandBadge, statCallout, pullQuoteBlock, embeddedSketch, timelineRow, showcaseHero) now render from **one shared, editor-agnostic view** at `Views/Partials/blocks/Components/{alias}.cshtml` and are available in both Block List and Block Grid by default (palette membership is admin-discretionary, parity is the default). **`pillarSection` stays grid-only** — it uses Block Grid areas and keeps its view at `blockgrid/Components/pillarSection.cshtml`; nested sub-lists stay parent-scoped. Content blocks are now offered in the Experiments grid too. Added a Rule + two coverage rows. Cross-cutting change — convention in CLAUDE.md → *Block / component rendering & parity*; spec/plan archived under `_work/shipped/` and `_work/shipped/block-editor-parity-and-reuse-readiness/plan.md`. (This doc remains a Draft — the page-behavior scenarios above are still unverified against an implementation.)

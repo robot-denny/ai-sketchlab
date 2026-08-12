@@ -2,14 +2,14 @@
 
 When the human site author and the AI persona Ella co-write a single article, readers need to know whose words they're reading at a glance — not just from the masthead byline. The site now renders any prose block attributed to an AI author inside a calm callout treatment ("Written by Ella · inline note") when the rest of the article is human-led. An all-AI article suppresses the per-block treatment entirely — the masthead byline carries the attribution.
 
-**Source spec**: `_specs/ella-block-attribution.md`
+**Source spec**: `_work/shipped/ella-block-attribution/spec.md`
 **Last verified**: 2026-05-11
 
 ---
 
 ## Increments
 
-- [x] 2026-05-11 — `isAi` toggle on Author doc type, `.ella-wrap` inline-note treatment for AI-attributed blocks in human-led articles (spec: `_specs/ella-block-attribution.md`)
+- [x] 2026-05-11 — `isAi` toggle on Author doc type, `.ella-wrap` inline-note treatment for AI-attributed blocks in human-led articles (spec: `_work/shipped/ella-block-attribution/spec.md`)
 
 ---
 

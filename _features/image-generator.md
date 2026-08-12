@@ -2,17 +2,17 @@
 
 CMS editors and developers can generate unique abstract featured images for blog articles using the article's own metadata -- title, word count, and categories -- as creative input. Each image is a deterministic flow-field pattern: the same article always produces the same image, and different articles produce visibly different images. Images can be generated one at a time or in batch, from a CLI tool or from the Umbraco backoffice. Category color palettes are managed as CMS content so they transfer between environments with standard Umbraco Deploy.
 
-**Source spec**: `_specs/shipped/image-generator/image-generator.md`
+**Source spec**: `_work/shipped/image-generator/image-generator.md`
 **Last verified**: 2026-04-09
 
 ---
 
 ## Increments
 
-- [x] 2026-04-09 — CLI generator: deterministic flow-field PNGs, batch + force + local-only modes (spec: `_specs/shipped/image-generator/image-generator.md`)
-- [x] 2026-04-09 — Backoffice dashboard + per-article property action (plan: `_plans/shipped/image-generator-backoffice.md`)
-- [x] 2026-04-09 — Palette storage migrated from JSON to CMS Block List for environment transfer via Umbraco Deploy (spec: `_specs/shipped/image-generator/palette-storage.md`)
-- [x] 2026-05-28 — Generation moved behind an `IImageGenerator` service boundary; no editor-facing change (spec: `_specs/shipped/arch-image-generator-extraction.md`)
+- [x] 2026-04-09 — CLI generator: deterministic flow-field PNGs, batch + force + local-only modes (spec: `_work/shipped/image-generator/image-generator.md`)
+- [x] 2026-04-09 — Backoffice dashboard + per-article property action (plan: `_work/shipped/image-generator-backoffice/plan.md`)
+- [x] 2026-04-09 — Palette storage migrated from JSON to CMS Block List for environment transfer via Umbraco Deploy (spec: `_work/shipped/image-generator/palette-storage.md`)
+- [x] 2026-05-28 — Generation moved behind an `IImageGenerator` service boundary; no editor-facing change (spec: `_work/shipped/arch-image-generator-extraction/spec.md`)
 
 ---
 
@@ -581,5 +581,5 @@ Scenario: The backoffice generate cannot find a Node binary
 
 ## Revision Notes
 
-- 2026-06-16: Folded in the former `arch-image-generator-extraction` feature doc (a behind-the-scenes refactor — not its own capability). Added the operator-facing "missing Node binary" diagnostic edge case (the one user/operator-observable behavior the extraction introduced) and the service-extraction increment. The refactor's architecture ACs (`IImageGenerator`/`CliImageGenerator` boundary, controller holds no subprocess, composer registration, controller unit-testable with a fake, CLI-argument and temp-file-cleanup contracts) were point-in-time refactor criteria and stay in `_specs/shipped/arch-image-generator-extraction.md` — they are not standing capability behavior.
+- 2026-06-16: Folded in the former `arch-image-generator-extraction` feature doc (a behind-the-scenes refactor — not its own capability). Added the operator-facing "missing Node binary" diagnostic edge case (the one user/operator-observable behavior the extraction introduced) and the service-extraction increment. The refactor's architecture ACs (`IImageGenerator`/`CliImageGenerator` boundary, controller holds no subprocess, composer registration, controller unit-testable with a fake, CLI-argument and temp-file-cleanup contracts) were point-in-time refactor criteria and stay in `_work/shipped/arch-image-generator-extraction/spec.md` — they are not standing capability behavior.
 - 2026-04-09: Initial feature doc synthesized from 2 specs, 3 plans, and implemented code. **Conflict resolved**: The original spec (`image-generator.md`) initially said "first match wins" for multi-category palette handling, while the backoffice plan (`image-generator-backoffice.md`) specified "merge all matching palettes." The implemented code in `scripts/image-generator/src/palette.ts` uses the **merge** strategy -- it concatenates all matching category palettes into a single combined color pool and the renderer cycles through all merged colors. The test suite (`tests/image-generator/palette.test.ts:L69`) explicitly verifies that two matching categories produce a 6-color merged palette. The spec was also updated (per backoffice plan Step 0) to reflect the merge behavior. This feature doc records the merge behavior as authoritative. Additionally, the palette storage migration from JSON file to CMS content (per `palette-storage.md`) is fully implemented: palettes are stored as a Block List in the "Image Generator Settings" document, the dashboard palette editor was removed, and the CLI supports a priority chain (--palette-json > --palette-from-api > config file > hardcoded defaults). The "Vibe Coding" category was renamed to "Agentic Coding" in the live CMS data but the behavior is unchanged.

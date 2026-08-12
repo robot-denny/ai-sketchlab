@@ -64,5 +64,5 @@ Diagnostic codified as `npm run check:lockout` (added to root `package.json`). R
 
 # Cross-reference
 
-- Confirmed twice (Phase 9 of `_plans/package-c.md` was the second time, 2026-04-28).
+- Confirmed twice (Phase 9 of `_work/shipped/package-c/plan.md` was the second time, 2026-04-28).
 - Diagnostic and fix run live in conversation 2026-04-28; user reported "logged right in" after the SQL reset + browser cache clear.

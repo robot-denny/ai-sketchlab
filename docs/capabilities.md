@@ -104,8 +104,8 @@ Slash commands under `.claude/commands/` that drive the agentic development proc
 
 | Command | What it does |
 |---|---|
-| `/spec` | Feature spec + branch from a short idea → `_specs/{slug}.md` (requirements, acceptance criteria, edge cases) |
-| `/plan` | Phased, TDD-first implementation plan from a spec → `_plans/{slug}.md` (self-contained step prompts) |
+| `/spec` | Feature spec + branch from a short idea → `_work/{slug}/spec.md` (requirements, acceptance criteria, edge cases) |
+| `/plan` | Phased, TDD-first implementation plan from a spec → `_work/{slug}/plan.md` (self-contained step prompts) |
 | `/implement-step` | Dispatches a single plan step to a fresh subagent so the main context stays clean across an M/L plan (Context + Key Decisions + Step N only; no auto-commit) |
 | `/block` | TDD block-component creation (RED → GREEN): E2E test first, then element type via Management API, then Razor partial until green |
 | `/feature` | Living BDD feature spec → `_features/{slug}.md` (Given/When/Then grouped by Rule, test-coverage table; the regression source of truth) |
@@ -119,12 +119,12 @@ Slash commands under `.claude/commands/` that drive the agentic development proc
 
 ### Development Workflow
 
-End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Shipped specs and plans archive under [`_specs/shipped/`](https://github.com/robot-denny/ai-sketchlab/tree/master/_specs/shipped) and [`_plans/shipped/`](https://github.com/robot-denny/ai-sketchlab/tree/master/_plans/shipped) so the top-level lists reflect only active work.
+End-to-end pipeline from idea to shipped feature. Each stage has a dedicated command that reads the previous stage's artifact and produces the next. Shipped increment bundles archive under [`_work/shipped/`](https://github.com/robot-denny/ai-sketchlab/tree/master/_work/shipped) so the active `_work/` list reflects only in-flight work.
 
 | Stage | Command | Artifact |
 |---|---|---|
-| 1. Idea → spec | `/spec` | `_specs/{slug}.md` |
-| 2. Spec → plan | `/plan` | `_plans/{slug}.md` |
+| 1. Idea → spec | `/spec` | `_work/{slug}/spec.md` |
+| 2. Spec → plan | `/plan` | `_work/{slug}/plan.md` |
 | 3. Plan step → clean-context execution | `/implement-step` | (per-step, dispatched to a subagent) |
 | 4. Plan → TDD block (RED → GREEN) | `/block` | E2E spec + element type + Razor partial |
 | 5. Implementation → living BDD spec | `/feature` | `_features/{slug}.md` |

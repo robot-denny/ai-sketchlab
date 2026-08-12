@@ -2,16 +2,16 @@
 
 Visitors search the site's content from the `/search` page by typing a query and pressing the search button. Short queries run keyword matching; longer natural-language queries run semantic search, so a paraphrased question ("how do I get started with this site") surfaces relevant pages even when none of the query's words appear on the page. Each result shows the page title, optional subtitle, and — for articles — the author and publish date, linking directly to the matching page. A small "Mode" label tells the visitor which searcher answered the query.
 
-**Source spec**: _(none for v1 — plan drafted directly from conversation 2026-04-21; see `_plans/shipped/umbraco-ai-search.md`. Stable-stack migration: `_specs/shipped/migrate-ai-search-stable-1-0.md`)_
+**Source spec**: _(none for v1 — plan drafted directly from conversation 2026-04-21; see `_work/shipped/umbraco-ai-search/plan.md`. Stable-stack migration: `_work/shipped/migrate-ai-search-stable-1-0/spec.md`)_
 **Last verified**: 2026-06-16
 
 ---
 
 ## Increments
 
-- [x] 2026-04-22 — `/search` page powered by `Umbraco.AI.Search` (semantic) with Examine keyword fallback; system pages filtered; XSS-safe query echo (plan: `_plans/shipped/umbraco-ai-search.md`)
-- [x] 2026-05-20 — Search logic extracted from `search.cshtml` into a testable `SearchService` (view becomes a thin renderer; adds query routing, 5-minute result caching, and a 20-item display cap as observable behavior) (spec: `_specs/shipped/extract-search-service.md`)
-- [x] 2026-06-16 — AI + search stack migrated to stable 1.0.0; AI config-key allow-list added for `Umbraco.AI 1.14.0`; keyword fallback guarded against the Provider.Examine beta.9 multi-word NRE (spec: `_specs/shipped/migrate-ai-search-stable-1-0.md`)
+- [x] 2026-04-22 — `/search` page powered by `Umbraco.AI.Search` (semantic) with Examine keyword fallback; system pages filtered; XSS-safe query echo (plan: `_work/shipped/umbraco-ai-search/plan.md`)
+- [x] 2026-05-20 — Search logic extracted from `search.cshtml` into a testable `SearchService` (view becomes a thin renderer; adds query routing, 5-minute result caching, and a 20-item display cap as observable behavior) (spec: `_work/shipped/extract-search-service/spec.md`)
+- [x] 2026-06-16 — AI + search stack migrated to stable 1.0.0; AI config-key allow-list added for `Umbraco.AI 1.14.0`; keyword fallback guarded against the Provider.Examine beta.9 multi-word NRE (spec: `_work/shipped/migrate-ai-search-stable-1-0/spec.md`)
 
 ---
 
@@ -300,6 +300,6 @@ Scenario: A freshly deployed environment has an empty index until rebuilt
 
 ## Revision Notes
 
-- 2026-04-22: Initial feature doc, created retroactively after Step 7 of `_plans/shipped/umbraco-ai-search.md` shipped the AI-backed search.
-- 2026-06-16: Folded in the former `migrate-ai-search-stable-1-0` feature doc (one capability, one doc) and refreshed against current behavior. Added the "Mode" label rule (Keyword / AI semantic), the graceful-degradation edge cases (no-500 empty state, Provider.Examine beta.9 NRE containment, AI config-key allow-list), and the attribute-injection XSS scenario. Corrected the stale `.post-preview` selector to the current `.article-grid-card` card and described the real `_EmptyState` partial. Refreshed the Test Coverage table against the current `tests/e2e/search.spec.ts`. The stable-stack migration ACs (zero-warning build, backoffice list-view search, index rebuild count, Pinned-betas doc collapse) live in `_specs/shipped/migrate-ai-search-stable-1-0.md` — they were point-in-time acceptance criteria, not standing behavior.
-- 2026-06-16: Folded in the former `extract-search-service` feature doc (a behind-the-scenes refactor — not its own capability). Sharpened the routing rule with the ≤2-token/≥3-token threshold, the fallback rule with "mode reflects routing, not which searcher produced results" and the raw-zero-gates-fallback subtlety, the count rule with the 20-item display cap and post-filter/pre-cap TotalCount, and added the five-minute result-cache rule. The refactor's architecture ACs (view holds no business logic, `SearchService` unit-testable in isolation, composer-registered) were point-in-time refactor criteria and stay in `_specs/shipped/extract-search-service.md` — they are not standing user behavior.
+- 2026-04-22: Initial feature doc, created retroactively after Step 7 of `_work/shipped/umbraco-ai-search/plan.md` shipped the AI-backed search.
+- 2026-06-16: Folded in the former `migrate-ai-search-stable-1-0` feature doc (one capability, one doc) and refreshed against current behavior. Added the "Mode" label rule (Keyword / AI semantic), the graceful-degradation edge cases (no-500 empty state, Provider.Examine beta.9 NRE containment, AI config-key allow-list), and the attribute-injection XSS scenario. Corrected the stale `.post-preview` selector to the current `.article-grid-card` card and described the real `_EmptyState` partial. Refreshed the Test Coverage table against the current `tests/e2e/search.spec.ts`. The stable-stack migration ACs (zero-warning build, backoffice list-view search, index rebuild count, Pinned-betas doc collapse) live in `_work/shipped/migrate-ai-search-stable-1-0/spec.md` — they were point-in-time acceptance criteria, not standing behavior.
+- 2026-06-16: Folded in the former `extract-search-service` feature doc (a behind-the-scenes refactor — not its own capability). Sharpened the routing rule with the ≤2-token/≥3-token threshold, the fallback rule with "mode reflects routing, not which searcher produced results" and the raw-zero-gates-fallback subtlety, the count rule with the 20-item display cap and post-filter/pre-cap TotalCount, and added the five-minute result-cache rule. The refactor's architecture ACs (view holds no business logic, `SearchService` unit-testable in isolation, composer-registered) were point-in-time refactor criteria and stay in `_work/shipped/extract-search-service/spec.md` — they are not standing user behavior.

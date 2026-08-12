@@ -4,15 +4,13 @@ Where things live in this repo. Filled during the cantrip trial (2026-08-03).
 
 ## Workspace
 
-Increment bundles → `_work/<slug>/` (`spec.md`, `plan.md`, `notes/`, `assets/`), archived to
-`_work/shipped/<slug>/`. Capability docs → `_features/<area>.md`. This is the cantrip default,
-adopted for new work as of the trial.
+Increment bundles → `_work/<slug>/` (`spec.md`, `plan.md`, and optional `notes/`, `assets/`),
+archived to `_work/shipped/<slug>/` once the work ships. Capability docs → `_features/<area>.md`.
+This is the live layout — `/spec` and `/plan` write here.
 
-> Migration in progress: `_work/` is the target layout but does not exist on `master` yet — it is
-> created on first use (`mkdir -p _work/<slug>/`). For cantrip-driven work this **supersedes**
-> CLAUDE.md's Workflow Layers guidance (which still routes `/spec`→`_specs/`), pending the CLAUDE.md
-> split. New increments use `_work/`; the legacy `_specs/`/`_plans/`/`_audits/` are migrated to
-> `_work/shipped/` in a later adoption step.
+The legacy `_specs/`/`_plans/` folders were migrated wholesale into `_work/shipped/<slug>/` during
+the cantrip toolkit adoption. `_audits/` stays gitignored; going forward durable audits go to
+`docs/audits/` (committed) and scratch working files to `_scratch/` (gitignored).
 
 ## Code layout
 

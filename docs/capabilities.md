@@ -130,7 +130,7 @@ End-to-end pipeline from idea to shipped feature. Each stage has a dedicated com
 | 5. Implementation → living BDD spec | `/feature` | `_features/{slug}.md` |
 | 6. Uncommitted changes → review | `/code-review` | (accessibility + code-quality + perf subagents) |
 
-**Workflow layers.** Work flows through five loose-to-tight layers — **Roadmap → Feature → Spec → Plan → Implement**. [ROADMAP.md](https://github.com/robot-denny/ai-sketchlab/blob/master/ROADMAP.md) is the project-level queue (Now / Next / Later / Bundles); each `_features/<slug>.md` carries an `Increments` section listing shipped + planned iterations, so a "feature" is durable across multiple spec/plan cycles. Work is classified as **new capability** (earns a feature doc), **change to an existing capability** (folds into that doc), or **fix/infra/cleanup** (a `docs/` runbook, no feature doc). The full model is documented under **Workflow layers** in [CLAUDE.md](https://github.com/robot-denny/ai-sketchlab/blob/master/CLAUDE.md).
+**Workflow layers.** Work flows through five loose-to-tight layers — **Roadmap → Feature → Spec → Plan → Implement**. [ROADMAP.md](https://github.com/robot-denny/ai-sketchlab/blob/master/ROADMAP.md) is the project-level queue (Now / Next / Later / Bundles); each `_features/<slug>.md` carries an `Increments` section listing shipped + planned iterations, so a "feature" is durable across multiple spec/plan cycles. Work is classified as **new capability** (earns a feature doc), **change to an existing capability** (folds into that doc), or **fix/infra/cleanup** (a `docs/` runbook, no feature doc). The full model is documented under **Workflow layers** in [AGENTS.md](https://github.com/robot-denny/ai-sketchlab/blob/master/AGENTS.md).
 
 ### Solution Architecture
 
@@ -154,7 +154,7 @@ A safety net that lets schema/structural refactors ship without a leap of faith 
 | Pre-push hook | `dotnet build -c Release` + xUnit before each push (< 30s warm; `SKIP_PREPUSH=1` escape) |
 | Warnings-as-errors across all C# projects | `<TreatWarningsAsErrors>` + `<Nullable>enable</Nullable>`; only surgical per-code `<NoWarn>` with inline CVE justification is allowed |
 | Linux-pinned Playwright screenshot baselines | Regenerated via the `update-snapshots.yml` workflow_dispatch; baselines committed by the CI bot |
-| Red-CI diagnostic playbook | Generic "which gate → which job → new or pre-existing" method in CLAUDE.md; per-failure recipes in the [CI Failure Recipes runbook](https://github.com/robot-denny/ai-sketchlab/blob/master/docs/ci-failure-recipes.md) |
+| Red-CI diagnostic playbook | Generic "which gate → which job → new or pre-existing" method + per-failure recipes in the [CI Failure Recipes runbook](https://github.com/robot-denny/ai-sketchlab/blob/master/docs/ci-failure-recipes.md) |
 
 ### Site Features
 
@@ -216,7 +216,7 @@ Playwright suite under [`tests/e2e/`](https://github.com/robot-denny/ai-sketchla
 
 | Capability | Notes |
 |---|---|
-| E2E resilience rules | 7 rules codified in CLAUDE.md (dynamic UUIDs, stale-data cleanup, token refresh, regex assertions, browser-over-file assertions) |
+| E2E resilience rules | 7 rules codified in [docs/e2e-testing.md](https://github.com/robot-denny/ai-sketchlab/blob/master/docs/e2e-testing.md) (dynamic UUIDs, stale-data cleanup, token refresh, regex assertions, browser-over-file assertions) |
 | Visual-regression screenshot baselines | 27 block + 6 page specs; Linux-only baselines; `maxDiffPixelRatio: 0.01` (byte-identical `0` for shim-equivalence pairs); dynamic regions masked |
 | Feature-level E2E suites | Article-list grid view, site footer, section navigation, SEO routing smoke, and more |
 

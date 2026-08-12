@@ -2,8 +2,8 @@
 
 Durable runbook for how **content** moves between environments on this project. This is a **runbook**, not a feature behavioral spec — it records the by-hop discipline so future contributors (and agent sessions) don't re-derive it or fight the workflow.
 
-- The short version lives in [CLAUDE.md → "Content workflow under CI"](../CLAUDE.md#content-workflow-under-ci). This file is the durable, full home.
-- **Schema** flows through git (`.uda` files); **media binaries** flow through Cloud's media transfer (see [CLAUDE.md → Media files](../CLAUDE.md#media-files)); **content records** flow local → Dev → Live as described below.
+- The short version lives in [docs/ci-cd.md → "Content workflow under CI"](ci-cd.md#content-workflow-under-ci). This file is the durable, full home.
+- **Schema** flows through git (`.uda` files); **media binaries** flow through Cloud's media transfer (see [docs/media.md](media.md)); **content records** flow local → Dev → Live as described below.
 
 ## The model
 
@@ -56,4 +56,4 @@ The one position-flavored path (nav-walk "first match" + the `.first()` article 
 
 ## Media rides separately
 
-Content transfers and restores do **not** carry media binaries. After any content restore you still need the matching **media restore** (or `npm run media:sync` as the safety net). Media remains Cloud-managed: `src/UmbracoProject/wwwroot/media/` is gitignored and binaries are never committed. Only the CONTENT direction is described here — the media-binary rules are unchanged. See [CLAUDE.md → Media files](../CLAUDE.md#media-files).
+Content transfers and restores do **not** carry media binaries. After any content restore you still need the matching **media restore** (or `npm run media:sync` as the safety net). Media remains Cloud-managed: `src/UmbracoProject/wwwroot/media/` is gitignored and binaries are never committed. Only the CONTENT direction is described here — the media-binary rules are unchanged. See [docs/media.md](media.md).

@@ -19,7 +19,7 @@ The per-feature mini-roadmap: shipped increments + planned increments + parking-
 
 ## Behaviors
 
-Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.claude/skills/BDD.md` for guidance.
+Scenarios are grouped by Rule — the business rule or acceptance criterion that the scenarios prove. Use concrete values (Specification by Example) and business language (Ubiquitous Language). See `.agents/skills/bdd-principles/SKILL.md` for guidance.
 
 ### Rule: {Business rule in plain language}
 

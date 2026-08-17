@@ -23,7 +23,7 @@ import {
 //
 // This branch has zero content-dependent text, so the baseline is stable
 // across content changes. If we later want to baseline the results layout
-// itself, we'd add a separate spec with heavier masking on `.post-preview`
+// itself, we'd add a separate spec with heavier masking on `.article-grid-card`
 // titles and snippets.
 //
 // Dynamic regions to mask:
@@ -34,7 +34,11 @@ import {
 // Note: the query string is reflected back via @encodedQuery into the page
 // head. Using a fixed token keeps that text stable.
 
-const NO_RESULTS_QUERY = 'zzzz-no-results-baseline';
+// Single opaque token — keyword search tokenizes on hyphens/whitespace, so a
+// multi-word slug like "zzzz-no-results-baseline" split into "results"/"baseline"
+// and matched real article content (4 keyword hits), silently defeating the
+// empty-state premise. One nonsense token matches nothing in either index.
+const NO_RESULTS_QUERY = 'zzzzqqqxvbnm';
 
 test.describe('Screenshot: search page template', () => {
   test('renders /search/?q=<no-results> matching baseline', async ({ page }) => {
@@ -51,7 +55,7 @@ test.describe('Screenshot: search page template', () => {
     // Confirm we hit the empty-state branch -- otherwise the baseline would
     // capture rank-dependent results which the spec is explicitly avoiding.
     await expect(
-      page.locator('.post-preview'),
+      page.locator('.article-grid-card'),
       'chosen query should yield zero search results',
     ).toHaveCount(0);
 

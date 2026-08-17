@@ -80,8 +80,11 @@
  *                              whose destination renders the blockgrid umb-block-grid
  *                              wrapper (the unique experiments surface).
  *                              Mask: time/.post-meta (timeline dates).
- *   search                  -> `/search?q=zzzz-no-results-baseline` (deliberate
+ *   search                  -> `/search?q=<NO_RESULTS_QUERY>` (deliberate
  *                              empty-state to avoid rank-dependent snippet thrash).
+ *                              The query is a single opaque token (see the spec's
+ *                              NO_RESULTS_QUERY constant); a hyphenated slug would
+ *                              tokenize and keyword-match real content.
  *                              Mask: none -- the empty state is layout-stable.
  *   contact                 -> Looked up via header/nav/footer walk for a link
  *                              whose destination renders `form[method="post"]`

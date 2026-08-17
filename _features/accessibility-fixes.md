@@ -20,7 +20,7 @@ The per-feature mini-roadmap: shipped increments + planned increments + parking-
 
 ## Behaviors
 
-Scenarios are grouped by Rule — the acceptance criterion the scenarios prove. Concrete values (Specification by Example) and the accessibility domain's own vocabulary (WCAG terms are the ubiquitous language here). See `.claude/skills/BDD.md`.
+Scenarios are grouped by Rule — the acceptance criterion the scenarios prove. Concrete values (Specification by Example) and the accessibility domain's own vocabulary (WCAG terms are the ubiquitous language here). See `.agents/skills/bdd-principles/SKILL.md`.
 
 ### Rule: Text links meet AA contrast against their actual background
 

@@ -20,7 +20,7 @@ The per-feature mini-roadmap: shipped increments + planned increments + parking-
 
 ## Behaviors
 
-Scenarios are grouped by Rule — the business rule each cluster proves. See `.claude/skills/BDD.md` for guidance.
+Scenarios are grouped by Rule — the business rule each cluster proves. See `.agents/skills/bdd-principles/SKILL.md` for guidance.
 
 ### Rule: Visitors and crawlers find a working sitemap at the standard URL on every environment
 

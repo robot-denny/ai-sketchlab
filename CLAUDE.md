@@ -38,7 +38,10 @@ This repo runs the **cantrip toolkit**. See
 `/commit-message` skills) vs. the **seven kept** tailored `.claude/commands/` (`check-uda`,
 `umbraco-edit`, `block`, `cms-image`, `guide`, `algorithmic-art`, `canvas-design`), the
 `.agents/config/` slots, and the reviewers (`/code-review` runs `code-reviewer`,
-`accessibility-reviewer`, `perf-reviewer`).
+`accessibility-reviewer`, `perf-reviewer`). For the three-layer model, how a new increment flows,
+and how to update the toolkit safely (`/update-toolkit` — **never** bare `skills update`, which
+silently overwrites local tailoring), see
+[docs/toolkit-adoption.md](docs/toolkit-adoption.md).
 
 ### Bundled design & meta skills
 

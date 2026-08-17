@@ -197,11 +197,18 @@ This repo runs on the **cantrip toolkit** as its developer tooling. The layout:
   [.claude/agents/](.claude/agents/); `/code-review` runs all three. Their calibrated working
   memory lives in `.claude/agent-memory/<reviewer>/` (gitignored).
 
+For the full picture — the three-layer model, how a new increment flows, and how to update the
+toolkit without losing local tailoring (`/update-toolkit`, never bare `skills update`) — see
+[docs/toolkit-adoption.md](docs/toolkit-adoption.md).
+
 See [CLAUDE.md](CLAUDE.md) for Claude-Code-specific operating notes (skills, plugins, the two
 memory systems, MCP).
 ## Documentation index
 
 Operational runbooks live under [docs/](docs/):
+
+**Workflow & tooling**
+- [docs/toolkit-adoption.md](docs/toolkit-adoption.md) — the cantrip toolkit: three-layer model, how an increment flows, and updating safely.
 
 **Build, test, deploy & CI**
 - [docs/testing-guide.md](docs/testing-guide.md) — the full testing guide (xUnit, Node, Playwright), plus the ported Playwright setup/auth appendix.

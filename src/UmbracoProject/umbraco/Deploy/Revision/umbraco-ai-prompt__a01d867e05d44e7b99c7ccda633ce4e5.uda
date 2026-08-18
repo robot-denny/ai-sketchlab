@@ -1,0 +1,36 @@
+{
+  "Name": "meta-description-generator",
+  "Alias": "meta-description-generator",
+  "Description": "Generate SEO-AEO optimized metaDescription",
+  "Instructions": "Write an SEO and answer-engine (AEO) meta description for this page, based on its actual\ntitle and body content. Follow the attached SEO \u0026 AEO Guidance for substance and the Site\nContent Guidelines for voice \u2014 do not restate them here.\n\nSpecifics for this field:\n\n- 140\u2013155 characters is the target; 160 is a hard cap. Never exceed 160.\n- Lead with a direct, self-contained answer to what the page is about. The opening clause\n  should make sense lifted on its own into a search result or an AI answer \u2014 inverted\n  pyramid, not a slow build.\n- Name the page\u0027s primary topic naturally and early, in the language a reader would search.\n- Summarize the specific value of *this* page: what the reader gets by opening it. Do not\n  restate the meta title or the H1 verbatim, and do not reuse another page\u0027s description.\n- Plain, concrete language. No superlatives, no clickbait or curiosity gaps, no filler.\n- If the page\u0027s topic is too unclear or thin to describe honestly, write the most faithful\n  short description the content supports and keep it modest \u2014 never fabricate specifics to\n  fill space.\n",
+  "ProfileUdi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83",
+  "ContextIds": [
+    "9471c1a0-0aee-463b-b4e6-f47e89ad102b",
+    "1d2c0e55-ffab-48db-92a3-d6d589af4f80"
+  ],
+  "GuardrailIds": [],
+  "Tags": [],
+  "IsActive": true,
+  "IncludeEntityContext": true,
+  "OptionCount": 3,
+  "Scope": {
+    "AllowRules": [
+      {
+        "PropertyEditorUiAliases": null,
+        "PropertyAliases": [
+          "metaDescription"
+        ],
+        "ContentTypeAliases": null
+      }
+    ],
+    "DenyRules": []
+  },
+  "Udi": "umb://umbraco-ai-prompt/a01d867e05d44e7b99c7ccda633ce4e5",
+  "Dependencies": [
+    {
+      "Udi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83"
+    }
+  ],
+  "__type": "Umbraco.AI.Prompt.Deploy,Umbraco.AI.Prompt.Deploy.Artifacts.AIPromptArtifact",
+  "__version": "17.2.1"
+}

@@ -1,0 +1,36 @@
+{
+  "Name": "meta-title-generator",
+  "Alias": "meta-title-generator",
+  "Description": "Generate SEO-AEO optimized meta title",
+  "Instructions": "Write an SEO and answer-engine (AEO) meta title for this page, based on its actual title\nand body content. Follow the attached SEO \u0026 AEO Guidance for substance and the Site\nContent Guidelines for voice \u2014 do not restate them here.\n\nSpecifics for this field:\n\n- 50\u201360 characters is the target; 60 is a hard cap. Never exceed 60.\n- Lead with the page\u0027s primary topic in the reader\u0027s words \u2014 front-load the meaning, since\n  the first words carry the most weight for both scanners and answer engines.\n- State what the page is, not how good it is. One or two focused terms; do not stuff.\n- Add a brand suffix (e.g. \u0022 | Diagram\u0022) only if the characters remain after the topic is\n  clear \u2014 never at the cost of the primary term.\n- It should agree with the page\u0027s H1 and meta description, but need not copy the H1 word\n  for word.\n- If the page\u0027s topic is unclear or scattered, name the single most defensible subject\n  rather than trying to cover everything \u2014 never fabricate a focus the content lacks.",
+  "ProfileUdi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83",
+  "ContextIds": [
+    "9471c1a0-0aee-463b-b4e6-f47e89ad102b",
+    "1d2c0e55-ffab-48db-92a3-d6d589af4f80"
+  ],
+  "GuardrailIds": [],
+  "Tags": [],
+  "IsActive": true,
+  "IncludeEntityContext": true,
+  "OptionCount": 3,
+  "Scope": {
+    "AllowRules": [
+      {
+        "PropertyEditorUiAliases": null,
+        "PropertyAliases": [
+          "metaName"
+        ],
+        "ContentTypeAliases": null
+      }
+    ],
+    "DenyRules": []
+  },
+  "Udi": "umb://umbraco-ai-prompt/a79b5ad6d4f0432bb754b599db6a2d1b",
+  "Dependencies": [
+    {
+      "Udi": "umb://umbraco-ai-profile/b2babe4c84b341439cc889c68949ed83"
+    }
+  ],
+  "__type": "Umbraco.AI.Prompt.Deploy,Umbraco.AI.Prompt.Deploy.Artifacts.AIPromptArtifact",
+  "__version": "17.2.1"
+}

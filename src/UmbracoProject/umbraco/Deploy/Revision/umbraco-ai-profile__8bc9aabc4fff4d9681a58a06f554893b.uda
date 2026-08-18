@@ -2,7 +2,7 @@
   "Name": "Content Generation Assistant",
   "Alias": "content-assistant",
   "ModelProviderId": "anthropic",
-  "ModelModelId": "claude-sonnet-4-5-20250929",
+  "ModelModelId": "claude-sonnet-5",
   "ConnectionUdi": "umb://umbraco-ai-connection/79f50bf8aafb4ae88835e741c3371a43",
   "Settings": {
     "temperature": null,
@@ -19,5 +19,5 @@
     }
   ],
   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIProfileArtifact",
-  "__version": "17.2.0"
+  "__version": "17.2.1"
 }

@@ -61,25 +61,33 @@
 
     <!-- Umbraco.AI suite, pinned to each package's latest 17.x. The vendor realigned to the
          CMS major (17.0.0, 2026-06-25) and now patches each package independently — hence the
-         mixed 17.0.0 / 17.0.1 / 17.1.0 below (all the same major, internally range-compatible).
-         Bumped 2026-07-07 primarily for **Umbraco.AI.Deploy 17.0.1** — its changelog entry
-         "Deploy capability-specific profile settings and default profiles" fixes the bug where
-         profile Settings (Max Tokens, temperature, system prompt, contexts) serialized to `{}`
-         in the .uda (GetArtifactAsync serialized via the IAIProfileSettings interface), so they
-         now deploy to Cloud instead of being per-environment-only. Keep each on its latest 17.x;
-         do NOT cross to 18.x until the planned v18 upgrade. Provider.Examine has no fix yet. -->
-    <PackageReference Include="Umbraco.AI" Version="17.2.0" />
-    <PackageReference Include="Umbraco.AI.Agent" Version="17.1.1" />
-    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="17.0.0" />
-    <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.AGUI" Version="17.1.1" />
-    <PackageReference Include="Umbraco.AI.Anthropic" Version="17.0.2" />
-    <PackageReference Include="Umbraco.AI.Deploy" Version="17.0.2" />
-    <PackageReference Include="Umbraco.AI.Google" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.1.2" />
-    <PackageReference Include="Umbraco.AI.Prompt" Version="17.2.0" />
-    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.1" />
+         mixed 17.0.x / 17.1.x / 17.2.x / 17.3.x below (all the same major, internally range-compatible).
+         Bumped 2026-08-20 to each package's 17.x head. The set anchors on **Umbraco.AI 17.3.1**:
+         AI.OpenAI 17.2.0, AI.Anthropic 17.1.0 and AI.Google 17.0.3 require AI.Core >= 17.3.0, and
+         AI.Deploy 17.1.0 requires AI.Startup >= 17.3.0, so the core metapackage moves with them.
+         (AI.Core and AI.Startup are internal components pulled transitively by the Umbraco.AI
+         metapackage below — they are not separate PackageReference lines; only Umbraco.AI is.)
+         AI.Core 17.3.1 requires only Umbraco.Cms.Core >= 17.5.0 (satisfied by 17.5.3) — no CMS bump.
+         Keep each on its latest 17.x; do NOT cross to 18.x until the planned v18 upgrade.
+         Previously bumped 2026-07-07 for AI.Deploy 17.0.1 (fixed profile Settings serializing to `{}`
+         in the .uda — see docs/ai-copilot.md; superseded here by 17.1.0, which retains that fix).
+         **Umbraco.AI.Search deliberately held at 17.0.0**: AI.Search.Core (a transitive dependency of
+         the pinned Umbraco.AI.Search package, not referenced directly) at 17.0.3 widened its
+         Umbraco.Cms.Search.Core constraint to [17.0.0, 17.999.999), which would force the pinned
+         Cms.Search.* stack off the 1.x line onto 17.x — and Cms.Search.Provider.Examine has no stable
+         17.x (only 17.0.0-beta.1). That is a separate search-stack migration, not a safe drop-in bump. -->
+    <PackageReference Include="Umbraco.AI" Version="17.3.1" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="17.1.4" />
+    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.4" />
+    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="17.0.1" />
+    <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.2" />
+    <PackageReference Include="Umbraco.AI.AGUI" Version="17.1.4" />
+    <PackageReference Include="Umbraco.AI.Anthropic" Version="17.1.0" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="17.1.0" />
+    <PackageReference Include="Umbraco.AI.Google" Version="17.0.3" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.2.0" />
+    <PackageReference Include="Umbraco.AI.Prompt" Version="17.2.3" />
+    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.3" />
     <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.1" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.1.0" />

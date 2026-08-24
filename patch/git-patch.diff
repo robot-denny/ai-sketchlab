@@ -1,26 +1,13 @@
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-index bc7f764..6b7aa2c 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda
+index c9b2598..5c5b679 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda
 @@ -3,7 +3,7 @@
-   "Alias": "site-content-guidelines",
+   "Alias": "seo-aeo-guidance",
    "Resources": [
      {
--      "Id": "fe84315b-6b82-4a24-a730-afbc126d2b49",
-+      "Id": "184a8157-08d3-4957-b3ba-ab5917a8b8de",
-       "ResourceTypeId": "brand-voice",
-       "Name": "Brand Voice",
-       "Description": null,
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-index 5ea773c..9b4f0c3 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
-@@ -3,7 +3,7 @@
-   "Alias": "how-to-guide-style",
-   "Resources": [
-     {
--      "Id": "0ba8617a-d994-432c-8b2e-daede1a98b50",
-+      "Id": "ceb8d340-5dfb-4c27-be77-abd61eb70993",
+-      "Id": "0ab932d8-9b4f-4d80-bb97-b5acbd1f29d6",
++      "Id": "6c4946c8-b4ba-4f58-b66a-80ca246c4137",
        "ResourceTypeId": "text",
-       "Name": "Structural Template",
-       "Description": "Section-by-section structure every generated guide must follow.",
+       "Name": "Text",
+       "Description": "Shared best practices to optimized for SEO and AEO",

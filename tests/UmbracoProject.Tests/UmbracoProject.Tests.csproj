@@ -5,25 +5,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- NU1903: Lucene.Net.Replicator 4.8.0-beta00016 (GHSA-2qw8-ppr5-m96c, high severity),
-         inherited via the UmbracoProject reference (see that project's csproj for the chain).
-         Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00016.
-         NU1904: Microsoft.AspNetCore.DataProtection 10.0.4 (GHSA-9mv3-2cwr-p262, critical severity),
-         pulled transitively via Microsoft.NET.Test.Sdk → AspNetCore.Identity in the test host.
-         Test project only — these APIs are never exercised at runtime (we don't persist data-protection keys
-         in unit tests). Remove when Microsoft.NET.Test.Sdk upgrades past DataProtection 10.0.4.
-         NU1902: AngleSharp 1.4.0 (GHSA-pgww-w46g-26qg, moderate severity), transitive via
-         SmartReader 0.11.0 → AngleSharp (inherited through the UmbracoProject reference).
-         Remove when patched upstream. -->
-    <NoWarn>$(NoWarn);NU1902;NU1903;NU1904</NoWarn>
+    <!-- No NU19xx advisory suppressions: the `dotnet list package` vulnerability scan (vulnerable, include-transitive)
+         is clean for this project as of 2026-08-26. All three prior suppressions were removed then:
+         NU1903 (Lucene.Net.Replicator GHSA-2qw8-ppr5-m96c) affects [4.8.0-beta00005, 4.8.0-beta00017)
+         and the resolved beta00017 is outside it; NU1904 (Microsoft.AspNetCore.DataProtection
+         GHSA-9mv3-2cwr-p262, critical) came via Microsoft.NET.Test.Sdk 17.12.0 and is cleared by
+         Test.Sdk 18.9.0; NU1902 (AngleSharp) does not apply here because this project's graph
+         includes the host's Umbraco.AI 17.3.1 → SmartReader 0.11.1 → AngleSharp 1.5.2 (the
+         standalone Features RCL still resolves 1.4.0 and keeps its own NU1902). With TWAE on, a new
+         advisory now fails the build here rather than being silently swallowed — that is intended. -->
+    <NoWarn>$(NoWarn)</NoWarn>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.9.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
   </ItemGroup>
 

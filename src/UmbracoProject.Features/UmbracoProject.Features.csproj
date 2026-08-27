@@ -6,15 +6,17 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <!-- NU1902: AngleSharp 1.4.0 (GHSA-pgww-w46g-26qg, moderate severity), transitive via
-         SmartReader 0.11.0 → AngleSharp. Not directly referenced; cannot pin without risking the
-         SmartReader chain. Remove when SmartReader (or its parent) bumps to a patched AngleSharp.
-         NU1903: Lucene.Net.Replicator 4.8.0-beta00017 (GHSA-2qw8-ppr5-m96c, high severity),
-         pulled transitively via Umbraco.Cms.Search.Core → ... → Lucene.Net (same chain the host
-         suppresses). We cannot pin a patched version without breaking Umbraco's locked Examine chain.
-         Remove this suppression when Umbraco upgrades Examine past Lucene.Net 4.8.0-beta00017.
-         (No CS0618 suppression needed here — this RCL holds no Razor views this increment.) -->
-    <NoWarn>$(NoWarn);NU1902;NU1903</NoWarn>
+    <!-- NU1902: AngleSharp 1.4.0 (GHSA-pgww-w46g-26qg, moderate — affects "(, 1.5.0)"), transitive
+         via Umbraco.AI.Search 17.0.0 → Umbraco.AI.Core 17.0.0 → SmartReader 0.11.0 → AngleSharp.
+         STILL LIVE for this project only: the host resolves AngleSharp 1.5.2 (its Umbraco.AI 17.3.1
+         pulls SmartReader 0.11.1), so the deployed app is unaffected — this is a graph-local
+         exposure of the RCL when resolved standalone. It clears when AI.Search moves to 17.0.1+
+         (which widens Cms.Search.Core to the 17.x line and floats AI.Core to 17.3.x) — tracked as
+         `deps-ai-search-version-realignment` in ROADMAP, Tier 2, needs runtime verification.
+         NU1903 was REMOVED on 2026-08-26: the Lucene.Net.Replicator advisory it named
+         (GHSA-2qw8-ppr5-m96c) affects [4.8.0-beta00005, 4.8.0-beta00017) and the resolved
+         beta00017 is outside that range, so it suppressed nothing. -->
+    <NoWarn>$(NoWarn);NU1902</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,14 +26,14 @@
     <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="17.0.5" />
     <!-- MessagePack: direct pin to float the transitive (Umbraco.Cms.Search.Core 1.0.0 → MessagePack
          [3.1.4,)) up to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x (high, NU1903)
-         plus the moderate NU1902 advisories; 3.1.7 is the fix. The open dependency range lets us pin
+         plus the moderate NU1902 advisories; 3.1.7 was the first patched release; pinned forward to 3.1.8. The open dependency range lets us pin
          forward without breaking the chain — so we resolve the vulnerability rather than suppress it.
          Mirrors the host's pin. Revisit when Umbraco's Search chain ships a newer MessagePack itself. -->
-    <PackageReference Include="MessagePack" Version="3.1.7" />
+    <PackageReference Include="MessagePack" Version="3.1.8" />
     <!-- Umbraco.AI.Search 17.0.0 constrains Umbraco.Cms.Search.Core to [1.0.0, 1.999.999),
          so Core stays on the 1.x line (mirrors the host). -->
     <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cms" Version="17.5.3" />
+    <PackageReference Include="Umbraco.Cms" Version="17.6.2" />
     <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
   </ItemGroup>
 

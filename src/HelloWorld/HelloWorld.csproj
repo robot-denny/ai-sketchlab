@@ -15,35 +15,28 @@
 
 
   <ItemGroup>
-    <!-- Pinned to match Umbraco.Cms 17.5.1 in UmbracoProject.csproj.
+    <!-- Pinned to match Umbraco.Cms 17.6.2 in UmbracoProject.csproj.
          Cloud's CI/CD Flow deploy validator rejects `Version="*"` wildcards
          (NU1604 / "Unsupported Version format *"), even though local dev
          tolerates them. Keep in sync with the metapackage on upgrades. -->
-    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.5.3" />
-    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.5.3" />
-    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.5.3" />
-    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.5.3" />
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="17.6.2" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="17.6.2" />
+    <PackageReference Include="Umbraco.Cms.Api.Common" Version="17.6.2" />
+    <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.6.2" />
     <!-- Direct pin to float the transitive MessagePack (via Umbraco.Cms.Search.Core 1.0.0,
          range [3.1.4,)) to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x
-         (high, NU1903); 3.1.7 fixes it. Resolving the vuln rather than suppressing NU1903 —
+         (high, NU1903); 3.1.7 was the first patched release; pinned forward to 3.1.8. Resolving the vuln rather than suppressing NU1903 —
          keep aligned with the same pin in UmbracoProject.csproj. -->
-    <PackageReference Include="MessagePack" Version="3.1.7" />
-    <!-- Direct pin to float the transitive Microsoft.OpenApi (via Swashbuckle.AspNetCore 10.1.7,
-         pulled in by Umbraco.Cms.Api.Common / Api.Management) past GHSA-v5pm-xwqc-g5wc — a high-
-         severity circular-schema-reference DoS. 2.4.1 (the version Swashbuckle 10.1.7 resolves)
-         is vulnerable; the 2.x line is patched in 2.7.5, which stays API-compatible with
-         Swashbuckle's expected 2.x. Resolving the vuln rather than suppressing NU1903. Drop this
-         pin once Umbraco's Swashbuckle dependency floats to a patched Microsoft.OpenApi itself. -->
-    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageReference Include="MessagePack" Version="3.1.8" />
     <!-- Direct pin to float the transitive System.Security.Cryptography.Xml (via
          Umbraco.Cms.Api.Management → OpenAPI/signing stack) past GHSA-23rf-6693-g89p,
-         GHSA-8q5v-6pqq-x66h et al. — high-severity XML-signature advisories affecting
-         >= 10.0.0, <= 10.0.9. 10.0.10 is the first patched release (10.0.7–10.0.9 are still
-         vulnerable). Resolving the vuln rather than suppressing NU1903. Pinned only here — the host
+         GHSA-8q5v-6pqq-x66h, GHSA-cvvh-rhrc-wg4q et al. — high-severity XML-signature advisories affecting
+         >= 10.0.0, <= 10.0.9. 10.0.10 was the first patched release (10.0.7–10.0.9 are still
+         vulnerable); pinned forward to 10.0.11. Resolving the vuln rather than suppressing NU1903. Pinned only here — the host
          (UmbracoProject) prunes this framework-provided package as an executable, so it neither needs
          nor tolerates the pin (NU1510). Drop once Umbraco's Api.Management chain floats to a patched
          System.Security.Cryptography.Xml itself. -->
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.10" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>

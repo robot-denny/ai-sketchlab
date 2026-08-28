@@ -1,13 +1,39 @@
-diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda
-index c9b2598..5c5b679 100644
---- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda
-+++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__9471c1a00aee463bb4e6f47e89ad102b.uda
+diff --git a/src/UmbracoProject/UmbracoProject.csproj b/src/UmbracoProject/UmbracoProject.csproj
+index ddfe9ba..c018468 100644
+--- a/src/UmbracoProject/UmbracoProject.csproj
++++ b/src/UmbracoProject/UmbracoProject.csproj
+@@ -104,7 +104,7 @@
+     <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0" />
+     <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.9" />
+     <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.2.1" />
+-    <PackageReference Include="Umbraco.Forms" Version="17.4.7" />
++    <PackageReference Include="Umbraco.Forms" Version="17.5.0" />
+     <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.1" />
+   </ItemGroup>
+ 
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
+index 6b7aa2c..3674627 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__1d2c0e55ffab48db92a3d6d589af4f80.uda
 @@ -3,7 +3,7 @@
-   "Alias": "seo-aeo-guidance",
+   "Alias": "site-content-guidelines",
    "Resources": [
      {
--      "Id": "0ab932d8-9b4f-4d80-bb97-b5acbd1f29d6",
-+      "Id": "6c4946c8-b4ba-4f58-b66a-80ca246c4137",
+-      "Id": "184a8157-08d3-4957-b3ba-ab5917a8b8de",
++      "Id": "9ca6933b-88f5-4ea2-b5a5-7d47c392826e",
+       "ResourceTypeId": "brand-voice",
+       "Name": "Brand Voice",
+       "Description": null,
+diff --git a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
+index 9b4f0c3..e2306f5 100644
+--- a/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
++++ b/src/UmbracoProject/umbraco/Deploy/Revision/umbraco-ai-context__d11be0caf8fb4d8bb3bf1ef37ff9e624.uda
+@@ -3,7 +3,7 @@
+   "Alias": "how-to-guide-style",
+   "Resources": [
+     {
+-      "Id": "ceb8d340-5dfb-4c27-be77-abd61eb70993",
++      "Id": "69d34aae-3cb8-4875-81f1-9a82fba07788",
        "ResourceTypeId": "text",
-       "Name": "Text",
-       "Description": "Shared best practices to optimized for SEO and AEO",
+       "Name": "Structural Template",
+       "Description": "Section-by-section structure every generated guide must follow.",

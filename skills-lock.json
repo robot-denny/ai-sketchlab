@@ -5,7 +5,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/bdd-principles/SKILL.md",
-      "computedHash": "9e74a796e74e998d990ab7b072800c14df9b4b824855d5900772a9c9ff2a4fe6"
+      "computedHash": "c91f97e89b8ee1c837fde2184efb0c0f8c151f54fa239dfbb51a7e3fe2479480"
     },
     "code-review": {
       "source": "robot-denny/cantrip",
@@ -17,13 +17,13 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/commit-message/SKILL.md",
-      "computedHash": "3233aba329c07c5dd5ab6835a0f6a2b8d430f3ae2b1e6f0c82ae0d0e08a29475"
+      "computedHash": "72841d1b893d0447073e131a29ce258f63b310d1d546885edc5295ef245db462"
     },
     "explore": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/explore/SKILL.md",
-      "computedHash": "03b743b8863999fd75921d102e3d28ce74e1575d37ade3489618d0fef0da9957"
+      "computedHash": "31b5ce9e35cfa266dfb1ed8768886156b0952091b6fa18daae6c15f66efeef9f"
     },
     "feature": {
       "source": "robot-denny/cantrip",
@@ -40,7 +40,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/implement-step/SKILL.md",
-      "computedHash": "c870109f1f51c346cd568a4e65fa77c5bdb8e7f2f212b2afac319f2a38f5d2d3"
+      "computedHash": "064cc7a606d27faa1caa6c5f4a73a1a119839a54bf798c779e043fcfb1caa61e"
     },
     "memory-discipline": {
       "source": "robot-denny/cantrip",
@@ -52,49 +52,61 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/plan/SKILL.md",
-      "computedHash": "8fc06f0c4c42ea2d1894717ebece31007546d887a4ea8e285574aedba33819c5"
+      "computedHash": "071446f23ff354a8a6152949de9074613584a350da84970e516f4c59d9f0819f"
     },
     "retrofit": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/retrofit/SKILL.md",
-      "computedHash": "1dfbcb594c6f858d3c7a302311f2f8b60d5455c641942370484ec5f5cccec205"
+      "computedHash": "2c7d6e886405a40998db759acf77bfdc2e18985fd2cc7e758b58bde734cd0587"
     },
     "reviewer-discipline": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/reviewer-discipline/SKILL.md",
-      "computedHash": "3c3b2c8386f15f23a8f123fa0f430f71ad962bcc70a391493bf0c6f764317717"
+      "computedHash": "b1c433904af71a75bb89d1b007779d15481fc439d877c0db1f50901950c8dadd"
     },
     "spec": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/spec/SKILL.md",
-      "computedHash": "794e3dd68f0bd2503fcd0b2cf79fa6860e0a671f74ce6db0b982af888b71b157"
+      "computedHash": "c55d90fd7567cbb0a0c9a822d61a9f1fc506135bbaaf9536cfa0807b2a51a36d"
+    },
+    "tdd-principles": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/reference/tdd-principles/SKILL.md",
+      "computedHash": "9fb6e5d76648942b220973a34e61eaf47124f16f19faf572ba3ce5b2a352e5ce"
     },
     "umbraco-17-feature-backfill": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/umbraco-17/reference/umbraco-17-feature-backfill/SKILL.md",
-      "computedHash": "0cc32f2f07ec21644b89b2d0754bda13cebd29ed22b4fc467f55a6873aee36fc"
+      "computedHash": "92b0f920838602778de3d3ef35b2c6464f036a02377b30bece843b835aa65902"
     },
     "umbraco-17-planning": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/umbraco-17/reference/umbraco-17-planning/SKILL.md",
-      "computedHash": "60a38ce11cc110c9d6acf83e63b38f96188b268affbe1ca508085eab82aab9c6"
+      "computedHash": "984dbd8b0816d17b4a37516836f2eae78f6e3b4ea0b9eb41d5d9d4039a8b5fdb"
     },
     "umbraco-17-review-rules": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/umbraco-17/reference/umbraco-17-review-rules/SKILL.md",
-      "computedHash": "4288f6d420c90e1839d14d37f5e5d384cbe36cf07c348f506ab54df2b17be7f0"
+      "computedHash": "c6ad12c0cb549ed79e1adefb7b30d129d989532b3643cbf753d893101275cf30"
     },
     "umbraco-17-starter-facts": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/umbraco-17/reference/umbraco-17-starter-facts/SKILL.md",
-      "computedHash": "5e790d0340e42401e526a2ef173adbf3ee94302aaaeaa6eff3ba8e5dd6014e6f"
+      "computedHash": "f92beb4e911971c7a8020496e5c80e8610011d3be7e1c50ea20657bafa03cd7a"
+    },
+    "umbraco-deploy-facts": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/umbraco-cloud/reference/umbraco-deploy-facts/SKILL.md",
+      "computedHash": "151dbf77beb5cce24853ca0b9a40b5a9b859b9a17e61077ef165e3e08843a84e"
     },
     "update-toolkit": {
       "source": "robot-denny/cantrip",

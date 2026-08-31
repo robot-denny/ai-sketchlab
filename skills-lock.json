@@ -72,6 +72,12 @@
       "skillPath": "skills/core/spellbook/spec/SKILL.md",
       "computedHash": "794e3dd68f0bd2503fcd0b2cf79fa6860e0a671f74ce6db0b982af888b71b157"
     },
+    "tdd-principles": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/core/reference/tdd-principles/SKILL.md",
+      "computedHash": "9fb6e5d76648942b220973a34e61eaf47124f16f19faf572ba3ce5b2a352e5ce"
+    },
     "umbraco-17-feature-backfill": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
@@ -95,6 +101,12 @@
       "sourceType": "github",
       "skillPath": "skills/umbraco-17/reference/umbraco-17-starter-facts/SKILL.md",
       "computedHash": "5e790d0340e42401e526a2ef173adbf3ee94302aaaeaa6eff3ba8e5dd6014e6f"
+    },
+    "umbraco-deploy-facts": {
+      "source": "robot-denny/cantrip",
+      "sourceType": "github",
+      "skillPath": "skills/umbraco-cloud/reference/umbraco-deploy-facts/SKILL.md",
+      "computedHash": "151dbf77beb5cce24853ca0b9a40b5a9b859b9a17e61077ef165e3e08843a84e"
     },
     "update-toolkit": {
       "source": "robot-denny/cantrip",

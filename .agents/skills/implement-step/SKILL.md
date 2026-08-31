@@ -86,6 +86,10 @@ present, "Validation"}
 
 - **Follow TDD if the step says "Test first"**: write the failing test, run it to confirm RED,
   then implement, then run again to confirm GREEN. Don't skip the RED check.
+- **Follow the `tdd-principles` skill for what the test asserts.** Assert observable behavior through
+  the interface a user of the code would use — never that something merely *exists*, and never an
+  expected value computed the same way the implementation computes it. Correct RED→GREEN ordering does
+  not make an assertion correct, and this step is where that gets decided.
 - **Run every command listed under "Validation"** at the end. Report each one's result.
 - **For any validation you cannot mechanically verify, produce evidence — never attest.** A step whose
   check is "verify by eye" or "confirm it looks right" cannot be judged from here: you have no eyes, and
@@ -93,11 +97,20 @@ present, "Validation"}
   artifact the orchestrator can judge** — capture a screenshot, save rendered output, print the actual
   values. If producing evidence needs a fixture that does not exist, create one, capture, then clean it
   up. Say plainly which validations are evidenced and which you could not evidence.
-- **Do not commit.** Leave changes as they are — the user will review, then run `/code-review` and
-  `/commit-message`.
+- **Do not commit — unless the step explicitly instructs it.** By default, leave changes in place: the
+  user reviews, then runs `/code-review` and `/commit-message`. But some plans genuinely commit per step —
+  a migration delivered as a sequence of pull requests, for instance. **If the step says to commit, the
+  step wins**, and say in your report that you did. What must not happen is the step and this envelope
+  quietly disagreeing, leaving it unclear whether a commit was expected.
 - **Stay inside the step's scope.** Do not refactor surrounding code, do not drive-by fix
   unrelated issues, do not add anything the step does not require. If you find something
   concerning, mention it in your report and move on.
+- **If the step removes anything, search the tests for it before declaring done.** Removal is not
+  symmetric with addition: adding code cannot break a test that does not exist yet, but **removing a
+  symbol, rule, class, or file breaks any test asserting its presence** — and such a test lives nowhere
+  near the code it guards. Grep the test suite for what you removed and run whatever references it. A
+  removal that passes the tests you thought to run is the classic way a green local run becomes a red
+  CI run.
 - **Read the project's guidance files** (`AGENTS.md`, `CLAUDE.md`, or equivalent) if you need
   conventions or formatting rules.
 - **If you get stuck**, stop and report what you tried and what blocked you — don't thrash. A

@@ -10,6 +10,11 @@ The pre-commit hook in `.githooks/pre-commit` (activated with `git config core.h
 
 Use `/check-uda` for a detailed pre-commit analysis: fetches remote state, identifies which schema entities are at risk, rates conflict severity (SAFE / LOW / MEDIUM / HIGH / CRITICAL), and gives specific remediation steps. `/check-uda` also hits Live's Deploy Management API to detect DB↔file drift that pure git diffing can't see (see **How schema drift happens** below).
 
+The **stack-generic** half of this knowledge — `.uda` artifact mechanics, why files and a database
+drift, and which dashboard control genuinely imports — lives in the `umbraco-deploy-facts` skill, which
+agents consult automatically. This runbook holds what is specific to *this* project: the drift history
+below, the fixes already applied, and the environment layout.
+
 ## How schema drift happens in this project
 
 The Deploy dashboard treats any entity where `umbracoExists !== fileExists` as drift. Four mechanisms can drive a wedge between DB state and file state:

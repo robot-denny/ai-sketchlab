@@ -411,3 +411,111 @@ test.describe('Spell Card Deck — a spell with no mark falls back to its pack s
     await expect(use).toHaveAttribute('href', `#${PACK_SIGIL.core}`);
   });
 });
+
+// ==============================
+// Section 7 — equal height within a section, and nothing clipped (Step 6)
+//
+// This is the one criterion the design's own mechanism could not hold — the
+// prototype ESTIMATED a card's height from its text length — so it earns a real
+// measurement rather than a screenshot. The shipped mechanism is
+// `grid-auto-rows: 1fr` on the section grid with both faces in ONE grid cell, so
+// the cell measures the taller face and the track equalises the section.
+//
+// Heights are read from the browser, never predicted here: the assertion is that
+// the numbers AGREE, not that they equal some value this file computed.
+// ==============================
+
+interface CardBox {
+  card: string;
+  offsetHeight: number;
+  scrollHeight: number;
+  reverseLength: number;
+}
+
+/** Measure every card button in one section of the open panel. */
+async function measureSection(page: any, slug: string, section: string): Promise<CardBox[]> {
+  return page
+    .locator(`#spell-deck-panel-${slug} [data-section="${section}"] button.spell-card`)
+    .evaluateAll((els: Element[]) =>
+      els.map((el) => ({
+        card: el.getAttribute('data-card') ?? '',
+        offsetHeight: (el as HTMLElement).offsetHeight,
+        scrollHeight: el.scrollHeight,
+        reverseLength: (el.querySelector('.spell-card__reverse')?.textContent ?? '').length,
+      }))
+    );
+}
+
+test.describe('Spell Card Deck — equal height within a section', () => {
+  test('every spell is one height, every reference is one height, and no card clips its content', async ({
+    page,
+  }) => {
+    const core = stacks.find((s) => s.pack === 'core')!;
+    // Preconditions: the assertion is only meaningful with several cards of
+    // genuinely unequal content in each section.
+    expect(core.spells.length, 'Core holds several spells').toBeGreaterThan(1);
+    expect(core.references.length, 'Core holds several references').toBeGreaterThan(1);
+
+    // Wide enough to be in grid mode, not the <700px carousel.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(spellbookUrl);
+
+    const spells = await measureSection(page, core.slug, 'spells');
+    const references = await measureSection(page, core.slug, 'references');
+    expect(spells.length).toBe(core.spells.length);
+    expect(references.length).toBe(core.references.length);
+
+    // Every spell card is the same height as every other spell card.
+    const spellHeights = [...new Set(spells.map((c) => c.offsetHeight))];
+    expect(
+      spellHeights,
+      `spell heights should agree, got ${JSON.stringify(spells.map((c) => [c.card, c.offsetHeight]))}`
+    ).toHaveLength(1);
+    expect(spellHeights[0], 'a spell card has a real height').toBeGreaterThan(100);
+
+    // …and every reference card the same as every other reference card. The two
+    // groups deliberately need NOT match, so nothing compares them.
+    const referenceHeights = [...new Set(references.map((c) => c.offsetHeight))];
+    expect(
+      referenceHeights,
+      `reference heights should agree, got ${JSON.stringify(references.map((c) => [c.card, c.offsetHeight]))}`
+    ).toHaveLength(1);
+    expect(referenceHeights[0], 'a reference card has a real height').toBeGreaterThan(100);
+
+    // Nothing is clipped or spilled (AC 14 / AC 18).
+    for (const box of [...spells, ...references]) {
+      expect(
+        box.scrollHeight,
+        `"${box.card}" fits its box (scroll ${box.scrollHeight} vs offset ${box.offsetHeight})`
+      ).toBeLessThanOrEqual(box.offsetHeight);
+    }
+  });
+
+  test('the card with the most to say still fits once it is turned', async ({ page }) => {
+    const core = stacks.find((s) => s.pack === 'core')!;
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(spellbookUrl);
+
+    const spells = await measureSection(page, core.slug, 'spells');
+    const longest = spells.reduce((a, b) => (b.reverseLength > a.reverseLength ? b : a));
+
+    // Turning a card is `aria-pressed` — the state the deck's script will set in
+    // Step 7 and the state the stylesheet already answers. Set it directly here so
+    // the stylesheet is what is under test, not the script that does not exist yet.
+    await page.locator(`button.spell-card[data-card="${longest.card}"]`).evaluate((el: Element) => {
+      el.setAttribute('aria-pressed', 'true');
+    });
+
+    const turned = await measureSection(page, core.slug, 'spells');
+    for (const box of turned) {
+      expect(
+        box.scrollHeight,
+        `"${box.card}" fits its box while "${longest.card}" is turned`
+      ).toBeLessThanOrEqual(box.offsetHeight);
+    }
+    // Turning a card changes no measurement — the box already sized to the taller face.
+    const turnedHeights = [...new Set(turned.map((c) => c.offsetHeight))];
+    expect(turnedHeights, 'the section stays one height while a card is turned').toHaveLength(1);
+  });
+});

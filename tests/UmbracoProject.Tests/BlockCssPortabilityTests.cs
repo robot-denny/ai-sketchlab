@@ -23,6 +23,12 @@ public class BlockCssPortabilityTests
     private static string ExperimentsCssPath =>
         Path.Combine(FindRepoRoot(), "src", "UmbracoProject", "wwwroot", "assets", "css", "experiments.css");
 
+    private static string SpellCardsCssPath =>
+        Path.Combine(FindRepoRoot(), "src", "UmbracoProject", "wwwroot", "assets", "css", "spell-cards.css");
+
+    private static string MasterViewPath =>
+        Path.Combine(FindRepoRoot(), "src", "UmbracoProject", "Views", "master.cshtml");
+
     [Fact]
     public void BlocksCss_ContainsTheFullBlockGridLayoutEngine()
     {
@@ -169,6 +175,63 @@ public class BlockCssPortabilityTests
         Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-pullquote\s*\{", RegexOptions.Singleline), stripped);
         Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-timeline__row\s*\{", RegexOptions.Singleline), stripped);
         Assert.DoesNotMatch(new Regex(@"[};,]\s*\.exp-sketch\s*\{", RegexOptions.Singleline), stripped);
+    }
+
+    /// <summary>
+    /// The spell-card deck is a page-body block, so its functional CSS must ship in a
+    /// GLOBALLY-loaded stylesheet — the same seam contract as blocks.css
+    /// (<c>docs/block-css-seam.md</c>). It lives in its own topic file rather than in
+    /// blocks.css (the split listings.css already uses), so this guard is what stops it
+    /// being re-scoped under a page selector and trapped on /spellbook.
+    /// </summary>
+    [Fact]
+    public void SpellCardsCss_ShipsTheDeckAndCardBaseRulesUnscoped()
+    {
+        Assert.True(File.Exists(SpellCardsCssPath), $"Expected global stylesheet not found: {SpellCardsCssPath}");
+
+        string css = File.ReadAllText(SpellCardsCssPath);
+        // Strip comments so a section-header comment naming a class can't satisfy an assertion.
+        string stripped = Regex.Replace(css, @"/\*.*?\*/", string.Empty, RegexOptions.Singleline);
+
+        // The two base rules — the deck root and the card — are present and unqualified.
+        Assert.Matches(new Regex(@"(^|[};,])\s*\.spell-deck\s*\{", RegexOptions.Singleline | RegexOptions.Multiline), stripped);
+        Assert.Matches(new Regex(@"(^|[};,])\s*\.spell-card\s*\{", RegexOptions.Singleline | RegexOptions.Multiline), stripped);
+
+        // A representative child rule per region — proves the whole system moved, not just the roots.
+        Assert.Contains(".spell-deck__stack", stripped);
+        Assert.Contains(".spell-deck__panel", stripped);
+        Assert.Contains(".spell-deck__card-row", stripped);
+        Assert.Contains(".spell-card__face", stripped);
+        Assert.Contains(".spell-card__reverse", stripped);
+
+        // ...and nothing here is scoped under a page or template selector. A rule like
+        // `main.spellbook .spell-card` would render the block correctly on /spellbook and
+        // nowhere else, which is exactly the failure this file exists to prevent. The
+        // negative lookbehind keeps a class ending in `-body` (e.g. `.spell-card__watch-body`)
+        // from reading as the `body` element.
+        Assert.DoesNotContain("main.experiments", stripped);
+        Assert.DoesNotMatch(
+            new Regex(@"(?<![\w-])(main|body|html)[\w.#-]*\s+\.spell-", RegexOptions.Singleline),
+            stripped);
+    }
+
+    /// <summary>
+    /// The deck stylesheet is only global if master.cshtml actually links it, after
+    /// blocks.css so a block-level rule can still be overridden by it.
+    /// </summary>
+    [Fact]
+    public void MasterView_LinksSpellCardsCssAfterBlocksCss()
+    {
+        string master = File.ReadAllText(MasterViewPath);
+
+        int blocks = master.IndexOf("/assets/css/blocks.css", StringComparison.Ordinal);
+        int spellCards = master.IndexOf("/assets/css/spell-cards.css", StringComparison.Ordinal);
+
+        Assert.True(blocks >= 0, "master.cshtml no longer links blocks.css.");
+        Assert.True(
+            spellCards >= 0,
+            "master.cshtml does not link /assets/css/spell-cards.css — the deck's CSS would only reach whichever page injected it.");
+        Assert.True(spellCards > blocks, "spell-cards.css must be linked after blocks.css.");
     }
 
     /// <summary>

@@ -1,7 +1,10 @@
 {
   "Name": "Reference",
   "Alias": "spellCardReference",
-  "AllowedTemplates": [],
+  "DefaultTemplate": "umb://template/fbb51b3cd56149e59d254c8985c61fdd",
+  "AllowedTemplates": [
+    "umb://template/fbb51b3cd56149e59d254c8985c61fdd"
+  ],
   "HistoryCleanup": {},
   "Icon": "icon-book color-blue",
   "Thumbnail": "folder.png",
@@ -53,6 +56,11 @@
     {
       "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b101",
       "Ordering": true
+    },
+    {
+      "Udi": "umb://template/fbb51b3cd56149e59d254c8985c61fdd",
+      "Ordering": true,
+      "Mode": "Exist"
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",

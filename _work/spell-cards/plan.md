@@ -730,6 +730,12 @@ is the throwaway harness below.
 - **Face and reverse** per round 1 §*The card* as amended by round 2's face table and round 3 §5 (the
   kind rule is **gone** from both kinds). The reverse's stat grid is
   `repeat(auto-fit, minmax(min(130px, 100%), 1fr))`.
+- **Never set `display` on `.spell-deck__panel` without pairing it with `[hidden]`.** The three closed
+  panels rely *solely* on the UA stylesheet's `[hidden] { display: none }` — there is no `is-closed`
+  class. A rule like `.spell-deck__panel { display: block }` beats the UA rule on specificity and
+  blows all four panels open, silently defeating the single-open guarantee the E2E asserts. Write
+  `.spell-deck__panel[hidden] { display: none }` alongside any such rule. Flagged independently by the
+  Step 5 implementer and the Step 5 accessibility review.
 - **One breakpoint at 700px**, switching `.spell-deck__card-row` from a scroll-snap flex row to a grid
   **and** hiding `.spell-deck__carousel-nav` in the *same* rule. Carousel items are
   `clamp(240px, 82vw, 360px)` — a viewport floor, so no card can exceed the viewport (AC 21) — and the
@@ -895,6 +901,17 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 **What to build**:
 - `scrollSection(row, dir)` in `spell-cards.js`, plus the prev/next click handlers, resolved per
   section.
+- **Disable prev/next when the section cannot scroll.** The buttons render unconditionally per
+  section, so a section with one card gets two controls that do nothing. Set `disabled` (or
+  `aria-disabled`) from `scrollWidth` vs `clientWidth` so a no-op control is not offered as a live
+  one. This is the accessible reading of the spec's "both controls are no-ops rather than errors".
+
+**Carried into Step 7 from the Step 5 review — focus return on close.** The panel's **Close stack**
+button lives *inside* the region that gets re-hidden. If focus is on it (or on a card) when `hidden`
+is reapplied, the browser force-blurs to `<body>` with no announcement and a screen-reader user loses
+their place. The hook already exists: `data-stack` is on both the stack button and its panel, so the
+close handler must explicitly `.focus()` `button[data-stack="<slug>"]`. Same rule as the spec's
+"focus stays on the stack button", applied to the close path.
 
 **Test first**:
 - Write `tests/e2e/blocks/spellCardDeckNarrow.spec.ts`:

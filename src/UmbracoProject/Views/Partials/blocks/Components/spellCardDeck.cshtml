@@ -318,6 +318,12 @@
                         <button type="button" class="spell-deck__action" data-action="flip-all" aria-pressed="false">Show all backs</button>
                         <button type="button" class="spell-deck__action" data-action="close-stack">Close stack</button>
                     </div>
+
+                    @* Turning every card at once changes up to sixteen cards without moving
+                       focus, so a screen reader would otherwise hear only the button's own
+                       new label. Empty at render: a live region must already be in the DOM
+                       for an update to be announced. *@
+                    <p class="visually-hidden" role="status" aria-live="polite" data-flip-all-status></p>
                 </div>
 
                 @foreach (var cardSection in stack.Sections)

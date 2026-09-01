@@ -1,14 +1,14 @@
 import { expect } from '@playwright/test';
 import { test } from '@umbraco/playwright-testhelpers';
 import { randomUUID } from 'crypto';
+import { apiFetch, freshToken, TEST_FIXTURE_PREFIX, tryGetDocumentPath } from '../_umbracoApi';
 import {
-  apiFetch,
-  collectContentNodesByDocType,
-  freshToken,
-  getDocumentTypeByName,
-  TEST_FIXTURE_PREFIX,
-  tryGetDocumentPath,
-} from '../_umbracoApi';
+  readSpellDeck,
+  slugOf,
+  treeChildren,
+  type SpellCardFacts,
+  type SpellStackFacts,
+} from '../_spellDeckFixture';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -48,59 +48,10 @@ const PACK_SIGIL: Record<string, string> = {
 /** Every reference in every pack wears the same static tome (README-round-3 §4). */
 const REFERENCE_SIGIL = 'sig-tome';
 
-interface CardFacts {
-  id: string;
-  name: string;
-  slug: string;
-  isSpell: boolean;
-  mark: string;
-  watch: string;
-}
-
-interface StackFacts {
-  id: string;
-  name: string;
-  slug: string;
-  pack: string;
-  spells: CardFacts[];
-  references: CardFacts[];
-}
-
 let spellbookUrl: string;
-let stacks: StackFacts[] = [];
+let stacks: SpellStackFacts[] = [];
 let coreStackId = '';
 let spellDocTypeId = '';
-
-/** Last non-empty path segment of a published URL — the node's slug. */
-function slugOf(url: string): string {
-  const parts = url.split('/').filter(Boolean);
-  return parts[parts.length - 1] ?? '';
-}
-
-/** Read one document's stored property values as a flat alias → value map. */
-async function documentValues(id: string): Promise<Record<string, any>> {
-  const resp = await apiFetch('GET', `/document/${id}`);
-  if (!resp.ok) throw new Error(`GET /document/${id} failed: ${resp.status}`);
-  const doc = (await resp.json()) as any;
-  const map: Record<string, any> = {};
-  for (const v of doc.values ?? []) map[v.alias] = v.value;
-  return map;
-}
-
-/**
- * A flexible dropdown stores a single-element array (`["explore"]`). Flatten it
- * so the test compares against the key an editor actually picked.
- */
-function firstOf(value: any): string {
-  if (Array.isArray(value)) return value.length ? String(value[0]) : '';
-  return value == null ? '' : String(value);
-}
-
-async function treeChildren(parentId: string): Promise<any[]> {
-  const resp = await apiFetch('GET', `/tree/document/children?parentId=${parentId}&skip=0&take=100`);
-  if (!resp.ok) throw new Error(`GET children of ${parentId} failed: ${resp.status}`);
-  return ((await resp.json()) as any).items ?? [];
-}
 
 /** Delete leftover fixture cards under the Core stack before creating fresh ones. */
 async function cleanStaleFixtures() {
@@ -120,60 +71,17 @@ test.beforeAll(async () => {
   // Fail fast with a clear auth error before the tree walk.
   await freshToken();
 
-  const spellbookDt = await getDocumentTypeByName('Spellbook');
-  const stackDt = await getDocumentTypeByName('Spell Card Stack');
-  const spellDt = await getDocumentTypeByName('Spell');
-  const referenceDt = await getDocumentTypeByName('Reference');
-  if (!spellbookDt || !stackDt || !spellDt || !referenceDt) {
-    throw new Error('Spell-card document types not found — Step 2 must be shipped.');
-  }
-  spellDocTypeId = spellDt.id;
+  const deck = await readSpellDeck();
+  spellbookUrl = deck.spellbookUrl;
+  stacks = deck.stacks;
+  spellDocTypeId = deck.docTypeIds.spell;
+  coreStackId = stacks.find((st) => st.pack === 'core')?.id ?? '';
 
-  const spellbookNodes = await collectContentNodesByDocType(spellbookDt.id);
-  if (spellbookNodes.length === 0) throw new Error('No published Spellbook page — Step 3 must be shipped.');
-  const url = await tryGetDocumentPath(spellbookNodes[0].id);
-  if (!url) throw new Error('Spellbook page has no published URL.');
-  spellbookUrl = url;
-
-  stacks = [];
-  for (const stackItem of await treeChildren(spellbookNodes[0].id)) {
-    if (stackItem.documentType?.id !== stackDt.id) continue;
-    const stackUrl = await tryGetDocumentPath(stackItem.id);
-    if (!stackUrl) throw new Error(`Stack "${stackItem.variants?.[0]?.name}" has no published URL.`);
-    const stackValues = await documentValues(stackItem.id);
-
-    const spells: CardFacts[] = [];
-    const references: CardFacts[] = [];
-    for (const cardItem of await treeChildren(stackItem.id)) {
-      const isSpell = cardItem.documentType?.id === spellDt.id;
-      const isReference = cardItem.documentType?.id === referenceDt.id;
-      if (!isSpell && !isReference) continue;
-      const cardUrl = await tryGetDocumentPath(cardItem.id);
-      if (!cardUrl) continue;
-      const values = await documentValues(cardItem.id);
-      const facts: CardFacts = {
-        id: cardItem.id,
-        name: cardItem.variants?.[0]?.name ?? '',
-        slug: slugOf(cardUrl),
-        isSpell,
-        mark: firstOf(values.cardMark),
-        watch: firstOf(values.cardWatchFor),
-      };
-      (isSpell ? spells : references).push(facts);
-    }
-
-    stacks.push({
-      id: stackItem.id,
-      name: stackItem.variants?.[0]?.name ?? '',
-      slug: slugOf(stackUrl),
-      pack: String(stackValues.stackPack ?? ''),
-      spells,
-      references,
-    });
+  if (stacks.length === 0) {
+    throw new Error('Spellbook page has no stack children — Step 3 must be shipped.');
   }
 
-  if (stacks.length === 0) throw new Error('Spellbook page has no stack children — Step 3 must be shipped.');
-  coreStackId = stacks.find((s) => s.pack === 'core')?.id ?? '';
+  await cleanStaleFixtures();
 });
 
 // ==============================

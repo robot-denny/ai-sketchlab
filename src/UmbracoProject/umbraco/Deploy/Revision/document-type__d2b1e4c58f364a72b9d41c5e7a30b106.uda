@@ -1,0 +1,90 @@
+{
+  "Name": "Spell Card Deck",
+  "Alias": "spellCardDeck",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-layers color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "A browsable deck of spell and reference cards, read from a Spellbook page.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "7a5de918-2cc0-580b-bdfd-6f9f4abe7d5a",
+      "Name": "Deck",
+      "Alias": "deck",
+      "PropertyTypes": [
+        {
+          "Key": "88b71e1f-3ed9-59e1-b816-f7139e8025e0",
+          "Alias": "deckSource",
+          "DataType": "umb://data-type/fd1e0da556064862b6795d0cf3a52a59",
+          "ValueType": "Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent",
+          "Description": "Optional. The Spellbook page whose stacks the deck renders. Leave empty to use the page this block sits on.",
+          "Name": "Source Page",
+          "SortOrder": 30
+        },
+        {
+          "Key": "9703ee0f-5c96-5ffd-b5f4-1aafa65e34a1",
+          "Alias": "deckLede",
+          "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "ValueType": "System.String",
+          "Description": "The introductory paragraph shown under the heading.",
+          "Name": "Lede",
+          "SortOrder": 10
+        },
+        {
+          "Key": "a7077003-79ab-504e-bd40-7c594e075e95",
+          "Alias": "deckDefaultStack",
+          "DataType": "umb://data-type/fd1e0da556064862b6795d0cf3a52a59",
+          "ValueType": "Umbraco.Cms.Core.Models.PublishedContent.IPublishedContent",
+          "Description": "The stack that is open on arrival. Must be a child of the source page; otherwise the first stack opens.",
+          "Name": "Default Stack",
+          "SortOrder": 40
+        },
+        {
+          "Key": "bde63056-6199-5e19-9a89-37928f7b4efe",
+          "Alias": "deckHeading",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "The heading shown above the deck.",
+          "Name": "Heading"
+        },
+        {
+          "Key": "ebd63710-96f1-57ff-b24a-71f56ab73f0e",
+          "Alias": "deckNote",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "Optional. A one-line note shown under the lede.",
+          "Name": "Note",
+          "SortOrder": 20
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b106",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/fd1e0da556064862b6795d0cf3a52a59",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/1645b9b1459b40e790a5ea194afda61d",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

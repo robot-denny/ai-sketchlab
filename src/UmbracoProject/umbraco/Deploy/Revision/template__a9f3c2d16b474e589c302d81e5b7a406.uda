@@ -1,0 +1,21 @@
+{
+  "Name": "Spellbook",
+  "Alias": "spellbook",
+  "File": "umb://template-file/spellbook.cshtml",
+  "Master": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+  "Udi": "umb://template/a9f3c2d16b474e589c302d81e5b7a406",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/spellbook.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/ee0257b99fb04e90bc99f8ab75c6100e",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.2.1"
+}

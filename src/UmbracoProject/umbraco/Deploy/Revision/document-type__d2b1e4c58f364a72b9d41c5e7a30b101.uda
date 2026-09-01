@@ -1,0 +1,98 @@
+{
+  "Name": "Spell Card Fields",
+  "Alias": "spellCardFields",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-settings color-pink",
+  "Thumbnail": "folder.png",
+  "Description": "Shared fields carried by every spell card and reference card.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+  "CompositionContentTypes": [],
+  "PropertyGroups": [
+    {
+      "Key": "97681743-7dc5-5ab4-8135-699a859b11cc",
+      "Name": "Card",
+      "Alias": "card",
+      "PropertyTypes": [
+        {
+          "Key": "4d5f1df2-b3cf-5e4c-9059-11b7c5269f03",
+          "Alias": "cardWatchFor",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "Optional. The one gotcha worth calling out. Omitted from the reverse when empty.",
+          "Name": "Watch For",
+          "SortOrder": 30
+        },
+        {
+          "Key": "6798520f-abfc-532b-be39-09282b6f156d",
+          "Alias": "cardFooterValue",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "Optional. The value beside the footer label.",
+          "Name": "Footer Value",
+          "SortOrder": 50
+        },
+        {
+          "Key": "7b0dc01d-757a-556d-bb54-34f20c2d34d3",
+          "Alias": "cardFooterLabel",
+          "DataType": "umb://data-type/c1a5d3e04b214f8a9d317e2b6c0a1f02",
+          "ValueType": "System.String",
+          "Description": "Optional. The label on the reverse\u0027s footer row.",
+          "Name": "Footer Label",
+          "SortOrder": 40
+        },
+        {
+          "Key": "a97b2a50-f85a-5c71-9b81-1efba92334c2",
+          "Alias": "cardTitle",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "The title shown on both faces. Falls back to the node name when left empty.",
+          "Name": "Card Title"
+        },
+        {
+          "Key": "e7d84bdb-a47d-51dc-ab97-c330f139139f",
+          "Alias": "cardDoes",
+          "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "ValueType": "System.String",
+          "Description": "What the card does \u2014 the main body of the reverse.",
+          "Name": "Does",
+          "SortOrder": 10
+        },
+        {
+          "Key": "f7acc56d-e7ad-5295-9d2b-badda8c2d9de",
+          "Alias": "cardModes",
+          "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "ValueType": "System.String",
+          "Description": "Optional. The modes or variants the spell offers. Omitted from the reverse when empty.",
+          "Name": "Modes",
+          "SortOrder": 20
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b101",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c1a5d3e04b214f8a9d317e2b6c0a1f02",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/3503b89f28194e4186d7d17dcc5b4212",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

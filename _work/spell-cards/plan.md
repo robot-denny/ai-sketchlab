@@ -187,6 +187,13 @@ itself must stay unflagged — it is the one node you want in nav and search.
 but it is what `IsVisible()` keys on — the section navigation and the sitemap. The site search does not
 read it. Setting it leaves cards searchable, which is exactly Decision 6; do not "correct" it.
 
+**The four ticks are load-bearing, and they are content state rather than schema.** `IsVisible()`
+returns **true** when the property is absent, and the card types deliberately do not compose Visibility
+Controls — so nothing structural keeps thirty card URLs out of the sitemap. It works because the
+sitemap never descends past a hidden stack. A fifth pack added later without the tick would silently
+leak its cards. Step 10 therefore ships a `/sitemap.xml` assertion as a standing regression guard, and
+this needs saying in the feature doc so the next person to add a pack knows the tick is not cosmetic.
+
 ### Schema shape
 
 - **Two card document types, not one with a `kind` radio.** `spellCardSpell` and `spellCardReference`,
@@ -898,6 +905,13 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
   - with `prefers-reduced-motion: reduce` emulated: open a stack, flip a card, and assert **every
     state change still happens** while no sigil animates, the panel does not animate in, and the flip
     has no transition.
+- Add one **sitemap regression assertion** to `tests/e2e/blocks/spellCardDeck.spec.ts`: fetch
+  `/sitemap.xml` and assert it contains **no** stack or card URL. This is cheap and it closes a real
+  gap the Step 2 review surfaced. `IsVisible()` returns **true** when `umbracoNaviHide` is absent, and
+  the card types deliberately do not compose Visibility Controls — so the only thing keeping thirty
+  card URLs out of the sitemap is the tick on the four stack nodes, which the sitemap partial then
+  never descends past. That protection is **content state, not schema**: a fifth stack added later
+  without the tick silently leaks its cards. The assertion turns a silent leak into a failing test.
 - `tests/e2e/pages/spellbook.screenshot.spec.ts` — three captures **at real card counts**, since
   sample-size content is precisely what hid the scale problem in the first design round: the resting
   stack row with every stack closed; the Core stack open; and one at phone width. Follow the existing

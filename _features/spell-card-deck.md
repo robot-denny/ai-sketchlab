@@ -21,7 +21,15 @@ Newest planned items first. When an item ships, flip the checkbox and point it a
 increment.
 
 - [ ] Spell card deck — stacks, cards, flip, linking, editor-controlled content, and the narrow-screen
-      carousel (`_work/spell-cards/spec.md`, no plan yet)
+      carousel (`_work/spell-cards/spec.md`, plan at `_work/spell-cards/plan.md`)
+- [ ] Migrate stacks and cards from content-tree nodes to **Umbraco 18 Elements** when the site moves
+      to 18. Elements live in a Library rather than the content tree, are not routable and carry no
+      template — which is what this data always wanted to be. Would delete the card redirect template,
+      the stack visibility ticks, and most of the reason the `spellbook` document type exists. Two
+      questions to settle then: whether a Library supports editor-controlled ordering (if not, invert
+      the relationship so a stack holds an Element Picker of its cards and picker order is the order),
+      and whether elements are indexed for site search (if not, "cards are searchable" must be
+      re-decided — which also removes the only reason the redirect template exists). (no spec yet)
 - [ ] Per-section collapse for the largest stack on a phone, if the carousel proves insufficient
       (no spec yet)
 - [ ] Drift detection against Cantrip's published unit roster — deliberately deferred; a missing card
@@ -172,6 +180,15 @@ Scenario: Adding the Optimizely pack
   And the row wraps rather than resizing the existing four
   And the "optimizely" stack opens to show its two cards
 ```
+
+> **Operator note — tick the two visibility boxes on a new stack.** A stack node must have
+> **Hide From Search** (`umbracoNaviHide`) and **Hide From Section Navigation** ticked. This is not
+> cosmetic: card nodes deliberately carry no visibility properties of their own, and Umbraco treats an
+> absent property as *visible*, so the only thing keeping a pack's cards out of the XML sitemap is the
+> tick on their parent stack — the sitemap stops descending at a hidden node. A new pack added without
+> it silently publishes a dead sitemap URL per card. Despite its label, `umbracoNaviHide` does not
+> affect site search here, so ticking it leaves the cards searchable, which is intended. An automated
+> check asserts no stack or card URL appears in `/sitemap.xml`.
 
 ### Rule: Stacks and cards are linkable
 

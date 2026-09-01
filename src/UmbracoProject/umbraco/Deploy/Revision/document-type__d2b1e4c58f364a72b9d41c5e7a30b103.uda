@@ -1,0 +1,60 @@
+{
+  "Name": "Reference",
+  "Alias": "spellCardReference",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-book color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "One reference card in a Spell Card Stack. A reference offers no choice of mark.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+  "CompositionContentTypes": [
+    "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b101"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "8478ebdf-ace0-5c76-9378-ab41d52047e1",
+      "Name": "Reference",
+      "Alias": "reference",
+      "PropertyTypes": [
+        {
+          "Key": "9d716da1-e5ba-52a2-bd58-010f094f1799",
+          "Alias": "cardHolds",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "What knowledge the reference holds.",
+          "Name": "Holds",
+          "SortOrder": 10
+        },
+        {
+          "Key": "c715a672-1678-5a7d-ae8a-9919da0d8afa",
+          "Alias": "cardTriggers",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "What causes this reference to load.",
+          "Name": "Triggers"
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b103",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b101",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

@@ -1,0 +1,82 @@
+{
+  "Name": "Spell",
+  "Alias": "spellCardSpell",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-wand color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "One spell card in a Spell Card Stack.",
+  "Permissions": {
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+  "CompositionContentTypes": [
+    "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b101"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "bfba847e-8984-5164-a804-70e283a8b367",
+      "Name": "Spell",
+      "Alias": "spell",
+      "PropertyTypes": [
+        {
+          "Key": "1676455a-c61b-545c-a049-0a732a6ee135",
+          "Alias": "cardMark",
+          "DataType": "umb://data-type/c1a5d3e04b214f8a9d317e2b6c0a1f01",
+          "ValueType": "System.String",
+          "Description": "Optional. The drawn sigil for this spell. Left blank, the card falls back to its stack\u0027s pack sigil.",
+          "Name": "Mark",
+          "SortOrder": 30
+        },
+        {
+          "Key": "8539fa18-b0b8-57d6-a85a-7d0fdc1a294c",
+          "Alias": "cardNeeds",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "What the spell needs before it can run.",
+          "Name": "Needs",
+          "SortOrder": 10
+        },
+        {
+          "Key": "9d7633ad-8650-54de-9cf5-52472e0f6da9",
+          "Alias": "cardLeaves",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "What the spell leaves behind when it finishes.",
+          "Name": "Leaves",
+          "SortOrder": 20
+        },
+        {
+          "Key": "d068dd76-31ff-55b1-8f7d-26784cc4361e",
+          "Alias": "cardCast",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "How the spell is invoked, e.g. /spec.",
+          "Name": "Cast"
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b102",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c1a5d3e04b214f8a9d317e2b6c0a1f01",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b101",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

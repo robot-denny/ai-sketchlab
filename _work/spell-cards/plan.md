@@ -644,6 +644,12 @@ is the throwaway harness below.
 - Face: sigil (`cardMark` → `#sig-<key>`, blank → the pack sigil, references → `#sig-tome`), title
   (mono for a spell, display face for a reference), kind badge (filled for a spell, outlined for a
   reference).
+  **The consuming `<svg>` carries `aria-hidden="true"` and nothing else** — no `role="img"`, no
+  `aria-label`, no `<title>` or `<desc>`. The card button's `aria-label` is the sole accessible name;
+  a second name source inside the `<use>` shadow tree would compete with it across all thirty cards.
+  The mark is decorative reinforcement of text that is already visible.
+  **`#sig-tome` has no accent shape** — the shared reference mark is monochrome by design, so setting
+  `color` on a tome consumer does nothing. That is correct, not a bug to chase.
 - Reverse, in the design's order: header row (kind badge + stack name) → title → derived subtitle
   (`<Stack> · Spell n of m`) → stat block (`Cast` or `Triggers` full-width, then `Needs`+`Leaves` or
   `Holds`) → `cardDoes` → optional `cardModes` → optional `cardWatchFor` → optional footer.
@@ -733,6 +739,33 @@ is the throwaway harness below.
   scope the sprite's paused default **by id**, not by attribute). `prefers-reduced-motion: reduce` sets
   every sigil to `paused`, `animation: none` on the panel reveal, and `transition: none` on the flip's
   inner element — state still changes, nothing animates.
+
+- **Six constraints the Step 4 review surfaced. All are cheap here and expensive after the keyframes
+  are written.**
+  1. **Never `!important` on an animation property in `spell-cards.css`.** A global reduced-motion
+     reset at `styles.css:11845` sets `animation-duration`/`transition-duration` to `0.01ms
+     !important` on `*`. `spell-cards.css` loads *after* `styles.css`, so an `!important` here would
+     **win** against that reset and silently break AC 13.
+  2. **That reset collapses duration; it does not disable animation.** Under reduced motion each mark
+     still runs, near-instantly, and lands on its **terminal keyframe**. So every mark's intended
+     resting geometry must equal its terminal keyframe, or reduced-motion visitors see a different
+     drawing from the static one. Design each keyframe set to end where the mark should rest.
+  3. **`sig-blink` must stay under 3Hz** with a soft opacity ramp rather than a hard 0↔1 cut. Fifteen
+     blink shapes across eight symbols, with up to sixteen marks animating at once in an open Core
+     stack, is an aggregate flashing area that could otherwise approach **WCAG 2.3.1 Three Flashes
+     (Level A)**. Keep the sprite's existing per-shape `animation-delay` stagger — it is what stops
+     instances phase-locking into a synchronised strobe.
+  4. **`sig-spin` / `sig-spin-rev` shapes sit off-origin** inside the 120×120 viewBox with no
+     recentring `<g>`. A CSS `rotate()` will pivot around the wrong point without
+     `transform-box: fill-box` (or an explicit `transform-origin`).
+  5. **Prefer `transform` and `opacity` over `width` and `stroke-dashoffset`.** The `sig-scan` rects
+     and `sig-draw` paths are shaped to invite animating paint-triggering properties directly; with
+     sixteen marks live at once that is a lot of concurrent paint invalidation. `transform: scaleX()`
+     with `transform-origin: left` is the cheap equivalent.
+  6. **`sig-trace` circles are authored at `cx="0" cy="0"`** (three of them, in `sig-dotnet`), which
+     only makes sense as an `offset-path` traversal — main-thread bound in current engines. Transform
+     keyframes would be cheaper but need different base coordinates. Decide before locking the
+     technique in.
 - **Page gutter** `clamp(36px, 7vw, 64px) clamp(16px, 5vw, 40px)`; the deck's own `font-size: 17px`
   under `@media (max-width: 399px)`, with the deck's type in `em`.
 

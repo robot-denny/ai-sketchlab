@@ -9,10 +9,12 @@
 
 A browsable deck answering "what can I do with Cantrip?" — four pack **stacks**, one open at a time,
 each opening to a panel of **cards** sectioned into Spells then References, each card flipping to its
-reverse. Content-driven end to end: stacks and cards are content nodes under a `Cantrip` container,
-and the deck itself is a **block** placed on a page (Decision 8), reading `Children<SpellCardStack>()`
-from a picked source node — the `latestArticlesRow` two-levels-deep pattern already in the repo
+reverse. Content-driven end to end: stacks and cards are content nodes beneath a **Spellbook** page,
+and the deck itself is a **block** placed on that page (Decision 8), reading its stacks and their
+cards from a resolved source node — the `latestArticlesRow` + `articleList` + `article` pattern
+already in the repo, one level deeper
 ([latestArticlesRow.cshtml:19](../../src/UmbracoProject/Views/Partials/blocks/Components/latestArticlesRow.cshtml#L19)).
+See *The content tree* under Key Decisions for the exact shape.
 
 The unit of work here is the repo's own vertical slice (`.agents/config/conventions.md` → *Unit of
 work*): schema → shared block view → global block CSS → progressive-enhancement JS → E2E + screenshot
@@ -42,6 +44,35 @@ Everything below was settled while planning. Do not re-derive it.
   clamps and `container-type: inline-size` are width-driven and survive all of it.
   **If it fails**, fall back to per-row equality (plain grid) and amend AC 18's reading in the feature
   doc to "equal within a row"; record the outcome in this file before Step 6.
+
+  **RESULT (spike run 2026-09-01) — Decision 4 stands as written. The fallback is not needed, and
+  AC 18 keeps its "equal across the whole section" reading.** Six cards of deliberately unequal copy
+  (one ~3× the shortest, one with a reverse far longer than its front), measured in Playwright
+  Chromium, real Google Chrome (`channel: 'chrome'`) and WebKit, at 1000px (2 cols × 3 rows), 460px
+  and 340px (1 col × 6 rows):
+  - **All six equalise, not just per-row.** Chromium/Chrome @1000px: natural heights
+    `127 / 494 / 148 / 299 / 148 / 148` → every card `494`. Per-row equality would have given
+    `494 / 299 / 148` by row, so the three-row fixture discriminates and `1fr` won. WebKit: natural
+    `127 / 484 / 148 / 295 / 148 / 148` → every card `484`. Same at 460px and 340px (1 col × 6 rows),
+    where per-row equality would have left every card at its natural height.
+  - **Nothing clips.** `scrollHeight === offsetHeight` on all 6 cards, all 3 viewports, all 3 engines.
+  - **Height tracks the taller face.** The equalised height is driven by the card whose *reverse* is
+    longest, and flipping it changes no measurement — both faces are always in layout.
+  - **`cqi` still resolves** with `aspect-ratio` gone: at a 292px card, `clamp(16px, 6cqi, 24px)`
+    computed to `17.52px` (= 292 × 0.06, mid-clamp) identically in all three engines.
+
+  **One thing the spike found that is not OQ5, and must not be misread as a defect in this
+  structure**: Playwright's **WebKit** build does not paint `backface-visibility: hidden` at all — at
+  rest it shows the *back* face, mirrored, over the front. This is a limitation of that build's paint
+  pipeline, not a Safari bug and not caused by Decision 4: the canonical MDN flip-card snippet
+  (`position: absolute` faces, no button, no container query, no grid) fails identically, as does the
+  design's own round-5 structure, headed and headless alike, while `elementFromPoint` correctly
+  returns the front face. Chromium renders every variant correctly. Real Safari could not be driven
+  here (screen-recording and "Allow JavaScript from Apple Events" are both denied to the agent), so
+  Safari *paint* remains unverified — **Safari layout is verified, Safari paint is not.** No action
+  needed for the suite: `playwright.config.ts` runs a Chromium-only `e2e` project, so no baseline can
+  bake this in. Extend the "judge the flip in a real browser" warning to cover Playwright WebKit
+  screenshots too, and have someone eyeball the flip in real Safari during Step 6.
 
 - **OQ4 — URL state is a hash, namespaced: `#deck/<stack-slug>` and `#deck/<stack-slug>/<card-slug>`.**
   Three reasons a fragment beats `?stack=&card=`: it never reaches the server, so it cannot create
@@ -291,6 +322,12 @@ Project dropdown naming convention is `[Dropdown] <Name>` (e.g. `[Dropdown] Pill
 - **Judge the flip and the sigil tinting in a real browser.** Both render incorrectly under
   DOM-cloning screenshot tools — backs appear mirrored and face-up, accent shapes appear black. A
   captured image showing either is a tooling artefact, not a defect.
+  **Step 1 extended this to Playwright's WebKit build**, which does not paint
+  `backface-visibility: hidden` at all — it shows the mirrored back over the front at rest, for every
+  structure including the canonical MDN flip card, so it is a paint-pipeline limitation of that build
+  rather than a Safari bug or anything to do with our markup. Chromium paints it correctly and
+  `playwright.config.ts` runs a Chromium-only `e2e` project, so no baseline can bake it in. **Safari
+  layout is verified; Safari paint is not** — eyeball the flip in real Safari once during Step 6.
 
 ### Assumption flagged for the user
 

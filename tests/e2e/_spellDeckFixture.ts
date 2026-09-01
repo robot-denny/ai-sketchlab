@@ -84,6 +84,16 @@ export async function documentValues(id: string): Promise<Record<string, any>> {
 }
 
 /**
+ * A named card from a stack, falling back to its first spell. Specs want a
+ * recognisable card in their assertion messages, but must not BREAK when an
+ * editor renames or reorders content — the fallback is what keeps a content
+ * edit from turning a behaviour spec red.
+ */
+export function pickSpell(stack: SpellStackFacts, preferredSlug: string): SpellCardFacts {
+  return stack.spells.find((c) => c.slug === preferredSlug) ?? stack.spells[0];
+}
+
+/**
  * Read the whole deck's content shape. Throws with a step-specific message when
  * a prerequisite increment has not shipped, so a missing schema or missing
  * content reads as that rather than as a puzzling assertion failure later.

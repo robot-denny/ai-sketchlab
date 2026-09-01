@@ -475,6 +475,10 @@ page-body block palette — no new palette is created), **Visibility Controls** 
 `d03e1062-…`, **Section Navigation Controls** `ef741d00-…`.
 Allowed children: `spellCardStack` — **this is the only reason the type exists**; reusing `content`
 would let editors add stacks under any page.
+**Also add `spellbook` to Home's own allowed children** (`home`, `a95360e8-ff04-40b1-8f46-7aa4b5983096`),
+appended last. Allowed-children is a two-way wiring and it is easy to set only the downward half: without
+this, creating the Spellbook page in Step 3 fails with `operationStatus: NotAllowed`. Editing Home writes
+one dependency entry with `"Mode": "Exist"`, matching its twelve siblings.
 Template `spellbook.cshtml`: a thin near-copy of
 [content.cshtml](../../src/UmbracoProject/Views/content.cshtml) typed to `ContentModels.Spellbook` —
 page head partial, optional section nav, `@Html.GetBlockListHtml(Model.ContentRows)`. Drop
@@ -547,7 +551,10 @@ check is below.
 - [Manual]: the backoffice tree shows Spellbook → four stacks → 16 / 9 / 2 / 3 cards, all published.
 - [Manual]: `/spellbook` returns 200. It will render unstyled until Step 5 — that is expected; you are
   only confirming the page and block exist.
-- [Manual]: **Spellbook itself is present** in the header navigation. The four stacks are **absent**
+- [Manual]: **Spellbook itself is present** in the header navigation. **The header nav is a 60-minute
+  cached partial** (`master.cshtml:34` wraps `_SiteHead.cshtml` in `Html.CachedPartialAsync`), so on a
+  warm site a newly added top-level page can be absent for up to an hour. Restart the site before
+  concluding the page is missing — a stale nav looks exactly like a content problem. The four stacks are **absent**
   from the section-navigation sidebar on that page, and no stack or card appears in
   `/sitemap.xml` — the sitemap stops descending at a hidden node, which is why the cards need no flag
   of their own.
@@ -917,6 +924,10 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
   stack row with every stack closed; the Core stack open; and one at phone width. Follow the existing
   `prepareForScreenshot` / `screenshotOptions` conventions from
   [tests/e2e/pages/home.screenshot.spec.ts](../../tests/e2e/pages/home.screenshot.spec.ts).
+  **Every capture includes the header, which is a 60-minute cached partial** (`master.cshtml:34`).
+  A baseline taken against a warm cache can bake in a nav that predates the Spellbook page — and
+  because baselines are generated on CI against Dev, that is a stale-content bug nobody would think
+  to look for. Confirm the nav shows Spellbook before accepting the baselines.
 
 **Validation**:
 - [Automated]: the accessibility spec passes; every earlier spec still passes;

@@ -1,8 +1,8 @@
 @*
-    Spell-sigil sprite — the 20 <symbol> marks of the spell-card deck, lifted verbatim
+    Spell-sigil sprite — the 22 <symbol> marks of the spell-card deck, lifted verbatim
     from the design reference's <defs> sprite
     (_work/shipped/spell-cards/assets/design-v5/Spell Cards.dc.html):
-    the 14 spell marks, the shared reference tome (sig-tome), the 4 pack marks
+    the 16 spell marks, the shared reference tome (sig-tome), the 4 pack marks
     (sig-spellbook, sig-umbraco17, sig-cloud, sig-dotnet) and sig-reference.
 
     Geometry is code; assignment is content. Editors pick WHICH mark a spell card
@@ -17,7 +17,7 @@
 
     Renders at most once per request — the guard below makes that structural rather
     than a convention a caller has to remember, since two deck blocks on one page
-    would otherwise emit 21 duplicate ids. Step 6 owns all the CSS (sizing, and the
+    would otherwise emit 23 duplicate ids. Step 6 owns all the CSS (sizing, and the
     --sig-play gate for the sig-draw / sig-pulse / sig-blink / … motion classes that
     the shapes below already carry).
 
@@ -41,8 +41,8 @@
     NOT display:none — display:none stops <use> resolving in some engines.
 *@
 @{
-    // Emit at most once per request: the sprite defines 21 global ids, so a second
-    // render would be invalid HTML and ~15KB of dead payload.
+    // Emit at most once per request: the sprite defines 23 global ids, so a second
+    // render would be invalid HTML and a full duplicate of the sprite body.
     const string SpriteRenderedKey = "_SpellSigilsRendered";
     if (Context.Items.ContainsKey(SpriteRenderedKey)) { return; }
     Context.Items[SpriteRenderedKey] = true;
@@ -243,6 +243,20 @@
 </g>
 </symbol>
 
+<symbol id="sig-testify" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="18" y="16" width="84" height="88" stroke-opacity="0.5"></rect>
+<path class="sig-draw" d="M18 40 L102 40" stroke-width="2.2"></path>
+<path d="M18 68 L102 68" stroke-opacity="0.3"></path>
+</g>
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6" stroke-opacity="0.55">
+<path class="sig-blink" style="animation-delay:0s" d="M28 30 L34 36 L46 22"></path>
+<path class="sig-blink" style="animation-delay:.5s" d="M28 54 L34 60 L46 46"></path>
+<path class="sig-blink" style="animation-delay:1s" d="M28 82 L34 88 L46 74"></path>
+</g>
+<rect class="sig-pulse" x="60" y="76" width="16" height="16" fill="currentColor"></rect>
+</symbol>
+
 <symbol id="sig-setup" viewBox="0 0 120 120">
 <g fill="none" stroke="#F0EDE8" stroke-width="1.6">
 <rect x="16" y="16" width="26" height="26"></rect>
@@ -304,6 +318,25 @@
 <rect class="sig-scan" style="animation-delay:1s" x="68" y="64" width="24" height="2"></rect>
 </g>
 <rect class="sig-slide" x="26" y="88" width="22" height="6" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-styleguide" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="60" y="14" width="46" height="92" stroke-opacity="0.5"></rect>
+<path class="sig-draw" d="M60 34 L106 34" stroke-opacity="0.4"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.45">
+<rect x="70" y="46" width="26" height="3"></rect>
+<rect x="70" y="56" width="20" height="3"></rect>
+<rect x="70" y="66" width="24" height="3"></rect>
+</g>
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6" stroke-opacity="0.5">
+<rect class="sig-blink" style="animation-delay:0s" x="14" y="26" width="18" height="18"></rect>
+<rect x="14" y="50" width="18" height="18"></rect>
+<rect class="sig-blink" style="animation-delay:.8s" x="14" y="74" width="18" height="18"></rect>
+</g>
+<rect class="sig-pulse" x="14" y="50" width="18" height="18" fill="currentColor"></rect>
+<path d="M32 59 L60 34" stroke="#F0EDE8" stroke-opacity="0.3" stroke-width="1.6" fill="none"></path>
 </symbol>
 
 <symbol id="sig-umbraco-edit" viewBox="0 0 120 120">

@@ -7,7 +7,8 @@ the one thing newcomers get wrong. It is a reading surface: no sign-in, nothing 
 back.
 
 **Source**: `_work/shipped/spell-cards/spec.md` · plan `_work/shipped/spell-cards/plan.md`
-**Last verified**: 2026-09-01 — verified against the shipped implementation and 69 passing tests.
+**Last verified**: 2026-09-02 — roster re-checked against Cantrip's published `docs/spell-cards.md`
+(32 units); card fields compared field-by-field against the rendered page.
 
 ---
 
@@ -20,6 +21,12 @@ increment.
 - [x] Spell card deck — stacks, cards, flip, linking, editor-controlled content, and the narrow-screen
       carousel. Shipped 2026-09-01 across ten steps — spec, plan, discovery and the design reference
       archived at `_work/shipped/spell-cards/`.
+- [x] Roster refreshed to Cantrip's 32-unit snapshot (2026-09-02) — the toolkit had grown two
+      spells since the deck shipped, and, as the parked drift-detection item below predicted,
+      nothing noticed. Added the `/testify` card to **Core** (between `/retrofit` and `/setup`)
+      and `/styleguide` to **umbraco-17** (between `/guide` and `/umbraco-edit`), with their two
+      `<symbol>` marks in `_SpellSigils.cshtml` and their keys in the `cardMark` dropdown. Every
+      pre-existing card already matched the new snapshot, so nothing else was edited.
 - [ ] Migrate stacks and cards from content-tree nodes to **Umbraco 18 Elements** when the site moves
       to 18. Elements live in a Library rather than the content tree, are not routable and carry no
       template — which is what this data always wanted to be. Would delete the card redirect template,
@@ -86,7 +93,7 @@ Scenario: Arriving at the spellbook page
   When a visitor opens the spellbook page on a desktop screen
   Then they see all four stacks without scrolling
   And each stack shows its name, its art and its card count
-  And the "Core" stack shows "16 cards"
+  And the "Core" stack shows "17 cards"
   And the "umbraco-cloud" stack shows "2 cards"
 ```
 
@@ -130,9 +137,9 @@ Scenario: Telling the open stack from the closed ones
 
 ```scenario
 Scenario: A stack holding both kinds
-  Given the "umbraco-17" stack holds 3 spells and 6 references
+  Given the "umbraco-17" stack holds 4 spells and 6 references
   When a visitor opens it
-  Then they see a "Spells" heading above 3 cards
+  Then they see a "Spells" heading above 4 cards
   And below them a "References" heading above 6 cards
 ```
 
@@ -495,10 +502,10 @@ Scenario: A link to a stack that no longer exists
 
 ```scenario
 Scenario: A spell with no mark assigned
-  Given a card for "/styleguide" has been added to the "umbraco-17" stack
+  Given a card for "/unmarked" has been added to the "umbraco-17" stack
   And no mark has been chosen for it
   When a visitor opens that stack
-  Then the "/styleguide" card shows the umbraco-17 pack mark
+  Then the "/unmarked" card shows the umbraco-17 pack mark
   And the card is otherwise complete
 ```
 
@@ -610,7 +617,7 @@ rather than by anything a visitor can do, and one is an accepted limitation.
 | Opening a stack lower down the row | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:464`, `tests/e2e/blocks/spellCardDeckLinks.spec.ts:477` | Covered |
 | Pressing a carousel arrow twice | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:391` | Covered |
 | What the sitemap offers a search engine | `tests/e2e/blocks/spellCardDeck.spec.ts:448` | Covered |
-| Finding a card through site search | — | Not covered — verified by hand when the content shipped |
+| Finding a card through site search | — | Not covered — verified by hand when the content shipped, and again 2026-09-02 for `/testify` and `/styleguide` |
 | Sharing a link to one card | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:234`, `tests/e2e/blocks/spellCardDeckLinks.spec.ts:260` | Covered |
 | Opening a stack and flipping a card by keyboard | `tests/e2e/accessibility/spellCardDeck.spec.ts:177`, `tests/e2e/accessibility/spellCardDeck.spec.ts:219` | Covered |
 | A screen reader is offered only the facing side | `tests/e2e/accessibility/spellCardDeck.spec.ts:242` | Covered |

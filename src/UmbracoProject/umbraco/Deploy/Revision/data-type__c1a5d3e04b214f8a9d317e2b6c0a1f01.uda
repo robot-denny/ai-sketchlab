@@ -14,10 +14,12 @@
       "code-review",
       "commit-message",
       "retrofit",
+      "testify",
       "setup",
       "update-toolkit",
       "block",
       "guide",
+      "styleguide",
       "umbraco-edit",
       "check-uda"
     ]

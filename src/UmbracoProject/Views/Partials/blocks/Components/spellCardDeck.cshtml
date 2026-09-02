@@ -22,7 +22,7 @@
     null and ordering, and it is the seam that keeps a future move to Umbraco 18
     Elements a change to this block rather than a rewrite of the view.
 
-    NO CSS AND NO JAVASCRIPT YET (Steps 6-9 of _work/spell-cards/plan.md). The deck
+    NO CSS AND NO JAVASCRIPT YET (Steps 6-9 of _work/shipped/spell-cards/plan.md). The deck
     renders unstyled and inert on purpose; the hooks the later steps need are all
     here: `data-sigil-motion` on the root, `data-stack` / `data-card` /
     `data-section` / `data-action`, `aria-expanded`, `aria-pressed`, `aria-controls`.
@@ -152,10 +152,13 @@
             var referenceNodes = stackNode.Children<SpellCardReference>().ToList();
 
             // A spell's chosen mark, or its pack's mark when the editor left it blank.
-            string? SigilFor(SpellCardSpell card)
+            // Returns "" rather than null for "no mark": Razor's generated class is
+            // auto-generated code with no #nullable context, so a `string?` annotation
+            // here is CS8669 under runtime view compilation even though it builds clean.
+            string SigilFor(SpellCardSpell card)
             {
                 var mark = SafeKey(card.CardMark);
-                return string.IsNullOrEmpty(mark) ? packSigil : "sig-" + mark;
+                return string.IsNullOrEmpty(mark) ? (packSigil ?? "") : "sig-" + mark;
             }
 
             // Both projections MUST keep an identical property list, in order and
@@ -189,7 +192,7 @@
                 IndexLabel = TwoDigit(i + 1),
                 Caption = "Loads itself",
                 Subtitle = stackName + " · Reference " + (i + 1) + " of " + referenceNodes.Count,
-                SigilId = (string?)referenceSigil,
+                SigilId = referenceSigil,
                 Stats = ReferenceStats(c),
                 Does = c.CardDoes,
                 Modes = c.CardModes,
@@ -356,7 +359,7 @@
                                                     <span class="spell-card__corner spell-card__corner--end" aria-hidden="true"></span>
                                                     <span class="spell-card__diagonal" aria-hidden="true"></span>
                                                     <span class="spell-card__face-content">
-                                                        @if (card.SigilId != null)
+                                                        @if (!string.IsNullOrEmpty(card.SigilId))
                                                         {
                                                             <svg class="spell-card__sigil spell-sigil@(card.IsSpell ? null : " spell-sigil--static")" viewBox="0 0 120 120" aria-hidden="true"><use href="#@card.SigilId"></use></svg>
                                                         }

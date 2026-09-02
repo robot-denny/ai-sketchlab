@@ -3,6 +3,7 @@ name: Backoffice login loop after Playwright e2e runs = user lockout
 description: Recurring symptom — after a full Playwright e2e suite the user can't log into /umbraco. Root cause is umbracoUser.userNoConsole=1 from hitting the 5-failed-attempt lockout threshold on user id=1. Two confirmed occurrences (the second during Phase 9 of package-c).
 type: project
 originSessionId: dd100d6a-2fc6-4237-ab69-b636f3a03ef5
+modified: 2026-08-12T21:31:19.934Z
 ---
 # Symptom
 

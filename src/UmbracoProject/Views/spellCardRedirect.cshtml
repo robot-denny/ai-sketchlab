@@ -1,0 +1,57 @@
+﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@*
+    Spell Card Redirect — the template on a stack node and on both card types.
+
+    WHY IT EXISTS. Cards stay in site search on purpose (SearchService filters by
+    document-type alias only), so a card WILL come back as a result. A node with no
+    template 404s, which would make every one of those results a dead link. This
+    sends a direct hit to the card's place in the deck instead, and gives each card
+    a real shareable URL.
+
+    The deep link is the same hash the deck's JavaScript reads in Step 8:
+        <spellbook url>#deck/<stack-slug>          (a stack node)
+        <spellbook url>#deck/<stack-slug>/<card-slug>   (a card node)
+
+    302, not 301: a permanent redirect is cached hard by browsers, and where a card
+    lives is a content decision an editor may still move.
+
+    If Umbraco 18 Elements ever take this content out of the tree, this template is
+    the first thing that gets deleted.
+*@
+
+@{
+    Layout = null;
+
+    // TODO(arch-obsolete-api-migration): migrate .Parent / .AncestorOrSelf to
+    // IDocumentNavigationQueryService. Pragma scopes the obsolete calls so Cloud's
+    // runtime Razor compile (which honors TWAE but doesn't read csproj <NoWarn>)
+    // doesn't fail as CS0618.
+#pragma warning disable CS0618
+    var isStack = string.Equals(Model.ContentType.Alias, "spellCardStack", StringComparison.Ordinal);
+    var stack = isStack ? Model : Model.Parent;
+    var spellbook = Model.AncestorOrSelf("spellbook");
+#pragma warning restore CS0618
+
+    string target;
+    if (spellbook == null)
+    {
+        // Nothing to deep-link into — send the visitor somewhere real rather than
+        // leaving them on a blank body.
+        target = "/";
+    }
+    else if (stack == null || string.IsNullOrWhiteSpace(stack.UrlSegment))
+    {
+        target = spellbook.Url();
+    }
+    else if (isStack)
+    {
+        target = spellbook.Url() + "#deck/" + stack.UrlSegment;
+    }
+    else
+    {
+        target = spellbook.Url() + "#deck/" + stack.UrlSegment + "/" + Model.UrlSegment;
+    }
+
+    Context.Response.Redirect(target, permanent: false);
+}

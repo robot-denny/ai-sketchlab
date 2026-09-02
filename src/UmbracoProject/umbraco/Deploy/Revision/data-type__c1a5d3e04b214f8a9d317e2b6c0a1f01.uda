@@ -1,0 +1,29 @@
+{
+  "Name": "[Dropdown] Spell Card Mark",
+  "EditorAlias": "Umbraco.DropDown.Flexible",
+  "EditorUiAlias": "Umb.PropertyEditorUi.Dropdown",
+  "DatabaseType": "Nvarchar",
+  "Configuration": {
+    "multiple": false,
+    "items": [
+      "explore",
+      "spec",
+      "plan",
+      "implement-step",
+      "feature",
+      "code-review",
+      "commit-message",
+      "retrofit",
+      "setup",
+      "update-toolkit",
+      "block",
+      "guide",
+      "umbraco-edit",
+      "check-uda"
+    ]
+  },
+  "Udi": "umb://data-type/c1a5d3e04b214f8a9d317e2b6c0a1f01",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.2.1"
+}

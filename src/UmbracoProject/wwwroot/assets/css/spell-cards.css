@@ -1,0 +1,1380 @@
+/* ============================================================================
+   Spell Card Deck — the browsable deck of everything the Cantrip toolkit installs.
+
+   GLOBAL BY REQUIREMENT, not by accident: `docs/block-css-seam.md` — a page-body
+   block trapped behind a page selector only renders on the page that injected its
+   sheet. Its own file rather than blocks.css because the deck is a whole visual
+   system; same split listings.css uses. `BlockCssPortabilityTests` guards both.
+
+   Site tokens are referenced, never restated. The `--sc-*` values below exist
+   nowhere else (the packs' accentDark ramp, umbraco-cloud's corrected accentInk,
+   the paper-edge greys, two quiet inks) and are deck-scoped deliberately — this
+   component's palette, not the site's.
+
+   Reference: _work/shipped/spell-cards/assets/design-v5/, README then rounds 2-5, each
+   superseding the last. Two deviations from it, settled in the spec and measured
+   in the Step 1 spike — DO NOT TIDY EITHER BACK:
+     * equal height is `grid-auto-rows: 1fr` with BOTH FACES IN ONE GRID CELL, not
+       the design's text-length estimate. Needs no `align-items: start` on the
+       section grid, and no `position: absolute` / `overflow: hidden` on the faces,
+       or the cell stops measuring the taller face.
+     * the card carries NO `aspect-ratio` — a ratio fights a content-driven height.
+   ========================================================================= */
+
+
+/* 1. Deck root and its palette ---------------------------------------------- */
+
+.spell-deck {
+  /* The design is authored against an 18px root; this site's root is 16px. Rather
+     than move `html` (which would move the whole site), the deck carries its own
+     base and every type step below is relative to it. `em` where the parent is at
+     the base size, `calc(var(--sc-root) * n)` where an em would compound. */
+  --sc-root: 18px;
+
+  /* Pack accent triple — neutral default, for a stack whose pack key the view did
+     not recognise. Each pack overrides all three below. */
+  --sc-accent-ink: var(--text-tertiary);
+  --sc-accent-dark: var(--text-tertiary);
+  --sc-on-accent: var(--surface-primary);
+
+  /* The three warm page-edges under a stack's top card (round 3 §2). Against the
+     warm page, three near-black planes collapsed into one flat shape; paper reads
+     as a deck. */
+  --sc-paper-1: #EFE8E0;
+  --sc-paper-2: #E3DBD1;
+  --sc-paper-3: #D5CCC1;
+  --sc-paper-edge: rgba(28, 25, 23, 0.22);
+
+  /* Quiet inks for a CLOSED stack — its plane, and its stilled sigil (round 3 §1). */
+  --sc-ink-quiet: #B5AFA8;
+  --sc-ink-dim: #9A948D;
+
+  /* Veils: `--text-on-dark` at the design's alphas, for frames and force lines. */
+  --sc-veil-strong: rgba(240, 237, 232, 0.28);
+  --sc-veil: rgba(240, 237, 232, 0.20);
+  --sc-veil-soft: rgba(240, 237, 232, 0.18);
+  --sc-veil-faint: rgba(240, 237, 232, 0.13);
+  --sc-veil-ghost: rgba(240, 237, 232, 0.09);
+
+  /* One shadow value on a card; two more for the open/closed stack plane. */
+  --sc-shadow-card: 0 2px 8px rgba(28, 25, 23, 0.10);
+  --sc-shadow-open: 0 14px 30px rgba(28, 25, 23, 0.30);
+  --sc-shadow-closed: 0 3px 10px rgba(28, 25, 23, 0.16);
+
+  --sc-flip: 550ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sc-lift: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Sigil motion gate, resting value. Declared EXPLICITLY here rather than left to
+     the `var()` fallback at the point of use — trap 2 of the three cascade traps
+     in the design's README: the fallback did not hold reliably. */
+  --sig-play: paused;
+
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1400px;
+  margin-inline: auto;
+  padding: clamp(36px, 7vw, 64px) clamp(16px, 5vw, 40px);
+  font-family: var(--font-body);
+  font-size: var(--sc-root);
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+/* The deck lands inside whatever prose shell a template provides, and those shells
+   style bare `p` / `h2` / `h3`. Neutralise the inherited prose rhythm once, at the
+   same specificity, so every rule below starts from zero. */
+.spell-deck p,
+.spell-deck h2,
+.spell-deck h3,
+.spell-deck h4 {
+  margin: 0;
+  max-width: none;
+}
+
+.spell-deck button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Pack accent triples. Declared on both the stack tile and the panel so a card,
+   which lives inside the panel, inherits its pack's accent with no per-card class.
+   `accentInk` reads on the warm page, `accentDark` on the near-black card plane,
+   `onAccent` on the accent itself — one identity, three backgrounds (round 3 §3). */
+.spell-deck .spell-deck__stack--core,
+.spell-deck .spell-deck__panel--core {
+  --sc-accent-ink: var(--accent-primary);
+  --sc-accent-dark: #E36E56;
+  --sc-on-accent: var(--surface-primary);
+}
+
+.spell-deck .spell-deck__stack--umbraco-17,
+.spell-deck .spell-deck__panel--umbraco-17 {
+  --sc-accent-ink: var(--accent-tertiary);
+  --sc-accent-dark: #7FAFB3;
+  --sc-on-accent: var(--surface-primary);
+}
+
+/* Round 3 corrected this one: the old `#A8A29E` was 2.3:1 on the page and failed
+   as text and as a 1px border on every reverse it touched. */
+.spell-deck .spell-deck__stack--umbraco-cloud,
+.spell-deck .spell-deck__panel--umbraco-cloud {
+  --sc-accent-ink: #6E6A62;
+  --sc-accent-dark: #BDB6AC;
+  --sc-on-accent: var(--surface-primary);
+}
+
+/* …and this one: the old `#B8860B` ochre is not in the design system. Bronze is,
+   and it is already the site's link colour — consistent, both being warm-page marks. */
+.spell-deck .spell-deck__stack--dotnet,
+.spell-deck .spell-deck__panel--dotnet {
+  --sc-accent-ink: var(--accent-secondary);
+  --sc-accent-dark: #C39A6B;
+  --sc-on-accent: var(--surface-primary);
+}
+
+
+/* 2. Intro ------------------------------------------------------------------ */
+
+.spell-deck .spell-deck__intro {
+  max-width: 34em;
+  margin-bottom: 52px;
+}
+
+.spell-deck .spell-deck__heading {
+  font-family: var(--font-display);
+  font-weight: 300;
+  /* One step below the design's page `h1`: the deck is a block on a page that
+     already owns the h1, so this heading is an h2 in the document outline. */
+  font-size: clamp(calc(var(--sc-root) * 2), calc(var(--sc-root) * 1.6 + 1.6vw), calc(var(--sc-root) * 2.8));
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  margin: 0 0 20px;
+}
+
+.spell-deck .spell-deck__lede {
+  font-size: 1.05em;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 14px;
+  text-wrap: pretty;
+}
+
+.spell-deck .spell-deck__note {
+  font-size: 0.9em;
+  line-height: 1.6;
+  color: var(--text-tertiary);
+  margin: 0;
+  text-wrap: pretty;
+}
+
+
+/* 3. The stack row ---------------------------------------------------------- */
+
+/* The floor is a PERCENTAGE, not a flat 176px: 176 + 26 + 176 exceeds the ~240-320px
+   of content a phone has left after the page and deck gutters, so a pixel floor would
+   silently drop the row to one-up on every phone — worse than before, and against the
+   design's own "two columns, always" rule.
+
+   The design reference writes that floor as `45%`. Measured here, 45% is a whisker too
+   wide: at a 320px viewport the deck's content box is ~244px, and 2 x 45% + the 26px
+   gap comes to 245.6px, so the row collapses to one-up at exactly the width AC 20 names.
+   `calc(50% - <half the gap>)` is the same intent stated exactly — two columns plus one
+   gap is precisely 100% — so the row holds two at every width, and `min(176px, ...)`
+   still hands back to the design's 176px floor as soon as there is room. The cap is
+   four tile-widths plus their gaps, which keeps a four-stack row from stretching past
+   224px tiles on a wide page. */
+.spell-deck .spell-deck__row {
+  --sc-row-gap: 26px;
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(176px, calc(50% - var(--sc-row-gap) / 2)), 1fr));
+  gap: 28px var(--sc-row-gap);
+  max-width: calc(4 * 224px + 3 * var(--sc-row-gap));
+  margin: 0 0 12px;
+}
+
+
+/* 4. The stack tile --------------------------------------------------------- */
+
+/* Both the stack tile and the card are <button>s carrying their own visual design,
+   so both need the same reset first. One rule, not two copies: the selectors have
+   nothing else in common, and a drifted copy shows up as one control quietly
+   picking up a UA default the other does not. */
+.spell-deck .spell-deck__stack,
+.spell-card {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The tile holds a RATIO, not a height, and is its own container: every interior
+   offset below is `clamp(min, N cqi, max)` where N = max / 2.24, so each resolves
+   to its design value at a 224px tile and floors out at the narrowest phone. No
+   viewport check appears anywhere in the tile's own styles. */
+.spell-deck .spell-deck__stack {
+  --sc-e3: clamp(9px, 6.7cqi, 15px);
+  --sc-e2: clamp(6px, 4.46cqi, 10px);
+  --sc-e1: clamp(3px, 2.23cqi, 5px);
+  --sc-pad: clamp(7px, 4.91cqi, 11px);
+  --sc-strip: clamp(20px, 10.71cqi, 24px);
+
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 224px;
+  justify-self: start;
+  aspect-ratio: 224 / 404;
+  container-type: inline-size;
+
+  /* Axis 7 of the open-stack signal: lift. Hover previews it, so the affordance is
+     legible before the click. */
+  transform: translateY(0);
+  opacity: 0.92;
+  transition: transform var(--sc-lift), opacity 250ms ease;
+}
+
+.spell-deck .spell-deck__stack:hover {
+  transform: translateY(-8px);
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] {
+  transform: translateY(-14px);
+  opacity: 1;
+}
+
+/* The three paper edges, stepping down-and-right in 5px increments. A two-card
+   stack and a sixteen-card one show the same three: depth is the motif, not a
+   quantity read — the count is stated in words on the face. */
+.spell-deck .spell-deck__stack-edge {
+  position: absolute;
+  border: 1px solid var(--sc-paper-edge);
+  pointer-events: none;
+}
+
+.spell-deck .spell-deck__stack-edge--back {
+  left: var(--sc-e3);
+  top: var(--sc-e3);
+  right: 0;
+  bottom: 0;
+  background: var(--sc-paper-3);
+}
+
+.spell-deck .spell-deck__stack-edge--middle {
+  left: var(--sc-e2);
+  top: var(--sc-e2);
+  right: var(--sc-e1);
+  bottom: var(--sc-e1);
+  background: var(--sc-paper-2);
+}
+
+.spell-deck .spell-deck__stack-edge--front {
+  left: var(--sc-e1);
+  top: var(--sc-e1);
+  right: var(--sc-e2);
+  bottom: var(--sc-e2);
+  background: var(--sc-paper-1);
+}
+
+/* Axis 6: plane value. Open sits on the deepest plane at full ink; closed steps up
+   one value and drops to a quiet ink, which is what makes the open one read as
+   selected without scrolling to its panel. */
+.spell-deck .spell-deck__stack-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: var(--sc-e3);
+  bottom: var(--sc-e3);
+  display: block;
+  overflow: hidden;
+  background: var(--dc-anthracite);
+  color: var(--sc-ink-quiet);
+  box-shadow: var(--sc-shadow-closed);
+  transition: background 250ms ease, box-shadow 250ms ease, color 250ms ease;
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-face {
+  background: var(--dc-obsidian);
+  color: var(--text-on-dark);
+  box-shadow: var(--sc-shadow-open);
+}
+
+/* Axis 1: the accent strip along the tile's top edge. It carries no text — the
+   design's "Open" word would enter the button's accessible name through generated
+   content and duplicate the `aria-expanded` the button already exposes. */
+.spell-deck .spell-deck__stack-face::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--sc-strip);
+  background: var(--sc-accent-ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-face::before {
+  opacity: 1;
+}
+
+.spell-deck .spell-deck__stack-frame {
+  position: absolute;
+  left: var(--sc-pad);
+  right: var(--sc-pad);
+  top: var(--sc-pad);
+  bottom: var(--sc-pad);
+  border: 1px solid var(--sc-veil-soft);
+  pointer-events: none;
+}
+
+/* Axis 2: the corner mark thickens and takes the pack accent, and drops to clear
+   the strip. */
+.spell-deck .spell-deck__stack-corner {
+  position: absolute;
+  left: var(--sc-pad);
+  top: var(--sc-pad);
+  width: clamp(16px, 9.82cqi, 22px);
+  height: clamp(16px, 9.82cqi, 22px);
+  border-top: 1px solid var(--sc-veil-strong);
+  border-left: 1px solid var(--sc-veil-strong);
+  pointer-events: none;
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-frame {
+  top: calc(var(--sc-strip) + var(--sc-pad));
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-corner {
+  top: calc(var(--sc-strip) + var(--sc-pad));
+  border-top: 3px solid var(--sc-accent-dark);
+  border-left: 3px solid var(--sc-accent-dark);
+}
+
+/* The force line is 160% tall and starts above the box, so it MUST be clipped. It
+   clips itself — a wrapper at `inset: 0` with its own `overflow` — rather than the
+   face clipping it, so the face keeps `overflow: visible` and real content that
+   overflows still shows up as clipping rather than being quietly hidden. */
+.spell-deck .spell-deck__stack-diagonal,
+.spell-deck .spell-card__diagonal {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.spell-deck .spell-deck__stack-diagonal::before,
+.spell-deck .spell-card__diagonal::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: var(--sc-diagonal-left, 66%);
+  width: 1px;
+  height: 160%;
+  background: var(--sc-veil-faint);
+  transform: rotate(18deg);
+}
+
+/* The card's line sits 2% further left than the tile's. */
+.spell-deck .spell-card__diagonal {
+  --sc-diagonal-left: 64%;
+}
+
+/* The markup's three content children are siblings, so the column's own `gap` would
+   space name-from-count as widely as sigil-from-name. Zero the gap and give each
+   child its own top margin instead. */
+.spell-deck .spell-deck__stack-content {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: clamp(24px, 15.18cqi, 34px) clamp(12px, 9.82cqi, 22px) clamp(20px, 13.39cqi, 30px);
+}
+
+/* Axis 5: sigil ink. Only the open stack's mark is at pack colour and full ink;
+   every closed one is a dim monochrome. (Its motion is gated in §11.) */
+.spell-deck .spell-deck__stack-sigil {
+  display: block;
+  flex: none;
+  width: clamp(52px, 38.39cqi, 86px);
+  height: clamp(52px, 38.39cqi, 86px);
+  color: var(--sc-ink-dim);
+  opacity: 0.5;
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-sigil {
+  color: var(--sc-accent-dark);
+  opacity: 1;
+}
+
+.spell-deck .spell-deck__stack-monogram {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(calc(var(--sc-root) * 2.6), 35cqi, calc(var(--sc-root) * 4.4));
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: var(--text-on-dark);
+  opacity: 0.92;
+}
+
+.spell-deck .spell-deck__stack-name {
+  display: block;
+  margin-top: clamp(12px, 9.82cqi, 22px);
+  font-family: var(--font-body);
+  font-size: clamp(calc(var(--sc-root) * 0.62), 6.43cqi, calc(var(--sc-root) * 0.8));
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  text-align: center;
+  overflow-wrap: break-word;
+  color: inherit;
+}
+
+.spell-deck .spell-deck__stack-name:first-child {
+  margin-top: 0;
+}
+
+.spell-deck .spell-deck__stack-count {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: clamp(calc(var(--sc-root) * 0.5), 4.66cqi, calc(var(--sc-root) * 0.58));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-on-dark-secondary);
+}
+
+/* Axis 3: the base rule. */
+.spell-deck .spell-deck__stack-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--sc-veil-strong);
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-bar {
+  height: clamp(5px, 2.68cqi, 6px);
+  background: var(--sc-accent-ink);
+}
+
+/* Axis 4: the pointer, which sits in the gap above the panel so the open tile
+   visually attaches to the panel it controls. */
+.spell-deck .spell-deck__stack-pointer {
+  position: absolute;
+  left: 50%;
+  bottom: calc(-1 * var(--sc-e3));
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 13px solid var(--sc-accent-ink);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.spell-deck .spell-deck__stack[aria-expanded="true"] .spell-deck__stack-pointer {
+  opacity: 1;
+}
+
+
+/* 5. The panel -------------------------------------------------------------- */
+
+/* NEVER set `display` on the panel without pairing it with `[hidden]`. The three
+   closed panels rely SOLELY on the UA stylesheet's `[hidden] { display: none }` —
+   there is no `is-closed` class — and any class rule setting `display` here beats
+   the UA rule on specificity and blows all four panels open, silently defeating
+   the single-open guarantee. The `[hidden]` rule below is that pairing. */
+.spell-deck .spell-deck__panel {
+  margin-top: 26px;
+  /* One reveal, on the panel as a whole. Thirty staggered cards would be a second
+     wall of motion. */
+  animation: sc-panel-open 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.spell-deck .spell-deck__panel[hidden] {
+  display: none;
+}
+
+.spell-deck .spell-deck__panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px 40px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 44px;
+}
+
+.spell-deck .spell-deck__panel-intro {
+  flex: 1 1 300px;
+  max-width: 30em;
+}
+
+/* `flex: 0 1 auto` + `margin-left: auto` pins the count and buttons right while
+   they fit, and lets them wrap onto their own row rather than compress. */
+.spell-deck .spell-deck__panel-actions {
+  flex: 0 1 auto;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.spell-deck .spell-deck__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.spell-deck .spell-deck__panel-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(calc(var(--sc-root) * 1.8), calc(var(--sc-root) * 1.4 + 1.6vw), calc(var(--sc-root) * 2.2));
+  line-height: 1.06;
+  letter-spacing: -0.012em;
+  color: var(--text-primary);
+  margin: 12px 0 0;
+  text-transform: none;
+}
+
+.spell-deck .spell-deck__panel-rule {
+  display: block;
+  width: 44px;
+  height: 2px;
+  background: var(--sc-accent-ink);
+  margin: 20px 0 22px;
+}
+
+.spell-deck .spell-deck__panel-blurb {
+  font-size: 0.98em;
+  line-height: 1.6;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.spell-deck .spell-deck__panel-note {
+  margin-top: 16px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.08em;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+.spell-deck .spell-deck__panel-count {
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+/* Every interactive control keeps a 44px minimum hit height at every width. */
+.spell-deck .spell-deck__action {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 1px solid var(--border-medium);
+  border-radius: 0;
+  padding: 7px 14px;
+  min-height: 44px;
+  font-family: var(--font-body);
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.spell-deck .spell-deck__action[data-action="close-stack"] {
+  color: var(--text-secondary);
+}
+
+.spell-deck .spell-deck__action:hover {
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary-hover);
+}
+
+
+/* 6. Sections --------------------------------------------------------------- */
+
+.spell-deck .spell-deck__section {
+  margin-bottom: 72px;
+}
+
+.spell-deck .spell-deck__section:last-child {
+  margin-bottom: 0;
+}
+
+.spell-deck .spell-deck__section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.spell-deck .spell-deck__section-heading {
+  font-family: var(--font-body);
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.spell-deck .spell-deck__section-count {
+  font-family: var(--font-mono);
+  font-size: 0.66em;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.spell-deck .spell-deck__section-gloss {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.02em;
+  color: var(--text-secondary);
+}
+
+.spell-deck .spell-deck__section-rule {
+  display: block;
+  flex: 1 1 60px;
+  height: 1px;
+  background: var(--border-light);
+}
+
+
+/* 7. The card row — carousel by default, grid at 700px (§12) ---------------- */
+
+/* Below 700px a section's cards scroll horizontally, snapped one at a time, rather
+   than stacking into a long single column: Core's ten spells become one swipeable
+   row instead of ten screens of vertical scroll. `align-items: stretch` is what
+   makes equal height come for free in carousel mode. */
+.spell-deck .spell-deck__card-row {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* 5px, not 2px: a focused card draws `outline: 2px` at `outline-offset: 2px`,
+     so it needs 4px of clearance beyond its border box or the ring is clipped by
+     the scroller (WCAG 2.4.11). The mask below is dropped while any card inside
+     has focus, for the same reason at the right-hand extreme. */
+  padding: 5px 5px 10px;
+  mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
+}
+
+.spell-deck .spell-deck__card-row:has(:focus-visible) {
+  mask-image: none;
+}
+
+.spell-deck .spell-deck__card-row::-webkit-scrollbar {
+  display: none;
+}
+
+.spell-deck .spell-deck__card-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  max-width: 400px;
+}
+
+/* A VIEWPORT floor, not a pixel one: no card can exceed the screen it is on, even
+   at 320px (AC 21). */
+.spell-deck .spell-deck__card-row > .spell-deck__card-item {
+  flex: 0 0 clamp(240px, 82vw, 360px);
+  scroll-snap-align: start;
+}
+
+
+/* 8. The card box and its flip ---------------------------------------------- */
+
+/* The card is its own container: every interior offset is `clamp(min, N cqi, max)`
+   where N = max / 4.00, resolving to its design value at a 400px card. It carries
+   NO `aspect-ratio` — the box is sized by whichever of its two faces has more to
+   say, and the section grid then equalises the group (§12). */
+.spell-card {
+  display: grid;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  max-width: 400px;
+  container-type: inline-size;
+}
+
+/* `perspective` goes HERE and never on the <button>: a button host flattens the 3D
+   context in Chrome, and both faces then render as mirrored 2D layers with
+   `backface-visibility` doing nothing. */
+.spell-deck .spell-card__perspective {
+  display: grid;
+  min-width: 0;
+  perspective: 1400px;
+}
+
+.spell-deck .spell-card__inner {
+  display: grid;
+  min-width: 0;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform var(--sc-flip);
+}
+
+/* `aria-pressed` is the flip. Step 7's script sets the attribute and does nothing
+   else; the turn itself lives here. */
+.spell-deck .spell-card[aria-pressed="true"] .spell-card__inner {
+  transform: rotateY(180deg);
+}
+
+/* BOTH FACES IN ONE GRID CELL. No `position: absolute` and no `overflow: hidden` —
+   that is what lets the cell measure the taller of the two and gives the card a
+   content-driven height. */
+.spell-deck .spell-card__face,
+.spell-deck .spell-card__reverse {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  box-shadow: var(--sc-shadow-card);
+}
+
+/* Plane value carries KIND, not pack: a spell sits on the deepest plane, a
+   reference one step up. Pack identity lives entirely in the accent and the sigil. */
+.spell-deck .spell-card__face {
+  position: relative;
+  background: var(--dc-obsidian);
+  color: var(--text-on-dark);
+}
+
+.spell-deck .spell-card--reference .spell-card__face {
+  background: var(--dc-charcoal);
+}
+
+.spell-deck .spell-card__frame {
+  position: absolute;
+  inset: clamp(10px, 3.5cqi, 14px);
+  border: 1px solid var(--sc-veil);
+  pointer-events: none;
+}
+
+.spell-deck .spell-card__frame--inner {
+  inset: clamp(15px, 5.25cqi, 21px);
+  border-color: var(--sc-veil-ghost);
+}
+
+/* Two corner marks, top-left and bottom-right only. Asymmetric on purpose. */
+.spell-deck .spell-card__corner {
+  position: absolute;
+  width: clamp(20px, 6.5cqi, 26px);
+  height: clamp(20px, 6.5cqi, 26px);
+  pointer-events: none;
+}
+
+.spell-deck .spell-card__corner--start {
+  top: clamp(10px, 3.5cqi, 14px);
+  left: clamp(10px, 3.5cqi, 14px);
+  border-top: 3px solid var(--sc-accent-dark);
+  border-left: 3px solid var(--sc-accent-dark);
+}
+
+.spell-deck .spell-card__corner--end {
+  bottom: clamp(10px, 3.5cqi, 14px);
+  right: clamp(10px, 3.5cqi, 14px);
+  border-bottom: 3px solid var(--sc-accent-dark);
+  border-right: 3px solid var(--sc-accent-dark);
+}
+
+.spell-deck .spell-card__face-content {
+  position: relative;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: clamp(30px, 13cqi, 52px) clamp(20px, 8.5cqi, 34px);
+}
+
+/* `currentColor` is the ONLY channel that crosses into a <use> shadow tree, so the
+   consuming <svg>'s `color` is what tints the mark's single accent shape. Neither a
+   custom property nor `fill` on the <svg> reaches it — both were tried. */
+.spell-deck .spell-card__sigil {
+  display: block;
+  flex: none;
+  width: clamp(96px, 33cqi, 132px);
+  height: clamp(96px, 33cqi, 132px);
+  color: var(--sc-accent-dark);
+}
+
+/* The shared reference tome is deliberately monochrome and has no accent shape, so
+   setting `color` on it would do nothing; it takes an opacity instead. */
+.spell-deck .spell-card__sigil.spell-sigil--static {
+  color: inherit;
+  opacity: 0.78;
+}
+
+/* The kind rule round 2 put at `top: 96px` is GONE from both kinds (round 3 §5): it
+   read as an unexplained horizontal line, and the sigil already carries kind. */
+.spell-deck .spell-card__face-title {
+  display: block;
+  margin-top: clamp(18px, 7.5cqi, 30px);
+  font-family: var(--font-mono);
+  font-size: 1.18em;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.18;
+  overflow-wrap: break-word;
+  color: var(--text-on-dark);
+}
+
+.spell-deck .spell-card--reference .spell-card__face-title {
+  font-family: var(--font-display);
+  font-size: 1.72em;
+  font-weight: 400;
+  letter-spacing: -0.012em;
+}
+
+.spell-deck .spell-card__face-title:first-child {
+  margin-top: 0;
+}
+
+.spell-deck .spell-card__face-badge {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  background: var(--text-on-dark);
+  color: var(--dc-obsidian);
+  border: 1px solid var(--text-on-dark);
+}
+
+.spell-deck .spell-card--reference .spell-card__face-badge {
+  background: transparent;
+  color: var(--sc-accent-dark);
+  border-color: var(--sc-accent-dark);
+}
+
+
+/* 9. The reverse ------------------------------------------------------------ */
+
+.spell-deck .spell-card__reverse {
+  box-sizing: border-box;
+  transform: rotateY(180deg);
+  background: var(--surface-primary);
+  border: 1px solid var(--border-light);
+  border-top: 3px solid var(--sc-accent-ink);
+  padding: clamp(18px, 6.5cqi, 26px) clamp(16px, 6cqi, 24px) clamp(16px, 5.5cqi, 22px);
+  color: var(--text-primary);
+}
+
+.spell-deck .spell-card__reverse-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.spell-deck .spell-card__badge {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  color: var(--surface-primary);
+  background: var(--text-primary);
+  border: 1px solid var(--text-primary);
+}
+
+.spell-deck .spell-card--reference .spell-card__badge {
+  color: var(--sc-accent-ink);
+  background: transparent;
+  border-color: var(--sc-accent-ink);
+}
+
+.spell-deck .spell-card__stack-label {
+  font-family: var(--font-mono);
+  font-size: 0.6em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: right;
+  padding-top: 3px;
+}
+
+/* A spell's title is an invocation, so it is code; a reference's is a name, so it
+   is language. The same split runs on the face. */
+.spell-deck .spell-card__title {
+  display: block;
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 1.32em;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.spell-deck .spell-card--reference .spell-card__title {
+  font-family: var(--font-display);
+  font-size: 1.75em;
+  font-weight: 400;
+}
+
+.spell-deck .spell-card__subtitle {
+  display: block;
+  margin: 2px 0 16px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.02em;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+
+/* The 1px gap over a grey background is what draws the cell rules — no per-cell
+   borders. `auto-fit` with a 130px floor drops the pair to one column under a
+   ~261px card. */
+.spell-deck .spell-card__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr));
+  gap: 1px;
+  background: var(--border-light);
+  border: 1px solid var(--border-light);
+  margin-bottom: 16px;
+}
+
+.spell-deck .spell-card__stat {
+  display: block;
+  min-width: 0;
+  background: var(--surface-primary);
+  padding: 9px 10px;
+}
+
+/* Row 1 is always full width — `Cast` for a spell, `Triggers` for a reference. That
+   swap is the whole spell-vs-reference distinction in the reverse's layout. */
+.spell-deck .spell-card__stat--span {
+  grid-column: 1 / -1;
+}
+
+.spell-deck .spell-card__stat-label {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-body);
+  font-size: 0.6em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.spell-deck .spell-card__stat-value {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.66em;
+  line-height: 1.45;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.spell-deck .spell-card__does {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.86em;
+  line-height: 1.58;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.spell-deck .spell-card__modes {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 0.78em;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  text-wrap: pretty;
+}
+
+/* The one place an `em` would compound (a 0.6 label inside a 0.78 paragraph), so
+   this size is taken from the deck's own base instead. */
+.spell-deck .spell-card__modes-label {
+  margin-right: 6px;
+  font-family: var(--font-body);
+  font-size: calc(var(--sc-root) * 0.6);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* The reverse's single signal-red element — in the pack's own accent since round 3,
+   not a hardcoded red on all four packs. */
+.spell-deck .spell-card__watch {
+  display: block;
+  margin: 0 0 14px;
+  padding: 2px 0 2px 12px;
+  border-left: 2px solid var(--sc-accent-ink);
+}
+
+.spell-deck .spell-card__watch-label {
+  display: block;
+  margin-bottom: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--sc-accent-ink);
+}
+
+.spell-deck .spell-card__watch-body {
+  display: block;
+  font-size: 0.78em;
+  line-height: 1.5;
+  color: var(--text-primary);
+  text-wrap: pretty;
+}
+
+.spell-deck .spell-card__footer {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.spell-deck .spell-card__footer-label {
+  flex: none;
+  font-family: var(--font-body);
+  font-size: 0.6em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.spell-deck .spell-card__footer-value {
+  font-family: var(--font-mono);
+  font-size: 0.68em;
+  line-height: 1.4;
+  color: var(--accent-secondary);
+}
+
+.spell-deck .spell-card__caption {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 2px;
+}
+
+.spell-deck .spell-card__caption-index {
+  font-family: var(--font-mono);
+  font-size: 0.62em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.spell-deck .spell-card__caption-text {
+  font-size: 0.78em;
+  color: var(--text-tertiary);
+}
+
+
+/* 10. Carousel arrows ------------------------------------------------------- */
+
+/* Each chevron is two borders on a rotated square — the same geometric-mark
+   language as the card's corner accents. Never a Unicode arrow, never an icon font. */
+.spell-deck .spell-deck__carousel-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.spell-deck .spell-deck__nav {
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  border: 1px solid var(--border-medium);
+  border-radius: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+
+.spell-deck .spell-deck__nav:hover:not(:disabled) {
+  border-color: var(--accent-secondary);
+}
+
+/* A section holding one card has nowhere to scroll, so the script disables both
+   arrows. Without this they stay pixel-identical to a live control — full ink,
+   `cursor: pointer`, and the hover rule above still animating the border to the
+   accent, which is a stronger false affordance than mere sameness. Screen-reader
+   and keyboard users are already served (the control leaves the tab order and is
+   announced unavailable); this is the sighted mouse user's half of the same
+   signal. `:not(:disabled)` on the hover rule is what stops it firing. */
+.spell-deck .spell-deck__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.spell-deck .spell-deck__chevron {
+  display: block;
+  width: 8px;
+  height: 8px;
+}
+
+.spell-deck .spell-deck__chevron--prev {
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: rotate(-45deg) translate(1px, 1px);
+}
+
+.spell-deck .spell-deck__chevron--next {
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  transform: rotate(45deg) translate(-1px, 1px);
+}
+
+
+/* 11. Motion — the only movement in the deck, confined to the imagery layer --- */
+
+@keyframes sc-panel-open {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* EVERY MARK RESTS ON ITS TERMINAL KEYFRAME, and its terminal keyframe is its 0%
+   keyframe, and both equal the artwork as authored. That is not decoration: the
+   site's global reduced-motion reset collapses `animation-duration` to 0.01ms
+   rather than disabling animation, so a reduced-motion visitor lands instantly on
+   the LAST keyframe. A mark whose loop ended "away" (the design's `sig-draw`
+   finishing at `stroke-dashoffset: -190`, its `sig-scan` at `scaleX(0)`) would
+   render as a different drawing for those visitors — and identically for anyone
+   whose sigil is merely paused, since a paused animation holds at 0%. Rest at the
+   artwork; travel in the middle of the cycle. */
+@keyframes sig-spin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes sig-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
+@keyframes sig-draw  { 0%, 100% { stroke-dashoffset: 0; } 50% { stroke-dashoffset: 190; } }
+@keyframes sig-slide { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(40px); } }
+@keyframes sig-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes sig-scan  { 0%, 100% { transform: scaleX(1); } 45% { transform: scaleX(0); } }
+/* A soft ramp, one dip per 2.8s cycle — 0.36Hz, an order of magnitude under WCAG
+   2.3.1's three-per-second, with no hard 0-to-1 cut. Fifteen blink shapes across
+   eight symbols can be live at once in an open Core stack, which is why the sprite's
+   per-shape `animation-delay` stagger matters: it is what stops those instances
+   phase-locking into one synchronised strobe. Do not remove it from the sprite. */
+@keyframes sig-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.28; } }
+@keyframes sig-fade  { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes sig-trace { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+/* `transform-box: view-box` + a 50%/50% origin, because the spinning shapes sit
+   off-origin in the 120x120 viewBox with no recentring <g>: a bare `rotate()` would
+   pivot around the wrong point. */
+.sig-spin      { transform-box: view-box; transform-origin: 50% 50%; animation: sig-spin 16s linear infinite; }
+.sig-spin-rev  { transform-box: view-box; transform-origin: 50% 50%; animation: sig-spin 22s linear infinite reverse; }
+.sig-pulse     { transform-box: fill-box; transform-origin: 50% 50%; animation: sig-pulse 2.6s ease-in-out infinite; }
+/* The one mark that still animates a paint-triggering property. `transform` was the
+   preferred alternative and does not fit, for two reasons: a `scale()` reveal is a
+   shrink-to-a-point, not a progressive draw, so it is not the same effect on any
+   path; and about seven of the eighteen draw paths are axis-aligned
+   (`M18 92 L102 92`), whose fill-box has zero extent on one axis, making a scale
+   about it degenerate as well. It is one or two hairline paths per mark, so the
+   paint cost is bounded; revisit only if the draw paths are ever re-authored. */
+.sig-draw      { stroke-dasharray: 190; animation: sig-draw 3.4s ease-in-out infinite; }
+.sig-slide     { animation: sig-slide 3.6s ease-in-out infinite; }
+.sig-drift     { animation: sig-drift 3.8s ease-in-out infinite; }
+/* `scaleX` from the left edge rather than an animated `width` — the cheap equivalent. */
+.sig-scan      { transform-box: fill-box; transform-origin: 0% 50%; animation: sig-scan 3.2s ease-in-out infinite; }
+.sig-blink     { animation: sig-blink 2.8s ease-in-out infinite; }
+.sig-fade      { animation: sig-fade 3.4s ease-in-out infinite; }
+/* `offset-path` is main-thread bound and transform keyframes would be cheaper — but
+   the three dots are authored at `cx="0" cy="0"` and are only placed at all by the
+   traversal. Transforms would need different base coordinates, i.e. re-authoring the
+   symbol, which is out of this step's scope. Three circles, one symbol: kept. The
+   path is closed, so 0% and 100% are the same point and the mark rests where it
+   starts. */
+.sig-trace     { offset-path: path("M60 10 L103 35 L103 85 L60 110 L17 85 L17 35 Z"); offset-rotate: 0deg; animation: sig-trace 7s linear infinite; }
+
+/* THE GATE. It must come AFTER every `animation:` shorthand above — the shorthand
+   resets `animation-play-state` to its initial `running`, and at equal specificity
+   the later declaration wins, so a gate declared first is silently overridden and
+   every sigil animates forever, reduced motion included. */
+.sig-spin, .sig-spin-rev, .sig-pulse, .sig-draw, .sig-slide,
+.sig-drift, .sig-scan, .sig-blink, .sig-fade, .sig-trace {
+  animation-play-state: var(--sig-play, paused);
+}
+
+/* The sprite's own paused default is scoped BY ID, never by attribute. A selector
+   like `svg[aria-hidden="true"]` also matches every card's consuming <svg> —
+   correctly aria-hidden, being decorative — and that <svg> is the nearest ancestor
+   of the <use>, so its `paused` would override the host before the value ever
+   reached the shadow tree, and nothing would move in any mode. */
+#sig-sprite {
+  --sig-play: paused;
+}
+
+/* Motion is a property of SELECTION and of KIND: only a spell's mark moves, and only
+   in the stack that is open. Every reference wears the static tome, and every closed
+   stack is still whatever `data-sigil-motion` says — the deck's default above is
+   `paused`, and these are the only two rules that lift it. */
+.spell-deck[data-sigil-motion="continuous"] .spell-card--spell .spell-sigil,
+.spell-deck[data-sigil-motion="continuous"] .spell-deck__stack[aria-expanded="true"] .spell-sigil {
+  --sig-play: running;
+}
+
+.spell-deck[data-sigil-motion="hover"] .spell-card--spell:hover .spell-sigil,
+.spell-deck[data-sigil-motion="hover"] .spell-deck__stack[aria-expanded="true"]:hover .spell-sigil {
+  --sig-play: running;
+}
+
+
+/* 12. The one layout breakpoint, and the one type breakpoint ---------------- */
+
+/* Everything else in the deck is fluid — a container query on the tile and on the
+   card, so each scales with its own column and not with the viewport. This single
+   rule switches the card row back to a grid AND hides the arrows, so the two can
+   never drift out of sync. */
+@media (min-width: 700px) {
+  .spell-deck .spell-deck__card-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr));
+    /* Equal height within a section. `1fr` on the auto rows equalises the WHOLE
+       section, not merely each row, which is the behaviour the spec asks for: every
+       spell one height, every reference one height, the two free to differ. Adding
+       `align-items: start` here defeats the stretch — do not. */
+    grid-auto-rows: 1fr;
+    gap: 44px 32px;
+    overflow: visible;
+    padding: 0;
+    mask-image: none;
+    scroll-snap-type: none;
+  }
+
+  .spell-deck .spell-deck__card-row > .spell-deck__card-item {
+    flex: none;
+    scroll-snap-align: none;
+  }
+
+  .spell-deck .spell-deck__carousel-nav {
+    display: none;
+  }
+}
+
+/* The design drops the root from 18px to 17px below 400px. Scoped to the deck rather
+   than to `html`, so a block on a page cannot resize the page around it. */
+@media (max-width: 399px) {
+  .spell-deck {
+    --sc-root: 17px;
+  }
+}
+
+
+/* 13. Reduced motion — every state change still happens, nothing animates --- */
+
+/* NOTHING in this file may carry `!important` on an animation or transition
+   property. The site's own reduced-motion reset (styles.css) sets
+   `animation-duration` / `transition-duration` to `0.01ms !important` on `*`, and
+   this sheet loads after it — an `!important` here would WIN against that reset and
+   re-enable the motion it exists to suppress. */
+@media (prefers-reduced-motion: reduce) {
+  /* Same selectors as the two "running" rules above, at the same specificity, later
+     in the sheet — so they win. */
+  .spell-deck[data-sigil-motion] .spell-card--spell .spell-sigil,
+  .spell-deck[data-sigil-motion] .spell-deck__stack[aria-expanded="true"] .spell-sigil,
+  .spell-deck[data-sigil-motion] .spell-card--spell:hover .spell-sigil,
+  .spell-deck[data-sigil-motion] .spell-deck__stack[aria-expanded="true"]:hover .spell-sigil {
+    --sig-play: paused;
+  }
+
+  .spell-deck .spell-deck__panel {
+    animation: none;
+  }
+
+  .spell-deck .spell-card__inner {
+    transition: none;
+  }
+
+  .spell-deck .spell-deck__stack,
+  .spell-deck .spell-deck__stack-face,
+  .spell-deck .spell-deck__stack-pointer {
+    transition: none;
+  }
+}
+
+
+/* 14. Host accommodation — the one rule here that styles something other than the deck --- */
+
+/* The generic Content template caps its block-list body at 660px, which is right
+   for prose and wrong for a four-up stack row and a 400px card grid: the deck would
+   render three tiles and a single column of cards however wide the window is.
+   Widen the SHELL when it holds a deck, rather than teaching the deck to break out
+   of its container — a full-bleed trick would fight every other shell it is ever
+   dropped into. Precedent: `.c-body:has(.markdown-content) { max-width: none }` in
+   site-chrome.css, which exists for exactly this reason.
+
+   This is a host rule, not deck CSS: it sets no property on `.spell-deck` itself,
+   so the deck stays portable and still lays out correctly in any shell that does
+   not need widening. */
+.c-body:has(.spell-deck) {
+  max-width: none;
+  /* The shell is a grid item, so it defaults to `min-width: auto` — a floor at its
+     content's min-content size. Below 700px the card row is a horizontal scroller
+     holding ten 360px cards, and that floor would push the whole column past the
+     viewport and scroll the PAGE sideways instead of the row. Zero the floor and
+     the row scrolls on its own, as intended. */
+  min-width: 0;
+}
+
+.content:has(.spell-deck) {
+  /* 1400px of deck plus the template's own 32px gutters.
+     LOAD-ORDER COUPLING: this selector is (0,2,0), which TIES `.content.no-nav`
+     in site-chrome.css. It wins only because master.cshtml links this sheet after
+     that one. If the <link> order there is ever changed, this rule silently stops
+     applying and the deck narrows back to 780px. */
+  max-width: 1464px;
+}

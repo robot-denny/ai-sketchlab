@@ -1,0 +1,114 @@
+{
+  "Name": "Spell Card Stack",
+  "Alias": "spellCardStack",
+  "DefaultTemplate": "umb://template/fbb51b3cd56149e59d254c8985c61fdd",
+  "AllowedTemplates": [
+    "umb://template/fbb51b3cd56149e59d254c8985c61fdd"
+  ],
+  "HistoryCleanup": {},
+  "Icon": "icon-layers color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "One pack of spell and reference cards, shown as a stack in the Spell Card Deck.",
+  "Permissions": {
+    "AllowedChildContentTypes": [
+      "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b102",
+      "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b103"
+    ]
+  },
+  "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+  "CompositionContentTypes": [
+    "umb://document-type/7cebdc47a96549ecab42bc887d6b1119"
+  ],
+  "PropertyGroups": [
+    {
+      "Key": "5d2392d3-1569-5cc9-80bb-aa6b77a46e5f",
+      "Name": "Stack",
+      "Alias": "stack",
+      "PropertyTypes": [
+        {
+          "Key": "0190d921-c5c9-53fa-8905-e6b92dc93835",
+          "Alias": "stackBlurb",
+          "DataType": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+          "ValueType": "System.String",
+          "Description": "The short description shown in the panel header.",
+          "Name": "Blurb",
+          "SortOrder": 10
+        },
+        {
+          "Key": "52cdcfc9-f735-545a-9f2d-b5244d46d017",
+          "Alias": "stackNote",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "A one-line note shown under the blurb.",
+          "Name": "Note",
+          "SortOrder": 20
+        },
+        {
+          "Key": "5aebf949-31a1-5678-95c1-f303014ecc99",
+          "Alias": "stackTitle",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "The stack name shown on the tile and the panel. Falls back to the node name when left empty.",
+          "Name": "Stack Title"
+        },
+        {
+          "Key": "730741b7-2866-556a-b147-a9b134ad3a72",
+          "Alias": "stackMonogram",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "Optional. Up to 3 characters, used when no pack sigil matches the pack key.",
+          "Name": "Monogram",
+          "SortOrder": 40,
+          "Validation": "^.{0,3}$",
+          "ValidationMessage": "Use at most 3 characters."
+        },
+        {
+          "Key": "d95a793e-7eeb-5b15-a03f-75c88221eb2b",
+          "Alias": "stackPack",
+          "DataType": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+          "ValueType": "System.String",
+          "Description": "The pack identity key. Shipped keys: core, umbraco-17, umbraco-cloud, dotnet. Lowercase letters, numbers and hyphens only. An unknown key falls back to the neutral accent and the monogram.",
+          "Name": "Pack Key",
+          "SortOrder": 30,
+          "Validation": "^[a-z0-9-]\u002B$",
+          "ValidationMessage": "Lowercase letters, numbers and hyphens only - no spaces, capitals or dots. Shipped keys: core, umbraco-17, umbraco-cloud, dotnet."
+        }
+      ]
+    }
+  ],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b104",
+  "Dependencies": [
+    {
+      "Udi": "umb://data-type/0cc0eba1996042c9bf9b60e150b429ae",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://data-type/c6bac0dd4ab945b18e30e4b619ee5da3",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b102",
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b103",
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://template/fbb51b3cd56149e59d254c8985c61fdd",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

@@ -1,0 +1,15 @@
+{
+  "Name": "Spell Card Redirect",
+  "Alias": "spellCardRedirect",
+  "File": "umb://template-file/spellCardRedirect.cshtml",
+  "Udi": "umb://template/fbb51b3cd56149e59d254c8985c61fdd",
+  "Dependencies": [
+    {
+      "Udi": "umb://template-file/spellCardRedirect.cshtml",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.TemplateArtifact",
+  "__version": "17.2.1"
+}

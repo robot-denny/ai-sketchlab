@@ -70,6 +70,11 @@
       },
       {
         "contentElementTypeKey": "5ea3cc8b-ff7c-42c3-a868-16bd481cb477"
+      },
+      {
+        "contentElementTypeKey": "d2b1e4c5-8f36-4a72-b9d4-1c5e7a30b106",
+        "settingsElementTypeKey": "d2b1e4c5-8f36-4a72-b9d4-1c5e7a30b107",
+        "label": "**Spell Card Deck**: {umbValue: deckHeading | fallback:[No heading]} ${$settings.hide == \u00271\u0027 ? \u0027[HIDDEN]\u0027 : \u0027\u0027}"
       }
     ],
     "useSingleBlockMode": false,
@@ -126,6 +131,12 @@
       "Udi": "umb://document-type/c56fb5b80b894206847ea6fecd865b84"
     },
     {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b106"
+    },
+    {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b107"
+    },
+    {
       "Udi": "umb://document-type/da15dc4343f645f6bda81fd17a49d25c"
     },
     {
@@ -151,5 +162,5 @@
     }
   ],
   "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
-  "__version": "17.2.0"
+  "__version": "17.2.1"
 }

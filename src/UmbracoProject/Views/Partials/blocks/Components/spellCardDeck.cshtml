@@ -1,0 +1,445 @@
+@using Umbraco.Cms.Core.Models.Blocks
+@using Clean.Core.Helpers
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IBlockReference<IPublishedElement, IPublishedElement>>
+
+@*
+    Spell Card Deck — the browsable deck of everything the Cantrip toolkit installs.
+
+    SHAPE. Four pack STACKS in a row; opening one reveals its PANEL of CARDS,
+    sectioned Spells-then-References, each card flipping to its reverse. The words
+    live in content (a `spellbook` page → `spellCardStack` nodes → `spellCardSpell`
+    / `spellCardReference` nodes); this block only displays them.
+
+    ALL FOUR PANELS RENDER SERVER-SIDE and the three that are not the default-open
+    stack carry `hidden`. That makes the default-open stack work with JavaScript
+    off, removes any open-on-load flash, and makes "a flip survives a stack
+    round-trip" true for free later, because the DOM never goes away.
+
+    ONE RESOLUTION BLOCK. Everything the markup iterates — the source page, the
+    ordered stacks, and each stack's cards partitioned into spells and references —
+    is resolved in the single `@{ }` block below, into plain local collections.
+    No `Children<…>()` inline through the markup. That is one place to reason about
+    null and ordering, and it is the seam that keeps a future move to Umbraco 18
+    Elements a change to this block rather than a rewrite of the view.
+
+    NO CSS AND NO JAVASCRIPT YET (Steps 6-9 of _work/shipped/spell-cards/plan.md). The deck
+    renders unstyled and inert on purpose; the hooks the later steps need are all
+    here: `data-sigil-motion` on the root, `data-stack` / `data-card` /
+    `data-section` / `data-action`, `aria-expanded`, `aria-pressed`, `aria-controls`.
+
+    TWO THINGS NOT TO "SIMPLIFY":
+      * `perspective` will go on the plain `.spell-card__perspective` span inside
+        the card <button>, NEVER on the button — a button host flattens the 3D
+        context in Chrome and both faces render as mirrored 2D layers.
+      * Each consuming <svg> carries `aria-hidden="true"` and nothing else — no
+        role="img", no aria-label, no <title>. The card button's own aria-label is
+        the sole accessible name; a second name source inside the <use> shadow tree
+        would compete with it across all thirty cards.
+
+    Everything inside a <button> is phrasing content (<span>, <svg>) rather than
+    <div>/<p>, because <button>'s content model forbids flow content. Step 6 gives
+    those spans their display roles.
+*@
+
+@{
+    var deck = Model.Content as SpellCardDeck;
+    var settings = Model.Settings as SpellCardDeckSettings;
+    if (deck is null || (settings?.Hide ?? false)) { return; }
+
+    var spacingClasses = "";
+    if (Model.Settings is ISpacingProperties spacing)
+    {
+        spacingClasses = SpacingHelper.GetSpacingClasses(spacing.PaddingTop, spacing.PaddingBottom, spacing.PaddingLeft, spacing.PaddingRight, spacing.MarginTop, spacing.MarginBottom, spacing.MarginLeft, spacing.MarginRight);
+    }
+
+    // --- helpers -----------------------------------------------------------
+    // Title-or-Name, the repo's idiom: an editor may retitle a card by editing
+    // either the field or the node name.
+    string TextOr(string value, string fallback) => !string.IsNullOrWhiteSpace(value) ? value : fallback;
+
+    // `stackPack` and `cardMark` drive a CSS class and a sprite id. Reduce either
+    // to the [a-z0-9-] alphabet those two grammars share, so an editor's stray
+    // capital or space degrades to "unknown key" (neutral accent + monogram)
+    // rather than emitting a broken class or href.
+    string SafeKey(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) { return string.Empty; }
+        return new string(raw.Trim().ToLowerInvariant()
+            .Where(c => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-')
+            .ToArray());
+    }
+
+    string TwoDigit(int n) => n < 10 ? "0" + n : n.ToString();
+
+    string Cards(int n) => n == 1 ? "1 card" : n + " cards";
+
+    // Row 1 of the stat grid is always full width — `Cast` for a spell, `Triggers`
+    // for a reference. That swap is the whole spell-vs-reference distinction in the
+    // reverse's layout. Absent fields are omitted, never padded to balance the grid.
+    List<(string Label, string Value, bool Span)> SpellStats(SpellCardSpell c)
+    {
+        var stats = new List<(string Label, string Value, bool Span)>();
+        if (!string.IsNullOrWhiteSpace(c.CardCast)) { stats.Add(("Cast", c.CardCast, true)); }
+        if (!string.IsNullOrWhiteSpace(c.CardNeeds)) { stats.Add(("Needs", c.CardNeeds, false)); }
+        if (!string.IsNullOrWhiteSpace(c.CardLeaves)) { stats.Add(("Leaves", c.CardLeaves, false)); }
+        return stats;
+    }
+
+    List<(string Label, string Value, bool Span)> ReferenceStats(SpellCardReference c)
+    {
+        var stats = new List<(string Label, string Value, bool Span)>();
+        if (!string.IsNullOrWhiteSpace(c.CardTriggers)) { stats.Add(("Triggers", c.CardTriggers, true)); }
+        if (!string.IsNullOrWhiteSpace(c.CardHolds)) { stats.Add(("Holds", c.CardHolds, true)); }
+        return stats;
+    }
+
+    string CardAriaLabel(string title, string kind) =>
+        title + " — " + kind + " card. Activate to turn the card and read its details.";
+
+    // The pack sigil ids are NOT the pack keys — `core` wears the spellbook mark.
+    // An unrecognised pack key resolves to no pack sigil at all, which is what makes
+    // the stack tile fall through to its monogram and an unmarked spell render no
+    // mark rather than an empty <use>.
+    var packSigils = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "core", "sig-spellbook" },
+        { "umbraco-17", "sig-umbraco17" },
+        { "umbraco-cloud", "sig-cloud" },
+        { "dotnet", "sig-dotnet" }
+    };
+    // Every reference in every pack shares the one static tome; it is deliberately
+    // monochrome, so setting `color` on a tome consumer does nothing.
+    const string referenceSigil = "sig-tome";
+
+    // --- resolution --------------------------------------------------------
+    // `deckSource` empty means "the page this block sits on", so placing the deck
+    // on the Spellbook page is zero-config; picking a node is only needed when the
+    // deck sits somewhere else.
+    var source = deck.DeckSource ?? Umbraco.AssignedContentItem;
+
+    var stackNodes = (source?.Children<SpellCardStack>() ?? Enumerable.Empty<SpellCardStack>()).ToList();
+
+    // A slug becomes a panel id and the aria-controls that points at it, so it has to
+    // be unique. Umbraco guarantees UrlSegment is unique among siblings, but SafeKey
+    // strips everything outside [a-z0-9-] — so two segments differing only in stripped
+    // characters collapse to one slug, and one stack's aria-controls would silently
+    // target the other's panel. Disambiguate before the slug reaches any id.
+    var slugByStackId = new Dictionary<int, string>();
+    var slugsTaken = new HashSet<string>(StringComparer.Ordinal);
+    foreach (var stackNode in stackNodes)
+    {
+        var baseSlug = SafeKey(stackNode.UrlSegment);
+        if (string.IsNullOrEmpty(baseSlug)) { baseSlug = "stack"; }
+
+        var slug = baseSlug;
+        var suffix = 2;
+        while (!slugsTaken.Add(slug))
+        {
+            slug = baseSlug + "-" + suffix++;
+        }
+
+        slugByStackId[stackNode.Id] = slug;
+    }
+
+    var stacks = stackNodes
+        .Select(stackNode =>
+        {
+            var stackName = TextOr(stackNode.StackTitle, stackNode.Name);
+            var packKey = SafeKey(stackNode.StackPack);
+            var packSigil = packSigils.TryGetValue(packKey, out var found) ? found : null;
+
+            var spellNodes = stackNode.Children<SpellCardSpell>().ToList();
+            var referenceNodes = stackNode.Children<SpellCardReference>().ToList();
+
+            // A spell's chosen mark, or its pack's mark when the editor left it blank.
+            // Returns "" rather than null for "no mark": Razor's generated class is
+            // auto-generated code with no #nullable context, so a `string?` annotation
+            // here is CS8669 under runtime view compilation even though it builds clean.
+            string SigilFor(SpellCardSpell card)
+            {
+                var mark = SafeKey(card.CardMark);
+                return string.IsNullOrEmpty(mark) ? (packSigil ?? "") : "sig-" + mark;
+            }
+
+            // Both projections MUST keep an identical property list, in order and
+            // type: that is what lets the two lists share one anonymous type and sit
+            // in the same `sections` array below.
+            var spellCards = spellNodes.Select((c, i) => new
+            {
+                Slug = SafeKey(c.UrlSegment),
+                Title = TextOr(c.CardTitle, c.Name),
+                Kind = "Spell",
+                IsSpell = true,
+                IndexLabel = TwoDigit(i + 1),
+                Caption = "Cast by name",
+                Subtitle = stackName + " · Spell " + (i + 1) + " of " + spellNodes.Count,
+                SigilId = SigilFor(c),
+                Stats = SpellStats(c),
+                Does = c.CardDoes,
+                Modes = c.CardModes,
+                Watch = c.CardWatchFor,
+                FooterLabel = TextOr(c.CardFooterLabel, "Then"),
+                FooterValue = c.CardFooterValue,
+                AriaLabel = CardAriaLabel(TextOr(c.CardTitle, c.Name), "Spell")
+            }).ToList();
+
+            var referenceCards = referenceNodes.Select((c, i) => new
+            {
+                Slug = SafeKey(c.UrlSegment),
+                Title = TextOr(c.CardTitle, c.Name),
+                Kind = "Reference",
+                IsSpell = false,
+                IndexLabel = TwoDigit(i + 1),
+                Caption = "Loads itself",
+                Subtitle = stackName + " · Reference " + (i + 1) + " of " + referenceNodes.Count,
+                SigilId = referenceSigil,
+                Stats = ReferenceStats(c),
+                Does = c.CardDoes,
+                Modes = c.CardModes,
+                Watch = c.CardWatchFor,
+                FooterLabel = TextOr(c.CardFooterLabel, "Pairs with"),
+                FooterValue = c.CardFooterValue,
+                AriaLabel = CardAriaLabel(TextOr(c.CardTitle, c.Name), "Reference")
+            }).ToList();
+
+            // Section order is fixed in the view; within a section, editor tree order.
+            // A section with no cards is not rendered — `dotnet` shows one section and
+            // that is correct, not degraded.
+            var sections = new[]
+            {
+                new { Key = "spells", Label = "Spells", Gloss = "cast by name", Cards = spellCards },
+                new { Key = "references", Label = "References", Gloss = "the model reaches for them", Cards = referenceCards }
+            }.Where(s => s.Cards.Count > 0).ToList();
+
+            return new
+            {
+                Id = stackNode.Id,
+                Slug = slugByStackId[stackNode.Id],
+                Name = stackName,
+                PackKey = packKey,
+                PackSigil = packSigil,
+                Monogram = stackNode.StackMonogram,
+                Blurb = stackNode.StackBlurb,
+                Note = stackNode.StackNote,
+                Total = spellNodes.Count + referenceNodes.Count,
+                Sections = sections
+            };
+        })
+        .ToList();
+
+    // `deckDefaultStack` may be absent, or may point at a node that is not a child
+    // of the resolved source. Validate, then fall back to the first stack.
+    var defaultStack = deck.DeckDefaultStack;
+    var openSlug = stacks.FirstOrDefault(s => defaultStack != null && s.Id == defaultStack.Id)?.Slug
+                   ?? stacks.Select(s => s.Slug).FirstOrDefault();
+}
+
+<section class="spell-deck @spacingClasses" data-sigil-motion="continuous">
+    @await Html.PartialAsync("~/Views/Partials/_SpellSigils.cshtml")
+
+    <div class="spell-deck__intro">
+        @if (!string.IsNullOrWhiteSpace(deck.DeckHeading))
+        {
+            <h2 class="spell-deck__heading">@deck.DeckHeading</h2>
+        }
+        @if (!string.IsNullOrWhiteSpace(deck.DeckLede))
+        {
+            <p class="spell-deck__lede">@deck.DeckLede</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(deck.DeckNote))
+        {
+            <p class="spell-deck__note">@deck.DeckNote</p>
+        }
+    </div>
+
+    @if (stacks.Count > 0)
+    {
+        <div class="spell-deck__row" role="group" aria-label="Card stacks">
+            @foreach (var stack in stacks)
+            {
+                var isOpen = stack.Slug == openSlug;
+                <button type="button"
+                        class="spell-deck__stack@(string.IsNullOrEmpty(stack.PackKey) ? null : " spell-deck__stack--" + stack.PackKey)"
+                        data-stack="@stack.Slug"
+                        aria-expanded="@(isOpen ? "true" : "false")"
+                        aria-controls="spell-deck-panel-@stack.Slug">
+                    @* Three paper edges plus the top face: depth is the motif, not a quantity read. *@
+                    <span class="spell-deck__stack-edge spell-deck__stack-edge--back" aria-hidden="true"></span>
+                    <span class="spell-deck__stack-edge spell-deck__stack-edge--middle" aria-hidden="true"></span>
+                    <span class="spell-deck__stack-edge spell-deck__stack-edge--front" aria-hidden="true"></span>
+                    <span class="spell-deck__stack-face">
+                        <span class="spell-deck__stack-frame" aria-hidden="true"></span>
+                        <span class="spell-deck__stack-corner" aria-hidden="true"></span>
+                        <span class="spell-deck__stack-diagonal" aria-hidden="true"></span>
+                        <span class="spell-deck__stack-content">
+                            @if (stack.PackSigil != null)
+                            {
+                                <svg class="spell-deck__stack-sigil spell-sigil" viewBox="0 0 120 120" aria-hidden="true"><use href="#@stack.PackSigil"></use></svg>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(stack.Monogram))
+                            {
+                                <span class="spell-deck__stack-monogram" aria-hidden="true">@stack.Monogram</span>
+                            }
+                            else
+                            {
+                                <span class="spell-deck__stack-monogram" aria-hidden="true">@stack.Name.Substring(0, 1)</span>
+                            }
+                            <span class="spell-deck__stack-name">@stack.Name</span>
+                            <span class="spell-deck__stack-count">@Cards(stack.Total)</span>
+                        </span>
+                        <span class="spell-deck__stack-bar" aria-hidden="true"></span>
+                    </span>
+                    <span class="spell-deck__stack-pointer" aria-hidden="true"></span>
+                </button>
+            }
+        </div>
+
+        @foreach (var stack in stacks)
+        {
+            var isOpen = stack.Slug == openSlug;
+            <div class="spell-deck__panel@(string.IsNullOrEmpty(stack.PackKey) ? null : " spell-deck__panel--" + stack.PackKey)"
+                 id="spell-deck-panel-@stack.Slug"
+                 data-stack="@stack.Slug"
+                 hidden="@(isOpen ? null : "hidden")">
+
+                <div class="spell-deck__panel-header">
+                    <div class="spell-deck__panel-intro">
+                        <p class="spell-deck__eyebrow">Stack</p>
+                        <h3 class="spell-deck__panel-title">@stack.Name</h3>
+                        <span class="spell-deck__panel-rule" aria-hidden="true"></span>
+                        @if (!string.IsNullOrWhiteSpace(stack.Blurb))
+                        {
+                            <p class="spell-deck__panel-blurb">@stack.Blurb</p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(stack.Note))
+                        {
+                            <p class="spell-deck__panel-note">@stack.Note</p>
+                        }
+                    </div>
+                    <div class="spell-deck__panel-actions">
+                        <p class="spell-deck__panel-count">@Cards(stack.Total)</p>
+                        <button type="button" class="spell-deck__action" data-action="flip-all" aria-pressed="false">Show all backs</button>
+                        <button type="button" class="spell-deck__action" data-action="close-stack">Close stack</button>
+                    </div>
+
+                    @* Turning every card at once changes up to sixteen cards without moving
+                       focus, so a screen reader would otherwise hear only the button's own
+                       new label. Empty at render: a live region must already be in the DOM
+                       for an update to be announced. *@
+                    <p class="visually-hidden" role="status" aria-live="polite" data-flip-all-status></p>
+                </div>
+
+                @foreach (var cardSection in stack.Sections)
+                {
+                    <div class="spell-deck__section" data-section="@cardSection.Key">
+                        <div class="spell-deck__section-header">
+                            <h4 class="spell-deck__section-heading">@cardSection.Label</h4>
+                            <p class="spell-deck__section-count">@cardSection.Cards.Count of @stack.Total</p>
+                            <p class="spell-deck__section-gloss">@cardSection.Gloss</p>
+                            <span class="spell-deck__section-rule" aria-hidden="true"></span>
+                        </div>
+
+                        <div class="spell-deck__card-row">
+                            @foreach (var card in cardSection.Cards)
+                            {
+                                <div class="spell-deck__card-item">
+                                    <button type="button"
+                                            class="spell-card spell-card--@(card.IsSpell ? "spell" : "reference")"
+                                            data-card="@card.Slug"
+                                            aria-pressed="false"
+                                            aria-label="@card.AriaLabel">
+                                        @* perspective lands on this plain span in Step 6, never on the button. *@
+                                        <span class="spell-card__perspective">
+                                            <span class="spell-card__inner">
+
+                                                <span class="spell-card__face">
+                                                    <span class="spell-card__frame" aria-hidden="true"></span>
+                                                    <span class="spell-card__frame spell-card__frame--inner" aria-hidden="true"></span>
+                                                    <span class="spell-card__corner spell-card__corner--start" aria-hidden="true"></span>
+                                                    <span class="spell-card__corner spell-card__corner--end" aria-hidden="true"></span>
+                                                    <span class="spell-card__diagonal" aria-hidden="true"></span>
+                                                    <span class="spell-card__face-content">
+                                                        @if (!string.IsNullOrEmpty(card.SigilId))
+                                                        {
+                                                            <svg class="spell-card__sigil spell-sigil@(card.IsSpell ? null : " spell-sigil--static")" viewBox="0 0 120 120" aria-hidden="true"><use href="#@card.SigilId"></use></svg>
+                                                        }
+                                                        <span class="spell-card__face-title">@card.Title</span>
+                                                        <span class="spell-card__face-badge">@card.Kind</span>
+                                                    </span>
+                                                </span>
+
+                                                @* At rest the reverse is hidden from assistive tech; the flip swaps
+                                                   this onto the face, so a screen reader never reads both. *@
+                                                <span class="spell-card__reverse" aria-hidden="true">
+                                                    <span class="spell-card__reverse-head">
+                                                        <span class="spell-card__badge">@card.Kind</span>
+                                                        <span class="spell-card__stack-label">@stack.Name</span>
+                                                    </span>
+                                                    <span class="spell-card__title">@card.Title</span>
+                                                    <span class="spell-card__subtitle">@card.Subtitle</span>
+
+                                                    @if (card.Stats.Count > 0)
+                                                    {
+                                                        <span class="spell-card__stats">
+                                                            @foreach (var stat in card.Stats)
+                                                            {
+                                                                <span class="spell-card__stat@(stat.Span ? " spell-card__stat--span" : null)">
+                                                                    <span class="spell-card__stat-label">@stat.Label</span>
+                                                                    <span class="spell-card__stat-value">@stat.Value</span>
+                                                                </span>
+                                                            }
+                                                        </span>
+                                                    }
+
+                                                    @if (!string.IsNullOrWhiteSpace(card.Does))
+                                                    {
+                                                        <span class="spell-card__does">@card.Does</span>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(card.Modes))
+                                                    {
+                                                        <span class="spell-card__modes"><span class="spell-card__modes-label">Modes</span>@card.Modes</span>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(card.Watch))
+                                                    {
+                                                        <span class="spell-card__watch">
+                                                            <span class="spell-card__watch-label">Watch for</span>
+                                                            <span class="spell-card__watch-body">@card.Watch</span>
+                                                        </span>
+                                                    }
+                                                    @if (!string.IsNullOrWhiteSpace(card.FooterValue))
+                                                    {
+                                                        <span class="spell-card__footer">
+                                                            <span class="spell-card__footer-label">@card.FooterLabel</span>
+                                                            <span class="spell-card__footer-value">@card.FooterValue</span>
+                                                        </span>
+                                                    }
+                                                </span>
+
+                                            </span>
+                                        </span>
+                                    </button>
+
+                                    <p class="spell-card__caption">
+                                        <span class="spell-card__caption-index">@card.IndexLabel</span>
+                                        <span class="spell-card__caption-text">@card.Caption</span>
+                                    </p>
+                                </div>
+                            }
+                        </div>
+
+                        @* Chevrons are two borders on a rotated square — never a Unicode arrow,
+                           never an icon font. The aria-label is each button's whole name. *@
+                        <div class="spell-deck__carousel-nav">
+                            <button type="button" class="spell-deck__nav" data-scroll="prev" aria-label="Scroll @cardSection.Label back">
+                                <span class="spell-deck__chevron spell-deck__chevron--prev" aria-hidden="true"></span>
+                            </button>
+                            <button type="button" class="spell-deck__nav" data-scroll="next" aria-label="Scroll @cardSection.Label forward">
+                                <span class="spell-deck__chevron spell-deck__chevron--next" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</section>

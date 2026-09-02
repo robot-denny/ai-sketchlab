@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="_ds/ai-sketch-lab-design-system-a415fa84-0fd8-4f64-bc35-183bba16121c/colors_and_type.css">
+<link rel="stylesheet" href="_ds/ai-sketch-lab-design-system-a415fa84-0fd8-4f64-bc35-183bba16121c/ui_kits/web/home/_shared.css">
+<script src="_ds/ai-sketch-lab-design-system-a415fa84-0fd8-4f64-bc35-183bba16121c/_ds_bundle.js"></script>
+<style>
+html { font-size: 18px; }
+/* The only breakpoint in the design. Every other step is fluid — a container
+   query on the tile and the card, so a component scales with its column, not
+   with the viewport. Dropping the root pulls every rem-based step with it. */
+@media (max-width: 400px) { html { font-size: 17px; } }
+body { margin: 0; background: #FFFCF9; color: #1C1917; font-family: "Source Sans 3", system-ui, sans-serif; }
+a { color: #8B6B4A; }
+a:hover { color: #6E5339; }
+button:focus-visible { outline: 2px solid #C23D2E; outline-offset: 2px; }
+
+/* Sigil motion. Lives in the imagery layer only — the reading layer stays still.
+   Every animation is declared paused and runs only while its card is hovered,
+   via an inherited custom property that reaches into the <use> shadow tree. */
+#sig-sprite, .motion-off, .motion-hover { --sig-play: paused; }
+.motion-continuous, .motion-hover:hover { --sig-play: running; }
+.sig-spin { transform-box: view-box; transform-origin: 50% 50%; animation: sig-spin 16s linear infinite; }
+.sig-spin-rev { transform-box: view-box; transform-origin: 50% 50%; animation: sig-spin 22s linear infinite reverse; }
+.sig-pulse { transform-box: fill-box; transform-origin: 50% 50%; animation: sig-pulse 2.6s ease-in-out infinite; }
+.sig-draw { stroke-dasharray: 190; animation: sig-draw 3.4s ease-in-out infinite; }
+.sig-slide { animation: sig-slide 3.6s ease-in-out infinite; }
+.sig-drift { animation: sig-drift 3.8s ease-in-out infinite; }
+.sig-scan { transform-box: fill-box; transform-origin: 0% 50%; animation: sig-scan 3.2s ease-in-out infinite; }
+.sig-blink { animation: sig-blink 2.8s ease-in-out infinite; }
+.sig-fade { animation: sig-fade 3.4s ease-in-out infinite; }
+.sig-trace { offset-path: path("M60 10 L103 35 L103 85 L60 110 L17 85 L17 35 Z"); offset-rotate: 0deg; animation: sig-trace 7s linear infinite; }
+/* The gate must come AFTER every `animation:` shorthand above — the shorthand
+   resets animation-play-state to `running` and would override it otherwise. */
+.sig-spin, .sig-spin-rev, .sig-pulse, .sig-draw, .sig-slide,
+.sig-drift, .sig-scan, .sig-blink, .sig-fade, .sig-trace { animation-play-state: var(--sig-play, paused); }
+@keyframes sig-spin { to { transform: rotate(360deg); } }
+@keyframes sig-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
+@keyframes sig-draw { 0% { stroke-dashoffset: 190; } 45% { stroke-dashoffset: 0; } 55% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -190; } }
+@keyframes sig-slide { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(40px); } }
+@keyframes sig-drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes sig-scan { 0% { transform: scaleX(0); } 35% { transform: scaleX(1); } 80% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+@keyframes sig-blink { 0%, 100% { opacity: 0.22; } 50% { opacity: 1; } }
+@keyframes sig-fade { 0%, 100% { fill-opacity: 0.08; } 50% { fill-opacity: 0.32; } }
+@keyframes sig-trace { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+
+/* Stack-open reveal. One 250ms fade-and-rise on the panel, nothing per-card —
+   thirty staggered cards would be a second wall of motion. */
+@keyframes stack-open { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.stack-panel { animation: stack-open 250ms cubic-bezier(.4,0,.2,1) both; }
+
+/* Card carousel. Below 700px a section's cards scroll horizontally, snapped one at
+   a time, instead of stacking into a long single column — Core's ten spells become
+   one swipeable row rather than ten screens of vertical scroll. The trailing fade
+   is the only affordance; native touch scrolling already hides its own scrollbar. */
+.card-row { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding: 2px 2px 10px; mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%); }
+.card-row::-webkit-scrollbar { display: none; }
+.card-row > .card-item { flex: 0 0 clamp(240px, 82vw, 360px); scroll-snap-align: start; }
+.carousel-nav { display: flex; justify-content: center; gap: 10px; margin: 14px 0 0; }
+@media (min-width: 700px) {
+  .card-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr)); gap: 44px 32px; overflow: visible; padding: 0; mask-image: none; }
+  .card-row > .card-item { flex: none; scroll-snap-align: none; }
+  .carousel-nav { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-continuous, .motion-hover, .motion-hover:hover { --sig-play: paused; }
+  .stack-panel { animation: none; }
+  .flip-inner { transition: none !important; }
+}
+</style>
+</helmet>
+
+<svg id="sig-sprite" width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+
+<symbol id="sig-spellbook" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M60 8 L60 34"></path>
+<path d="M60 86 L60 112"></path>
+<path d="M8 60 L34 60"></path>
+<path d="M86 60 L112 60"></path>
+<path class="sig-spin-rev" d="M60 34 L86 60 L60 86 L34 60 Z" stroke-width="2.4"></path>
+<path class="sig-spin" d="M60 20 L100 60 L60 100 L20 60 Z" stroke-opacity="0.45"></path>
+<path class="sig-draw" d="M24 24 L44 44"></path>
+<path class="sig-draw" d="M96 96 L76 76"></path>
+</g>
+<rect class="sig-pulse" x="52" y="52" width="16" height="16" fill="currentColor"></rect>
+<g fill="#F0EDE8" fill-opacity="0.5">
+<rect x="58" y="4" width="4" height="4"></rect>
+<rect x="58" y="112" width="4" height="4"></rect>
+<rect x="4" y="58" width="4" height="4"></rect>
+<rect x="112" y="58" width="4" height="4"></rect>
+</g>
+</symbol>
+
+<symbol id="sig-reference" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="16" y="22" width="88" height="76"></rect>
+<rect x="28" y="34" width="64" height="52" stroke-opacity="0.5"></rect>
+<path d="M60 22 L60 98" stroke-width="2.4"></path>
+<path class="sig-draw" d="M16 22 L104 98" stroke-opacity="0.3"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.55">
+<rect class="sig-scan" style="animation-delay:0s" x="34" y="44" width="20" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.18s" x="34" y="52" width="20" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.36s" x="34" y="60" width="14" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.54s" x="66" y="44" width="20" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.72s" x="66" y="52" width="14" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.9s" x="66" y="60" width="20" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:1.08s" x="66" y="68" width="10" height="2"></rect>
+</g>
+<rect class="sig-slide" x="16" y="104" width="34" height="5" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-umbraco17" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="14" y="14" width="42" height="42"></rect>
+<rect x="64" y="14" width="42" height="42" stroke-opacity="0.45"></rect>
+<rect x="14" y="64" width="42" height="42" stroke-opacity="0.45"></rect>
+<rect x="64" y="64" width="42" height="42"></rect>
+<path class="sig-draw" d="M14 106 L106 14" stroke-opacity="0.35"></path>
+</g>
+<rect class="sig-pulse" x="26" y="26" width="18" height="18" fill="currentColor"></rect>
+<g fill="#F0EDE8" fill-opacity="0.55">
+<rect class="sig-blink" style="animation-delay:.2s" x="76" y="26" width="18" height="18"></rect>
+<rect class="sig-blink" style="animation-delay:.9s" x="26" y="76" width="18" height="18"></rect>
+<rect class="sig-blink" style="animation-delay:1.6s" x="76" y="76" width="18" height="18"></rect>
+</g>
+</symbol>
+
+<symbol id="sig-cloud" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M18 46 L60 24 L102 46 L60 68 Z"></path>
+<path class="sig-drift" d="M18 70 L60 48 L102 70 L60 92 Z" stroke-opacity="0.5"></path>
+<path d="M18 46 L18 70"></path>
+<path d="M102 46 L102 70"></path>
+<path class="sig-draw" d="M60 92 L60 112" stroke-opacity="0.4"></path>
+</g>
+<path class="sig-fade" d="M60 24 L102 46 L60 68 Z" fill="#F0EDE8" fill-opacity="0.12"></path>
+<rect class="sig-slide" x="18" y="100" width="42" height="4" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-dotnet" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M60 10 L103 35 L103 85 L60 110 L17 85 L17 35 Z"></path>
+<path class="sig-spin-rev" d="M60 28 L88 44 L88 76 L60 92 L32 76 L32 44 Z" stroke-opacity="0.45"></path>
+<path class="sig-draw" d="M32 44 L88 76" stroke-opacity="0.3"></path>
+</g>
+<g fill="#F0EDE8">
+<circle class="sig-trace" style="animation-delay:0s" cx="0" cy="0" r="3.4"></circle>
+<circle class="sig-trace" style="animation-delay:-2.33s" cx="0" cy="0" r="3.4"></circle>
+<circle class="sig-trace" style="animation-delay:-4.66s" cx="0" cy="0" r="3.4"></circle>
+</g>
+<circle class="sig-pulse" cx="60" cy="60" r="7" fill="currentColor"></circle>
+</symbol>
+
+<symbol id="sig-explore" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M30 98 L30 22 L100 22"></path>
+<path d="M30 98 L100 98" stroke-opacity="0.3"></path>
+<path class="sig-draw" d="M30 98 L94 34"></path>
+<path d="M54 34 L94 34 L94 74" stroke-opacity="0.45"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.5">
+<rect class="sig-blink" style="animation-delay:0s" x="38" y="74" width="10" height="10"></rect>
+<rect class="sig-blink" style="animation-delay:.6s" x="58" y="54" width="10" height="10"></rect>
+<rect class="sig-blink" style="animation-delay:1.2s" x="78" y="54" width="10" height="10"></rect>
+</g>
+<rect class="sig-pulse" x="86" y="14" width="16" height="16" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-spec" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="22" y="14" width="76" height="92"></rect>
+<path d="M22 42 L98 42" stroke-width="2.2"></path>
+<path class="sig-draw" d="M98 14 L22 106" stroke-opacity="0.25"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.5">
+<rect class="sig-scan" style="animation-delay:0s" x="34" y="54" width="52" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.2s" x="34" y="64" width="40" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.4s" x="34" y="74" width="48" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.6s" x="34" y="84" width="28" height="2"></rect>
+</g>
+<rect class="sig-slide" x="22" y="24" width="30" height="6" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-plan" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M14 106 L14 88 L44 88 L44 66 L74 66 L74 44 L104 44 L104 14" stroke-width="2.2"></path>
+<path d="M14 106 L104 106" stroke-opacity="0.3"></path>
+<path class="sig-draw" d="M14 88 L104 44" stroke-opacity="0.28"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.45">
+<rect class="sig-blink" style="animation-delay:0s" x="20" y="94" width="18" height="6"></rect>
+<rect class="sig-blink" style="animation-delay:.5s" x="50" y="72" width="18" height="6"></rect>
+<rect class="sig-blink" style="animation-delay:1s" x="80" y="50" width="18" height="6"></rect>
+</g>
+<rect class="sig-drift" x="96" y="14" width="16" height="16" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-implement-step" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M40 18 L18 18 L18 102 L40 102" stroke-width="2.2"></path>
+<path d="M80 18 L102 18 L102 102 L80 102" stroke-width="2.2"></path>
+<path d="M60 30 L60 90" stroke-opacity="0.35"></path>
+<path class="sig-draw" d="M18 60 L102 60" stroke-opacity="0.3"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.4">
+<rect x="34" y="38" width="52" height="4"></rect>
+<rect x="34" y="78" width="52" height="4"></rect>
+</g>
+<rect class="sig-slide" x="30" y="54" width="18" height="12" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-feature" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="16" y="16" width="52" height="36"></rect>
+<rect x="52" y="40" width="52" height="36" stroke-opacity="0.55"></rect>
+<rect x="16" y="64" width="52" height="40"></rect>
+<path class="sig-draw" d="M16 104 L104 16" stroke-opacity="0.25"></path>
+</g>
+<rect class="sig-fade" x="52" y="40" width="52" height="36" fill="#F0EDE8" fill-opacity="0.1"></rect>
+<rect class="sig-pulse" x="60" y="82" width="16" height="16" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-code-review" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="14" y="20" width="92" height="66"></rect>
+<path d="M14 34 L106 34" stroke-opacity="0.5"></path>
+<path class="sig-draw" d="M14 86 L106 20" stroke-opacity="0.28"></path>
+<rect class="sig-spin" x="44" y="38" width="32" height="32" stroke-opacity="0.4"></rect>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.5">
+<rect class="sig-scan" style="animation-delay:0s" x="22" y="46" width="18" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.25s" x="22" y="56" width="14" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.5s" x="82" y="46" width="18" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.75s" x="82" y="56" width="12" height="2"></rect>
+</g>
+<rect class="sig-pulse" x="52" y="46" width="16" height="16" fill="currentColor"></rect>
+<rect x="14" y="98" width="92" height="2" fill="#F0EDE8" fill-opacity="0.25"></rect>
+</symbol>
+
+<symbol id="sig-commit-message" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path d="M40 8 L40 112" stroke-width="2.2"></path>
+<path d="M40 44 L82 44 L82 20" stroke-opacity="0.5"></path>
+<path class="sig-draw" d="M40 80 L82 80 L82 104" stroke-opacity="0.4"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.55">
+<rect class="sig-blink" style="animation-delay:.3s" x="74" y="12" width="16" height="16"></rect>
+<rect class="sig-blink" style="animation-delay:1.1s" x="74" y="96" width="16" height="16"></rect>
+<rect x="32" y="24" width="16" height="4"></rect>
+<rect x="32" y="100" width="16" height="4"></rect>
+</g>
+<rect class="sig-pulse" x="30" y="52" width="20" height="20" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-retrofit" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<path class="sig-draw" d="M22 30 L98 30 L98 88 L22 88" stroke-width="2.2"></path>
+<path d="M22 14 L22 104" stroke-opacity="0.45"></path>
+<path d="M40 48 L80 48" stroke-opacity="0.35"></path>
+<path d="M40 68 L68 68" stroke-opacity="0.35"></path>
+</g>
+<path class="sig-drift" d="M22 88 L40 78 L40 98 Z" fill="currentColor"></path>
+<g fill="#F0EDE8" fill-opacity="0.4">
+<rect class="sig-blink" style="animation-delay:.4s" x="90" y="22" width="16" height="16"></rect>
+</g>
+</symbol>
+
+<symbol id="sig-setup" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="16" y="16" width="26" height="26"></rect>
+<rect x="47" y="16" width="26" height="26" stroke-opacity="0.5"></rect>
+<rect x="78" y="16" width="26" height="26" stroke-opacity="0.5"></rect>
+<rect x="16" y="47" width="26" height="26" stroke-opacity="0.5"></rect>
+<rect x="47" y="47" width="26" height="26"></rect>
+<rect x="78" y="47" width="26" height="26" stroke-opacity="0.5"></rect>
+<rect x="16" y="78" width="26" height="26" stroke-opacity="0.5"></rect>
+<rect x="47" y="78" width="26" height="26" stroke-opacity="0.5"></rect>
+<rect x="78" y="78" width="26" height="26"></rect>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.45">
+<rect class="sig-blink" style="animation-delay:0s" x="22" y="22" width="14" height="14"></rect>
+<rect class="sig-blink" style="animation-delay:.8s" x="84" y="84" width="14" height="14"></rect>
+</g>
+<rect class="sig-pulse" x="53" y="53" width="14" height="14" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-update-toolkit" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect class="sig-spin" x="20" y="20" width="80" height="80" stroke-opacity="0.35"></rect>
+<rect class="sig-spin-rev" x="34" y="34" width="52" height="52" stroke-width="2.2"></rect>
+<path d="M60 6 L60 20"></path>
+<path d="M60 100 L60 114"></path>
+<path class="sig-draw" d="M12 60 L108 60" stroke-opacity="0.25"></path>
+</g>
+<rect class="sig-drift" x="52" y="12" width="16" height="8" fill="currentColor"></rect>
+<g fill="#F0EDE8" fill-opacity="0.4">
+<rect x="52" y="100" width="16" height="8"></rect>
+</g>
+</symbol>
+
+<symbol id="sig-block" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="18" y="52" width="40" height="40"></rect>
+<rect x="62" y="52" width="40" height="40" stroke-opacity="0.5"></rect>
+<rect x="40" y="20" width="40" height="28" stroke-opacity="0.5"></rect>
+<path class="sig-draw" d="M18 92 L102 92" stroke-width="2.2"></path>
+<path d="M40 48 L58 52" stroke-opacity="0.3"></path>
+<path d="M80 48 L62 52" stroke-opacity="0.3"></path>
+</g>
+<rect class="sig-blink" style="animation-delay:.5s" x="70" y="60" width="24" height="24" fill="#F0EDE8" fill-opacity="0.4"></rect>
+<rect class="sig-pulse" x="46" y="26" width="28" height="16" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-guide" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="18" y="14" width="84" height="92"></rect>
+<path d="M60 14 L60 106" stroke-opacity="0.45"></path>
+<path d="M18 32 L102 32" stroke-width="2.2"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.5">
+<rect class="sig-scan" style="animation-delay:0s" x="26" y="44" width="26" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.2s" x="26" y="54" width="20" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.4s" x="26" y="64" width="26" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.6s" x="68" y="44" width="26" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.8s" x="68" y="54" width="18" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:1s" x="68" y="64" width="24" height="2"></rect>
+</g>
+<rect class="sig-slide" x="26" y="88" width="22" height="6" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-umbraco-edit" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="14" y="74" width="92" height="30" stroke-opacity="0.5"></rect>
+<path class="sig-draw" d="M22 90 L98 90" stroke-width="2.2"></path>
+<path d="M62 18 L94 50 L58 62 L46 30 Z"></path>
+<path d="M46 30 L94 50" stroke-opacity="0.3"></path>
+</g>
+<path class="sig-drift" d="M58 62 L52 74 L46 62 Z" fill="currentColor"></path>
+<g fill="#F0EDE8" fill-opacity="0.4">
+<rect x="14" y="14" width="20" height="20"></rect>
+</g>
+</symbol>
+
+<symbol id="sig-check-uda" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="14" y="18" width="62" height="72" stroke-opacity="0.45"></rect>
+<rect x="44" y="32" width="62" height="72" stroke-width="2.2"></rect>
+<path class="sig-draw" d="M44 104 L106 32" stroke-opacity="0.3"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.5">
+<rect class="sig-scan" style="animation-delay:0s" x="54" y="48" width="30" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.3s" x="54" y="58" width="22" height="2"></rect>
+<rect class="sig-scan" style="animation-delay:.6s" x="54" y="68" width="34" height="2"></rect>
+</g>
+<rect class="sig-pulse" x="88" y="82" width="14" height="14" fill="currentColor"></rect>
+</symbol>
+
+<symbol id="sig-tome" viewBox="0 0 120 120">
+<g fill="none" stroke="#F0EDE8" stroke-width="1.6">
+<rect x="24" y="14" width="72" height="92"></rect>
+<path d="M40 14 L40 106" stroke-width="2.4"></path>
+<path d="M96 22 L104 26 L104 102 L96 106" stroke-opacity="0.5"></path>
+<path d="M96 30 L104 34" stroke-opacity="0.3"></path>
+<path d="M96 46 L104 50" stroke-opacity="0.3"></path>
+<path d="M24 40 L96 40" stroke-opacity="0.55"></path>
+</g>
+<g fill="#F0EDE8" fill-opacity="0.42">
+<rect x="52" y="24" width="30" height="3"></rect>
+<rect x="52" y="52" width="32" height="2"></rect>
+<rect x="52" y="60" width="24" height="2"></rect>
+<rect x="52" y="68" width="30" height="2"></rect>
+<rect x="52" y="76" width="18" height="2"></rect>
+<rect x="52" y="84" width="28" height="2"></rect>
+</g>
+<rect x="28" y="18" width="8" height="84" fill="#F0EDE8" fill-opacity="0.14"></rect>
+</symbol>
+</defs></svg>
+
+<div style="max-width: 1400px; margin: 0 auto; padding: clamp(36px, 7vw, 64px) clamp(16px, 5vw, 40px) 96px">
+
+  <div style="max-width: 34em; margin-bottom: 52px">
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #57534E; margin-bottom: 20px">AI Sketch Lab · Cantrip</div>
+    <h1 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(2.4rem, 1.8rem + 2.5vw, 3.4rem); line-height: 1.05; letter-spacing: -0.015em; margin: 0 0 20px; color: #1C1917">Spell <em style="font-style: italic; font-weight: 400">cards</em></h1>
+    <p style="font-size: 1.05rem; line-height: 1.6; color: #57534E; margin: 0 0 14px; text-wrap: pretty">The toolkit arrives in stacks — one per pack, the way you install it. Fourteen spells you cast by name, sixteen references the model reaches for on its own. The row below is all of it.</p>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #78716C; margin: 0; text-wrap: pretty">Open a stack to see its cards, grouped into spells and references. Click a card to turn it.</p>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 16px; border-bottom: 1px solid #E0DAD4; margin-bottom: 34px">
+    <div style="font-family: 'Source Sans 3', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #78716C">The whole toolkit</div>
+    <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.04em; color: #78716C">{{ rosterLine }}</div>
+  </div>
+
+  <div role="group" aria-label="Card stacks" style="{{ rowStyle }}">
+    <sc-for list="{{ stacks }}" as="st" hint-placeholder-count="4">
+      <button type="button" onClick="{{ st.onToggle }}" aria-expanded="{{ st.expanded }}" aria-controls="{{ st.panelId }}" style="{{ st.buttonStyle }}" style-hover="transform:translateY(-8px)">
+        <div style="{{ st.edge3Style }}"></div>
+        <div style="{{ st.edge2Style }}"></div>
+        <div style="{{ st.edge1Style }}"></div>
+        <div class="{{ st.hostClass }}" style="{{ st.topStyle }}">
+          <div style="{{ st.innerFrameStyle }}"></div>
+          <div style="{{ st.cornerStyle }}"></div>
+          <div style="{{ st.diagonalStyle }}"></div>
+          <sc-if value="{{ st.expanded }}">
+            <div style="{{ st.openStripStyle }}">Open</div>
+          </sc-if>
+          <div style="position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(12px, 9.82cqi, 22px); padding: clamp(24px, 15.18cqi, 34px) clamp(12px, 9.82cqi, 22px) clamp(20px, 13.39cqi, 30px)">
+            <sc-if value="{{ st.showSigil }}" hint-placeholder-val="{{ true }}">
+              <svg viewBox="0 0 120 120" style="{{ st.sigilStyle }}" aria-hidden="true"><use href="{{ st.sigilHref }}"></use></svg>
+            </sc-if>
+            <sc-if value="{{ st.showMonogram }}">
+              <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; font-size: clamp(2.6rem, 35cqi, 4.4rem); line-height: 0.82; letter-spacing: -0.04em; color: #F0EDE8; opacity: 0.92">{{ st.monogram }}</div>
+            </sc-if>
+            <sc-if value="{{ st.showPlaceholder }}">
+              <div style="width: clamp(58px, 42.86cqi, 96px); height: clamp(58px, 42.86cqi, 96px); border: 1px dashed rgba(240,237,232,0.32); display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7">Stack art</div>
+            </sc-if>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+              <div style="font-family: 'Source Sans 3', sans-serif; font-size: clamp(0.62rem, 6.43cqi, 0.8rem); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; text-align: center; line-height: 1.25; overflow-wrap: break-word; color: #F0EDE8">{{ st.label }}</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: clamp(0.5rem, 4.66cqi, 0.58rem); letter-spacing: 0.12em; text-transform: uppercase; color: #A8A29E">{{ st.countLabel }}</div>
+            </div>
+          </div>
+          <div style="{{ st.barStyle }}"></div>
+        </div>
+        <div style="{{ st.pointerStyle }}"></div>
+      </button>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ open }}" hint-placeholder-val="{{ true }}">
+    <div class="stack-panel" id="{{ open.panelId }}" style="margin-top: 26px">
+
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px 40px; padding-bottom: 26px; border-bottom: 1px solid #E0DAD4; margin-bottom: 44px">
+        <div style="flex: 1 1 300px; max-width: 30em">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #78716C">Stack</div>
+          <h2 style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 400; font-size: clamp(1.8rem, 1.4rem + 1.6vw, 2.2rem); line-height: 1.06; letter-spacing: -0.012em; margin: 12px 0 0; color: #1C1917">{{ open.label }}</h2>
+          <div style="{{ open.ruleStyle }}"></div>
+          <p style="font-size: 0.98rem; line-height: 1.6; color: #1C1917; margin: 0; text-wrap: pretty">{{ open.blurb }}</p>
+          <div style="margin-top: 16px; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.08rem; line-height: 1.4; color: #57534E; text-wrap: pretty">{{ open.note }}</div>
+        </div>
+        <div style="flex: 0 1 auto; margin-left: auto; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.04em; color: #78716C">{{ open.countLabel }}</div>
+          <button type="button" onClick="{{ open.onFlipAll }}" style="appearance:none;background:none;border:1px solid #C4BCB4;border-radius:0;padding:7px 14px;min-height:44px;font-family:'Source Sans 3',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.03em;color:#1C1917;cursor:pointer;transition:border-color 150ms ease,color 150ms ease" style-hover="border-color:#8B6B4A;color:#6E5339">{{ open.flipAllLabel }}</button>
+          <button type="button" onClick="{{ open.onClose }}" style="appearance:none;background:none;border:1px solid #C4BCB4;border-radius:0;padding:7px 14px;min-height:44px;font-family:'Source Sans 3',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.03em;color:#57534E;cursor:pointer;transition:border-color 150ms ease,color 150ms ease" style-hover="border-color:#8B6B4A;color:#6E5339">Close stack</button>
+        </div>
+      </div>
+
+      <sc-for list="{{ open.sections }}" as="sec" hint-placeholder-count="2">
+        <div style="margin-bottom: 72px">
+
+          <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 16px; margin-bottom: 26px">
+            <h3 style="font-family: 'Source Sans 3', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #1C1917; margin: 0">{{ sec.label }}</h3>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; letter-spacing: 0.06em; color: #A8A29E">{{ sec.count }}</div>
+            <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.02rem; color: #57534E">{{ sec.gloss }}</div>
+            <div style="flex: 1 1 60px; height: 1px; background: #E0DAD4"></div>
+          </div>
+
+          <div class="card-row" ref="{{ sec.rowRef }}">
+            <sc-for list="{{ sec.cards }}" as="card" hint-placeholder-count="3">
+
+              <div class="card-item" style="display: flex; flex-direction: column; gap: 12px; max-width: 400px">
+
+                <button type="button" onClick="{{ card.onFlip }}" aria-pressed="{{ card.flipped }}" aria-label="{{ card.ariaLabel }}" style="{{ card.buttonStyle }}">
+                 <div style="{{ card.perspectiveStyle }}">
+                  <div class="flip-inner" style="{{ card.innerStyle }}">
+
+                    <!-- FACE -->
+                    <div class="{{ card.hostClass }}" aria-hidden="{{ card.flipped }}" style="{{ card.faceStyle }}">
+                      <div style="position: absolute; inset: clamp(10px, 3.5cqi, 14px); border: 1px solid {{ card.frameColor }}; pointer-events: none"></div>
+                      <div style="position: absolute; inset: clamp(15px, 5.25cqi, 21px); border: 1px solid {{ card.frameColorFaint }}; pointer-events: none"></div>
+                      <div style="position: absolute; top: clamp(10px, 3.5cqi, 14px); left: clamp(10px, 3.5cqi, 14px); width: clamp(20px, 6.5cqi, 26px); height: clamp(20px, 6.5cqi, 26px); border-top: 3px solid {{ card.accentDark }}; border-left: 3px solid {{ card.accentDark }}; pointer-events: none"></div>
+                      <div style="position: absolute; bottom: clamp(10px, 3.5cqi, 14px); right: clamp(10px, 3.5cqi, 14px); width: clamp(20px, 6.5cqi, 26px); height: clamp(20px, 6.5cqi, 26px); border-bottom: 3px solid {{ card.accentDark }}; border-right: 3px solid {{ card.accentDark }}; pointer-events: none"></div>
+                      <div style="{{ card.diagonalStyle }}"></div>
+
+                      <div style="position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(18px, 7.5cqi, 30px); padding: clamp(30px, 13cqi, 52px) clamp(20px, 8.5cqi, 34px)">
+
+                        <sc-if value="{{ card.showSigil }}" hint-placeholder-val="{{ true }}">
+                          <svg viewBox="0 0 120 120" style="{{ card.sigilStyle }}" aria-hidden="true"><use href="{{ card.sigilHref }}"></use></svg>
+                        </sc-if>
+
+                        <sc-if value="{{ card.showPlaceholder }}">
+                          <div style="{{ card.placeholderStyle }}">
+                            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7">Card art</div>
+                            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.02em; opacity: 0.45">1 : 1</div>
+                          </div>
+                        </sc-if>
+
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 16px">
+                          <div style="{{ card.faceTitleStyle }}">{{ card.title }}</div>
+                          <div style="{{ card.faceBadgeStyle }}">{{ card.kind }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- REVERSE -->
+                    <div aria-hidden="{{ card.notFlipped }}" style="{{ card.backStyle }}">
+                      <div style="display: flex; flex-direction: column; height: 100%; padding: clamp(18px, 6.5cqi, 26px) clamp(16px, 6cqi, 24px) clamp(16px, 5.5cqi, 22px)">
+
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+                          <div style="{{ card.badgeStyle }}">{{ card.kind }}</div>
+                          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase; color: #78716C; text-align: right; padding-top: 3px">{{ card.stackLabel }}</div>
+                        </div>
+
+                        <div style="{{ card.titleStyle }}">{{ card.title }}</div>
+                        <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.02rem; line-height: 1.3; color: #57534E; margin: 2px 0 16px">{{ card.subtitle }}</div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr)); gap: 1px; background: #E0DAD4; border: 1px solid #E0DAD4; margin-bottom: 16px">
+                          <sc-for list="{{ card.stats }}" as="stat" hint-placeholder-count="3">
+                            <div style="{{ stat.cellStyle }}">
+                              <div style="font-family: 'Source Sans 3', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #78716C; margin-bottom: 4px">{{ stat.label }}</div>
+                              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; line-height: 1.45; color: #1C1917; overflow-wrap: break-word">{{ stat.value }}</div>
+                            </div>
+                          </sc-for>
+                        </div>
+
+                        <p style="font-size: 0.86rem; line-height: 1.58; color: #1C1917; margin: 0 0 12px; text-wrap: pretty">{{ card.does }}</p>
+
+                        <sc-if value="{{ card.modes }}">
+                          <p style="font-size: 0.78rem; line-height: 1.55; color: #57534E; margin: 0 0 12px; text-wrap: pretty"><span style="font-family: 'Source Sans 3', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #78716C; margin-right: 6px">Modes</span>{{ card.modes }}</p>
+                        </sc-if>
+
+                        <sc-if value="{{ card.watch }}">
+                          <div style="{{ card.watchStyle }}">
+                            <div style="{{ card.watchLabelStyle }}">Watch for</div>
+                            <div style="font-size: 0.78rem; line-height: 1.5; color: #1C1917; text-wrap: pretty">{{ card.watch }}</div>
+                          </div>
+                        </sc-if>
+
+                        <sc-if value="{{ card.footValue }}">
+                          <div style="margin-top: auto; padding-top: 12px; border-top: 1px solid #E0DAD4; display: flex; align-items: baseline; gap: 8px">
+                            <div style="font-family: 'Source Sans 3', sans-serif; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: #78716C; flex: none">{{ card.footLabel }}</div>
+                            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; line-height: 1.4; color: #8B6B4A">{{ card.footValue }}</div>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </div>
+                 </div>
+                </button>
+
+                <div style="display: flex; align-items: baseline; gap: 8px; padding: 0 2px">
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: #A8A29E">{{ card.indexLabel }}</div>
+                  <div style="font-size: 0.78rem; color: #78716C">{{ card.caption }}</div>
+                </div>
+              </div>
+
+            </sc-for>
+          </div>
+
+          <div class="carousel-nav">
+            <button type="button" onClick="{{ sec.onPrev }}" aria-label="Scroll {{ sec.label }} back" style="appearance:none;background:none;border:1px solid #C4BCB4;border-radius:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1C1917;cursor:pointer" style-hover="border-color:#8B6B4A">
+              <span style="display:block;width:8px;height:8px;border-top:2px solid currentColor;border-left:2px solid currentColor;transform:rotate(-45deg) translate(1px,1px)"></span>
+            </button>
+            <button type="button" onClick="{{ sec.onNext }}" aria-label="Scroll {{ sec.label }} forward" style="appearance:none;background:none;border:1px solid #C4BCB4;border-radius:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#1C1917;cursor:pointer" style-hover="border-color:#8B6B4A">
+              <span style="display:block;width:8px;height:8px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg) translate(-1px,1px)"></span>
+            </button>
+          </div>
+
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ allClosed }}">
+    <div style="margin-top: 46px; padding-top: 26px; border-top: 1px solid #E0DAD4; max-width: 34em">
+      <p style="font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 1.15rem; line-height: 1.5; color: #57534E; margin: 0; text-wrap: pretty">Four stacks, closed. Open one to read its cards.</p>
+    </div>
+  </sc-if>
+
+  <div style="margin-top: 24px; padding-top: 26px; border-top: 1px solid #E0DAD4; max-width: 34em">
+    <div style="font-family: 'Source Sans 3', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #78716C; margin-bottom: 12px">What changed in this pass</div>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #57534E; margin: 0 0 10px; text-wrap: pretty">The layout is now fluid. Tiles and cards hold a ratio instead of a fixed height, and both scale their own interiors from their column width, so the stack row fills the space it is given and the grid falls to one card at a time on a phone without a single layout breakpoint. The one media query in the file drops the root type from 18px to 17px below 400px. Narrow the window to watch it move; the frames in <a href="Spell Cards Narrow.dc.html">the narrow reference</a> are the target.</p>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #57534E; margin: 0 0 10px; text-wrap: pretty">Selection now carries all the colour and all the motion. An open stack rises, lights its accent, wears an <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem">OPEN</span> strip and points at the panel below it; the closed stacks fall back to a quiet dark plane with a still sigil. The deck beneath each top card became paper edges rather than more near-black, so the stack reads as objects on a z-axis instead of one flat shape.</p>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #57534E; margin: 0 0 10px; text-wrap: pretty">Every sigil now takes its accent from its own pack, so the signal red belongs to Core alone. The face rule is gone. Each of the fourteen spells has its own drawn sigil, and every reference in every pack shares one static tome — kind is legible before you read a word.</p>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #57534E; margin: 0 0 10px; text-wrap: pretty">The flat grid and its filter chips are gone. The deck now presents one stack per pack — the row above is the entire toolkit at a glance — and opening a stack reveals its cards sectioned into spells and references. The five deck dividers became the stacks themselves; their prose is the panel header you read on the way in.</p>
+    <p style="font-size: 0.9rem; line-height: 1.6; color: #57534E; margin: 0; text-wrap: pretty">The card is unchanged: same box, same 690px height, same flip, same reverse. What did change is the face. The reverse's code-versus-language split now runs on the front too — a spell wears its invocation in <span style="font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem">IBM Plex Mono</span> on the deepest plane with a filled badge, a reference wears its name in Cormorant Garamond on a raised plane with an outlined one. Three signals, no new tokens, so a grid of sixteen reads as two kinds without a filter.</p>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;stackCount&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;four&quot;,&quot;five&quot;],&quot;default&quot;:&quot;four&quot;,&quot;tsType&quot;:&quot;\&quot;four\&quot; | \&quot;five\&quot;&quot;,&quot;section&quot;:&quot;Organisation&quot;},&quot;dimUnselected&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Organisation&quot;},&quot;deckEdge&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;paper&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;paper&quot;,&quot;tsType&quot;:&quot;\&quot;paper\&quot; | \&quot;dark\&quot;&quot;,&quot;section&quot;:&quot;Organisation&quot;},&quot;faceValueSplit&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Card face&quot;},&quot;sigilMotion&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;continuous&quot;,&quot;hover&quot;,&quot;off&quot;],&quot;default&quot;:&quot;continuous&quot;,&quot;tsType&quot;:&quot;\&quot;continuous\&quot; | \&quot;hover\&quot; | \&quot;off\&quot;&quot;,&quot;section&quot;:&quot;Card face&quot;},&quot;frontArt&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sigil&quot;,&quot;monogram&quot;,&quot;placeholder&quot;],&quot;default&quot;:&quot;sigil&quot;,&quot;tsType&quot;:&quot;\&quot;sigil\&quot; | \&quot;monogram\&quot; | \&quot;placeholder\&quot;&quot;,&quot;section&quot;:&quot;Card face&quot;}}">
+// Each pack carries three values of one identity: accentInk reads on the warm page,
+// accentDark reads on the near-black card plane, onAccent reads on the accent itself.
+const PACKS = {
+  core: { label: "Core", accent: "#C23D2E", accentInk: "#C23D2E", accentDark: "#E0674E", onAccent: "#FFFCF9", mono: "C", sigil: "#sig-spellbook", refSigil: "#sig-reference",
+    blurb: "Sixteen units, installed with the toolkit. Ten spells that make up the workflow chain and its configuration, six opinions the toolkit holds about how work should be done.",
+    note: "Spells run only when a person types /<name>. References load themselves when the work matches." },
+  spellbook: { label: "Core spellbook", accent: "#C23D2E", accentInk: "#C23D2E", accentDark: "#E0674E", onAccent: "#FFFCF9", mono: "CS", sigil: "#sig-spellbook", refSigil: "#sig-spellbook",
+    blurb: "Ten spells. Eight are the workflow chain, two are configuration. Cast by name, never automatically.",
+    note: "Spells are invisible to the model — they run only when a person types /<name>." },
+  reference: { label: "Core reference", accent: "#8B6B4A", accentInk: "#8B6B4A", accentDark: "#C39A6B", onAccent: "#FFFCF9", mono: "CR", sigil: "#sig-reference", refSigil: "#sig-reference",
+    blurb: "Six opinions the toolkit holds. You never cast these; the model reaches for them.",
+    note: "Nothing to memorise. The card is so you recognise the opinion when it shows up." },
+  u17: { label: "umbraco-17", accent: "#4A6B6E", accentInk: "#4A6B6E", accentDark: "#7FAFB3", onAccent: "#FFFCF9", mono: "17", sigil: "#sig-umbraco17", refSigil: "#sig-umbraco17",
+    blurb: "Optional pack, pinned to the CMS major. Six references and three spells for building and reviewing Umbraco work.",
+    note: "Pinned to the major, not the minor." },
+  cloud: { label: "umbraco-cloud", accent: "#6E6A62", accentInk: "#6E6A62", accentDark: "#BDB6AC", onAccent: "#FFFCF9", mono: "UC", sigil: "#sig-cloud", refSigil: "#sig-cloud",
+    blurb: "Optional pack for Umbraco Deploy. Applies to any licensed install, not only Cloud.",
+    note: "Cloud-only behaviours are marked as such." },
+  dotnet: { label: "dotnet", accent: "#8B6B4A", accentInk: "#8B6B4A", accentDark: "#C39A6B", onAccent: "#FFFCF9", mono: ".N", sigil: "#sig-dotnet", refSigil: "#sig-dotnet",
+    blurb: "Optional pack for C# and .NET, CMS or not. Three references, no spells.",
+    note: "It applies even when nobody said \u201CC#\u201D." }
+};
+
+// One sigil per spell; every reference in every pack shares the static tome.
+const SPELL_SIGILS = {
+  "explore": "#sig-explore", "spec": "#sig-spec", "plan": "#sig-plan",
+  "implement-step": "#sig-implement-step", "feature": "#sig-feature",
+  "code-review": "#sig-code-review", "commit-message": "#sig-commit-message",
+  "retrofit": "#sig-retrofit", "setup": "#sig-setup", "update-toolkit": "#sig-update-toolkit",
+  "block": "#sig-block", "guide": "#sig-guide", "umbraco-edit": "#sig-umbraco-edit",
+  "check-uda": "#sig-check-uda"
+};
+const REF_SIGIL = "#sig-tome";
+
+const ORDER4 = ["core", "u17", "cloud", "dotnet"];
+const ORDER5 = ["spellbook", "reference", "u17", "cloud", "dotnet"];
+
+const UNITS = [
+  { id: "explore", title: "/explore", kind: "Spell", pack: "core",
+    cast: "/explore [problem or area] — asks if you omit it",
+    needs: "a decision nobody has made yet",
+    leaves: "_work/<slug>/discovery.md",
+    does: "Interviews you one question at a time to widen the option space — frames the problem, generates and stress-tests rival options, then probes second-order effects.",
+    watch: "it withholds its own recommendation while framing, on purpose.",
+    footLabel: "Then", footValue: "/spec <slug>" },
+  { id: "spec", title: "/spec", kind: "Spell", pack: "core",
+    cast: "/spec <short feature description>",
+    needs: "an idea — or a discovery doc to continue from",
+    leaves: "_work/<slug>/spec.md, a working branch, a work-type line",
+    does: "Turns an idea into a spec with acceptance criteria and draft Given/When/Then scenarios. Classifies the work as new capability, change-to, or fix — and that decides which durable docs it earns.",
+    watch: "only a new capability gets its own feature doc; a change folds into the existing one.",
+    footLabel: "Then", footValue: "/plan <slug>" },
+  { id: "plan", title: "/plan", kind: "Spell", pack: "core",
+    cast: "/plan <spec path | short description>",
+    needs: "a spec, ideally",
+    leaves: "_work/<slug>/plan.md",
+    does: "Turns a spec into phased, test-first steps — each independently runnable in a fresh context, each with a paste-ready prompt, plus key decisions recorded so no step re-derives them.",
+    watch: "the last step records durable behaviour; it is a spell you cast, not a step you run.",
+    footLabel: "Then", footValue: "/implement-step <slug> 1" },
+  { id: "implement-step", title: "/implement-step", kind: "Spell", pack: "core",
+    cast: "/implement-step <plan> <step-number>",
+    needs: "a saved plan",
+    leaves: "the code change, plus a DONE or BLOCKED report",
+    does: "Runs one step in an isolated context so a long plan never clutters your main conversation. Enforces the plan's test-first and validation contract, then relays a short structured report.",
+    watch: "one step per cast — the isolation is the whole point.",
+    footLabel: "Then", footValue: "the next step; /code-review once the plan is done" },
+  { id: "feature", title: "/feature", kind: "Spell", pack: "core",
+    cast: "/feature <spec path | capability | update <slug> | a code entity>",
+    needs: "nothing but the code, in the fallback case",
+    leaves: "_features/<area>.md — one file per capability",
+    does: "Writes the living doc of what a capability does now: business-language Given/When/Then under rules, with a test coverage table. Backfills from code alone when no spec, plan, or test exists.",
+    modes: "update <slug> refreshes an existing doc. From-code mode is the cold-start fallback, not a shortcut.",
+    watch: "feature docs are named for capabilities, never for the work that changed them.",
+    footLabel: "Then", footValue: "/code-review before merge" },
+  { id: "code-review", title: "/code-review", kind: "Spell", pack: "core",
+    cast: "/code-review [uncommitted | branch]",
+    needs: "a diff; reviewers linked into .claude/agents/ for parallel runs",
+    leaves: "one merged, de-duplicated report and an ordered action plan",
+    does: "Runs the accessibility, code-quality, and performance reviewers over the same diff, then merges their findings onto one severity scale. Changes nothing without your explicit approval.",
+    modes: "uncommitted (default) is git diff plus staged. branch is everything since the upstream fork point, plus uncommitted and untracked.",
+    watch: "pass branch when steps were committed — the default reviews only the last one and reports it clean.",
+    footLabel: "Then", footValue: "/commit-message" },
+  { id: "commit-message", title: "/commit-message", kind: "Spell", pack: "core",
+    cast: "/commit-message — reads staged changes",
+    needs: "something staged",
+    leaves: "a proposed message, awaiting approval; it never commits",
+    does: "Opens with a plain-language summary of what shipped, then records briefly the reasoning a future reader could not recover from the code. Follows your project's own commit convention.",
+    footLabel: "Then", footValue: "push — or /retrofit if this change skipped the flow" },
+  { id: "retrofit", title: "/retrofit", kind: "Spell", pack: "core",
+    cast: "/retrofit [what you changed] [git range or ref]",
+    needs: "a change that skipped spec \u2192 plan \u2192 implement",
+    leaves: "only what you confirm — tests, docs, feature-doc updates",
+    does: "The easy button for out-of-flow work. Reconciles your stated intent against the actual diff, runs the reviewers, surfaces edge cases, then proposes the tests and docs the flow would have produced.",
+    watch: "run it before committing — or before pushing, if you already committed.",
+    footLabel: "Then", footValue: "a fresh /code-review, then /commit-message" },
+  { id: "setup", title: "/setup", kind: "Spell", pack: "core",
+    cast: "/setup — from the project root, no arguments",
+    needs: "an installed toolkit",
+    leaves: "the .agents/config/ slots and the workspace scaffold",
+    does: "Configures the toolkit for one project — detects what the repo already answers, mines its existing guidance files, and asks only for the residue. Reports what it could not determine.",
+    watch: "run it once after installing, and again after adding a pack.",
+    footLabel: "Then", footValue: "/explore for a new problem, or /spec to start an increment" },
+  { id: "update-toolkit", title: "/update-toolkit", kind: "Spell", pack: "core",
+    cast: "/update-toolkit",
+    needs: "git — it builds a safety net before touching anything",
+    leaves: "newer skills, plus a list of your local tailorings that were reverted",
+    does: "Wraps the skills installer behind a git guard, because the bare update overwrites local modifications with no warning. Makes every change reviewable and helps move tailoring where updates cannot reach it.",
+    watch: "editing an installed file is a divergence, not a workflow. If tailoring needs a core edit, that is a missing slot." },
+
+  { id: "workflow", title: "workflow", kind: "Reference", pack: "core",
+    triggers: "before a spec, plan, or feature doc; when classifying work; when a change landed outside the flow",
+    holds: "the entry points, the work types, where every artifact lives, the templates",
+    does: "The spine. Explains how work flows from roadmap through feature, spec, plan, and implementation, and which durable artifacts each work type earns.",
+    watch: "every path it names is a default, overridable through the paths.md slot.",
+    footLabel: "Pairs with", footValue: "every spell in the chain" },
+  { id: "bdd-principles", title: "bdd-principles", kind: "Reference", pack: "core",
+    triggers: "writing or reviewing scenarios, drafting acceptance criteria, choosing domain vocabulary",
+    holds: "Given/When/Then in business language, Example Mapping, specification by example, ubiquitous language",
+    does: "Keeps scenarios about observable behaviour a stakeholder would recognise, grouped under business rules — and tells you when a scenario is really a unit test.",
+    footLabel: "Pairs with", footValue: "/spec, /feature" },
+  { id: "tdd-principles", title: "tdd-principles", kind: "Reference", pack: "core",
+    triggers: "writing a test, filling a step's Test-first block, or diagnosing a test that broke with no behaviour change",
+    holds: "assert behaviour not implementation, independently-sourced expected values, one behaviour per cycle",
+    does: "What a test should assert so it proves something and survives refactoring. Includes what counts as a RED\u2192GREEN signal in a project with no test harness.",
+    footLabel: "Pairs with", footValue: "/plan, /implement-step" },
+  { id: "reviewer-discipline", title: "reviewer-discipline", kind: "Reference", pack: "core",
+    triggers: "performing a review, calibrating a finding's severity, authoring a new reviewer",
+    holds: "diff-only scope, the Blocker/Major/Minor/Nit scale, the evidence standard, the report shape — and the three reviewer agents",
+    does: "The contract all three reviewers share. It exists to stop the failure modes that make review output worthless: speculation about unseen code, invented severities, findings with no file and line.",
+    watch: "the agents ship here but must be linked into .claude/agents/ once, or review runs inline instead of in parallel.",
+    footLabel: "Pairs with", footValue: "/code-review, /retrofit" },
+  { id: "memory-discipline", title: "memory-discipline", kind: "Reference", pack: "core",
+    triggers: "writing or reorganising agent memory; when a wrong finding keeps coming back",
+    holds: "the MEMORY.md index plus topic files, the entry format with its Why and How-to-apply lines, the three entry types",
+    does: "How an agent's persistent project memory stays small and calibrated — including recording its own false positives, so a finding you rejected once stops returning.",
+    footLabel: "Pairs with", footValue: "the three reviewers" },
+  { id: "design-system-authoring", title: "design-system-authoring", kind: "Reference", pack: "core",
+    triggers: "creating a project's design-system skill; when front-end work keeps drifting from your conventions",
+    holds: "find the load-bearing mechanism, write pointer-first, derive a conformance list, engineer the description",
+    does: "A skill for writing a skill. Your visual conventions are your own, so rather than ship rules you would fight, it walks you through writing down the ones you already have.",
+    footLabel: "Pairs with", footValue: "/plan, the accessibility reviewer" },
+
+  { id: "umbraco-17-starter-facts", title: "umbraco-17-starter-facts", kind: "Reference", pack: "u17",
+    triggers: "writing or reviewing Umbraco code, debugging a silent failure, wondering whether behaviour is a bug or the platform",
+    holds: "Management API shapes and quirks, content-model traps where unset is indistinguishable from false, AI and Search configuration traps",
+    does: "Verified platform facts that are easy to get wrong and usually fail silently. Each carries what it applies to and when it was last verified." },
+  { id: "umbraco-17-planning", title: "umbraco-17-planning", kind: "Reference", pack: "u17",
+    triggers: "planning Umbraco work — document types, element types, compositions, data types, or a backoffice extension",
+    holds: "inspect live backoffice schema before designing steps, the layer vocabulary a feature spans, the step order that usually works",
+    does: "Stack-specific planning guidance, and the router: it sends dashboards, property editors, workspaces, trees, and block views to the authoritative extension skill for each.",
+    watch: "it routes to two companion plugin skill sets; without them its extension guidance is thinner, and it says so.",
+    footLabel: "Pairs with", footValue: "/plan, /block" },
+  { id: "umbraco-17-review-rules", title: "umbraco-17-review-rules", kind: "Reference", pack: "u17",
+    triggers: "reviewing a diff in an Umbraco project",
+    holds: "CMS rendering security, null-safety and alias traps in published content, per-request cost in view-model construction, editor-authored accessibility",
+    does: "What to check that only applies because this is a CMS. Feeds all three reviewers on the same severity scale they already use.",
+    footLabel: "Pairs with", footValue: "/code-review" },
+  { id: "umbraco-17-feature-backfill", title: "umbraco-17-feature-backfill", kind: "Reference", pack: "u17",
+    triggers: "documenting an Umbraco capability with no spec, plan, or tests; resolving an alias to its implementation",
+    holds: "locating the serialized schema (Deploy .uda or uSync .config), the generated model, and the Razor view; data-type UDI to readable field type",
+    does: "How to reverse-engineer behavioural documentation from Umbraco code — parsing property structure and compositions out of either serialization format.",
+    footLabel: "Pairs with", footValue: "/feature in from-code mode" },
+  { id: "umbraco-17-audit-patterns", title: "umbraco-17-audit-patterns", kind: "Reference", pack: "u17",
+    triggers: "auditing or inheriting an Umbraco codebase, or comparing two solutions",
+    holds: "composition and service registration, schema-as-code discipline, content access and block patterns, decoupled-frontend readiness",
+    does: "Criteria for judging whether a site is idiomatic, not merely working.",
+    watch: "judgement criteria, not a defect list — for one diff, use the review rules instead.",
+    footLabel: "Pairs with", footValue: "codebase-audit" },
+  { id: "umbraco-17-guide-scaffolding", title: "umbraco-17-guide-scaffolding", kind: "Reference", pack: "u17",
+    triggers: "building a guides section, or deciding whether a value on a guide page may be overwritten",
+    holds: "the guide document type, the property-row element type and which of its six columns tooling may write, the stored source reference, the audit's report shape",
+    does: "The schema an editor-facing guides section needs. Ownership follows a page's provenance, not a field's declaration — which is what decides what a regeneration may touch.",
+    watch: "you create the document types. Nothing here does it for you.",
+    footLabel: "Pairs with", footValue: "/guide" },
+  { id: "block", title: "/block", kind: "Spell", pack: "u17",
+    cast: "/block <the block, its properties, and editor experience>",
+    needs: "an Umbraco project, and access to create the element type",
+    leaves: "an element type, its palette registration, a view, and a test that went RED then GREEN",
+    does: "Creates a block test-first — derives names and aliases, writes a failing test, creates the element type, registers it in the right palette, copies the closest existing block's view, then builds to green.",
+    watch: "level is reserved, and unprefixed aliases like content collide — both fail silently.",
+    footLabel: "Then", footValue: "/feature <elementTypeAlias>" },
+  { id: "guide", title: "/guide", kind: "Spell", pack: "u17",
+    cast: "/guide <component alias> · /guide --audit",
+    needs: "a guides section that already exists, and a schema source — Deploy artifacts, uSync, or a live instance",
+    leaves: "one guide page, written only after you approve the difference",
+    does: "Writes an editor-facing guide for one component from the schema it already declares. Reads, plans, shows what a regeneration would change, asks, then writes.",
+    modes: "--audit reports which components have no guide, which guides name a component the project no longer holds, and which have gone stale.",
+    watch: "nothing reaches the CMS before the ask.",
+    footLabel: "Then", footValue: "/guide <next alias>" },
+  { id: "umbraco-edit", title: "/umbraco-edit", kind: "Spell", pack: "u17",
+    cast: "/umbraco-edit <what to change, and on which page>",
+    needs: "Umbraco 14+, a local URL, and OAuth client credentials in the project's env file",
+    leaves: "changed content in the CMS — with confirmation asked before anything destructive",
+    does: "Edits document properties, or invokes a configured AI agent, through the Management API. For work that would normally be a backoffice click but needs doing from the terminal.",
+    watch: "tokens expire in 299 seconds; re-authenticate per group of operations, not once per session." },
+
+  { id: "umbraco-deploy-facts", title: "umbraco-deploy-facts", kind: "Reference", pack: "cloud",
+    triggers: "reading or diffing .uda files, dashboard entries that will not clear, a transfer failing on schema mismatch",
+    holds: "how .uda artifacts are written and read, why files and a database drift apart, which dashboard control genuinely imports, the API calls that clear stuck entries",
+    does: "Deploy schema mechanics, and the remediation paths that actually work rather than the ones that look like they should.",
+    watch: "applies to any licensed Deploy install, not only Cloud. Cloud-only behaviours are marked as such.",
+    footLabel: "Pairs with", footValue: "/check-uda" },
+  { id: "check-uda", title: "/check-uda", kind: "Spell", pack: "cloud",
+    cast: "/check-uda — before staging schema changes",
+    needs: "a Deploy project. Live OAuth credentials are optional and unlock the drift check",
+    leaves: "a risk-rated report with remediation for each finding",
+    does: "Finds Deploy schema conflicts before they reach a commit — accidental local regeneration, unpulled remote changes, both-modified files, and, with credentials, database-versus-file drift git cannot see.",
+    watch: "Umbraco regenerates .uda files on startup, so a change you are about to stage may not be yours." },
+
+  { id: "dotnet-conventions", title: "dotnet-conventions", kind: "Reference", pack: "dotnet",
+    triggers: "writing or refactoring a .cs or .csproj, or planning a step that adds a service, DTO, endpoint, or record — even when nobody said \u201CC#\u201D",
+    holds: "naming by code element, async and CancellationToken discipline, structured logging, System.Text.Json and camelCase DTOs, nullable reference types, the modern syntax that is now the default",
+    does: "How to write C# that looks like current C#. It also names the style questions that belong to your project rather than the toolkit.",
+    footLabel: "Pairs with", footValue: "/plan, /implement-step" },
+  { id: "dotnet-review-rules", title: "dotnet-review-rules", kind: "Reference", pack: "dotnet",
+    triggers: "reviewing a diff that touches .cs, .csproj, or appsettings",
+    holds: "rethrows that destroy stack traces, interpolated log messages that defeat structured logging, async that blocks or drops cancellation, unvalidated payloads, nullability gaps that warn without protecting",
+    does: "What to check in a C# diff — and how to tell a real defect from a house-style preference the project owns rather than the toolkit.",
+    footLabel: "Pairs with", footValue: "/code-review" },
+  { id: "codebase-audit", title: "codebase-audit", kind: "Reference", pack: "dotnet",
+    triggers: "asked to audit an architecture, judge whether a solution is set up right, assess a repo you are inheriting, or compare two",
+    holds: "five pillars — platform hygiene, architectural separation, documentation and onboarding, resilience and operations, suitability for agentic coding",
+    leaves: "a markdown report with prioritised P0/P1/P2 recommendations, framed for the codebase's lifecycle stage",
+    does: "A structural verdict on a whole .NET codebase, staged to where it is in its life. Can run head-to-head against a second repository.",
+    modes: "--compare <path> for a head-to-head, --stage to override the detected lifecycle stage, --out for the report path.",
+    watch: "a verdict on structure, not a line-level review of a diff." }
+];
+
+const SECTIONS = [
+  { kind: "Spell", label: "Spells", gloss: "cast by name" },
+  { kind: "Reference", label: "References", gloss: "the model reaches for them" }
+];
+
+class Component extends DCLogic {
+  state = { open: "core", flipped: {} };
+
+  packKey(unit, five) {
+    if (!five) return unit.pack;
+    if (unit.pack !== "core") return unit.pack;
+    return unit.kind === "Spell" ? "spellbook" : "reference";
+  }
+
+  order() {
+    return (this.props.stackCount ?? "four") === "five" ? ORDER5 : ORDER4;
+  }
+
+  unitsIn(key) {
+    const five = this.order() === ORDER5;
+    return UNITS.filter(u => this.packKey(u, five) === key);
+  }
+
+  componentDidMount() {
+    this._onHash = () => this.readHash();
+    window.addEventListener("hashchange", this._onHash);
+    this.readHash();
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("hashchange", this._onHash);
+  }
+
+  readHash() {
+    const raw = (window.location.hash || "").replace(/^#/, "");
+    if (!raw) return;
+    const parts = raw.split("/");
+    if (this.order().indexOf(parts[0]) === -1) return;
+    const next = { open: parts[0] };
+    if (parts[1]) next.flipped = Object.assign({}, this.state.flipped, { [parts[1]]: true });
+    this.setState(next);
+  }
+
+  writeHash(stack, card) {
+    const next = stack ? "#" + stack + (card ? "/" + card : "") : "#";
+    if (window.location.hash !== next) {
+      window.history.replaceState(null, "", next);
+    }
+  }
+
+  toggle(key) {
+    const closing = this.state.open === key;
+    this.setState({ open: closing ? null : key });
+    this.writeHash(closing ? null : key);
+  }
+
+  flip(id) {
+    const nowFlipped = !this.state.flipped[id];
+    this.setState(s => ({ flipped: Object.assign({}, s.flipped, { [id]: nowFlipped }) }));
+    this.writeHash(this.state.open, nowFlipped ? id : null);
+  }
+
+  renderVals() {
+    const order = this.order();
+    const artMode = this.props.frontArt ?? "sigil";
+    const valueSplit = (this.props.faceValueSplit ?? true) !== false;
+    const hostClass = "sigil-host motion-" + (this.props.sigilMotion ?? "continuous");
+    const openKey = this.state.open;
+    const dim = (this.props.dimUnselected ?? true) !== false;
+    const paperEdges = (this.props.deckEdge ?? "paper") === "paper";
+    // 1cqi is 1% of the tile's own width (224px at full size), so every interior
+    // step below is the design value at 224 and floors out at the 320px layout.
+    const cq = (min, max) => "clamp(" + min + "px," + (max / 2.24).toFixed(2) + "cqi," + max + "px)";
+    const E3 = cq(9, 15), E2 = cq(6, 10), E1 = cq(3, 5), PAD = cq(7, 11), STRIP = cq(20, 24);
+    const edge = (n) => paperEdges
+      ? ["#EFE8E0", "#E3DBD1", "#D5CCC1"][n] + ";border:1px solid rgba(28,25,23,0.22)"
+      : ["#2D2D38", "#252530", "#1E1E24"][n] + ";border:1px solid rgba(240,237,232,0.22)";
+
+    const stacks = order.map(key => {
+      const p = PACKS[key];
+      const units = this.unitsIn(key);
+      const isOpen = openKey === key;
+      return {
+        key: key,
+        label: p.label,
+        monogram: p.mono,
+        sigilHref: p.sigil,
+        hostClass: isOpen ? hostClass : "motion-off",
+        expanded: isOpen,
+        panelId: "stack-panel-" + key,
+        countLabel: units.length + (units.length === 1 ? " card" : " cards"),
+        showSigil: artMode === "sigil",
+        showMonogram: artMode === "monogram",
+        showPlaceholder: artMode === "placeholder",
+        onToggle: () => this.toggle(key),
+        // Selection is the only place colour and motion live: an open stack keeps its
+        // accent, its lit sigil and a pointer into the panel; the rest go quiet.
+        buttonStyle: "appearance:none;background:none;border:0;border-radius:0;padding:0;margin:0;text-align:left;cursor:pointer;position:relative;width:100%;max-width:224px;justify-self:start;aspect-ratio:224 / 404;container-type:inline-size;transition:transform 250ms cubic-bezier(.4,0,.2,1),opacity 250ms ease;transform:translateY(" + (isOpen ? "-14px" : "0") + ");opacity:" + (isOpen || !dim ? "1" : "0.92"),
+        edge3Style: "position:absolute;left:" + E3 + ";top:" + E3 + ";right:0;bottom:0;background:" + edge(2),
+        edge2Style: "position:absolute;left:" + E2 + ";top:" + E2 + ";right:" + E1 + ";bottom:" + E1 + ";background:" + edge(1),
+        edge1Style: "position:absolute;left:" + E1 + ";top:" + E1 + ";right:" + E2 + ";bottom:" + E2 + ";background:" + edge(0),
+        topStyle: "position:absolute;left:0;top:0;right:" + E3 + ";bottom:" + E3 + ";background:" + (isOpen ? "#101014" : "#1A1A1E") + ";color:" + (isOpen ? "#F0EDE8" : "#B5AFA8") + ";overflow:hidden;box-shadow:" + (isOpen ? "0 14px 30px rgba(28,25,23,0.30)" : "0 3px 10px rgba(28,25,23,0.16)"),
+        innerFrameStyle: "position:absolute;left:" + PAD + ";right:" + PAD + ";bottom:" + PAD +
+          ";top:" + (isOpen ? "calc(" + STRIP + " + " + PAD + ")" : PAD) + ";border:1px solid rgba(240,237,232,0.18);pointer-events:none",
+        openStripStyle: "position:absolute;left:0;right:0;top:0;height:" + STRIP + ";display:flex;align-items:center;justify-content:center;background:" + p.accentInk + ";color:" + p.onAccent + ";font-family:'IBM Plex Mono',monospace;font-size:clamp(0.46rem,4.42cqi,0.55rem);font-weight:500;letter-spacing:0.2em;text-transform:uppercase",
+        sigilStyle: "width:" + cq(52, 86) + ";height:" + cq(52, 86) + ";" +
+          (isOpen ? "color:" + p.accentDark : "color:#9A948D;opacity:0.5"),
+        cornerStyle: "position:absolute;left:" + PAD + ";width:" + cq(16, 22) + ";height:" + cq(16, 22) + ";pointer-events:none;" +
+          (isOpen
+            ? "top:calc(" + STRIP + " + " + PAD + ");border-top:3px solid " + p.accentDark + ";border-left:3px solid " + p.accentDark
+            : "top:" + PAD + ";border-top:1px solid rgba(240,237,232,0.28);border-left:1px solid rgba(240,237,232,0.28)"),
+        diagonalStyle: "position:absolute;top:-30%;left:66%;width:1px;height:160%;background:rgba(240,237,232,0.13);transform:rotate(18deg);pointer-events:none",
+        pointerStyle: "position:absolute;left:50%;bottom:calc(-1 * " + E3 + ");transform:translateX(-50%);width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;border-top:13px solid " + p.accentInk + ";transition:opacity 200ms ease;opacity:" + (isOpen ? "1" : "0"),
+        barStyle: isOpen
+          ? "position:absolute;left:0;right:0;bottom:0;height:" + cq(5, 6) + ";background:" + p.accentInk
+          : "position:absolute;left:0;right:0;bottom:0;height:1px;background:rgba(240,237,232,0.28)"
+      };
+    });
+
+    let open = null;
+    if (openKey) {
+      const p = PACKS[openKey];
+      const units = this.unitsIn(openKey);
+      const allFlipped = units.length > 0 && units.every(u => this.state.flipped[u.id]);
+
+      const sections = SECTIONS.map(sec => {
+        const list = units.filter(u => u.kind === sec.kind);
+        const groupH = list.length ? Math.max.apply(null, list.map(u => this.estimateCardHeight(u))) : 560;
+        return {
+          label: sec.label,
+          gloss: sec.gloss,
+          count: list.length + " of " + units.length,
+          cards: list.map((u, i) => this.card(u, i, list.length, p, openKey, artMode, valueSplit, hostClass, groupH)),
+        rowRef: el => { this.rowRefs = this.rowRefs || {}; this.rowRefs[openKey + "-" + sec.kind] = el; },
+        onPrev: () => this.scrollSection(openKey + "-" + sec.kind, -1),
+        onNext: () => this.scrollSection(openKey + "-" + sec.kind, 1)
+        };
+      }).filter(s => s.cards.length > 0);
+
+      open = {
+        panelId: "stack-panel-" + openKey,
+        label: p.label,
+        blurb: p.blurb,
+        note: p.note,
+        countLabel: units.length + " cards",
+        ruleStyle: "width:44px;height:2px;background:" + p.accentInk + ";margin:20px 0 22px",
+        sections: sections,
+        flipAllLabel: allFlipped ? "Show faces" : "Show all backs",
+        onFlipAll: () => {
+          const next = {};
+          units.forEach(u => { next[u.id] = !allFlipped; });
+          this.setState(s => ({ flipped: Object.assign({}, s.flipped, next) }));
+        },
+        onClose: () => this.toggle(openKey)
+      };
+    }
+
+    const total = order.reduce((n, k) => n + this.unitsIn(k).length, 0);
+
+    return {
+      // auto-fit fills the row rather than leaving a ragged tail; the cap keeps a
+      // four-stack row from stretching to 300px tiles on a wide page.
+      rowStyle: "display:grid;grid-template-columns:repeat(auto-fit,minmax(min(176px,45%),1fr));gap:34px 26px;margin-bottom:12px;max-width:" +
+        (order.length * 224 + (order.length - 1) * 26) + "px",
+      stacks: stacks,
+      open: open,
+      allClosed: !openKey,
+      rosterLine: order.length + " stacks · " + total + " cards"
+    };
+  }
+
+  // Estimated from how much a card's back has to say, at the card's own design
+  // width (400px). Called once per unit up front so a section can take the
+  // tallest estimate and give every card in that section the same height —
+  // spells match spells, references match references, never across the two.
+  estimateCardHeight(u) {
+    const spell = u.kind === "Spell";
+    const textLen = (u.does || "").length + (u.watch || "").length + (u.modes || "").length +
+      (spell ? (u.cast || "") : (u.triggers || "")).length +
+      (u.needs || "").length + (u.leaves || "").length + (u.holds || "").length;
+    return Math.round(Math.min(640, Math.max(480, 440 + textLen * 0.5)));
+  }
+
+  scrollSection(key, dir) {
+    const el = this.rowRefs && this.rowRefs[key];
+    if (!el) return;
+    const item = el.querySelector(".card-item");
+    const step = (item ? item.getBoundingClientRect().width : 320) + 20;
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  }
+
+  card(u, i, sectionTotal, p, packKey, artMode, valueSplit, hostClass, cardH) {
+    const spell = u.kind === "Spell";
+    const flipped = !!this.state.flipped[u.id];
+    // Value calibration carries kind: spells sit on the deepest plane, references
+    // one step up. Group identity moves to the accent and the sigil.
+    const faceBg = valueSplit ? (spell ? "#101014" : "#252530") : "#1A1A1E";
+    const faceInk = "#F0EDE8";
+
+    const stats = [];
+    if (spell) stats.push({ label: "Cast", value: u.cast, span: true });
+    else stats.push({ label: "Triggers", value: u.triggers, span: true });
+    if (u.needs) stats.push({ label: "Needs", value: u.needs });
+    if (u.leaves) stats.push({ label: "Leaves", value: u.leaves });
+    if (u.holds) stats.push({ label: "Holds", value: u.holds, span: true });
+
+    const idx = (i + 1 < 10 ? "0" : "") + (i + 1);
+    // ratioPct keeps the group's height as a cqi share of the 400px design width,
+    // so it still scales fluidly inside a narrower carousel card.
+    const ratioPct = (cardH / 400 * 100).toFixed(2);
+
+    return {
+      id: u.id,
+      title: u.title,
+      kind: u.kind,
+      stackLabel: p.label,
+      accent: p.accentInk,
+      accentDark: p.accentDark,
+      subtitle: p.label + " · " + u.kind + " " + (i + 1) + " of " + sectionTotal,
+      does: u.does,
+      modes: u.modes || "",
+      watch: u.watch || "",
+      footLabel: u.footLabel || "",
+      footValue: u.footValue || "",
+      indexLabel: idx,
+      caption: spell ? "Cast by name" : "Loads itself",
+      flipped: flipped,
+      notFlipped: !flipped,
+      ariaLabel: u.title + " — " + u.kind + " card. " + (flipped ? "Showing details, activate to show the face." : "Activate to turn the card and read its details."),
+      showSigil: artMode !== "placeholder",
+      showPlaceholder: artMode === "placeholder",
+      // A spell wears its own sigil in the pack's colour and moves; every reference,
+      // in every pack, wears the same static tome.
+      sigilHref: spell ? (SPELL_SIGILS[u.id] || p.sigil) : REF_SIGIL,
+      hostClass: spell ? hostClass : "motion-off",
+      frameColor: "rgba(240,237,232,0.20)",
+      frameColorFaint: "rgba(240,237,232,0.09)",
+
+      onFlip: () => this.flip(u.id),
+
+      buttonStyle: "appearance:none;background:none;border:0;border-radius:0;padding:0;margin:0;display:block;width:100%;text-align:left;cursor:pointer",
+      // Content sets the height, not a fixed box: more to say on the back means a
+      // taller card. (A grid-overlap technique was tried first so both faces could
+      // size the box directly, but backface-visibility does not reliably hide a
+      // rotated face inside a grid item across browsers — it showed through
+      // mirrored. Estimating height from content length keeps the reliable
+      // absolute-position flip and still gives each card its own height.)
+      perspectiveStyle: "perspective:1400px;height:clamp(" + (cardH - 70) + "px," + ratioPct + "cqi," + cardH + "px);position:relative;container-type:inline-size",
+      innerStyle: "position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 550ms cubic-bezier(.4,.0,.2,1);transform:rotateY(" + (flipped ? 180 : 0) + "deg)",
+      faceStyle: "position:absolute;inset:0;backface-visibility:hidden;background:" + faceBg + ";color:" + faceInk + ";overflow:hidden;box-shadow:0 2px 8px rgba(28,25,23,0.10)",
+      backStyle: "position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);background:#FFFCF9;border:1px solid #E0DAD4;border-top:3px solid " + p.accentInk + ";overflow:hidden;box-shadow:0 2px 8px rgba(28,25,23,0.10)",
+      diagonalStyle: "position:absolute;top:-30%;left:64%;width:1px;height:160%;background:rgba(240,237,232,0.13);transform:rotate(18deg);pointer-events:none",
+      watchStyle: "border-left:2px solid " + p.accentInk + ";padding:2px 0 2px 12px;margin:0 0 14px",
+      watchLabelStyle: "font-family:'IBM Plex Mono',monospace;font-size:0.58rem;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;color:" + p.accentInk + ";margin-bottom:3px",
+      sigilStyle: "width:clamp(96px,33cqi,132px);height:clamp(96px,33cqi,132px);" + (spell ? "color:" + p.accentDark : "opacity:0.78"),
+      placeholderStyle: "width:clamp(104px,37.5cqi,150px);height:clamp(104px,37.5cqi,150px);border:1px dashed rgba(240,237,232,0.32);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#F0EDE8",
+      faceTitleStyle: (spell
+        ? "font-family:'IBM Plex Mono',monospace;font-size:1.18rem;font-weight:500;letter-spacing:-0.005em;"
+        : "font-family:'Cormorant Garamond',Georgia,serif;font-size:1.72rem;font-weight:400;letter-spacing:-0.012em;") +
+        "line-height:1.18;text-align:center;overflow-wrap:break-word;color:" + faceInk,
+      faceBadgeStyle: "font-family:'IBM Plex Mono',monospace;font-size:0.58rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:4px 9px;" +
+        (spell
+          ? "background:#F0EDE8;color:#101014;border:1px solid #F0EDE8;"
+          : "background:transparent;color:" + p.accentDark + ";border:1px solid " + p.accentDark + ";"),
+      badgeStyle: "font-family:'IBM Plex Mono',monospace;font-size:0.58rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:4px 8px;color:" + (spell ? "#FFFCF9" : p.accentInk) + ";background:" + (spell ? "#1C1917" : "transparent") + ";border:1px solid " + (spell ? "#1C1917" : p.accentInk),
+      titleStyle: (spell
+        ? "font-family:'IBM Plex Mono',monospace;font-size:1.32rem;font-weight:500;letter-spacing:-0.01em;"
+        : "font-family:'Cormorant Garamond',Georgia,serif;font-size:1.75rem;font-weight:400;letter-spacing:-0.01em;") +
+        "line-height:1.15;color:#1C1917;margin-top:16px;overflow-wrap:break-word",
+      stats: stats.map(s => ({
+        label: s.label,
+        value: s.value,
+        cellStyle: "background:#FFFCF9;padding:9px 10px;" + (s.span ? "grid-column:1 / -1;" : "")
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>

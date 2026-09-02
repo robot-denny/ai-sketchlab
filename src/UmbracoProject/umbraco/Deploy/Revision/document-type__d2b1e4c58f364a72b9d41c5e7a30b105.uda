@@ -1,0 +1,70 @@
+{
+  "Name": "Spellbook",
+  "Alias": "spellbook",
+  "DefaultTemplate": "umb://template/a9f3c2d16b474e589c302d81e5b7a406",
+  "AllowedTemplates": [
+    "umb://template/a9f3c2d16b474e589c302d81e5b7a406"
+  ],
+  "HistoryCleanup": {},
+  "Icon": "icon-books color-blue",
+  "Thumbnail": "folder.png",
+  "Description": "The page that holds the Spell Card Deck. Its children are the deck\u0027s Spell Card Stacks.",
+  "Permissions": {
+    "AllowedChildContentTypes": [
+      "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b104"
+    ]
+  },
+  "Parent": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+  "CompositionContentTypes": [
+    "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+    "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+    "umb://document-type/b1c27e8c169242ad9701c87f12716ee7",
+    "umb://document-type/d03e1062f895426298275f35caa93a42",
+    "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
+    "umb://document-type/ef741d00fa224ab6b5ba1b450850a350"
+  ],
+  "PropertyGroups": [],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b105",
+  "Dependencies": [
+    {
+      "Udi": "umb://document-type-container/a2c7196096784b569828c1d8f8f7df40",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/7cebdc47a96549ecab42bc887d6b1119",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/9090575e290c458591a4b72ec30ff41f",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/b1c27e8c169242ad9701c87f12716ee7",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d03e1062f895426298275f35caa93a42",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b104",
+      "Mode": "Exist"
+    },
+    {
+      "Udi": "umb://document-type/d690c8cb262243b98cf9fdca7811ee4d",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/ef741d00fa224ab6b5ba1b450850a350",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://template/a9f3c2d16b474e589c302d81e5b7a406",
+      "Ordering": true,
+      "Mode": "Exist"
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

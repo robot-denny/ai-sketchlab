@@ -1,0 +1,37 @@
+{
+  "Name": "Spell Card Deck Settings",
+  "Alias": "spellCardDeckSettings",
+  "AllowedTemplates": [],
+  "HistoryCleanup": {},
+  "Icon": "icon-settings color-indigo",
+  "Thumbnail": "folder.png",
+  "Description": "Spacing and visibility settings for a Spell Card Deck block.",
+  "Permissions": {
+    "IsElementType": true,
+    "AllowedChildContentTypes": []
+  },
+  "Parent": "umb://document-type-container/a3274987179946d6885c551ba2986c90",
+  "CompositionContentTypes": [
+    "umb://document-type/02180d871eea45d993a61e38f2ee0165",
+    "umb://document-type/2e1a4fd4b695403386261a45b54e04cb"
+  ],
+  "PropertyGroups": [],
+  "PropertyTypes": [],
+  "Udi": "umb://document-type/d2b1e4c58f364a72b9d41c5e7a30b107",
+  "Dependencies": [
+    {
+      "Udi": "umb://document-type-container/a3274987179946d6885c551ba2986c90",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/02180d871eea45d993a61e38f2ee0165",
+      "Ordering": true
+    },
+    {
+      "Udi": "umb://document-type/2e1a4fd4b695403386261a45b54e04cb",
+      "Ordering": true
+    }
+  ],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.ContentType.DocumentTypeArtifact",
+  "__version": "17.2.1"
+}

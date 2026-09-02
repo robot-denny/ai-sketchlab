@@ -1,0 +1,17 @@
+{
+  "Name": "[Dropdown] Spell Card Footer Label",
+  "EditorAlias": "Umbraco.DropDown.Flexible",
+  "EditorUiAlias": "Umb.PropertyEditorUi.Dropdown",
+  "DatabaseType": "Nvarchar",
+  "Configuration": {
+    "multiple": false,
+    "items": [
+      "Then",
+      "Pairs with"
+    ]
+  },
+  "Udi": "umb://data-type/c1a5d3e04b214f8a9d317e2b6c0a1f02",
+  "Dependencies": [],
+  "__type": "Umbraco.Deploy.Infrastructure,Umbraco.Deploy.Infrastructure.Artifacts.DataTypeArtifact",
+  "__version": "17.2.1"
+}

@@ -1146,8 +1146,20 @@
   transition: border-color 150ms ease;
 }
 
-.spell-deck .spell-deck__nav:hover {
+.spell-deck .spell-deck__nav:hover:not(:disabled) {
   border-color: var(--accent-secondary);
+}
+
+/* A section holding one card has nowhere to scroll, so the script disables both
+   arrows. Without this they stay pixel-identical to a live control — full ink,
+   `cursor: pointer`, and the hover rule above still animating the border to the
+   accent, which is a stronger false affordance than mere sameness. Screen-reader
+   and keyboard users are already served (the control leaves the tab order and is
+   announced unavailable); this is the sighted mouse user's half of the same
+   signal. `:not(:disabled)` on the hover rule is what stops it firing. */
+.spell-deck .spell-deck__nav:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .spell-deck .spell-deck__chevron {

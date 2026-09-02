@@ -36,6 +36,37 @@
  *     `'smooth'` or `'auto'` in JavaScript, and the global CSS motion reset
  *     cannot reach it. The preference is watched, not sampled once, so a mid-
  *     session OS change is honoured — the same pattern as carousel.js.
+ *  7. The narrow-viewport carousel — below the stylesheet's one 700px
+ *     breakpoint a section's cards are a scroll-snap row, and the prev/next
+ *     arrows advance it by exactly one card. THE DISTANCE IS MEASURED, NOT
+ *     GUESSED: the rendered width of the row's first card plus the row's own
+ *     computed column gap, read at click time. The card is
+ *     `clamp(240px, 82vw, 360px)`, so any constant here would be correct at one
+ *     viewport and wrong at every other. `scrollBy` picks its behaviour from the
+ *     same watched preference as behaviour 6.
+ *
+ *     NOT A CAROUSEL LIBRARY. Neither of the repo's two carousels fits: Swiffy
+ *     Slider is scroll-snap based but dormant, and Bootstrap 5 Carousel is a
+ *     different interaction model — autoplay is wrong on a reading surface, it
+ *     would need destroying and re-initialising on every crossing of a
+ *     breakpoint the design crosses by changing `display` alone, and it manages
+ *     focus and `aria-hidden` on off-screen slides, which would fight the
+ *     per-face `aria-hidden` contract every card here already carries. Two
+ *     systems toggling `aria-hidden` on one subtree is a hazard, not a saving.
+ *     What is reused is carousel.js's CONVENTIONS — the live reduced-motion
+ *     listener, `aria-label` as the whole accessible name of an icon-only
+ *     button, its naming style — not the library.
+ *
+ *     TWO DIFFERENT "NOTHING HAPPENS" CASES, RESOLVED DIFFERENTLY:
+ *       * AT EITHER END of a row that CAN scroll, both arrows stay ENABLED. The
+ *         browser clamps `scrollLeft`, so the press is a harmless no-op, and
+ *         disabling on reaching an end would mean recomputing on every scroll
+ *         event for a signal the row already gives the visitor.
+ *       * A SECTION THAT CANNOT SCROLL AT ALL — one card, so there is no second
+ *         card to advance to — gets `disabled` on both arrows. A live control
+ *         that can never do anything is a different and worse thing than a
+ *         control momentarily at a limit. `umbraco-cloud` is the live case: one
+ *         spell and one reference, so both its sections hold exactly one card.
  *
  * FOUR RULINGS THE HASH NEEDED, BECAUSE IT CARRIES LESS THAN THE DECK HOLDS:
  *   * WHICH CARD IT NAMES. The one the visitor last turned FACE-UP. Turn a
@@ -76,11 +107,10 @@
  *     and their reduced-motion handling live in spell-cards.css and key off the
  *     attributes set here — `aria-pressed` on a card, `aria-expanded` on a stack.
  *     There is also no height measurement: `grid-auto-rows: 1fr` equalises the
- *     cards in CSS, and a JS fallback would fight it. `scrollIntoView` is the one
- *     exception, and it is a scroll, not a style.
- *
- * NOT HERE YET: the narrow-viewport carousel behind the prev/next arrows (Step 9
- * of _work/spell-cards/plan.md). Those controls are still inert.
+ *     cards in CSS, and a JS fallback would fight it. `scrollIntoView` and
+ *     `scrollBy` are the only exceptions, and they are scrolls, not styles. The
+ *     carousel adds no class and no transform either: which layout a card row is
+ *     in is the stylesheet's 700px media query alone, and this file never asks.
  */
 
 (function () {
@@ -98,6 +128,10 @@
    * anchors.
    */
   var HASH_PREFIX = 'deck';
+
+  /** One card and its caption — the unit the carousel advances by. */
+  var CARD_ITEM = '.spell-deck__card-item';
+
   var HASH_LEAD = /^#/;
   /** The alphabet the view's SafeKey emits — see safeSegment(). */
   var SAFE_SLUG = /^[a-z0-9-]+$/;
@@ -140,6 +174,73 @@
       block: block,
       inline: 'nearest'
     });
+  }
+
+  /**
+   * Advance one card row by exactly one card, forward (`dir` 1) or back (-1).
+   *
+   * The distance is MEASURED at click time, never written down: the rendered
+   * width of the row's first card plus the row's own computed column gap. The
+   * card is `clamp(240px, 82vw, 360px)` and the gap is a stylesheet value, so a
+   * constant here would be right at one viewport and wrong at every other, and
+   * would go stale the day either number changes in CSS.
+   *
+   * At either end the browser clamps `scrollLeft` and the press does nothing —
+   * deliberately, and it is why the arrows carry no disabled state at the ends.
+   */
+  function scrollSection(row, dir) {
+    if (!row || typeof row.scrollBy !== 'function') return;
+    var item = row.querySelector(CARD_ITEM);
+    if (!item) return;
+
+    var gap = parseFloat(window.getComputedStyle(row).columnGap);
+    if (isNaN(gap)) gap = 0; // `normal` on a non-grid, non-flex row.
+    var step = item.getBoundingClientRect().width + gap;
+    if (!step) return;
+
+    row.scrollBy({
+      left: dir * step,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth'
+    });
+  }
+
+  /**
+   * Enable or disable one section's arrows, from what the row can actually do.
+   *
+   * TRAVEL IS COUNTED IN CARDS, NOT PIXELS. A single card is `82vw` inside a
+   * container narrower than the viewport, so a one-card row overflows by a few
+   * dozen pixels and `scrollWidth > clientWidth` is TRUE for it — that test
+   * alone would leave both arrows live on a section with nowhere to go. What
+   * makes a row scrollable is a second card to reach.
+   *
+   * A CLOSED PANEL IS NOT MEASURABLE. `hidden` means `display: none`, so every
+   * dimension reads zero; measuring then would disable the arrows of every stack
+   * that merely happens to be shut. Bail instead and re-derive when it opens.
+   */
+  function canSectionScroll(section) {
+    var row = section.row;
+    if (!row.clientWidth) return null; // Closed panel: not measurable, leave alone.
+    return row.querySelectorAll(CARD_ITEM).length > 1 && row.scrollWidth - row.clientWidth > 1;
+  }
+
+  /**
+   * Sync every section's arrows in ONE pass: read all the geometry first, then
+   * write all the `disabled` flags. Reading and writing per section in turn
+   * makes the browser re-flush layout before each following read, and the whole
+   * point of doing this in a rAF is to pay for layout once.
+   */
+  function syncSections(sections) {
+    var states = [];
+    for (var i = 0; i < sections.length; i++) {
+      states.push(canSectionScroll(sections[i]));
+    }
+    for (var j = 0; j < sections.length; j++) {
+      if (states[j] === null) continue;
+      var disabled = !states[j];
+      sections[j].navs.forEach(function (btn) {
+        btn.disabled = disabled;
+      });
+    }
   }
 
   /**
@@ -242,6 +343,36 @@
     var panels = deck.querySelectorAll('.spell-deck__panel[data-stack]');
     if (!stackButtons.length || !panels.length) return;
 
+    /**
+     * Every card row in this deck with a pair of arrows, filled in as the panels
+     * are wired below. Held so a stack opening — or the window resizing — can
+     * re-derive which of those arrows can still do anything.
+     */
+    var sections = [];
+    var navSyncQueued = false;
+
+    /**
+     * Re-derive every measurable section's arrow state, ONE FRAME LATER.
+     *
+     * Deferred on purpose. Both callers do layout-affecting work in the same
+     * tick — opening a stack unhides a panel and then smooth-scrolls it into
+     * view; a resize is a storm of them — and reading `scrollWidth` alongside
+     * that would force a second synchronous layout pass on the very rows being
+     * animated. The frame also debounces the resize to one pass per paint.
+     */
+    function syncSectionNavs() {
+      if (!window.requestAnimationFrame) {
+        syncSections(sections);
+        return;
+      }
+      if (navSyncQueued) return;
+      navSyncQueued = true;
+      window.requestAnimationFrame(function () {
+        navSyncQueued = false;
+        syncSections(sections);
+      });
+    }
+
     /** Open exactly one stack, or pass null to close them all. */
     function showStack(slug) {
       stackButtons.forEach(function (btn) {
@@ -253,6 +384,8 @@
       panels.forEach(function (panel) {
         panel.hidden = panel.getAttribute('data-stack') !== slug;
       });
+      // The panel that just became visible is measurable for the first time.
+      syncSectionNavs();
     }
 
     function panelFor(slug) {
@@ -392,6 +525,26 @@
         });
       }
 
+      // ----------------------------------------------------------------
+      // The carousel arrows, one pair per section. Nothing here touches focus
+      // or `aria-hidden` on an off-screen card: each card already carries a
+      // per-face `aria-hidden` contract, and a second system writing that
+      // attribute on the same subtree is how those contracts get broken.
+      // ----------------------------------------------------------------
+      panel.querySelectorAll('.spell-deck__section').forEach(function (sectionEl) {
+        var row = sectionEl.querySelector('.spell-deck__card-row');
+        var navs = sectionEl.querySelectorAll('.spell-deck__nav[data-scroll]');
+        if (!row || !navs.length) return;
+
+        sections.push({ row: row, navs: navs });
+
+        navs.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            scrollSection(row, btn.getAttribute('data-scroll') === 'prev' ? -1 : 1);
+          });
+        });
+      });
+
       if (closeBtn) {
         closeBtn.addEventListener('click', function () {
           showStack(null);
@@ -403,6 +556,13 @@
         });
       }
     });
+
+    // The stack that is open on arrival is measurable now; the other three are
+    // not, and are re-derived when they open. A resize crosses the stylesheet's
+    // 700px breakpoint in both directions, which is exactly when a row stops or
+    // starts being able to scroll.
+    syncSectionNavs();
+    window.addEventListener('resize', syncSectionNavs);
 
     // ------------------------------------------------------------------
     // 3. The fragment: read on load, and again whenever it changes

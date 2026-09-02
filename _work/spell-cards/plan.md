@@ -901,17 +901,20 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 **What to build**:
 - `scrollSection(row, dir)` in `spell-cards.js`, plus the prev/next click handlers, resolved per
   section.
-- **Disable prev/next when the section cannot scroll.** The buttons render unconditionally per
-  section, so a section with one card gets two controls that do nothing. Set `disabled` (or
-  `aria-disabled`) from `scrollWidth` vs `clientWidth` so a no-op control is not offered as a live
-  one. This is the accessible reading of the spec's "both controls are no-ops rather than errors".
-
-**Carried into Step 7 from the Step 5 review — focus return on close.** The panel's **Close stack**
-button lives *inside* the region that gets re-hidden. If focus is on it (or on a card) when `hidden`
-is reapplied, the browser force-blurs to `<body>` with no announcement and a screen-reader user loses
-their place. The hook already exists: `data-stack` is on both the stack button and its panel, so the
-close handler must explicitly `.focus()` `button[data-stack="<slug>"]`. Same rule as the spec's
-"focus stays on the stack button", applied to the close path.
+- **Two different "nothing happens" cases, and they resolve differently.**
+  - **At either end of a row that CAN scroll** — both arrows stay **enabled**. The browser clamps
+    `scrollLeft`, so the press is a harmless no-op, and disabling on reaching an end means recomputing
+    on every scroll event for a signal the visitor gets from the row itself. This is the design's
+    "no disabled state at the ends".
+  - **A section with nowhere to go** gets `disabled` on both arrows. Offering a live control that can
+    never do anything is the case the Step 6 review flagged, and it is a different case from being at
+    an end. **`umbraco-cloud` is the live fixture**: it holds one spell and one reference, so both its
+    sections have exactly one card.
+    **Count travel in CARDS, not pixels.** `scrollWidth <= clientWidth` looks like the test and is
+    not: a single card is `clamp(240px, 82vw, 360px)` in a scrollport narrower than that, so at 390px
+    a one-card section measures `scrollWidth 330` against `clientWidth 307` and reads as scrollable
+    when it holds nothing to scroll to. Verified on the live page. The condition that holds is
+    `items.length > 1 && scrollWidth - clientWidth > 1`.
 
 **Test first**:
 - Write `tests/e2e/blocks/spellCardDeckNarrow.spec.ts`:

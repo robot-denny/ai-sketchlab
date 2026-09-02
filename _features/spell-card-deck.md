@@ -30,7 +30,28 @@ increment.
       the relationship so a stack holds an Element Picker of its cards and picker order is the order),
       and whether elements are indexed for site search (if not, "cards are searchable" must be
       re-decided — which also removes the only reason the redirect template exists). (no spec yet)
-- [ ] Per-section collapse for the largest stack on a phone, if the carousel proves insufficient
+- [x] ~~Per-section collapse for the largest stack on a phone, if the carousel proves insufficient~~
+      — **not needed; answered by looking, at 390×844, once the carousel shipped (Open Question 1 of
+      `_work/spell-cards/spec.md`).** Measured with Core open: the panel is **2205px, about 2.6 phone
+      screens**, and the whole page **4139px, about 4.9**. Sixteen cards stacked vertically would have
+      been roughly four times that; the carousel is what already collapsed them. Adding a per-section
+      collapse would put a second interaction in front of the content on a surface whose entire job is
+      browsing, to save vertical space that has already been saved. The two sections are also
+      self-limiting: Core's ten spells are ten presses, its six references six, and each card's caption
+      already numbers it (`01`, `02`, …) against the section count in the header, so a reader knows
+      where they are.
+- [ ] **The narrow-viewport card gets no peek, and is clipped by 15–23px** — found while answering the
+      question above, and it is a **stylesheet** matter, not a script one. `.spell-deck__card-item` is
+      `clamp(240px, 82vw, 360px)`, but the deck's content column at those widths is only about `79vw`
+      minus the row's 5px padding. Measured card width vs. visible row width: **320px → 262.4 in 239,
+      360px → 295.2 in 275, 390px → 319.8 in 302, 430px → 352.6 in 338**. So on every real phone the
+      current card overflows the scrollport by 15–23px and the next card sits 35–43px *beyond* the
+      right edge — a full-bleed slide, not the design's "next card peeks in". The intended peek only
+      appears from roughly 470px up, where the `360px` ceiling takes over (57px of peek at 540px, 200px
+      at 699px). The row's `mask-image` fade softens the clipped edge into a "there is more" cue, which
+      is why this reads as a design miss rather than a bug, but the card's right frame border is lost.
+      The fix is one number in `spell-cards.css` — a `vw` figure that leaves room for the 20px gap plus
+      a visible sliver — and it wants judging by eye against the design, so it is not a blind edit.
       (no spec yet)
 - [ ] Drift detection against Cantrip's published unit roster — deliberately deferred; a missing card
       is currently silent (no spec yet)
@@ -409,7 +430,29 @@ Scenario: Pressing next at the end of a row
   When they press next
   Then nothing moves
   And nothing breaks
+  And both controls are still offered
 ```
+
+```scenario
+Scenario: A section that holds a single card
+  Given a visitor on a phone opens the "umbraco-cloud" stack
+  And its spells section holds one card
+  When they look at that section's previous and next controls
+  Then neither can be activated
+  And neither can be reached by keyboard
+```
+
+Being at an end and having nowhere to go are not the same thing, and they are answered
+differently. A row that *can* scroll keeps both controls live at either end: the press is a
+harmless no-op, and the row itself already tells the visitor there is nothing further. A section
+holding one card can never advance, so offering a live control there would promise something that
+will never happen.
+
+**Known gap, in the stylesheet rather than the script.** `spell-cards.css` carries no `:disabled`
+rule for `.spell-deck__nav`, so an inert arrow renders identically to a live one — same border,
+same ink, same `cursor: pointer` — and is distinguishable only programmatically. Assistive tech and
+keyboard users are served correctly (the control is out of the tab order and announces as
+unavailable); a sighted mouse user sees a control that looks live. One rule fixes it.
 
 ### Rule: A small stack still reads as a stack
 

@@ -8,7 +8,7 @@ dotenv.config();
 
 // ---------------------------------------------------------------------------
 // Spell Card Deck — the narrow-viewport carousel (Step 9 of
-// _work/spell-cards/plan.md).
+// _work/shipped/spell-cards/plan.md).
 //
 // SCOPE. What a section's cards do on a phone: one horizontally scrollable,
 // snapped row instead of a long single column, driven by the prev/next arrows

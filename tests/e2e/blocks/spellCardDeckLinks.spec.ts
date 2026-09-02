@@ -8,7 +8,7 @@ dotenv.config();
 
 // ---------------------------------------------------------------------------
 // Spell Card Deck — deep links and scroll-into-view (Step 8 of
-// _work/spell-cards/plan.md).
+// _work/shipped/spell-cards/plan.md).
 //
 // SCOPE. What the URL says about the deck, what a pasted URL restores, and
 // whether the thing the link names ends up on screen. Single-open stacks,

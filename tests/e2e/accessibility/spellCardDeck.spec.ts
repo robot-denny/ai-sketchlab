@@ -15,7 +15,7 @@ dotenv.config();
 
 // ---------------------------------------------------------------------------
 // Spell Card Deck — the accessibility contract (Step 10 of
-// _work/spell-cards/plan.md).
+// _work/shipped/spell-cards/plan.md).
 //
 // The four earlier deck specs assert what the deck DOES. This one asserts what
 // somebody who cannot see it, or cannot use a mouse, or has asked the OS for

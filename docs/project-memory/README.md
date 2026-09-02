@@ -18,7 +18,7 @@ to give them git history and to travel with the repo for onboarding.
 
 - **The live store above remains authoritative.** Claude reads and writes
   memory there, not here. This mirror does **not** auto-update.
-- Snapshot taken: **2026-08-03**. It will drift as the live memory grows.
+- Snapshot taken: **2026-09-01**. It will drift as the live memory grows.
 - Do **not** hand-edit these files expecting Claude to see the change — edit
   memory through the normal flow; this folder only receives refreshes.
 

@@ -1,6 +1,6 @@
 # Plan: Spell Cards
 
-**Spec**: [_work/spell-cards/spec.md](spec.md)
+**Spec**: [_work/shipped/spell-cards/spec.md](spec.md)
 **Branch**: `claude/feature/spell-cards`
 **Work type**: new-capability
 **Feature doc**: `spell-card-deck`
@@ -368,7 +368,7 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 
 ### Step 1 — Spike: does `grid-auto-rows: 1fr` equalise an auto-height grid?
 
-> **Prompt**: Run Step 1 of `_work/spell-cards/plan.md`. This is a throwaway spike that settles the
+> **Prompt**: Run Step 1 of `_work/shipped/spell-cards/plan.md`. This is a throwaway spike that settles the
 > spec's Open Question 5 and gates Decision 4 — write no production code. Create a single
 > self-contained HTML file in the scratchpad directory that reproduces the spell-card section grid in
 > miniature: a `display: grid` container with `grid-template-columns: repeat(auto-fill, minmax(min(400px,
@@ -411,7 +411,7 @@ observation:
 
 ### Step 2 — Schema: document types, element types, data types, palette membership
 
-> **Prompt**: Implement Step 2 of `_work/spell-cards/plan.md`. Author the spell-card schema in the
+> **Prompt**: Implement Step 2 of `_work/shipped/spell-cards/plan.md`. Author the spell-card schema in the
 > Umbraco backoffice (or via the `umbraco-mcp` tools — the site must be serving on
 > `https://localhost:44367` first), then regenerate ModelsBuilder models and commit the `.uda` diff
 > alongside them. Create: a composition `spellCardFields`; two card document types `spellCardSpell` and
@@ -522,11 +522,11 @@ label in the house style, e.g.
 
 ### Step 3 — Content: the Spellbook page and its stacks and cards
 
-> **Prompt**: Implement Step 3 of `_work/spell-cards/plan.md`. Author the deck's content — read the
+> **Prompt**: Implement Step 3 of `_work/shipped/spell-cards/plan.md`. Author the deck's content — read the
 > plan's **The content tree** section first for the shape. The 30-unit roster with its real copy is the
-> `UNITS` array in `_work/spell-cards/assets/design-v5/Spell Cards.dc.html` (from roughly line 630) and
+> `UNITS` array in `_work/shipped/spell-cards/assets/design-v5/Spell Cards.dc.html` (from roughly line 630) and
 > the four stack blurbs are verbatim in
-> `_work/spell-cards/assets/design-v5/README-round-2.md` → *Stack copy (four stacks)*. Create a
+> `_work/shipped/spell-cards/assets/design-v5/README-round-2.md` → *Stack copy (four stacks)*. Create a
 > `spellbook` page named **Spellbook** under Home. Under it, four `spellCardStack` nodes — Core
 > (`stackPack: core`, monogram `C`), umbraco-17 (`umbraco-17`, `17`), umbraco-cloud (`umbraco-cloud`,
 > `UC`), dotnet (`dotnet`, `.N`). Under each stack, its `spellCardSpell` and `spellCardReference`
@@ -566,10 +566,10 @@ check is below.
 
 ### Step 4 — The sigil sprite partial
 
-> **Prompt**: Implement Step 4 of `_work/spell-cards/plan.md`. Create
+> **Prompt**: Implement Step 4 of `_work/shipped/spell-cards/plan.md`. Create
 > `src/UmbracoProject/Views/Partials/_SpellSigils.cshtml` holding the 20 `<symbol>` definitions lifted
 > **verbatim** from the `<defs>` sprite at the top of
-> `_work/spell-cards/assets/design-v5/Spell Cards.dc.html`: the 14 spell marks (`sig-explore`,
+> `_work/shipped/spell-cards/assets/design-v5/Spell Cards.dc.html`: the 14 spell marks (`sig-explore`,
 > `sig-spec`, `sig-plan`, `sig-implement-step`, `sig-feature`, `sig-code-review`,
 > `sig-commit-message`, `sig-retrofit`, `sig-setup`, `sig-update-toolkit`, `sig-block`, `sig-guide`,
 > `sig-umbraco-edit`, `sig-check-uda`), the shared `sig-tome`, the four pack marks (`sig-spellbook`,
@@ -601,7 +601,7 @@ is the throwaway harness below.
 
 ### Step 5 — The block view: stacks, panels, sections, card faces and reverses
 
-> **Prompt**: Implement Step 5 of `_work/spell-cards/plan.md`. Write the shared block view at
+> **Prompt**: Implement Step 5 of `_work/shipped/spell-cards/plan.md`. Write the shared block view at
 > `src/UmbracoProject/Views/Partials/blocks/Components/spellCardDeck.cshtml`, bound to
 > `IBlockReference<IPublishedElement, IPublishedElement>`, reading spacing via `ISpacingProperties` /
 > `SpacingHelper` and honouring `Settings.Hide` — copy the opening shape from
@@ -691,7 +691,7 @@ is the throwaway harness below.
 
 ### Step 6 — The deck stylesheet
 
-> **Prompt**: Implement Step 6 of `_work/spell-cards/plan.md`. Create
+> **Prompt**: Implement Step 6 of `_work/shipped/spell-cards/plan.md`. Create
 > `src/UmbracoProject/wwwroot/assets/css/spell-cards.css` and link it from `master.cshtml` after
 > `blocks.css`. Build the whole visual system from the design reference — read `README.md` §*The card*,
 > then rounds 2, 3, 4 and 5 in order, each superseding the last where they disagree. Honour the two
@@ -808,7 +808,7 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 
 ### Step 7 — Deck state: open/close, flip, flip-all
 
-> **Prompt**: Implement Step 7 of `_work/spell-cards/plan.md`. Create
+> **Prompt**: Implement Step 7 of `_work/shipped/spell-cards/plan.md`. Create
 > `src/UmbracoProject/wwwroot/assets/js/spell-cards.js` and link it from `master.cshtml` after
 > `carousel.js`. It opens with an early return when no `.spell-deck` is on the page. Implement three
 > behaviours and nothing else — URL state and the carousel are Steps 8 and 9. **Single-open stacks**:
@@ -848,7 +848,7 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 
 ### Step 8 — URL state and scroll-into-view
 
-> **Prompt**: Implement Step 8 of `_work/spell-cards/plan.md`, extending
+> **Prompt**: Implement Step 8 of `_work/shipped/spell-cards/plan.md`, extending
 > `src/UmbracoProject/wwwroot/assets/js/spell-cards.js`. Add hash-based deep linking using the
 > namespaced form `#deck/<stack-slug>` and `#deck/<stack-slug>/<card-slug>` — read the OQ4 entry in the
 > plan's Key Decisions for why the `deck/` prefix is load-bearing. Write the hash with
@@ -887,7 +887,7 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 
 ### Step 9 — Narrow viewport: the scroll-snap carousel and its arrows
 
-> **Prompt**: Implement Step 9 of `_work/spell-cards/plan.md`, extending
+> **Prompt**: Implement Step 9 of `_work/shipped/spell-cards/plan.md`, extending
 > `src/UmbracoProject/wwwroot/assets/js/spell-cards.js`. Wire the prev/next controls Step 5 already
 > emitted and Step 6 already styled. Scroll distance is **measured, not guessed**: read the rendered
 > width of the row's first `.spell-deck__card-item` at click time and `scrollBy` that plus the gap, so
@@ -940,7 +940,7 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 
 ### Step 10 — Keyboard, screen reader, reduced motion, and the visual baselines
 
-> **Prompt**: Implement Step 10 of `_work/spell-cards/plan.md`. This step closes the accessibility
+> **Prompt**: Implement Step 10 of `_work/shipped/spell-cards/plan.md`. This step closes the accessibility
 > contract and lays down the screenshot baselines. Write the two specs described below **first**,
 > confirm RED, then fix whatever they surface in the view, CSS or JS from Steps 5–9. Do **not**
 > generate screenshot baselines locally — this repo's baselines are Linux-only and are produced by the
@@ -1001,7 +1001,7 @@ Also: `master.cshtml` gains one `<link>` after `blocks.css`.
 finishes; dispatching a code worker to run a spell is the wrong mechanism.
 
 > **Prompt**: Run `/feature update spell-card-deck` to verify the living behavioural doc reflects the
-> actual implementation. Review each scenario in `_work/spell-cards/spec.md` → *Scenarios (Draft)*
+> actual implementation. Review each scenario in `_work/shipped/spell-cards/spec.md` → *Scenarios (Draft)*
 > against the code and the test results. Update any scenario where the implementation diverged from the
 > draft — in particular, check AC 18's wording against what Step 1's spike actually settled ("equal
 > within a section" vs. the per-row fallback), and record the one-deck-per-page hash constraint and the

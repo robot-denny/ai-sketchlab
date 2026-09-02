@@ -11,7 +11,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // ---------------------------------------------------------------------------
-// Spell Card Deck — deck state (Step 7 of _work/spell-cards/plan.md).
+// Spell Card Deck — deck state (Step 7 of _work/shipped/spell-cards/plan.md).
 //
 // SCOPE. Three behaviours, and nothing else: single-open stacks, per-card flip,
 // and the panel's "show all backs" toggle. The URL hash is Step 8 and the

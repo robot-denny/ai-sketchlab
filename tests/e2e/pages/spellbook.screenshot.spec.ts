@@ -8,7 +8,7 @@ import { freshToken } from '../_umbracoApi';
 dotenv.config();
 
 // ---------------------------------------------------------------------------
-// Screenshot: the Spellbook page (Step 10 of _work/spell-cards/plan.md).
+// Screenshot: the Spellbook page (Step 10 of _work/shipped/spell-cards/plan.md).
 //
 // THREE CAPTURES, ALL AT REAL CARD COUNTS. Sample-size content is precisely
 // what hid the scale problem in the deck's first design round — four cards look

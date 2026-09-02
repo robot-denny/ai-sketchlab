@@ -11,7 +11,7 @@
    the paper-edge greys, two quiet inks) and are deck-scoped deliberately — this
    component's palette, not the site's.
 
-   Reference: _work/spell-cards/assets/design-v5/, README then rounds 2-5, each
+   Reference: _work/shipped/spell-cards/assets/design-v5/, README then rounds 2-5, each
    superseding the last. Two deviations from it, settled in the spec and measured
    in the Step 1 spike — DO NOT TIDY EITHER BACK:
      * equal height is `grid-auto-rows: 1fr` with BOTH FACES IN ONE GRID CELL, not

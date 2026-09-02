@@ -14,7 +14,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // ---------------------------------------------------------------------------
-// Spell Card Deck — structural render (Step 5 of _work/spell-cards/plan.md).
+// Spell Card Deck — structural render (Step 5 of _work/shipped/spell-cards/plan.md).
 //
 // SCOPE. Step 5 ships the block VIEW only: no stylesheet, no JavaScript. So this
 // spec asserts what the server sends and nothing else — which stacks are listed,
@@ -31,7 +31,7 @@ dotenv.config();
 // EXPECTED VALUES ARE SOURCED INDEPENDENTLY of the view. Stack names, slugs and
 // per-section card counts come from the Management API tree; the sigil ids come
 // from the design reference's own sigil table
-// (_work/spell-cards/assets/design-v5/README-round-2.md → "Sigil assignment").
+// (_work/shipped/spell-cards/assets/design-v5/README-round-2.md → "Sigil assignment").
 // Nothing here re-implements the view's resolution to predict its own answer.
 // ---------------------------------------------------------------------------
 

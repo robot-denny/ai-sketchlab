@@ -1,16 +1,13 @@
 # Feature: Spell Card Deck
 
-> **Draft** — These scenarios have not yet been verified against an implementation. They will be
-> refined during planning and verified after implementation.
-
 A browsable deck on the site that answers "what can I do with Cantrip?" for someone new to the
 toolkit. Cards are grouped into four stacks — one per installable pack — and a visitor sees every
 stack at once, opens one, and flips its cards to read what each unit does, when to reach for it, and
 the one thing newcomers get wrong. It is a reading surface: no sign-in, nothing saved, nothing written
 back.
 
-**Source**: `_work/spell-cards/spec.md`
-**Last verified**: — (draft, not yet implemented)
+**Source**: `_work/shipped/spell-cards/spec.md` · plan `_work/shipped/spell-cards/plan.md`
+**Last verified**: 2026-09-01 — verified against the shipped implementation and 69 passing tests.
 
 ---
 
@@ -20,8 +17,9 @@ The per-feature mini-roadmap: shipped increments, planned increments, and parkin
 Newest planned items first. When an item ships, flip the checkbox and point it at the archived
 increment.
 
-- [ ] Spell card deck — stacks, cards, flip, linking, editor-controlled content, and the narrow-screen
-      carousel (`_work/spell-cards/spec.md`, plan at `_work/spell-cards/plan.md`)
+- [x] Spell card deck — stacks, cards, flip, linking, editor-controlled content, and the narrow-screen
+      carousel. Shipped 2026-09-01 across ten steps — spec, plan, discovery and the design reference
+      archived at `_work/shipped/spell-cards/`.
 - [ ] Migrate stacks and cards from content-tree nodes to **Umbraco 18 Elements** when the site moves
       to 18. Elements live in a Library rather than the content tree, are not routable and carry no
       template — which is what this data always wanted to be. Would delete the card redirect template,
@@ -32,7 +30,7 @@ increment.
       re-decided — which also removes the only reason the redirect template exists). (no spec yet)
 - [x] ~~Per-section collapse for the largest stack on a phone, if the carousel proves insufficient~~
       — **not needed; answered by looking, at 390×844, once the carousel shipped (Open Question 1 of
-      `_work/spell-cards/spec.md`).** Measured with Core open: the panel is **2205px, about 2.6 phone
+      `_work/shipped/spell-cards/spec.md`).** Measured with Core open: the panel is **2205px, about 2.6 phone
       screens**, and the whole page **4139px, about 4.9**. Sixteen cards stacked vertically would have
       been roughly four times that; the carousel is what already collapsed them. Adding a per-section
       collapse would put a second interaction in front of the content on a surface whose entire job is
@@ -222,6 +220,92 @@ Scenario: Adding the Optimizely pack
 > it silently publishes a dead sitemap URL per card. Despite its label, `umbracoNaviHide` does not
 > affect site search here, so ticking it leaves the cards searchable, which is intended. An automated
 > check asserts no stack or card URL appears in `/sitemap.xml`.
+
+### Rule: The URL says what the deck is showing
+
+```scenario
+Scenario: Opening a stack names it
+  Given a visitor is on the spellbook page
+  When they open the "umbraco-17" stack
+  Then the address bar names that stack
+```
+
+```scenario
+Scenario: The URL names the card most recently turned face-up
+  Given a visitor has turned the "/plan" card
+  When they then turn the "/spec" card
+  Then the address bar names "/spec"
+  And when they turn "/spec" back down, the address bar names the stack alone
+```
+
+```scenario
+Scenario: Turning the whole stack names no single card
+  Given the "dotnet" stack is open
+  When a visitor turns every card at once
+  Then the address bar names the stack, because no one card is meant
+```
+
+```scenario
+Scenario: Browsing the deck does not fill the back button
+  Given a visitor opens two stacks and turns six cards
+  When they press the browser's back button once
+  Then they leave the spellbook page
+  And they do not step back through each turn
+```
+
+```scenario
+Scenario: Going back past a deck link closes the deck
+  Given a visitor followed a link to the "/code-review" card
+  When they press back
+  Then the address bar no longer names anything
+  And the deck agrees with it: no stack is open
+```
+
+### Rule: A link a visitor did not mean is ignored, never fatal
+
+```scenario
+Scenario: A link carrying characters no card could have
+  Given a link's card name contains a quotation mark
+  When a visitor opens it
+  Then the deck renders normally with its default stack open
+  And nothing on the page reports an error
+```
+
+### Rule: The control a visitor just used stays where they can see it
+
+```scenario
+Scenario: Opening a stack lower down the row
+  Given a visitor is on a laptop screen
+  When they open a stack whose cards fill more than the screen
+  Then the stack they activated is still on screen
+  And their keyboard focus is still on it
+```
+
+```scenario
+Scenario: Pressing a carousel arrow twice
+  Given a visitor on a phone has pressed "next"
+  When they press "next" again from the keyboard
+  Then the row advances a second time
+  Because focus never left the arrow
+```
+
+### Rule: Cards and stacks stay out of the sitemap while staying findable in search
+
+```scenario
+Scenario: What the sitemap offers a search engine
+  Given the deck holds four stacks and thirty cards
+  When a search engine reads the site's sitemap
+  Then it finds the spellbook page
+  And it finds neither the stacks nor the cards
+```
+
+```scenario
+Scenario: Finding a card through site search
+  Given a visitor searches for a phrase written on the "/explore" card
+  When they look at the results
+  Then that card is among them
+  And following it takes them to the deck with that card turned
+```
 
 ### Rule: Stacks and cards are linkable
 
@@ -460,11 +544,11 @@ harmless no-op, and the row itself already tells the visitor there is nothing fu
 holding one card can never advance, so offering a live control there would promise something that
 will never happen.
 
-**Known gap, in the stylesheet rather than the script.** `spell-cards.css` carries no `:disabled`
-rule for `.spell-deck__nav`, so an inert arrow renders identically to a live one — same border,
-same ink, same `cursor: pointer` — and is distinguishable only programmatically. Assistive tech and
-keyboard users are served correctly (the control is out of the tab order and announces as
-unavailable); a sighted mouse user sees a control that looks live. One rule fixes it.
+An inert arrow also *looks* inert: it renders at reduced opacity with a default cursor, and it no
+longer responds to hover. That half matters as much as the programmatic half — assistive tech and
+keyboard users were always served correctly, because the control leaves the tab order and announces
+as unavailable, but a sighted mouse user would otherwise see a live-looking control that does
+nothing.
 
 ### Rule: A small stack still reads as a stack
 
@@ -494,50 +578,70 @@ Scenario: The toolkit gains a spell the deck does not know about
 
 ## Test Coverage
 
+**47 of 55 scenarios covered** by 69 tests across five behavioural specs plus the
+screenshot spec. The uncovered rows are deliberate, and each says why: content operations are
+content rather than behaviour, two rules are enforced by the schema or by the shape of the data
+rather than by anything a visitor can do, and one is an accepted limitation.
+
 | Scenario | Test File | Status |
 |----------|-----------|--------|
-| Arriving at the spellbook page | — | Not covered |
-| A stack is already open on arrival | — | Not covered |
-| Opening a second stack closes the first | — | Not covered |
-| Closing the open stack returns to the row | — | Not covered |
-| Telling the open stack from the closed ones | — | Not covered |
-| A stack holding both kinds | — | Not covered |
-| A stack holding only references | — | Not covered |
-| Telling a spell from a reference at a glance | — | Not covered |
-| Flipping one card | — | Not covered |
-| A flipped card is still flipped when the reader comes back | — | Not covered |
-| Showing every back in a stack | — | Not covered |
-| Correcting a card's wording | — | Not covered |
-| Reordering cards within a stack | — | Not covered |
-| Adding the Optimizely pack | — | Not covered |
-| Sharing a link to one card | — | Not covered |
-| Opening a stack and flipping a card by keyboard | — | Not covered |
-| A screen reader is offered only the facing side | — | Not covered |
-| Spells and references sized independently | — | Not covered |
-| An editor lengthens the longest card | — | Not covered |
-| Swiping through a stack on a phone | — | Not covered |
-| Advancing one card at a time | — | Not covered |
-| The controls go away on a wide screen | — | Not covered |
-| Opening a stack on a phone | — | Not covered |
-| Arriving on a shared link | — | Not covered |
-| The deck at 320px | — | Not covered |
-| Pressing next at the end of a row | — | Not covered |
-| A visitor who has asked for reduced motion | — | Not covered |
-| The deck can be placed on a page | — | Not covered |
-| Choosing a different mark for a spell | — | Not covered |
-| An editor cannot supply their own drawing | — | Not covered |
-| A reference card always wears the shared mark | — | Not covered |
-| Renaming a spell card | — | Not covered |
-| A card with nothing to watch for | — | Not covered |
-| An editor writes past the intended length | — | Not covered |
-| A link to a stack that no longer exists | — | Not covered |
-| A spell with no mark assigned | — | Not covered |
-| A stack with no art set | — | Not covered |
-| A stack holding only two cards | — | Not covered |
-| The toolkit gains a spell the deck does not know about | — | Not covered |
+| Arriving at the spellbook page | `tests/e2e/blocks/spellCardDeck.spec.ts:92` | Covered |
+| A stack is already open on arrival | `tests/e2e/blocks/spellCardDeckState.spec.ts:91` | Covered |
+| Opening a second stack closes the first | `tests/e2e/blocks/spellCardDeckState.spec.ts:103` | Covered |
+| Closing the open stack returns to the row | `tests/e2e/blocks/spellCardDeckState.spec.ts:124` | Covered |
+| Telling the open stack from the closed ones | `tests/e2e/pages/spellbook.screenshot.spec.ts:72`, `tests/e2e/pages/spellbook.screenshot.spec.ts:90` | Covered (visual — baselines pending CI) |
+| A stack holding both kinds | `tests/e2e/blocks/spellCardDeck.spec.ts:156` | Covered |
+| A stack holding only references | `tests/e2e/blocks/spellCardDeck.spec.ts:175` | Covered |
+| Telling a spell from a reference at a glance | `tests/e2e/blocks/spellCardDeck.spec.ts:224` | Covered |
+| Flipping one card | `tests/e2e/blocks/spellCardDeckState.spec.ts:185` | Covered |
+| A flipped card is still flipped when the reader comes back | `tests/e2e/blocks/spellCardDeckState.spec.ts:221` | Covered |
+| Showing every back in a stack | `tests/e2e/blocks/spellCardDeckState.spec.ts:246` | Covered |
+| The toggle reports the cards, not its own last press | `tests/e2e/blocks/spellCardDeckState.spec.ts:277` | Covered |
+| A bulk turn is announced | `tests/e2e/blocks/spellCardDeckState.spec.ts:320` | Covered |
+| Correcting a card's wording | — | Not covered — content, not behaviour |
+| Reordering cards within a stack | — | Not covered — content, not behaviour |
+| Adding the Optimizely pack | — | Not covered — content operation |
+| Opening a stack names it | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:122` | Covered |
+| The URL names the card most recently turned face-up | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:140`, `tests/e2e/blocks/spellCardDeckLinks.spec.ts:158` | Covered |
+| Turning the whole stack names no single card | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:178` | Covered |
+| Browsing the deck does not fill the back button | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:199` | Covered |
+| Going back past a deck link closes the deck | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:492` | Covered |
+| A link carrying characters no card could have | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:525` | Covered |
+| Opening a stack lower down the row | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:464`, `tests/e2e/blocks/spellCardDeckLinks.spec.ts:477` | Covered |
+| Pressing a carousel arrow twice | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:391` | Covered |
+| What the sitemap offers a search engine | `tests/e2e/blocks/spellCardDeck.spec.ts:448` | Covered |
+| Finding a card through site search | — | Not covered — verified by hand when the content shipped |
+| Sharing a link to one card | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:234`, `tests/e2e/blocks/spellCardDeckLinks.spec.ts:260` | Covered |
+| Opening a stack and flipping a card by keyboard | `tests/e2e/accessibility/spellCardDeck.spec.ts:177`, `tests/e2e/accessibility/spellCardDeck.spec.ts:219` | Covered |
+| A screen reader is offered only the facing side | `tests/e2e/accessibility/spellCardDeck.spec.ts:242` | Covered |
+| A card names itself, its kind and how to turn it | `tests/e2e/accessibility/spellCardDeck.spec.ts:268` | Covered |
+| Each carousel arrow names the section it scrolls | `tests/e2e/accessibility/spellCardDeck.spec.ts:309` | Covered |
+| Spells and references sized independently | `tests/e2e/blocks/spellCardDeck.spec.ts:358` | Covered |
+| An editor lengthens the longest card | `tests/e2e/blocks/spellCardDeck.spec.ts:402` | Covered |
+| Swiping through a stack on a phone | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:203` | Covered |
+| Advancing one card at a time | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:228` | Covered |
+| The controls go away on a wide screen | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:460` | Covered |
+| Scrolling the row changes nothing about the cards | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:417` | Covered |
+| Opening a stack on a phone | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:122` | Covered |
+| Arriving on a shared link | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:234` | Covered |
+| The deck at 320px | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:488`, `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:508` | Covered |
+| A visitor who has asked for reduced motion | `tests/e2e/accessibility/spellCardDeck.spec.ts:451`, `tests/e2e/accessibility/spellCardDeck.spec.ts:508` | Covered |
+| The deck can be placed on a page | `tests/UmbracoProject.Tests/BlockRenderCoverageTests.cs` | Covered — palette membership is a build gate |
+| Choosing a different mark for a spell | `tests/e2e/blocks/spellCardDeck.spec.ts:245` | Covered |
+| An editor cannot supply their own drawing | — | Not covered — enforced by the schema, not by behaviour |
+| A reference card always wears the shared mark | `tests/e2e/blocks/spellCardDeck.spec.ts:224` | Covered |
+| Renaming a spell card | — | Not covered — structural: the mark is a stored value, not a lookup |
+| A card with nothing to watch for | `tests/e2e/blocks/spellCardDeck.spec.ts:194` | Covered |
+| An editor writes past the intended length | `tests/e2e/blocks/spellCardDeck.spec.ts:402` | Covered |
+| A link to a stack that no longer exists | `tests/e2e/blocks/spellCardDeckLinks.spec.ts:275`, `tests/e2e/blocks/spellCardDeckLinks.spec.ts:293` | Covered |
+| A spell with no mark assigned | `tests/e2e/blocks/spellCardDeck.spec.ts:314` | Covered |
+| A stack with no art set | — | Not covered — no stack currently lacks a pack key |
+| Pressing next at the end of a row | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:274`, `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:302` | Covered |
+| A section that holds a single card | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:357` | Covered |
+| A stack holding only two cards | `tests/e2e/blocks/spellCardDeck.spec.ts:92` | Covered |
+| The toolkit gains a spell the deck does not know about | — | Not covered — accepted limitation, drift detection deferred |
 
 ---
-
 ## Revision Notes
 
 - 2026-08-31: Draft scenarios from initial spec
@@ -548,6 +652,17 @@ Scenario: The toolkit gains a spell the deck does not know about
 - 2026-09-01: Mark assignment moved from an implicit slug lookup to an explicit editor selection from
   the marks the site ships — closes the silent-rename failure, and keeps drawing instructions out of
   editor hands. References are excluded; the shared reference mark is the kind signal.
+- 2026-09-01: **Verified against the shipped implementation.** Draft banner removed; every scenario
+  checked against the code and against 69 passing tests, and the coverage table filled with real
+  paths and line numbers. Four Rules added for behaviour the draft never described but the build
+  settled: what the URL says and what Back does with it, that a malformed link degrades rather than
+  throwing, that the control a visitor just used stays on screen, and that stacks and cards stay out
+  of the sitemap while remaining findable in site search. Three things the build decided that the
+  draft could not: **equal height is measured across a whole section**, not per row — a spike
+  confirmed `grid-auto-rows: 1fr` resolves every row to the tallest real content; **the deck assumes
+  one deck per page**, since a second would share the URL fragment; and **Core's sixteen cards do not
+  want a per-section collapse** (see Increments). The note about carousel arrows being visually
+  indistinguishable when disabled is retired — they now render inert and stop responding to hover.
 - 2026-09-01: Reconciled against design rounds 4–5. Narrow screens are now in scope rather than
   deferred: the cards become a native scroll-snap carousel under 700px with measured prev/next
   controls. Card height is equal within a section, driven by real content rather than a character-count

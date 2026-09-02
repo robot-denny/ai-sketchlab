@@ -40,6 +40,11 @@ increment.
       self-limiting: Core's ten spells are ten presses, its six references six, and each card's caption
       already numbers it (`01`, `02`, …) against the section count in the header, so a reader knows
       where they are.
+      **And the carousel collapses without concealing.** That is the distinction that settles it: a
+      per-section collapse would make the references something a visitor has to *ask* for, when the
+      whole point of showing spells and references together is that a reader discovers the references
+      they did not know to look for. The carousel already accommodates the small screen — it just does
+      it by moving the cards sideways rather than by hiding them.
 - [ ] **The narrow-viewport card gets no peek, and is clipped by 15–23px** — found while answering the
       question above, and it is a **stylesheet** matter, not a script one. `.spell-deck__card-item` is
       `clamp(240px, 82vw, 360px)`, but the deck's content column at those widths is only about `79vw`
@@ -53,6 +58,13 @@ increment.
       The fix is one number in `spell-cards.css` — a `vw` figure that leaves room for the 20px gap plus
       a visible sliver — and it wants judging by eye against the design, so it is not a blind edit.
       (no spec yet)
+- [ ] **Test-suite tidying, deferred from the Step 10 review** — three Minor items, none of which
+      guard a live defect, all verified green at the time: a `stackByPack(stacks, pack)` helper in
+      `tests/e2e/_spellDeckFixture.ts` to replace the `stacks.find(s => s.pack === 'core')` idiom now
+      repeated about ten times across four specs; a light structural loop asserting every card's
+      accessible name carries its title, its kind and the turn affordance, where today one spell and
+      one reference are sampled; and keyboard activation for the flip-all toggle, which is the one
+      control in its spec exercised only by `.click()`. (no spec yet)
 - [ ] Drift detection against Cantrip's published unit roster — deliberately deferred; a missing card
       is currently silent (no spec yet)
 - [ ] A visual mark picker in the backoffice, replacing the plain selector — shows the drawing rather

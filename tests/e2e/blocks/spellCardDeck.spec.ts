@@ -427,3 +427,69 @@ test.describe('Spell Card Deck — equal height within a section', () => {
     expect(turnedHeights, 'the section stays one height while a card is turned').toHaveLength(1);
   });
 });
+
+// ==============================
+// Section 8 — the sitemap stops at the stacks (Step 10)
+//
+// This is a CONTENT-STATE regression guard, not a schema one, and that is why it
+// earns a test. `IsVisible()` returns TRUE when `umbracoNaviHide` is absent, and
+// the two card document types deliberately do not compose Visibility Controls —
+// so nothing structural keeps thirty card URLs out of `/sitemap.xml`. What keeps
+// them out is the tick on the four stack nodes, which the sitemap partial then
+// never descends past. A fifth pack added later without that tick would silently
+// leak its cards; this assertion turns that silence into a failing test.
+//
+// The Spellbook page itself is asserted PRESENT in the same test. Without that
+// control, a sitemap that had broken altogether — empty, 500, renamed — would
+// satisfy "contains no card URL" perfectly.
+// ==============================
+
+test.describe('Spell Card Deck — the sitemap', () => {
+  test('lists the Spellbook page and neither its stacks nor its cards', async ({ page }) => {
+    const resp = await page.request.get('/sitemap.xml');
+    expect(resp.ok(), '/sitemap.xml should be served').toBeTruthy();
+    const xml = await resp.text();
+
+    // Every <loc> the sitemap actually emits, reduced to a path.
+    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => {
+      try {
+        return new URL(m[1]).pathname;
+      } catch {
+        return m[1];
+      }
+    });
+    expect(locs.length, 'the sitemap lists pages at all').toBeGreaterThan(1);
+
+    // Control: the one node in this subtree that MUST be listed.
+    expect(
+      locs.map((p) => p.replace(/\/$/, '')),
+      'the Spellbook page itself is in the sitemap'
+    ).toContain(new URL(spellbookUrl, 'https://localhost').pathname.replace(/\/$/, ''));
+
+    // The guard: no stack, and no card beneath one.
+    const hidden = await Promise.all(
+      stacks.flatMap((stack) => [
+        (async () => ({ label: `stack "${stack.name}"`, path: await tryGetDocumentPath(stack.id) }))(),
+        ...[...stack.spells, ...stack.references].map(async (card) => ({
+          label: `card "${card.name}" under "${stack.name}"`,
+          path: await tryGetDocumentPath(card.id),
+        })),
+      ])
+    );
+    // The floor is the real roster, derived from the fixture — not a token
+    // "more than nothing". A guard that would still pass having checked five of
+    // thirty-four URLs is not guarding the thing it claims to.
+    const expectedHidden = stacks.length + stacks.reduce((n, s) => n + s.spells.length + s.references.length, 0);
+    expect(
+      hidden.length,
+      `every stack and card is checked (${expectedHidden} nodes)`
+    ).toBe(expectedHidden);
+
+    const listed = new Set(locs.map((p) => p.replace(/\/$/, '')));
+    for (const node of hidden) {
+      if (!node.path) continue; // Unpublished: it could not be in the sitemap anyway.
+      const path = new URL(node.path, 'https://localhost').pathname.replace(/\/$/, '');
+      expect(listed.has(path), `${node.label} (${path}) must not be in the sitemap`).toBe(false);
+    }
+  });
+});

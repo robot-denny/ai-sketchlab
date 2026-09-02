@@ -158,6 +158,29 @@ export async function prepareForScreenshot(page: Page): Promise<void> {
 }
 
 /**
+ * Block until webfonts have actually applied.
+ *
+ * Any assertion that measures a box against its own content — clipping,
+ * equal-height, overflow — is measuring TEXT, so it is only meaningful once the
+ * real face is in play. Before `document.fonts.ready` resolves, the browser
+ * lays out with the fallback, and the fallback's metrics are platform-specific:
+ * macOS falls back to `-apple-system`, which is close enough to Source Sans 3
+ * that a box still fits, while a Linux CI runner falls back to DejaVu Sans and
+ * renders the same copy taller. That asymmetry is why an unwaited geometry
+ * assertion passes on a developer's machine and fails only on CI — it is not
+ * flake, and it is not a rendering defect: the same runner reports a correct,
+ * non-clipping box once the fonts have settled.
+ *
+ * `prepareForScreenshot` already does this as part of its wider settling work.
+ * Use this when you want only the font guarantee and none of the rest.
+ */
+export async function waitForWebfonts(page: Page): Promise<void> {
+  // Resolve to `undefined` rather than the FontFaceSet — the set is not
+  // serializable across the CDP boundary.
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+}
+
+/**
  * Default screenshot options. Override `mask`/`maxDiffPixelRatio` etc. via the
  * `overrides` argument; the returned object can be spread into `toHaveScreenshot`.
  */

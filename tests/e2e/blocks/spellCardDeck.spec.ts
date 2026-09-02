@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 import { test } from '@umbraco/playwright-testhelpers';
 import { randomUUID } from 'crypto';
 import { apiFetch, freshToken, TEST_FIXTURE_PREFIX, tryGetDocumentPath } from '../_umbracoApi';
+import { waitForWebfonts } from '../_helpers';
 import {
   readSpellDeck,
   slugOf,
@@ -367,6 +368,9 @@ test.describe('Spell Card Deck — equal height within a section', () => {
     // Wide enough to be in grid mode, not the <700px carousel.
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(spellbookUrl);
+    // Same reason as the 320px clipping test: the no-clip assertion below
+    // compares a box to its own text, so the real face must be in play.
+    await waitForWebfonts(page);
 
     const spells = await measureSection(page, core.slug, 'spells');
     const references = await measureSection(page, core.slug, 'references');

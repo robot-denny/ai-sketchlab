@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import { test } from '@umbraco/playwright-testhelpers';
 import { freshToken } from '../_umbracoApi';
+import { waitForWebfonts } from '../_helpers';
 import { readSpellDeck, type SpellStackFacts } from '../_spellDeckFixture';
 import dotenv from 'dotenv';
 
@@ -507,7 +508,19 @@ test.describe('Spell Card Deck — 320px', () => {
 
   test('a flipped card shows its whole reverse without clipping', async ({ page }) => {
     const core = stackByPack('core');
+    // The flip is a 3D rotateY, and MID-ROTATION the transformed face transiently
+    // extends the card's scrollable overflow — measured at 818 against a 778 box
+    // 100ms into the turn on a CI runner, settling back to 778 by 400ms. This is
+    // a LAYOUT assertion, so it must not be sampled during an animation at all.
+    // Reduced motion removes the transition outright (§13 sets `transition: none`
+    // on the inner), which makes the measurement deterministic instead of
+    // dependent on how fast the machine animates. The animated path is covered
+    // separately by the reduced-motion arrow test above.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(spellbookUrl);
+    // Measuring a box against its own TEXT also requires the real face, not the
+    // fallback — see waitForWebfonts.
+    await waitForWebfonts(page);
 
     const card = panel(page, core.slug).locator('button.spell-card').first();
     await card.click();

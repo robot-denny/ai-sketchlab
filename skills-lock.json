@@ -29,7 +29,7 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/feature/SKILL.md",
-      "computedHash": "89738ae4185a8654d2e5a42e5f6b0e72d91f35bde833c904cd900d670255f545"
+      "computedHash": "084af4cdba31513ffef9a81204c9651841f205f372071310fbe497f30b039dde"
     },
     "frontend-design": {
       "source": "anthropics/skills",
@@ -52,31 +52,31 @@
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/plan/SKILL.md",
-      "computedHash": "071446f23ff354a8a6152949de9074613584a350da84970e516f4c59d9f0819f"
+      "computedHash": "bd3b44b95b9eb374ac227767d6bf95e84bb1aab877bcaee54b8012e395438260"
     },
     "retrofit": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/retrofit/SKILL.md",
-      "computedHash": "2c7d6e886405a40998db759acf77bfdc2e18985fd2cc7e758b58bde734cd0587"
+      "computedHash": "55179d038bc262b71f425d1021cc3b0523ad4a6b539feccf3c7aa9437536e128"
     },
     "reviewer-discipline": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/reviewer-discipline/SKILL.md",
-      "computedHash": "b1c433904af71a75bb89d1b007779d15481fc439d877c0db1f50901950c8dadd"
+      "computedHash": "bd77c144ede137088edd544de048f79523a2a041d0de4908e5ce5dd25400efc0"
     },
     "spec": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/spellbook/spec/SKILL.md",
-      "computedHash": "c55d90fd7567cbb0a0c9a822d61a9f1fc506135bbaaf9536cfa0807b2a51a36d"
+      "computedHash": "b90ed2e290bbefe6c07cea0077e1b4514af1c3ee5c78cffc6efae333e5a3bf70"
     },
     "tdd-principles": {
       "source": "robot-denny/cantrip",
       "sourceType": "github",
       "skillPath": "skills/core/reference/tdd-principles/SKILL.md",
-      "computedHash": "9fb6e5d76648942b220973a34e61eaf47124f16f19faf572ba3ce5b2a352e5ce"
+      "computedHash": "079105b4c5e658827b006f1ad5e2f4d19e3260784ab356d6029ff4cea8b53ea2"
     },
     "umbraco-17-feature-backfill": {
       "source": "robot-denny/cantrip",

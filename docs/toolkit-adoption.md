@@ -109,9 +109,10 @@ A "failed to check for deleted skills" warning from the installer is known and b
 `1 project skill(s) cannot be updated automatically … frontend-design` — that entry predates
 `skillPath` tracking in the lockfile, so the updater skips it and leaves the local copy alone.
 
-### Two things the guard does not protect you from
+### Three things the guard does not protect you from
 
-Both were confirmed against the installer's source (CLI 1.5.23), and both bit on the 2026-08-31 update:
+The first two were confirmed against the installer's source (CLI 1.5.23) and both bit on the
+2026-08-31 update. The third was found on the 2026-09-08 update.
 
 1. **An update deletes files upstream removed.** Each skill directory is `rm -rf`'d and recopied
    (`cleanAndCreateDirectory` → `copyDirectory`), so it is not a merge. A reference file that upstream
@@ -120,10 +121,38 @@ Both were confirmed against the installer's source (CLI 1.5.23), and both bit on
 2. **A pack never arrives by update.** `update` only refreshes what `skills-lock.json` already pins —
    it never adds a skill. So when upstream *moves* content into a new pack, updating deletes your copy
    and does not bring the replacement.
+3. **A sidecar file whose `SKILL.md` did not change is never delivered.** The updater decides
+   per-skill by comparing `SKILL.md`; where that is already current the skill is skipped **and so is
+   every sidecar in its directory** — `templates/`, `references/`, `agents/`, `scripts/`. Point 1's
+   wipe-and-recopy applies only to skills the updater chose to process, which is easy to read as a
+   guarantee it is not.
 
-Together those two are one failure mode: **content that migrated to a pack you don't have.** Check for
-it before updating, not after — `git diff --stat` will show the deletion, but by then the guidance is
+**The first two are one failure mode:** *content that migrated to a pack you don't have.* Check for it
+before updating, not after — `git diff --stat` will show the deletion, but by then the guidance is
 gone from the working tree. Install the successor **first**, then update, so the facts are never absent.
+
+**The third is worse than either, because it leaves no trace.** A deletion shows in `git diff`
+and a missing pack shows as absent, but here `git diff` is empty for the stale file, its lockfile hash
+is unchanged, and `check-install.sh` sees a whole skill directory. Nothing is wrong to look at.
+
+Confirmed on the 2026-09-08 update: upstream `d1cea2d` modified only
+`workflow/templates/feature.md` and left `workflow/SKILL.md` alone, so `workflow` was skipped as
+current. `/feature`, `/spec` and `tdd-principles` moved to the five-status coverage vocabulary while
+the template they generate from stayed at three — a feature doc written from it would have
+contradicted the spell that wrote it, and `Ruled out — <reason>` is exactly the status that exists to
+stop a deliberate decision reading as a gap.
+
+**The remedy is to diff sidecars against the source yourself**, since nothing else will. With a local
+clone of the toolkit:
+
+```bash
+diff -r .agents/skills/<name>/ /path/to/cantrip/skills/<pack>/<kind>/<name>/
+```
+
+Where one is stale, copy the upstream file in and **say so in the commit** — otherwise the next
+reviewer reads it as a local tailoring and the following update reverts it. Reported upstream; the
+suggested fix is to hash the skill directory rather than `SKILL.md`, though the CLI is third-party
+so naming the gap may be the whole remedy.
 
 ## Adoption history
 

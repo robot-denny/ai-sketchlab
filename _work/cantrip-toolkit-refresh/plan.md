@@ -8,9 +8,10 @@
 ## Context
 
 Bring the public spell card deck from Cantrip's 32-unit snapshot to its current 34-unit roster:
-two new Core reference cards, 46 field edits across 27 re-voiced cards, five cards left alone.
-The spec's **Measured Scope** section already settles the delta, the field mapping, and the fact
-that **no schema changes** — both new cards are references, and references carry no `cardMark`.
+two new Core reference cards, plus **57 field edits across 28 existing cards** once Cantrip's
+markdown markup is normalized away. The spec's **Measured Scope** section settles the delta, the
+field mapping, the markup policy, and the fact that **no schema changes** — both new cards are
+references, and references carry no `cardMark`.
 
 The unit of work here is not a vertical code slice. It is **a content migration with a throwaway
 tool**: build the tool, prove its report against numbers already measured, apply, verify the
@@ -40,10 +41,24 @@ The deck itself — views, CSS, schema, artwork — is not edited at any point.
   memory-discipline, design-system-authoring, `**`prose-discipline`**. So `security-review-rules`
   inserts at **position 5** and `prose-discipline` lands **last at position 8** — the first needs a
   sort after creation, the second does not.
-- **The tool's dry-run report is its own correctness check.** Run against local content it must
-  reproduce the spec's measured numbers exactly: **46 field edits across 27 cards, 2 cards
-  missing, 5 cards untouched**. A disagreement means either the mapping or the measurement is
-  wrong, and it is far cheaper to find there than after 46 writes.
+- **The report's gate was wrong, and Step 2 found out — as intended.** The gate asked for *46 field
+  edits across 27 cards*. That figure measures **Cantrip's delta between its own snapshots**, not the
+  distance from the site, and the site never held Cantrip `d74789a` verbatim. Step 2 proved the
+  classifier correct by feeding it `d74789a` as if it were live and reproducing the 46 exactly, then
+  reported the real distance: **111–112 differing fields across 32 cards**. Corrected numbers are in
+  the spec's *The actual write set* section; the gate below is restated.
+- **Markdown markup is normalized away on write (decided 2026-09-09).** Cantrip's backticks and
+  `**bold**` are markdown, not literal text, and `spellCardDeck.cshtml` HTML-encodes field values —
+  so carried verbatim they reach the visitor as glyphs. Normalizing keeps the write set at **57
+  fields across 28 cards** instead of 111, and it is what the original author already did by hand.
+  **The normalizer must sit in the comparison path as well as the write path**, or the report can
+  never return to zero and Step 3's gate becomes unreachable.
+  Rendering the markup properly — `<code>` and emphasis on the card — is a follow-up for the
+  capability doc's parking lot, because this increment does not touch the deck's views.
+- **Matching Cantrip beats leaving cards alone.** The spec's original AC4 asked that the six cards
+  Cantrip did not re-voice stay byte-for-byte untouched. Measurement showed the site diverges from
+  Cantrip on some of them anyway, so that requirement is withdrawn: the goal is a deck that matches
+  what Cantrip publishes, and any card is written if it differs.
 - **Baselines can only be regenerated after the content reaches Dev.** `update-snapshots.yml`
   runs Playwright against the Dev `URL` and commits the PNGs back to the branch. That inverts the
   intuitive order: content to Dev *first*, baselines second. Baselines are **Linux-only** —
@@ -118,8 +133,10 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 > the live card. Write `scripts/spell-card-sync/test/report.test.ts` FIRST, asserting the
 > diff-shaping function classifies a field as unchanged / changed / card-missing given fabricated
 > pairs — no network in the test. The mode must write nothing. With the site running on
-> `https://localhost:44367`, run it and confirm the summary reports **46 field edits across 27
-> cards, 2 cards missing, 5 cards untouched**.
+> `https://localhost:44367`, run it and report the summary. *(This prompt originally demanded
+> **46 field edits across 27 cards, 2 missing, 5 untouched**. That gate was wrong — 46 is Cantrip's
+> internal delta, not the distance from the site. The real figure is 112 across 32 cards; see Key
+> Decisions. Left here as the step ran.)*
 
 **What to build**:
 - `scripts/spell-card-sync/test/report.test.ts`
@@ -138,39 +155,49 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 **Validation**:
 - [Automated]: `npm run test:unit` passes
 - [Manual]: with the site running, `npm run spellcards:report -- --source /Users/dkardys/Sites/cantrip/docs/spell-cards.md`
-  prints **46 field edits across 27 cards, 2 missing, 5 untouched**. If the numbers disagree with
-  the spec's Measured Scope, **stop and reconcile before Step 3** — one of the two is wrong, and
-  finding out here costs nothing
+  prints its summary. **This gate originally demanded 46/27/2/5 and that was wrong** — see Key
+  Decisions. The run reported **112 field edits across 32 cards, 2 missing, 0 untouched**, which is
+  correct: 46 was Cantrip's internal delta, not the distance from the site. The step's real output was
+  the diagnosis — how much of the difference is markup versus copy — which is what settled the
+  markup policy
 - [Manual]: `git status` shows no content or schema files changed — this mode writes nothing
 
 ---
 
-### Step 3 — Apply the 46 field edits, one approval per card
+### Step 3 — Normalize the markup, then apply the 57 field edits with approval
 
 > **Prompt**: Implement Step 3 of `_work/cantrip-toolkit-refresh/plan.md`. Extend
 > `scripts/spell-card-sync/src/cli.ts` with an `apply` mode that renders each changed card's
 > unified diff and prompts `Apply this card? [y/N]` before PUTting it, following the approval flow
-> in `scripts/guide-generator/src/cli.ts`. It must never touch a card whose fields all match, and
-> must never create a card — creation is Step 4. Run it against local and apply all 27. Then
-> re-run `report` mode and confirm it now shows **0 field edits, 2 cards missing, 32 untouched**.
+> in `scripts/guide-generator/src/cli.ts`. **First add a markdown normalizer** and put it in both the
+> comparison and the write path, so Cantrip's `` `code` `` and `**bold**` never reach a stored value —
+> without it the report can never reach zero. It must never touch a card whose fields already match,
+> and must never create a card — creation is Step 4. Run it against local and apply the **57 fields
+> across 28 cards**; four existing cards should need no write. Then re-run `report` and confirm
+> **0 field edits, 2 cards missing**.
 
 **What to build**:
+- `scripts/spell-card-sync/src/normalize.ts` — strip markdown markup from a field value
+- `scripts/spell-card-sync/test/normalize.test.ts`
+- `scripts/spell-card-sync/src/diff.ts` — compare through the normalizer
 - `scripts/spell-card-sync/src/cli.ts` — add `apply` mode with per-card `[y/N]`
 - `package.json` — a `spellcards:apply` script entry
 
-**Test first**: no new unit test. The behavior under test is the API write path, which the
-guide-generator's proven flow already covers and which a unit test would only mock. **The RED→GREEN
-signal is the `report` re-run**: 46 edits before, 0 after, with the five untouched cards still
-untouched.
+**Test first**: the normalizer **is** testable pure logic, so it gets a real test before the write
+path. Assert it on hard-coded pairs — `` `code` `` → `code`, `**bold**` → `bold`, text with no markup
+unchanged — and confirm RED via `npm run test:unit` before implementing. The write path itself gets no
+unit test: a mock would only assert the mock. **Its RED→GREEN signal is the `report` re-run** — 57
+edits before, 0 after.
 
 **Validation**:
+- [Automated]: `npm run test:unit` — the normalizer's cases pass
 - [Automated]: `npm run spellcards:report -- --source …` after applying reports **0 field edits,
-  2 missing**
+  2 missing**. Reaching zero is the proof the normalizer matches what the site already stores
 - [Manual]: open the Spellbook page locally and read the `/retrofit` card's reverse — its watch-for
   should read *"run it before you commit, or before you push if you already committed."*
-- [Manual]: confirm the five unchanged cards (`workflow`, `tdd-principles`,
-  `umbraco-17-starter-facts`, `umbraco-17-review-rules`, `umbraco-deploy-facts`) were never
-  written — the report listed them untouched and no approval was given for them
+- [Manual]: grep the applied values for a stray backtick or `**`; there should be none
+- [Manual]: confirm the four cards that differ from Cantrip only by markup were never written — no
+  approval should have been offered for them
 - [Manual]: `git status` — discard any `umbraco-ai-context__*.uda` churn; this step changes no files
 
 ---

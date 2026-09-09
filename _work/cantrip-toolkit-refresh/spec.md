@@ -28,9 +28,10 @@ this increment's feature-doc update. Increments 3–7 (reconciling old and new s
 foundation, styleguide adoption, the `/guide` trial, and the regeneration) are **out of scope
 here** and will earn their own increment bundles.
 
-The work is smaller than discovery assumed, because measurement replaced two assumptions:
-**there is no schema change**, and **the field caps are a non-issue**. What remains is content,
-three screenshot baselines, and the feature doc.
+Measurement replaced three assumptions along the way: **there is no schema change**, **the field
+caps are a non-issue**, and — found while running the tool in Step 2 — **the site's copy had already
+diverged from Cantrip further than the snapshot delta suggested**, because its author stripped
+Cantrip's markdown by hand. What remains is content, three screenshot baselines, and the feature doc.
 
 ## Measured Scope
 
@@ -43,8 +44,15 @@ three screenshot baselines, and the feature doc.
 | | Count | Which |
 |---|---|---|
 | Added | 2 | `prose-discipline`, `security-review-rules` — **both `Reference`, both Core** |
-| Copy re-voiced | 27 | all 16 spells + 11 of 17 references, by Cantrip `65aec71` (the `prose-discipline` rewrite) |
-| Unchanged | 5 | `workflow`, `tdd-principles`, `umbraco-17-starter-facts`, `umbraco-17-review-rules`, `umbraco-deploy-facts` — all references |
+| Copy re-voiced | 26 | all 16 spells + 10 of 17 references, by Cantrip `65aec71` (the `prose-discipline` rewrite) |
+| Unchanged | 6 | `workflow`, `tdd-principles`, `design-system-authoring`, `umbraco-17-starter-facts`, `umbraco-17-review-rules`, `umbraco-deploy-facts` — all references |
+
+> **Corrected 2026-09-09.** This table first read 27 changed / 5 untouched. That was an artifact of the
+> measuring script, which captured every line after a card heading until the next one — so inserting
+> `prose-discipline` after `design-system-authoring` changed the latter's captured block without
+> changing any of its fields. Re-measured at field granularity: **26 / 6**, with
+> `design-system-authoring` untouched. The 46-field total below is unaffected, because it was always
+> measured per field.
 
 ### Per-stack counts, before and after
 
@@ -58,7 +66,11 @@ three screenshot baselines, and the feature doc.
 
 **Only the Core stack's count changes.** The other three keep their counts and change only copy.
 
-### The edit job: 46 fields, not ~290
+### Cantrip's own delta: 46 fields
+
+**This is not the write set.** It measures how far Cantrip moved between the snapshot the deck was
+built from and today, and it is the number to use when asking "what did the toolkit change about
+itself". What the *site* needs written is a different and larger number — see the next section.
 
 | Field | Edits |
 |---|---|
@@ -71,10 +83,48 @@ three screenshot baselines, and the feature doc.
 | `Triggers` | 2 |
 | `Modes` | 1 |
 | `Then` | 1 |
-| **Total** | **46** across 27 cards |
+| **Total** | **46** across 26 cards |
 
 Most cards need one or two fields. The heaviest are `/spec`, `/feature`, `/commit-message` and
-`/retrofit` at three each. Plus the two new cards, authored from scratch.
+`/retrofit` at three each.
+
+### The actual write set, measured against the site
+
+> Measured 2026-09-09 by running `spellcards:report` against local content, and independently
+> re-derived. **The 46 above was never a measure of the site**; the site never held Cantrip
+> `d74789a` verbatim.
+
+The deck's 32 cards differ from Cantrip's current copy in **111–112 fields**. That total splits:
+
+| | Count | What it is |
+|---|---|---|
+| Markup or whitespace only | 54 | Cantrip writes `` `code` `` and `**bold**`; the site stores the same words plain |
+| **Real copy differences** | **57**, across **28 cards** | genuine rewording — the actual write set |
+| Cards needing no write at all | 4 | they differ from Cantrip only by markup |
+| New cards to author | 2 | `prose-discipline`, `security-review-rules` |
+
+The 111-vs-112 discrepancy is one field, and is almost certainly the open question below about
+whether a property Cantrip omits should be cleared. `/plan` Step 3 settles it.
+
+**Why the site's copy diverged.** Whoever authored the original 32 cards stripped Cantrip's markdown
+and lightly reworded some fields. The stripping was **correct**: `spellCardDeck.cshtml` renders
+`@stat.Value`, `@card.Does` and `@card.Watch` HTML-encoded, so a backtick reaches the visitor as a
+literal glyph.
+
+### Markup policy — normalize, do not carry glyphs
+
+**Decided 2026-09-09.** Cantrip's backticks and asterisks are markdown, meant to render as code and
+emphasis. They must **not** reach the site as literal glyphs.
+
+So the applier **normalizes markdown markup out of Cantrip's values before writing**, which is what
+keeps the write set at 57 rather than 111. The normalizer's definition is empirical and testable:
+for each of the 54 markup-only fields, normalized-Cantrip must equal what the site already stores —
+which is exactly what makes the post-apply report able to reach zero.
+
+**Rendering the markup properly is a deliberate follow-up, not a loss.** Showing `code` and **bold**
+on a card would mean either rich-text fields or a view that converts backtick runs to `<code>` — and
+this increment does not touch the deck's views, CSS or schema. It belongs in the capability doc's
+parking lot.
 
 ### The caps are a non-issue — this is transcription, not adjudication
 
@@ -138,8 +188,11 @@ The three screenshot baselines **will** shift, because Core's count badge and pa
 - Two new **reference** cards exist under Core — `prose-discipline` and `security-review-rules` —
   each carrying every field Cantrip's published card defines for it, and each drawing the shared
   reference mark rather than one of its own.
-- The 27 re-voiced cards carry Cantrip's current wording across all 46 changed fields.
-- The 5 unchanged cards are **not** edited.
+- Every card carries Cantrip's current wording, with markdown markup normalized away — a write set
+  of **57 fields across 28 cards**. Four existing cards need no write, because they differ from
+  Cantrip only by markup.
+- **No card is deliberately left stale.** Matching Cantrip is the goal, so a card Cantrip did not
+  re-voice is still written if the site's copy diverges from it.
 - No document type, data type, template, sigil sprite or `.uda` artifact is modified.
 - Every card's copy renders inside its card, at desktop width and at 390px, without overflow or
   clipping beyond what the deck already does.
@@ -186,8 +239,9 @@ The three screenshot baselines **will** shift, because Core's count badge and pa
   showing 10, 2 and 3.
 - **AC2** — The Core stack holds two new reference cards, `prose-discipline` and
   `security-review-rules`, each with its full field set and the shared reference mark.
-- **AC3** — Every one of the 27 re-voiced cards matches Cantrip's published card field-by-field.
-- **AC4** — The 5 cards Cantrip did not change are byte-for-byte as they were.
+- **AC3** — Every card on the deck matches Cantrip's published card field-by-field, once Cantrip's
+  markdown markup is normalized away.
+- **AC4** — No card's stored value contains a markdown artifact: no backticks, no `**`.
 - **AC5** — The change touches no schema: no `.uda`, no sprite symbol, no `cardMark` key.
 - **AC6** — No card's copy overflows its card at desktop width or at 390px.
 - **AC7** — The behavioural deck specs pass with no edits, and the three screenshot baselines are
@@ -242,7 +296,7 @@ Scenario: A new reference draws the shared reference mark
   And no mark of its own was added to the deck's artwork
 ```
 
-### Rule: Every re-voiced card carries Cantrip's current wording (AC3, AC4)
+### Rule: Every card matches Cantrip, and carries no markdown artifact (AC3, AC4)
 
 ```scenario
 Scenario: A re-voiced spell reads as Cantrip publishes it
@@ -253,10 +307,19 @@ Scenario: A re-voiced spell reads as Cantrip publishes it
 ```
 
 ```scenario
-Scenario: A card Cantrip did not change is left alone
-  Given Cantrip did not change the "umbraco-deploy-facts" card
+Scenario: A card Cantrip did not re-voice is still brought into line
+  Given Cantrip did not change the "umbraco-deploy-facts" card between snapshots
+  And the site's copy for it diverges from what Cantrip publishes
   When the refresh is applied
-  Then the "umbraco-deploy-facts" card is not edited
+  Then the card matches what Cantrip publishes
+```
+
+```scenario
+Scenario: Markdown never reaches the card as a glyph
+  Given Cantrip writes a card's Cast field as "`/retrofit [what you changed]`"
+  When the refresh is applied
+  Then the stored value carries no backtick
+  And a visitor reads it as plain words
 ```
 
 ### Rule: The refresh is content only — no schema moves (AC5)

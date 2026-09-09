@@ -195,6 +195,34 @@ one of them.
 **Increment 7 is deliberately conditional.** It exists to be cancelled if increment 6 uncovers
 something blocking — which is the whole reason 6 is framed as an instrument.
 
+### Two reviewer findings for increment 3, observed while running increments 1–3
+
+Recorded here because increment 3 is where the reviewer switch happens, and both of these become
+actionable there rather than now.
+
+**1. Our tailored reviewer defines its own severity scale — the switch fixes it.**
+`.claude/agents/code-reviewer.md` never references `reviewer-discipline` and declares its own
+vocabulary (`🔵 LOW`, `Approve with fixes`). So across three reviews it reported `MEDIUM` and
+`HIGH/MEDIUM/LOW` rather than Blocker/Major/Minor/Nit — faithfully following the scale this project
+gave it. Cantrip's reviewer opens by deferring to `reviewer-discipline` for exactly this. **Not an
+upstream defect**, and one more thing the increment-3 switch buys beyond reaching
+`security-review-rules`.
+
+**2. A gap worth reporting upstream: severity rated on failure mode rather than reachability.**
+Three findings across increments 1 and 3 were filed Blocker or Major on the shape of the bug, and a
+one-command check against the real input corpus showed none could fire: a missing-`Group` guard (0
+of 34 cards lack it), paired bare asterisks corrupting a value (0 corpus values contain one — the
+reviewer's example was constructed), and nested bold+emphasis (0 of 259 `**` occurrences nested).
+Every one is a genuine bug; none degraded anything yet.
+
+`reviewer-discipline`'s over-reporting rule covers findings you *cannot confirm*. It says nothing
+about confirmed findings whose trigger the change's inputs cannot reach — and since the severity
+definitions are written in terms of impact ("degrades all users measurably"), a reviewer rating
+shape lands on the wrong row. **The sharper half of the observation:** the diff-only scope rule
+("treat the diff as the entire universe of code under review") can be read as *forbidding* the
+corpus check that would settle reachability, because reachability lives in the data rather than the
+diff. That tension is a design question for the toolkit, not a reviewer failing.
+
 ## Open questions for /spec
 
 - **Which of the 15 uninstalled units to install.** The objectives imply `testify`, `styleguide`,

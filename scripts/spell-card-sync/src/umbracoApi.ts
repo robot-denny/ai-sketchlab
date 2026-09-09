@@ -7,8 +7,10 @@
  * `tests/e2e/_spellDeckFixture.ts` does, so the tool and the specs agree on what
  * the deck *is* rather than each carrying its own idea of it.
  *
- * Every export here is a GET. The report mode is read-only by construction, not
- * by discipline — there is no write helper in this module to call by accident.
+ * The reads came first and stayed separate from the one write: `writeCardValues`
+ * is the *only* export that changes anything, so the report mode's read-only
+ * guarantee is still a property of what it calls rather than of how carefully it
+ * was written. Nothing above it in `report`'s call graph reaches this function.
  */
 
 import * as https from 'node:https';
@@ -122,6 +124,50 @@ function get(urlPath: string, token: string): Promise<HttpResponse> {
 async function getJson<T>(urlPath: string, token: string): Promise<T> {
   const res = await get(urlPath, token);
   return JSON.parse(res.body) as T;
+}
+
+/**
+ * PUT a JSON body. Used only by `writeCardValues` below — the deck's cards are
+ * existing nodes, so nothing here ever POSTs, and creating a card is deliberately
+ * out of this module's reach.
+ */
+function put(urlPath: string, token: string, body: unknown): Promise<HttpResponse> {
+  const { baseUrl } = loadEnv();
+  const payload = JSON.stringify(body);
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlPath, baseUrl);
+    const options: https.RequestOptions = {
+      method: 'PUT',
+      hostname: url.hostname,
+      port: url.port,
+      path: url.pathname + url.search,
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload),
+        Authorization: `Bearer ${token}`,
+      },
+      rejectUnauthorized: !isLocal(baseUrl),
+      timeout: REQUEST_TIMEOUT_MS,
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk: Buffer) => (data += chunk));
+      res.on('end', () => {
+        if ((res.statusCode ?? 0) >= 400) {
+          reject(new Error(`PUT ${urlPath} → ${res.statusCode}\n${data}`));
+        } else {
+          resolve({ status: res.statusCode ?? 0, body: data });
+        }
+      });
+    });
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy(new Error(`PUT ${urlPath} timed out after ${REQUEST_TIMEOUT_MS}ms`));
+    });
+    req.write(payload);
+    req.end();
+  });
 }
 
 // ── Auth ───────────────────────────────────────────────────────
@@ -381,4 +427,161 @@ export async function readDeckCards(token: string): Promise<LiveCard[]> {
   );
 
   return perStack.flat();
+}
+
+// ── The one write ──────────────────────────────────────────────
+
+/**
+ * The editor behind each card field, from the field-mapping table in
+ * `_work/cantrip-toolkit-refresh/spec.md`.
+ *
+ * This is consulted only for a field the card has never held a value for: such a
+ * field is absent from the document's `values` array entirely, so there is no
+ * stored entry to read the value's shape off. `cardFooterLabel` is the one
+ * dropdown, and a dropdown stores a single-element array rather than a string —
+ * writing a bare string there would store the wrong shape. The editor alias
+ * itself is never sent; it is response-only, and the write payload is built to
+ * the request schema.
+ */
+const FIELD_EDITORS: Readonly<Record<string, string>> = {
+  cardCast: 'Umbraco.TextBox',
+  cardNeeds: 'Umbraco.TextBox',
+  cardLeaves: 'Umbraco.TextBox',
+  cardTriggers: 'Umbraco.TextBox',
+  cardHolds: 'Umbraco.TextBox',
+  cardDoes: 'Umbraco.TextArea',
+  cardModes: 'Umbraco.TextArea',
+  cardWatchFor: 'Umbraco.TextBox',
+  cardFooterLabel: 'Umbraco.DropDown.Flexible',
+  cardFooterValue: 'Umbraco.TextBox',
+};
+
+const ARRAY_VALUED_EDITORS = new Set(['Umbraco.DropDown.Flexible']);
+
+interface DocumentValue {
+  editorAlias?: string;
+  culture: string | null;
+  segment: string | null;
+  alias: string;
+  value: unknown;
+}
+
+interface DocumentVariant {
+  culture: string | null;
+  segment: string | null;
+  name: string;
+  state?: string;
+}
+
+interface DocumentDetail {
+  template?: { id: string } | null;
+  values?: DocumentValue[];
+  variants?: DocumentVariant[];
+}
+
+/**
+ * Shape one field's new text the way the document already stores that field: a
+ * dropdown takes a single-element array, everything else a plain string. An
+ * empty new value clears the field, which for a dropdown means an empty array
+ * rather than an array holding an empty string.
+ */
+function shapeValue(text: string, existing: DocumentValue | undefined, alias: string): unknown {
+  const editorAlias = existing?.editorAlias ?? FIELD_EDITORS[alias];
+  const wantsArray = Array.isArray(existing?.value) || ARRAY_VALUED_EDITORS.has(editorAlias ?? '');
+  if (!wantsArray) return text;
+  return text === '' ? [] : [text];
+}
+
+/**
+ * Write the given alias → text changes onto one card, then re-publish it.
+ *
+ * The whole document is read back first and echoed into the PUT, because the
+ * Management API's update is a **replace**: a `values` array carrying only the
+ * changed fields would blank every field left out of it, `cardTitle` and
+ * `cardMark` included. Only the named aliases are altered; every other stored
+ * value, the template and the variant name pass through untouched.
+ *
+ * Publishing is conditional on the card already being published. A card sitting
+ * in draft is one an editor has deliberately not released, and pushing it live
+ * as a side effect of a copy sync would be a decision this tool has no business
+ * making — so the values are written and the draft stays a draft.
+ *
+ * **A publish failure is reported, not thrown.** The values PUT and the publish
+ * PUT are two requests, so the second can fail after the first has landed —
+ * leaving the card holding the new copy as a draft. That state is the one worth
+ * being loud about, because it is otherwise self-concealing: the tool compares
+ * against draft values, so a later run finds the card already matching, calls it
+ * unchanged, and never mentions that it is sitting unpublished. Throwing here
+ * would lose the fact that the values *did* land, so the caller is told instead.
+ */
+export interface CardWriteResult {
+  /** The card is published now. False for a draft, whether by choice or failure. */
+  published: boolean;
+  /**
+   * Set only when the values landed and the follow-up publish failed. The card
+   * now holds the new copy but is not live, and nothing else will notice.
+   */
+  publishError?: string;
+}
+
+export async function writeCardValues(
+  token: string,
+  cardId: string,
+  changes: Readonly<Record<string, string>>,
+): Promise<CardWriteResult> {
+  const doc = await getJson<DocumentDetail>(
+    `/umbraco/management/api/v1/document/${cardId}`,
+    token,
+  );
+
+  const values: DocumentValue[] = [...(doc.values ?? [])];
+  for (const [alias, text] of Object.entries(changes)) {
+    const index = values.findIndex((v) => v.alias === alias);
+    if (index >= 0) {
+      values[index] = { ...values[index], value: shapeValue(text, values[index], alias) };
+    } else {
+      values.push({
+        culture: null,
+        segment: null,
+        alias,
+        value: shapeValue(text, undefined, alias),
+      });
+    }
+  }
+
+  // Both bodies are built to the *request* schemas rather than echoed from the
+  // response, and the difference is not cosmetic. `DocumentValueModel` carries
+  // no `editorAlias` — that field belongs to the response only — and
+  // `CultureAndScheduleRequestModel` takes `schedule`, not `segment`. Both
+  // request models are declared `additionalProperties: false`, so sending the
+  // response's extra keys is at best ignored and at worst rejected.
+  await put(`/umbraco/management/api/v1/document/${cardId}`, token, {
+    template: doc.template ?? null,
+    values: values.map((v) => ({
+      culture: v.culture ?? null,
+      segment: v.segment ?? null,
+      alias: v.alias,
+      value: v.value,
+    })),
+    variants: (doc.variants ?? []).map((v) => ({
+      culture: v.culture ?? null,
+      segment: v.segment ?? null,
+      name: v.name,
+    })),
+  });
+
+  const wasPublished = (doc.variants ?? []).some((v) => v.state === 'Published');
+  if (!wasPublished) return { published: false };
+
+  try {
+    await put(`/umbraco/management/api/v1/document/${cardId}/publish`, token, {
+      publishSchedules: [{ culture: null, schedule: null }],
+    });
+    return { published: true };
+  } catch (error) {
+    return {
+      published: false,
+      publishError: error instanceof Error ? error.message : String(error),
+    };
+  }
 }

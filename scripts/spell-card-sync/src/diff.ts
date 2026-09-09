@@ -15,11 +15,18 @@
  * document carries no source for either — they are authored in the backoffice,
  * so a difference there is not drift, and reporting it would invite a write that
  * destroys editor intent.
+ *
+ * Both sides of every comparison go through `normalize`, so Cantrip's markdown
+ * markup is not mistaken for a copy difference. `FieldDiff.source` therefore
+ * carries the **normalized** value — the exact text a write would store — which
+ * makes the rendered diff a truthful preview of the write rather than a preview
+ * of the source file.
  */
 
 import { createPatch } from 'diff';
 import type { UnitType, UnitRecord } from './parse.js';
 import { toProperties } from './map.js';
+import { normalize } from './normalize.js';
 
 /** Aliases a unit of each kind can source from Cantrip, in mapping-table order. */
 const COMPARABLE_ALIASES: Record<UnitType, readonly string[]> = {
@@ -48,9 +55,12 @@ export type CardStatus = 'unchanged' | 'changed' | 'missing';
 
 export interface FieldDiff {
   alias: string;
-  /** What the site stores. Empty when the card leaves the field blank. */
+  /** What the site stores, verbatim. Empty when the card leaves the field blank. */
   live: string;
-  /** What Cantrip publishes. Empty when Cantrip's card omits the field. */
+  /**
+   * What a write would store: Cantrip's value with its markdown markup
+   * normalized away. Empty when Cantrip's card omits the field.
+   */
   source: string;
   /**
    * Which of the two things this difference is, because they are not equally
@@ -82,6 +92,10 @@ export interface CardDiff {
  * That second case is reported as a **clear** rather than an edit. Both are
  * differences, but only one of them ends with copy deleted, and a caller about
  * to write needs to see which is which.
+ *
+ * Markup is normalized off both sides before they are compared, so a field the
+ * site already stores in stripped form is unchanged rather than an edit that
+ * could never be satisfied.
  */
 export function diffCard(unit: UnitRecord, live: Record<string, string> | undefined): CardDiff {
   if (live === undefined) {
@@ -92,9 +106,9 @@ export function diffCard(unit: UnitRecord, live: Record<string, string> | undefi
   const changedFields: FieldDiff[] = [];
 
   for (const alias of COMPARABLE_ALIASES[unit.type]) {
-    const sourceValue = source[alias] ?? '';
+    const sourceValue = normalize(source[alias] ?? '');
     const liveValue = live[alias] ?? '';
-    if (sourceValue !== liveValue) {
+    if (sourceValue !== normalize(liveValue)) {
       changedFields.push({
         alias,
         live: liveValue,

@@ -33,7 +33,7 @@ increment.
       six opinions". **One card was deliberately not brought into line.** Cantrip publishes no
       *Watch for* on `dotnet-conventions` and never has, so the sentence there is this project's
       own writing rather than stale copy; because approval is per card, its two genuine edits were
-      declined with it. Spec, plan and discovery at `_work/cantrip-toolkit-refresh/`.
+      declined with it. Spec, plan and discovery at `_work/shipped/cantrip-toolkit-refresh/`.
 - [x] Roster refreshed to Cantrip's 32-unit snapshot (2026-09-02) — the toolkit had grown two
       spells since the deck shipped, and, as the parked drift-detection item below predicted,
       nothing noticed. Added the `/testify` card to **Core** (between `/retrofit` and `/setup`)

@@ -5,9 +5,9 @@ published card document. A developer-run CLI at [`scripts/spell-card-sync/`](../
 — read-only by default, one approval per card when it writes.
 
 **When you need it:** Cantrip has changed a spell card's copy, or gained a unit the deck does not
-carry. Built during the [`cantrip-toolkit-refresh`](../_work/cantrip-toolkit-refresh/) increment
-(which archives to `_work/shipped/` once it ships) and kept rather than thrown away, because it is
-the only repeatable way to check the deck field-by-field against the toolkit.
+carry. Built during the [`cantrip-toolkit-refresh`](../_work/shipped/cantrip-toolkit-refresh/)
+increment and kept rather than thrown away, because it is the only repeatable way to check the deck
+field-by-field against the toolkit.
 
 ---
 

@@ -7,8 +7,9 @@ the one thing newcomers get wrong. It is a reading surface: no sign-in, nothing 
 back.
 
 **Source**: `_work/shipped/spell-cards/spec.md` · plan `_work/shipped/spell-cards/plan.md`
-**Last verified**: 2026-09-02 — roster re-checked against Cantrip's published `docs/spell-cards.md`
-(32 units); card fields compared field-by-field against the rendered page.
+**Last verified**: 2026-09-09 — every card checked field-by-field against Cantrip's published
+`docs/spell-cards.md` at `9f8a85f` (34 units: 16 spells, 18 references), and confirmed on the
+rendered Live page. One deliberate difference remains, recorded in Increments below.
 
 ---
 
@@ -21,6 +22,18 @@ increment.
 - [x] Spell card deck — stacks, cards, flip, linking, editor-controlled content, and the narrow-screen
       carousel. Shipped 2026-09-01 across ten steps — spec, plan, discovery and the design reference
       archived at `_work/shipped/spell-cards/`.
+- [x] Roster brought to Cantrip's 34-unit state (2026-09-09) — two Core references were added and
+      most of the deck was re-voiced, after Cantrip rewrote its own card copy under a prose
+      discipline. `security-review-rules` and `prose-discipline` join **Core** at reference
+      positions 5 and 8, taking Core to **19 cards** and the deck to **34**; 31 of the 32 existing
+      cards were rewritten to Cantrip's current wording. Card copy is stored with Cantrip's
+      markdown stripped — the deck renders field values HTML-encoded, so a backtick would reach a
+      visitor as a literal glyph. Two fields that narrate the roster in prose were corrected with
+      it: the page's lede said "sixteen references" and Core's blurb said "seventeen skills, …
+      six opinions". **One card was deliberately not brought into line.** Cantrip publishes no
+      *Watch for* on `dotnet-conventions` and never has, so the sentence there is this project's
+      own writing rather than stale copy; because approval is per card, its two genuine edits were
+      declined with it. Spec, plan and discovery at `_work/cantrip-toolkit-refresh/`.
 - [x] Roster refreshed to Cantrip's 32-unit snapshot (2026-09-02) — the toolkit had grown two
       spells since the deck shipped, and, as the parked drift-detection item below predicted,
       nothing noticed. Added the `/testify` card to **Core** (between `/retrofit` and `/setup`)
@@ -42,7 +55,7 @@ increment.
       been roughly four times that; the carousel is what already collapsed them. Adding a per-section
       collapse would put a second interaction in front of the content on a surface whose entire job is
       browsing, to save vertical space that has already been saved. The two sections are also
-      self-limiting: Core's ten spells are ten presses, its six references six, and each card's caption
+      self-limiting: Core's eleven spells are eleven presses, its eight references eight, and each card's caption
       already numbers it (`01`, `02`, …) against the section count in the header, so a reader knows
       where they are.
       **And the carousel collapses without concealing.** That is the distinction that settles it: a
@@ -93,7 +106,7 @@ Scenario: Arriving at the spellbook page
   When a visitor opens the spellbook page on a desktop screen
   Then they see all four stacks without scrolling
   And each stack shows its name, its art and its card count
-  And the "Core" stack shows "17 cards"
+  And the "Core" stack shows "19 cards"
   And the "umbraco-cloud" stack shows "2 cards"
 ```
 
@@ -563,7 +576,7 @@ nothing.
 Scenario: A stack holding only two cards
   Given the "umbraco-cloud" stack holds 2 cards
   When a visitor views the deck
-  Then it shows the same depth as the sixteen-card stack
+  Then it shows the same depth as the nineteen-card stack
   And its count is stated as "2 cards"
 ```
 
@@ -578,8 +591,11 @@ Scenario: The toolkit gains a spell the deck does not know about
   And nothing reports the omission
 ```
 
-<!-- The last scenario documents an accepted limitation, not a desired behavior. Drift detection is
-     deliberately out of the first increment — see the Increments list above. -->
+<!-- The last row is `Ruled out`, and that status is doing work here: drift detection was declined
+     deliberately, twice — once when the deck shipped and again in the 2026-09-09 refresh, on the
+     grounds that Cantrip's core is complete so the risk decays. It is a gap the project chose, not
+     one nobody has reached, and folding it back into `Not covered` would quietly turn a decision
+     into a backlog item. See the Increments list above. -->
 
 ---
 
@@ -588,7 +604,8 @@ Scenario: The toolkit gains a spell the deck does not know about
 **47 of 55 scenarios covered** by 69 tests across five behavioural specs plus the
 screenshot spec. The uncovered rows are deliberate, and each says why: content operations are
 content rather than behaviour, two rules are enforced by the schema or by the shape of the data
-rather than by anything a visitor can do, and one is an accepted limitation.
+rather than by anything a visitor can do, and one is **ruled out** — a decision the project made
+rather than a gap nobody has reached. That distinction is what the status vocabulary exists for.
 
 | Scenario | Test File | Status |
 |----------|-----------|--------|
@@ -596,7 +613,7 @@ rather than by anything a visitor can do, and one is an accepted limitation.
 | A stack is already open on arrival | `tests/e2e/blocks/spellCardDeckState.spec.ts:91` | Covered |
 | Opening a second stack closes the first | `tests/e2e/blocks/spellCardDeckState.spec.ts:103` | Covered |
 | Closing the open stack returns to the row | `tests/e2e/blocks/spellCardDeckState.spec.ts:124` | Covered |
-| Telling the open stack from the closed ones | `tests/e2e/pages/spellbook.screenshot.spec.ts:72`, `tests/e2e/pages/spellbook.screenshot.spec.ts:90` | Covered (visual — baselines pending CI) |
+| Telling the open stack from the closed ones | `tests/e2e/pages/spellbook.screenshot.spec.ts:72`, `tests/e2e/pages/spellbook.screenshot.spec.ts:90` | Covered (visual — Linux baselines regenerated 2026-09-09; the comparison itself runs on the next master Gate 2) |
 | A stack holding both kinds | `tests/e2e/blocks/spellCardDeck.spec.ts:156` | Covered |
 | A stack holding only references | `tests/e2e/blocks/spellCardDeck.spec.ts:175` | Covered |
 | Telling a spell from a reference at a glance | `tests/e2e/blocks/spellCardDeck.spec.ts:224` | Covered |
@@ -646,11 +663,16 @@ rather than by anything a visitor can do, and one is an accepted limitation.
 | Pressing next at the end of a row | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:274`, `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:302` | Covered |
 | A section that holds a single card | `tests/e2e/blocks/spellCardDeckNarrow.spec.ts:357` | Covered |
 | A stack holding only two cards | `tests/e2e/blocks/spellCardDeck.spec.ts:92` | Covered |
-| The toolkit gains a spell the deck does not know about | — | Not covered — accepted limitation, drift detection deferred |
+| The toolkit gains a spell the deck does not know about | — | Ruled out — drift detection deliberately deferred |
 
 ---
 ## Revision Notes
 
+- 2026-09-09: Roster brought to Cantrip's 34-unit state — two Core references added, 31 cards
+  re-voiced, and the two prose blurbs that state the roster corrected. Card copy is now stored
+  markdown-stripped, since the deck HTML-encodes field values. The deferred-drift row moves from
+  `Not covered — accepted limitation` to `Ruled out — drift detection deliberately deferred`: the
+  status vocabulary gained a name for a gap the project chose, which is what that row always was.
 - 2026-08-31: Draft scenarios from initial spec
 - 2026-08-31: Reconciled against design v3 (four stacks, per-spell sigils, pack accent triples) and
   the spec-review decisions — flip state now persists across a stack round-trip, focus stays on the

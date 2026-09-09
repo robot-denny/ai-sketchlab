@@ -436,11 +436,13 @@ test-results/
 # committed -- see `_plans/arch-safety-net.md` Step 5 and `update-snapshots.yml`.
 tests/e2e/**/*-snapshots/*-darwin.png
 tests/e2e/**/*-snapshots/*-win32.png
-# Local utility scripts (except image generator, media sync, guide generator, and font fetch script which are version-controlled)
+# Local utility scripts (except image generator, media sync, guide generator,
+# spell card sync, and font fetch script which are version-controlled)
 scripts/*
 !scripts/image-generator/
 !scripts/media-sync/
 !scripts/guide-generator/
+!scripts/spell-card-sync/
 !scripts/fetch-canvas-fonts.sh
 
 # Generative skills outputs and large assets

@@ -222,17 +222,26 @@ edits before, 0 after.
 
 **What to build**:
 - Content node `security-review-rules` (`spellCardReference`, under Core) — `cardTriggers`,
-  `cardHolds`, `cardDoes`, `cardWatchFor`, `cardFooterLabel` = `Pairs with`, `cardFooterValue` =
-  `` `reviewer-discipline`, `/code-review` ``
-- Content node `prose-discipline` (`spellCardReference`, under Core) — same field set,
-  `cardFooterValue` = `` `/feature`, `/commit-message`, `/spec` ``
+  `cardHolds`, `cardDoes`, `cardWatchFor`, `cardFooterLabel` = `Pairs with`, `cardFooterValue`
+- Content node `prose-discipline` (`spellCardReference`, under Core) — the same field set
 - A sort of Core's reference children placing `security-review-rules` fifth
+
+**Store normalized values, not Cantrip's raw markdown.** Every other card on the deck now holds
+markup-stripped copy, and AC4 says no stored value may carry a backtick or `**`. So
+`cardFooterValue` is `reviewer-discipline, /code-review` — **not** `` `reviewer-discipline`,
+`/code-review` ``. Deriving the values through the tool's own `parseUnits` → `toProperties` →
+`normalize` is the way to be sure these two match the convention the other 31 follow, and the
+report is what proves it: a card created with raw markdown shows up as *changed* rather than
+matching.
 
 **Test first**: no unit test — this is content creation. The check is the deck itself, below.
 
 **Validation**:
-- [Automated]: `npm run spellcards:report -- --source …` reports **0 field edits and 0 missing
-  cards** — the whole roster now matches Cantrip
+- [Automated]: `npm run spellcards:report -- --source …` reports **0 missing cards**, and the two
+  new cards are absent from the changed list. **The floor for field edits is 2, not 0** — those are
+  `dotnet-conventions`' two edits, bundled with the clear that was deliberately declined in Step 3
+  (approval is per card, so declining the clear declines its edits too). Anything above 2, or either
+  new card appearing as changed, means the values were stored wrong
 - [Manual]: open the Spellbook page locally, open Core, and confirm it reads **19 cards**, that
   the References section lists eight in exactly the order above, and that both new cards draw the
   same mark as every other reference
@@ -261,6 +270,43 @@ changes** — that is the behaviour being verified.
   is green, including `SpellSigilRosterTests` — proving no mark was added
 - [Manual]: view the deck at 390px and read the longest `Does` and `Watch for`. Nothing in the CMS
   enforces the field caps, so looking is the only real check
+
+---
+
+### Step 5b — Correct the two blurbs that narrate the roster in prose
+
+Found while capturing Step 5's evidence, and folded in rather than parked: **the deck describes its
+own size in two editor-written fields**, and adding two Core references made both wrong. Neither was
+in the spec's Measured Scope, which enumerated *card* fields only — a scoping miss, not missed work.
+
+They must land **before** Step 6, or the stale counts transfer to Dev and then to Live.
+
+**What to change** — content only, two fields:
+
+| Node | Property | Now | Correct |
+|---|---|---|---|
+| Spellbook → `contentRows` deck block | `deckLede` | "… Sixteen spells you cast by name, **sixteen references** the model reaches for on its own." | **eighteen references** (16 spells + 18 references = 34) |
+| Core stack | `stackBlurb` | "**Seventeen skills**, installed with the toolkit. Eleven spells …, **six opinions** the toolkit holds …" | **Nineteen skills** … eleven spells (unchanged) …, **eight opinions** |
+
+Numerals are spelled out in both fields; keep that. Change only the counts — the prose is the
+deck's own voice and is not being rewritten.
+
+**Not in scope:** the other three stack blurbs, which Step 5 verified still accurate — umbraco-17
+"Six references and four spells", dotnet "Three references, no spells", umbraco-cloud carries no
+counts.
+
+**Note on mechanism.** `stackBlurb` is a plain top-level property. `deckLede` is nested inside the
+Spellbook's `contentRows` Block List, so writing it means round-tripping that whole property with
+one string replaced — prove the round-trip changes nothing else before writing it, or edit it in the
+backoffice where the block editor handles the shape.
+
+**Validation**:
+- [Automated]: read both values back and confirm the new counts
+- [Automated]: for `deckLede`, diff the `contentRows` object before and after — exactly one string
+  may differ, and the layout, block keys and the About-Cantrip rich text must be untouched
+- [Manual→evidence]: the rendered Spellbook page shows the corrected lede and Core blurb
+- [Automated]: the four deck specs still pass unedited — these are content fields, so they must not
+  move behaviour
 
 ---
 

@@ -221,6 +221,7 @@ Operational runbooks live under [docs/](docs/):
 **Content, schema & media**
 - [docs/schema-management.md](docs/schema-management.md) — `.uda` drift, `/check-uda`, importing pending schema.
 - [docs/content-transfer-workflow.md](docs/content-transfer-workflow.md) — the local → Dev → Live content-transfer runbook.
+- [docs/spell-card-sync.md](docs/spell-card-sync.md) — keeping the public spell card deck in step with Cantrip's published cards.
 - [docs/media.md](docs/media.md) — media-binary flow and `media:sync`.
 - [docs/umbraco-edit.md](docs/umbraco-edit.md) — editing content via the Management API from outside the backoffice.
 

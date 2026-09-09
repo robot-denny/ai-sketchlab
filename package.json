@@ -10,6 +10,7 @@
     "test:unit": "tsx --test tests/image-generator/**/*.test.ts scripts/guide-generator/test/**/*.test.ts scripts/spell-card-sync/test/**/*.test.ts",
     "generate:images": "tsx scripts/image-generator/src/cli.ts",
     "media:sync": "tsx scripts/media-sync/src/cli.ts",
+    "spellcards:report": "tsx scripts/spell-card-sync/src/cli.ts report",
     "clean:reports": "rm -rf playwright-report test-results",
     "check:lockout": "sqlite3 -header src/UmbracoProject/umbraco/Data/Umbraco.sqlite.db 'SELECT id, userName, userNoConsole, failedLoginAttempts, lastLockoutDate FROM umbracoUser WHERE id IN (1, 2, 3);'"
   },

@@ -99,12 +99,20 @@ The deck's 32 cards differ from Cantrip's current copy in **111–112 fields**. 
 | | Count | What it is |
 |---|---|---|
 | Markup or whitespace only | 54 | Cantrip writes `` `code` `` and `**bold**`; the site stores the same words plain |
-| **Real copy differences** | **57**, across **28 cards** | genuine rewording — the actual write set |
+| **Real copy differences** | **56**, across **28 cards** | genuine rewording — the actual write set |
 | Cards needing no write at all | 4 | they differ from Cantrip only by markup |
 | New cards to author | 2 | `prose-discipline`, `security-review-rules` |
 
-The 111-vs-112 discrepancy is one field, and is almost certainly the open question below about
-whether a property Cantrip omits should be cleared. `/plan` Step 3 settles it.
+The 111-vs-112 discrepancy is one field: the tool counts a property Cantrip *omits* while the card
+holds text as a difference, and reports it as a **clear** rather than an edit. Settled below.
+
+> **Corrected 2026-09-09, during Step 3.** The write set read **57** until the normalizer was built.
+> The extra field is `tdd-principles.cardDoes`, which differs from Cantrip only by single-asterisk
+> emphasis. That belongs in the markup bucket: Cantrip `d74789a` — the snapshot the deck was
+> transcribed from — already carried `*assert*`, `*widen*`, `*now*` and `*idiomatic*`, and the site
+> stores all four words plain, so the author's hand-stripping demonstrably covered `*emphasis*` and
+> not just backticks. A backtick-and-bold-only normalizer reproduces 57 exactly, which is how that
+> figure arose — and it would write a literal asterisk to a visitor. **56 is the floor.**
 
 **Why the site's copy diverged.** Whoever authored the original 32 cards stripped Cantrip's markdown
 and lightly reworded some fields. The stripping was **correct**: `spellCardDeck.cshtml` renders
@@ -117,7 +125,7 @@ literal glyph.
 emphasis. They must **not** reach the site as literal glyphs.
 
 So the applier **normalizes markdown markup out of Cantrip's values before writing**, which is what
-keeps the write set at 57 rather than 111. The normalizer's definition is empirical and testable:
+keeps the write set at 56 rather than 111. The normalizer's definition is empirical and testable:
 for each of the 54 markup-only fields, normalized-Cantrip must equal what the site already stores —
 which is exactly what makes the post-apply report able to reach zero.
 
@@ -189,7 +197,7 @@ The three screenshot baselines **will** shift, because Core's count badge and pa
   each carrying every field Cantrip's published card defines for it, and each drawing the shared
   reference mark rather than one of its own.
 - Every card carries Cantrip's current wording, with markdown markup normalized away — a write set
-  of **57 fields across 28 cards**. Four existing cards need no write, because they differ from
+  of **56 fields across 28 cards**. Four existing cards need no write, because they differ from
   Cantrip only by markup.
 - **No card is deliberately left stale.** Matching Cantrip is the goal, so a card Cantrip did not
   re-voice is still written if the site's copy diverges from it.

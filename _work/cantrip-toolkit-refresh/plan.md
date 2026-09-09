@@ -8,7 +8,7 @@
 ## Context
 
 Bring the public spell card deck from Cantrip's 32-unit snapshot to its current 34-unit roster:
-two new Core reference cards, plus **57 field edits across 28 existing cards** once Cantrip's
+two new Core reference cards, plus **56 field edits across 28 existing cards** once Cantrip's
 markdown markup is normalized away. The spec's **Measured Scope** section settles the delta, the
 field mapping, the markup policy, and the fact that **no schema changes** — both new cards are
 references, and references carry no `cardMark`.
@@ -49,7 +49,7 @@ The deck itself — views, CSS, schema, artwork — is not edited at any point.
   the spec's *The actual write set* section; the gate below is restated.
 - **Markdown markup is normalized away on write (decided 2026-09-09).** Cantrip's backticks and
   `**bold**` are markdown, not literal text, and `spellCardDeck.cshtml` HTML-encodes field values —
-  so carried verbatim they reach the visitor as glyphs. Normalizing keeps the write set at **57
+  so carried verbatim they reach the visitor as glyphs. Normalizing keeps the write set at **56
   fields across 28 cards** instead of 111, and it is what the original author already did by hand.
   **The normalizer must sit in the comparison path as well as the write path**, or the report can
   never return to zero and Step 3's gate becomes unreachable.
@@ -164,7 +164,7 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 
 ---
 
-### Step 3 — Normalize the markup, then apply the 57 field edits with approval
+### Step 3 — Normalize the markup, then apply the 56 field edits with approval
 
 > **Prompt**: Implement Step 3 of `_work/cantrip-toolkit-refresh/plan.md`. Extend
 > `scripts/spell-card-sync/src/cli.ts` with an `apply` mode that renders each changed card's
@@ -172,9 +172,9 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 > in `scripts/guide-generator/src/cli.ts`. **First add a markdown normalizer** and put it in both the
 > comparison and the write path, so Cantrip's `` `code` `` and `**bold**` never reach a stored value —
 > without it the report can never reach zero. It must never touch a card whose fields already match,
-> and must never create a card — creation is Step 4. Run it against local and apply the **57 fields
+> and must never create a card — creation is Step 4. Run it against local and apply the **56 fields
 > across 28 cards**; four existing cards should need no write. Then re-run `report` and confirm
-> **0 field edits, 2 cards missing**.
+> **0 field edits, 1 field clear, 2 cards missing**.
 
 **What to build**:
 - `scripts/spell-card-sync/src/normalize.ts` — strip markdown markup from a field value
@@ -186,18 +186,24 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 **Test first**: the normalizer **is** testable pure logic, so it gets a real test before the write
 path. Assert it on hard-coded pairs — `` `code` `` → `code`, `**bold**` → `bold`, text with no markup
 unchanged — and confirm RED via `npm run test:unit` before implementing. The write path itself gets no
-unit test: a mock would only assert the mock. **Its RED→GREEN signal is the `report` re-run** — 57
+unit test: a mock would only assert the mock. **Its RED→GREEN signal is the `report` re-run** — 56
 edits before, 0 after.
 
 **Validation**:
 - [Automated]: `npm run test:unit` — the normalizer's cases pass
 - [Automated]: `npm run spellcards:report -- --source …` after applying reports **0 field edits,
-  2 missing**. Reaching zero is the proof the normalizer matches what the site already stores
+  1 field clear, 2 missing**. Zero *edits* is the proof the normalizer matches what the site already
+  stores. The one clear is permanent by decision — see below
 - [Manual]: open the Spellbook page locally and read the `/retrofit` card's reverse — its watch-for
   should read *"run it before you commit, or before you push if you already committed."*
 - [Manual]: grep the applied values for a stray backtick or `**`; there should be none
 - [Manual]: confirm the four cards that differ from Cantrip only by markup were never written — no
   approval should have been offered for them
+- [Manual]: confirm `dotnet-conventions.cardWatchFor` still reads *"the guidance is broad, be sure to
+  add your conventions to /.agents/config"*. **Decided 2026-09-09: the clear is declined.** Cantrip
+  has never published a Watch for on that card in either snapshot, so its silence is not evidence the
+  sentence is stale — it is this project's own writing. The report will therefore show 1 field clear
+  permanently, and that is the correct steady state rather than an unfinished edit
 - [Manual]: `git status` — discard any `umbraco-ai-context__*.uda` churn; this step changes no files
 
 ---

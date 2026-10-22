@@ -256,33 +256,32 @@ test.describe('Updated Footer — Browser E2E', () => {
   });
 
   // Column headings come from dictionary items (Footer.PublicationHeading,
-  // Footer.ElsewhereHeading). A missing key or blank translation must fall
-  // back to a default label, never leave a visitor looking at an empty heading.
+  // Footer.ElsewhereHeading), with a default label when an item is missing or
+  // blank. A "label renders" check: no visitor sees an empty heading on the
+  // environment under test. It does not blank a dictionary item to force the
+  // fallback path (that would mutate shared content on Dev during Gate 2).
   test('every footer column heading shows visible text', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
     const headings = page.locator('footer.foot').getByRole('heading');
+    await expect(headings.first(), 'footer should render at least one column heading').toBeVisible();
     const count = await headings.count();
-    expect(count, 'footer should render at least one column heading').toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {
-      await expect(headings.nth(i), `footer heading ${i} should be visible`).toBeVisible();
-      const text = (await headings.nth(i).innerText()).trim();
-      expect(text, `footer heading ${i} should not be blank`).not.toBe('');
+      await expect(headings.nth(i), `footer heading ${i} should not be blank`).not.toHaveText(/^\s*$/);
     }
   });
 
   // Each colophon item is a dictionary value (Footer.ColophonLeft is optional
-  // and omitted when blank; Footer.ColophonRight falls back to a copyright
-  // line). Whatever is rendered must carry text — no empty slots.
+  // and omitted when blank; Footer.ColophonRight defaults to a copyright line).
+  // Whatever is rendered must carry text — no empty slots.
   test('every colophon item shows visible text', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);
     const items = page.locator('footer.foot .colophon > span');
+    await expect(items.first(), 'footer should render at least one colophon item').toBeVisible();
     const count = await items.count();
-    expect(count).toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {
-      const text = (await items.nth(i).innerText()).trim();
-      expect(text, `colophon item ${i} should not be blank`).not.toBe('');
+      await expect(items.nth(i), `colophon item ${i} should not be blank`).not.toHaveText(/^\s*$/);
     }
   });
 

@@ -6,14 +6,11 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- CS0618 is NOT suppressed here: obsolete-API ("deprecated for v18") usage is now gated
          at build time. With build-time Razor compilation on (arch-modelsbuilder-source-mode),
-         every CS0618 site in a .cshtml is enumerated by `dotnet build` — so each EXISTING
-         obsolete call site is grandfathered with a scoped `#pragma warning disable/restore CS0618`
-         at the call site (e.g. Views/Partials/v2/_SiteHead.cshtml), and any NEW unguarded obsolete
-         usage fails the build. Migrating those grandfathered sites off the obsolete APIs (e.g.
-         `IPublishedContent.Children` → `IDocumentNavigationQueryService.TryGetChildrenKeys()`)
-         is tracked separately in ROADMAP (`arch-obsolete-api-migration`). Per-call-site pragmas
-         (not a project-wide <NoWarn>) are required because Cloud's runtime Razor compiler honors
-         TWAE but does NOT read the csproj <NoWarn> list.
+         every CS0618 site in a .cshtml is enumerated by `dotnet build`, and any obsolete usage
+         fails the build. No call sites are grandfathered (the former per-call-site pragmas were
+         removed in the Umbraco 18 upgrade, Phase A). If one is ever unavoidable, use a scoped
+         `#pragma warning disable/restore CS0618` at the call site, not a project-wide <NoWarn>:
+         Cloud's runtime Razor compiler honors TWAE but does NOT read the csproj <NoWarn> list.
          CS8600/CS8602/CS8603/CS8604: nullable-reference-type warnings. Enabling build-time Razor
          compilation (arch-modelsbuilder-source-mode) made the compiler check ~102 pre-existing
          nullable sites across 22 views — idiomatic Umbraco template code (`.Url()`, `.Children<T>()`,

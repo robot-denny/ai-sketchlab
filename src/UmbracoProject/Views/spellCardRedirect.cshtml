@@ -23,15 +23,9 @@
 @{
     Layout = null;
 
-    // TODO(arch-obsolete-api-migration): migrate .Parent / .AncestorOrSelf to
-    // IDocumentNavigationQueryService. Pragma scopes the obsolete calls so Cloud's
-    // runtime Razor compile (which honors TWAE but doesn't read csproj <NoWarn>)
-    // doesn't fail as CS0618.
-#pragma warning disable CS0618
     var isStack = string.Equals(Model.ContentType.Alias, "spellCardStack", StringComparison.Ordinal);
-    var stack = isStack ? Model : Model.Parent;
+    var stack = isStack ? Model : Model.Parent();
     var spellbook = Model.AncestorOrSelf("spellbook");
-#pragma warning restore CS0618
 
     string target;
     if (spellbook == null)

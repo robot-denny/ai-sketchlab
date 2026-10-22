@@ -54,7 +54,7 @@
     var featured = articles.First();
     var rest = articles.Skip(1).ToList();
 
-    string sectionTitle = Umbraco.GetDictionaryValue("Home.LatestTitle") ?? "The latest";
+    string sectionTitle = Umbraco.GetDictionaryValueOrDefault("Home.LatestTitle", "The latest");
     string updatedLabel = $"Updated {DateTime.UtcNow:MMMM yyyy}";
 }
 
@@ -138,6 +138,6 @@
     </div>
 
     <p class="archive-link">
-        <a href="@articleList.Url()">@(Umbraco.GetDictionaryValue("Home.ArchiveLink") ?? "Archive — all essays")</a>
+        <a href="@articleList.Url()">@(Umbraco.GetDictionaryValueOrDefault("Home.ArchiveLink", "Archive — all essays"))</a>
     </p>
 </section>

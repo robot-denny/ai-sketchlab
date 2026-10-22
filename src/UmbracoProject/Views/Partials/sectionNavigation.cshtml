@@ -1,22 +1,17 @@
 @inherits UmbracoViewPage<IPublishedContent>
 
 @{
-    // TODO(arch-obsolete-api-migration): migrate Model.Parent/.Children to IDocumentNavigationQueryService.
-    // Pragma scopes the obsolete .Parent/.Children calls so Cloud's runtime Razor compile
-    // (which honors TWAE but doesn't read csproj <NoWarn>) doesn't fail as CS0618.
-#pragma warning disable CS0618
     // Exclude pages hidden from search (umbracoNaviHide / !IsVisible()) AND pages
     // explicitly hidden from the section-nav sidebar via the hideFromSectionNavigation
     // toggle. The two filters are independent — a page can be hidden here without
     // being hidden from search, and vice versa.
-    var siblings = Model.Parent?.Children
+    var siblings = Model.Parent()?.Children()
                        .Where(x => x.IsVisible() && !x.Value<bool>("hideFromSectionNavigation"))
                        .ToList()
                    ?? new List<IPublishedContent>();
-    var children = Model.Children
+    var children = Model.Children()
                        .Where(x => x.IsVisible() && !x.Value<bool>("hideFromSectionNavigation"))
                        .ToList();
-#pragma warning restore CS0618
 
     // Suppress: if the only visible item is the current page itself (no other siblings, no children)
     var otherSiblings = siblings.Where(s => s.Id != Model.Id).ToList();

@@ -255,6 +255,37 @@ test.describe('Updated Footer — Browser E2E', () => {
     expect(transform).toBe('uppercase');
   });
 
+  // Column headings come from dictionary items (Footer.PublicationHeading,
+  // Footer.ElsewhereHeading). A missing key or blank translation must fall
+  // back to a default label, never leave a visitor looking at an empty heading.
+  test('every footer column heading shows visible text', async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await page.goto(homeDocUrl);
+    const headings = page.locator('footer.foot').getByRole('heading');
+    const count = await headings.count();
+    expect(count, 'footer should render at least one column heading').toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      await expect(headings.nth(i), `footer heading ${i} should be visible`).toBeVisible();
+      const text = (await headings.nth(i).innerText()).trim();
+      expect(text, `footer heading ${i} should not be blank`).not.toBe('');
+    }
+  });
+
+  // Each colophon item is a dictionary value (Footer.ColophonLeft is optional
+  // and omitted when blank; Footer.ColophonRight falls back to a copyright
+  // line). Whatever is rendered must carry text — no empty slots.
+  test('every colophon item shows visible text', async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 800 });
+    await page.goto(homeDocUrl);
+    const items = page.locator('footer.foot .colophon > span');
+    const count = await items.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const text = (await items.nth(i).innerText()).trim();
+      expect(text, `colophon item ${i} should not be blank`).not.toBe('');
+    }
+  });
+
   test('colophon row spans full width and is rendered last', async ({ page }) => {
     await page.setViewportSize({ width: 1200, height: 800 });
     await page.goto(homeDocUrl);

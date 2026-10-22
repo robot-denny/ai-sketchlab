@@ -35,11 +35,10 @@
     // the field is empty.
     var social = home.Value<System.Collections.Generic.IEnumerable<Link>>("socialIconLinks");
 
-    var pubLabel    = Umbraco.GetDictionaryValue("Footer.PublicationHeading") ?? "Publication";
-    var elseLabel   = Umbraco.GetDictionaryValue("Footer.ElsewhereHeading")   ?? "Elsewhere";
+    var pubLabel    = Umbraco.GetDictionaryValueOrDefault("Footer.PublicationHeading", "Publication");
+    var elseLabel   = Umbraco.GetDictionaryValueOrDefault("Footer.ElsewhereHeading", "Elsewhere");
     var colophonL   = Umbraco.GetDictionaryValue("Footer.ColophonLeft");
-    var colophonR   = Umbraco.GetDictionaryValue("Footer.ColophonRight")
-                       ?? $"© {DateTime.UtcNow.Year}";
+    var colophonR   = Umbraco.GetDictionaryValueOrDefault("Footer.ColophonRight", $"© {DateTime.UtcNow.Year}");
 }
 
 <footer class="foot">

@@ -261,6 +261,10 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 > Do not use `string?` in `.cshtml`, because Cloud's runtime compile fails with CS8669. Restore the
 > renamed key, then re-run the specs, `dotnet build -c Release` and `dotnet publish src/UmbracoProject -c Release`.
 
+**Status (2026-10-22)**: done in `3bb1af9`. Follow-up not in this step's list:
+`_DcPull.cshtml:35-37` chains `?? "From the lab"` after `GetDictionaryValue("Home.DcPullEyebrow")`,
+so that last fallback is dead too. It only matters if the key goes missing.
+
 **What to build**:
 - Assertions in `tests/e2e/footer/updatedFooter.spec.ts` and the home spec (`tests/e2e/pages/home.screenshot.spec.ts`, or a new non-screenshot test beside it).
 - View edits in `_Footer.cshtml`, `_LatestSection.cshtml` and `_HeroHome.cshtml`.
@@ -309,8 +313,12 @@ The step heading contains a ready-to-use prompt you can paste into a new session
 > Finally, re-fetch the sitemap and nav HTML and `diff` them against the before files, which must
 > be identical. Then run the Step 1 smoke spec plus `tests/e2e/sectionNavigation.spec.ts`,
 > `seoRouting.spec.ts` and `pages/spellbook.screenshot.spec.ts`, and
-> `dotnet publish src/UmbracoProject -c Release`. Afterwards, `grep -rn "CS0618" src/UmbracoProject/Views`
-> must return nothing.
+> `dotnet publish src/UmbracoProject -c Release`. Afterwards,
+> `grep -rn "pragma warning disable CS0618" src/UmbracoProject/Views` must return nothing. (A bare
+> `CS0618` grep also matches an explanatory comment in `_StyleGuideSectionRows.cshtml`.)
+
+**Status (2026-10-22)**: done in `210d7d4`. `AncestorOrSelf("alias")` was kept: the string overload
+is not obsolete in 17.6.2 and exists unchanged, without `[Obsolete]`, in 18.2.1.
 
 **What to build**: The 9 view files listed above, with no pragmas left. The before and after
 snapshots go in `_scratch/` (gitignored).
@@ -402,6 +410,12 @@ helper to `_umbracoApi.ts` only if those calls don't already exist there.
 >   (if it no longer compiles, note it for Step 8; don't delete the converter yet)
 > - any removed sync service methods (`IDataTypeService`, `IContentTypeService` and others) in
 >   `src/HelloWorld/ImageGeneratorController.cs` and `PaletteService.cs`
+> - **`IPublishedContent.UrlSegment` becomes obsolete in 18.2.1** ("use `GetUrlSegment()` on
+>   `IDocumentUrlService`"; removal scheduled for Umbraco 20). With TWAE it fails as CS0618 at
+>   `Views/spellCardRedirect.cshtml` (3 uses), `Views/Partials/blocks/Components/spellCardDeck.cshtml`
+>   (3) and `Views/Partials/blocklist/default.cshtml` (2). Migrate them to `IDocumentUrlService`
+>   (inject it in the view); do not reintroduce a pragma. Confirm the spell-card redirect and deck
+>   anchors are unchanged with the Step 1 smoke spec and `pages/spellbook.screenshot.spec.ts`.
 >
 > Precompiled Razor errors in views surface here too. Remove `HideBackOfficeLogo` and
 > `ConfigureSecurityStampOptions` if they appear anywhere (a grep at plan time found neither).
@@ -652,6 +666,7 @@ drift, and the Live spot checks pass.
 | Modify | `src/UmbracoProject/Views/Partials/sectionNavigation.cshtml`, `xmlSitemap.cshtml`, `v2/_SiteHead.cshtml` |
 | Create | `tests/e2e/mediaRecycleBin.spec.ts` (+ `tests/e2e/_umbracoApi.ts` helpers if missing) |
 | Modify | `src/UmbracoProject/UmbracoProject.csproj`, `src/UmbracoProject.Features/UmbracoProject.Features.csproj`, `src/HelloWorld/HelloWorld.csproj` |
+| Modify | `src/UmbracoProject/Views/Partials/blocks/Components/spellCardDeck.cshtml`, `Views/Partials/blocklist/default.cshtml` (+ `spellCardRedirect.cshtml` again) — `UrlSegment` → `IDocumentUrlService` |
 | Modify (as forced) | `src/UmbracoProject/SearchComposer.cs`, `src/UmbracoProject.Features/Services/Search/SearchService.cs`, Clean.Core-using views, `src/HelloWorld/ImageGeneratorController.cs`, `src/HelloWorld/PaletteService.cs` |
 | Modify or Delete | `src/UmbracoProject/AiMarkdownSerializationComposer.cs` |
 | Regenerate | `src/UmbracoProject.Features/Models/Generated/*.generated.cs` |

@@ -25,8 +25,9 @@
     <PackageReference Include="Umbraco.Cms.Api.Management" Version="17.6.2" />
     <!-- Direct pin to float the transitive MessagePack (via Umbraco.Cms.Search.Core 1.0.0,
          range [3.1.4,)) to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x
-         (high, NU1903); 3.1.7 was the first patched release; pinned forward to 3.1.8, then to 3.1.9 for GHSA-qhrr-8q5h-9q3h (moderate, NU1902, affects >= 3.0.0, < 3.1.9; 2026-10-15). Resolving the vuln rather than suppressing NU1903 —
-         keep aligned with the same pin in UmbracoProject.csproj. -->
+         (high, NU1903); 3.1.7 was the first patched release; pinned forward to 3.1.8. Resolving the vuln rather than suppressing NU1903 —
+         keep aligned with the same pin in UmbracoProject.csproj. Bumped to 3.1.9 for
+         GHSA-qhrr-8q5h-9q3h (moderate, NU1902, affects >= 3.0.0, < 3.1.9; 2026-10-15). -->
     <PackageReference Include="MessagePack" Version="3.1.9" />
     <!-- Direct pin to float the transitive System.Security.Cryptography.Xml (via
          Umbraco.Cms.Api.Management → OpenAPI/signing stack) past GHSA-23rf-6693-g89p,

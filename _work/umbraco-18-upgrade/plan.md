@@ -7,7 +7,8 @@
 
 ## Context
 
-This plan moves the site from Umbraco 17.6.2 to **18.2.1**, the current stable release. It covers
+This plan moves the site from Umbraco 17 (17.6.2 when planned; **17.7.1** since Cloud's
+auto-upgrade synced in on 2026-10-22) to **18.2.1**, the current stable release. It covers
 the three projects, the add-on suites, and the Cloud promotion local → Dev → Live. Several things
 are already in place: CS0618 is a build gate, and every obsolete call site is fenced with a scoped
 pragma (9 Razor files). The 404 finder already uses the navigation query service. No data type uses
@@ -55,10 +56,10 @@ and declares an `[18.0.0, 19.0.0)` range or a compatible one.
 
 | Package(s) | From | To |
 |---|---|---|
-| `Umbraco.Cms`, `.DevelopmentMode.Backoffice`, `.Web.Website`, `.Web.Common`, `.Api.Common`, `.Api.Management` | 17.6.2 | **18.2.1** |
-| `Umbraco.Deploy.Cloud` | 17.2.1 | 18.1.1 |
-| `Umbraco.Forms` / `Umbraco.Forms.Deploy` | 17.5.0 / 17.0.1 | 18.2.1 / 18.0.1 |
-| `Umbraco.Cloud.Cms` | 17.2.2 | 18.0.3 |
+| `Umbraco.Cms`, `.DevelopmentMode.Backoffice`, `.Web.Website`, `.Web.Common`, `.Api.Common`, `.Api.Management` | 17.7.1 | **18.2.1** |
+| `Umbraco.Deploy.Cloud` | 17.3.1 | 18.1.1 |
+| `Umbraco.Forms` / `Umbraco.Forms.Deploy` | 17.6.1 / 17.0.1 | 18.2.1 / 18.0.1 |
+| `Umbraco.Cloud.Cms` | 17.2.3 | 18.0.3 |
 | `Umbraco.Cloud.StorageProviders.AzureBlob` | 17.1.0 | 18.0.0 |
 | `Umbraco.AI` | 17.3.1 | 18.6.0 |
 | `Umbraco.AI.Agent` / `.AGUI` | 17.1.4 | 18.4.0 |
@@ -104,9 +105,9 @@ done and one is deliberately skipped:
 
 - **Upgrade locally first, then deploy.** Done: Steps 5–9.
 - **Have at least two environments.** Done: Dev and Live.
-- **Be on "the latest 17"**, which is currently 17.7.1. This plan skips it deliberately. The CMS
-  floor for v18 is 16.4, so 17.6.2 → 18.2.1 is supported, and an extra 17.7.1 hop adds a deploy
-  with no benefit. If Cloud support pushes back, do the 17.7.1 bump as a one-line Phase A addendum.
+- **Be on "the latest 17"**, which is 17.7.1. Planned as a deliberate skip, but **now satisfied**:
+  Cloud auto-upgraded Dev to 17.7.1 (with Deploy 17.3.1, Forms 17.6.1, Cloud.Cms 17.2.3) and the
+  master pipeline synced it into the repo on 2026-10-22 (#74). Phase B starts from 17.7.1.
 
 ### Version policy
 
@@ -352,6 +353,13 @@ snapshots go in `_scratch/` (gitignored).
 **Validation**: The Phase A PR is merged and live, the smoke spec is green on Dev, and the Phase B
 branch exists.
 
+**Status (2026-10-22)**: merged as #72 (`d6713d6`); master pipeline green including the Dev deploy
+and Gate 2 (the smoke spec's first run against Dev). Two side PRs landed first: #73 cleared the
+October NuGet advisories (pins + named ImageSharp suppressions) and #74 restored CRLF in the host
+and HelloWorld csproj so Cloud Sync could apply its 17.7.1 auto-upgrade. ROADMAP
+`arch-obsolete-api-migration` removed and the Phase B branch cut. **Remaining operator item:**
+promote Dev → Live in the portal and spot-check the footer and one article.
+
 ## Phase B — the v18 bump (branch `claude/feature/umbraco-18-upgrade-bump`)
 
 ---
@@ -359,7 +367,7 @@ branch exists.
 ### Step 5 — Media recycle-bin protection test (RED on v17)
 
 > **Prompt**: Implement Step 5 of `_work/umbraco-18-upgrade/plan.md` on branch
-> `claude/feature/umbraco-18-upgrade-bump`, with the site still on 17.6.2.
+> `claude/feature/umbraco-18-upgrade-bump`, with the site still on v17 (17.7.1).
 >
 > Create `tests/e2e/mediaRecycleBin.spec.ts`. Using the Management API helpers in
 > `tests/e2e/_umbracoApi.ts`, the test should:
@@ -410,6 +418,14 @@ helper to `_umbracoApi.ts` only if those calls don't already exist there.
 >   (if it no longer compiles, note it for Step 8; don't delete the converter yet)
 > - any removed sync service methods (`IDataTypeService`, `IContentTypeService` and others) in
 >   `src/HelloWorld/ImageGeneratorController.cs` and `PaletteService.cs`
+> - **Advisory pins from #73.** Re-check each against the 18.x graph after restore: `MessagePack`
+>   3.1.9 and `System.Security.Cryptography.Pkcs`/`.Xml` 10.0.13 (host, Features, HelloWorld) and
+>   `Microsoft.AspNetCore.SignalR.Common` 10.0.13 (Tests). Drop a pin only if
+>   `dotnet list umbraco-17-demo-site.sln package --vulnerable --include-transitive` stays clean without
+>   it, and never downgrade one (NU1605). Keep the five named ImageSharp `NuGetAuditSuppress` entries:
+>   Umbraco 18.2.1 still pins ImageSharp 3.1.12 (ROADMAP `deps-imagesharp-advisories`). Edit
+>   csproj files with the Edit tool only. The host and HelloWorld csproj are CRLF, and an LF
+>   rewrite breaks master's Cloud Sync step (#74). Verify restore with `--no-http-cache`.
 > - **`IPublishedContent.UrlSegment` becomes obsolete in 18.2.1** ("use `GetUrlSegment()` on
 >   `IDocumentUrlService`"; removal scheduled for Umbraco 20). With TWAE it fails as CS0618 at
 >   `Views/spellCardRedirect.cshtml` (3 uses), `Views/Partials/blocks/Components/spellCardDeck.cshtml`

@@ -5,8 +5,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- No NU19xx advisory suppressions: the `dotnet list package` vulnerability scan (vulnerable, include-transitive)
-         is clean for this project as of 2026-08-26. All three prior suppressions were removed then:
+    <!-- No NoWarn-level NU19xx suppressions. The only audit suppressions are the five NAMED
+         SixLabors.ImageSharp advisories (NuGetAuditSuppress, end of file; see the host csproj for the
+         rationale). The `dotnet list package` vulnerability scan (vulnerable, include-transitive)
+         was otherwise clean for this project as of 2026-08-26. All three prior suppressions were removed then:
          NU1903 (Lucene.Net.Replicator GHSA-2qw8-ppr5-m96c) affects [4.8.0-beta00005, 4.8.0-beta00017)
          and the resolved beta00017 is outside it; NU1904 (Microsoft.AspNetCore.DataProtection
          GHSA-9mv3-2cwr-p262, critical) came via Microsoft.NET.Test.Sdk 17.12.0 and is cleared by
@@ -24,6 +26,11 @@
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <!-- Microsoft.AspNetCore.SignalR.Common: direct pin to float the transitive 10.0.10 (via the host's
+         Umbraco.Cloud.Cms → SignalR.StackExchangeRedis) past GHSA-334f-vvp4-7g6p (high, >= 10.0.0,
+         <= 10.0.12; 2026-10-13). Only this test project needs it: the web host prunes it to the
+         ASP.NET Core shared framework. 10.0.13 is the first patched release. -->
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,6 +42,27 @@
     <!-- UmbracoProject.Features types (ISearchService, SearchService, etc.) are already available
          transitively via UmbracoProject; this explicit reference is for intent/clarity. MSBuild dedups. -->
     <ProjectReference Include="../../src/UmbracoProject.Features/UmbracoProject.Features.csproj" />
+  </ItemGroup>
+
+  <!-- SixLabors.ImageSharp 3.1.12 advisories (published 2026-10-07), NAMED suppressions, not a blanket
+       NU1902/NU1903 NoWarn. The only patched release is 4.1.2, a new major that Umbraco's imaging stack
+       (Umbraco.Cms.Imaging.ImageSharp → ImageSharp 3.1.12 + ImageSharp.Web 3.2.0, unchanged through
+       Umbraco 18.2.1) was not built against, so pinning it risks runtime breakage in media cropping/resizing.
+       Exposure is limited: uploads are backoffice-only (authenticated editors). Covered paths:
+         GHSA-j3p4-wp97-rph4 (high)   HistogramEqualization unchecked index — processor not used by Umbraco crops
+         GHSA-j9gm-c75j-xc9q (high)   TIFF CCITT T4 encoder overflow — encode path
+         GHSA-jjfr-hcj7-qf5w (high)   TIFF CCITT T6 encoder overflow — encode path
+         GHSA-gwg2-r3hj-4w44 (medium) ICC CLUT parsing unbounded allocation — decode path
+         GHSA-wmxv-xphr-5c9g (medium) BigTIFF IFD count non-progressing loop — decode path
+       Remove these once Umbraco ships an ImageSharp >= 4.1.2 (tracked in ROADMAP deps-imagesharp-advisories).
+       Any NEW advisory still fails the build. Mirrored in UmbracoProject, UmbracoProject.Features and
+       UmbracoProject.Tests — keep the three lists identical. -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-gwg2-r3hj-4w44" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-wmxv-xphr-5c9g" />
   </ItemGroup>
 
 </Project>

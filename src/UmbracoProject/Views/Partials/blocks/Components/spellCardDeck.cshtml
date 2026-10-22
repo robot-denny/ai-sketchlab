@@ -1,6 +1,8 @@
 @using Umbraco.Cms.Core.Models.Blocks
 @using Clean.Core.Helpers
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<IBlockReference<IPublishedElement, IPublishedElement>>
+@using UmbracoProject.Features.Services.Content
+@inject IUrlSegmentReader UrlSegments
 
 @*
     Spell Card Deck — the browsable deck of everything the Cantrip toolkit installs.
@@ -69,6 +71,10 @@
             .ToArray());
     }
 
+    // IPublishedContent.UrlSegment is obsolete in v18; IUrlSegmentReader resolves it the
+    // same way. "No segment" comes back as "", which SafeKey already treats as "no slug".
+    string SegmentOf(IPublishedContent content) => UrlSegments.GetUrlSegment(content);
+
     string TwoDigit(int n) => n < 10 ? "0" + n : n.ToString();
 
     string Cards(int n) => n == 1 ? "1 card" : n + " cards";
@@ -128,7 +134,7 @@
     var slugsTaken = new HashSet<string>(StringComparer.Ordinal);
     foreach (var stackNode in stackNodes)
     {
-        var baseSlug = SafeKey(stackNode.UrlSegment);
+        var baseSlug = SafeKey(SegmentOf(stackNode));
         if (string.IsNullOrEmpty(baseSlug)) { baseSlug = "stack"; }
 
         var slug = baseSlug;
@@ -166,7 +172,7 @@
             // in the same `sections` array below.
             var spellCards = spellNodes.Select((c, i) => new
             {
-                Slug = SafeKey(c.UrlSegment),
+                Slug = SafeKey(SegmentOf(c)),
                 Title = TextOr(c.CardTitle, c.Name),
                 Kind = "Spell",
                 IsSpell = true,
@@ -185,7 +191,7 @@
 
             var referenceCards = referenceNodes.Select((c, i) => new
             {
-                Slug = SafeKey(c.UrlSegment),
+                Slug = SafeKey(SegmentOf(c)),
                 Title = TextOr(c.CardTitle, c.Name),
                 Kind = "Reference",
                 IsSpell = false,

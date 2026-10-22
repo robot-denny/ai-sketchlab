@@ -17,7 +17,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_BASE = process.env.URL || 'https://localhost:44367';
+/**
+ * The Umbraco instance every helper talks to. Exported so a spec that also makes
+ * raw HTTP requests (e.g. as an anonymous visitor) targets the same host as the
+ * fixtures it created, rather than reading a different env var.
+ */
+export const API_BASE = process.env.URL || 'https://localhost:44367';
 const TOKEN_TTL = 250_000; // refresh well before the 299 s expiry
 
 /**
@@ -252,7 +257,12 @@ export async function getMediaTypeIdByName(name: string): Promise<string> {
   if (!resp.ok) throw new Error(`GET media-type tree root failed: ${resp.status}`);
   const items: any[] = ((await resp.json()) as any).items ?? [];
   const hit = items.find((it) => !it.isFolder && it.name === name);
-  if (!hit) throw new Error(`Media type "${name}" not found at the media-type tree root`);
+  if (!hit) {
+    throw new Error(
+      `Media type "${name}" not found at the media-type tree root ` +
+        `(this lookup does not descend into folders; move the type to the root or extend the lookup)`
+    );
+  }
   return hit.id;
 }
 
@@ -372,9 +382,19 @@ export async function findMediaByNamePrefix(
 export async function deleteMediaPermanently(mediaId: string): Promise<void> {
   const trash = await apiFetch('PUT', `/media/${mediaId}/move-to-recycle-bin`);
   if (trash.status === 404) return;
-  // A 400 here means it is already in the recycle bin; carry on and delete it.
-  if (!trash.ok && trash.status !== 400) {
-    throw new Error(`deleteMediaPermanently: trash failed: ${trash.status} ${await trash.text()}`);
+  if (!trash.ok) {
+    // Only "already in the recycle bin" (400, operationStatus InTrash) is benign;
+    // any other failure must surface here, not as a confusing DELETE error later.
+    const body = await trash.text();
+    let operationStatus: string | undefined;
+    try {
+      operationStatus = (JSON.parse(body) as any)?.operationStatus;
+    } catch {
+      // Not JSON: fall through to the error below.
+    }
+    if (!(trash.status === 400 && operationStatus === 'InTrash')) {
+      throw new Error(`deleteMediaPermanently: trash failed: ${trash.status} ${body}`);
+    }
   }
   const resp = await apiFetch('DELETE', `/recycle-bin/media/${mediaId}`);
   if (!resp.ok && resp.status !== 404) {

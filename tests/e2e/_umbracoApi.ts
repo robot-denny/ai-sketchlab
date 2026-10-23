@@ -17,7 +17,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const API_BASE = process.env.URL || 'https://localhost:44367';
+/**
+ * The Umbraco instance every helper talks to. Exported so a spec that also makes
+ * raw HTTP requests (e.g. as an anonymous visitor) targets the same host as the
+ * fixtures it created, rather than reading a different env var.
+ */
+export const API_BASE = process.env.URL || 'https://localhost:44367';
 const TOKEN_TTL = 250_000; // refresh well before the 299 s expiry
 
 /**
@@ -240,4 +245,159 @@ export async function getPaletteBlockAliases(dataTypeName: string): Promise<stri
     if (et.alias) aliases.push(et.alias);
   }
   return [...new Set(aliases)];
+}
+
+// ---------------------------------------------------------------------------
+// Media helpers (temporary-file upload → create → recycle bin → restore/delete)
+// ---------------------------------------------------------------------------
+
+/** Find a media type id by display name at the media-type tree root (E2E rule #1). */
+export async function getMediaTypeIdByName(name: string): Promise<string> {
+  const resp = await apiFetch('GET', '/tree/media-type/root?skip=0&take=100');
+  if (!resp.ok) throw new Error(`GET media-type tree root failed: ${resp.status}`);
+  const items: any[] = ((await resp.json()) as any).items ?? [];
+  const hit = items.find((it) => !it.isFolder && it.name === name);
+  if (!hit) {
+    throw new Error(
+      `Media type "${name}" not found at the media-type tree root ` +
+        `(this lookup does not descend into folders; move the type to the root or extend the lookup)`
+    );
+  }
+  return hit.id;
+}
+
+/**
+ * Upload bytes as a Management-API temporary file and return its id. The
+ * endpoint is multipart (`Id` + `File`), so it can't go through the JSON
+ * {@link apiFetch}.
+ */
+export async function uploadTemporaryFile(
+  fileName: string,
+  bytes: Uint8Array,
+  mimeType: string
+): Promise<string> {
+  const id = crypto.randomUUID();
+  const form = new FormData();
+  form.append('Id', id);
+  form.append('File', new Blob([bytes], { type: mimeType }), fileName);
+  const token = await freshToken();
+  const resp = await fetch(`${API_BASE}/umbraco/management/api/v1/temporary-file`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (!resp.ok) {
+    throw new Error(`POST temporary-file failed: ${resp.status} ${await resp.text()}`);
+  }
+  return id;
+}
+
+/**
+ * Create a media item whose `umbracoFile` is a previously uploaded temporary
+ * file. Created at the media root unless `parentId` is given. Returns the new id.
+ */
+export async function createMediaFromTemporaryFile(opts: {
+  name: string;
+  mediaTypeId: string;
+  temporaryFileId: string;
+  parentId?: string | null;
+}): Promise<string> {
+  const id = crypto.randomUUID();
+  const resp = await apiFetch('POST', '/media', {
+    id,
+    parent: opts.parentId ? { id: opts.parentId } : null,
+    mediaType: { id: opts.mediaTypeId },
+    variants: [{ name: opts.name, culture: null, segment: null }],
+    values: [
+      {
+        alias: 'umbracoFile',
+        culture: null,
+        segment: null,
+        value: { temporaryFileId: opts.temporaryFileId },
+      },
+    ],
+  });
+  if (!resp.ok) throw new Error(`POST media failed: ${resp.status} ${await resp.text()}`);
+  return id;
+}
+
+/** Fetch the public URL path of a media item's file (E2E rule #2: never hardcode paths). */
+export async function getMediaPath(mediaId: string): Promise<string> {
+  const resp = await apiFetch('GET', `/media/urls?id=${mediaId}`);
+  if (!resp.ok) throw new Error(`GET media URLs failed: ${resp.status}`);
+  const data = (await resp.json()) as any;
+  const url: string = data[0]?.urlInfos?.[0]?.url;
+  if (!url) throw new Error(`No URL found for media ${mediaId}`);
+  return url;
+}
+
+/** Move a media item to the media recycle bin. */
+export async function moveMediaToRecycleBin(mediaId: string): Promise<void> {
+  const resp = await apiFetch('PUT', `/media/${mediaId}/move-to-recycle-bin`);
+  if (!resp.ok) {
+    throw new Error(`PUT media move-to-recycle-bin failed: ${resp.status} ${await resp.text()}`);
+  }
+}
+
+/** Restore a media item from the recycle bin (to `targetId`, or the media root when null). */
+export async function restoreMediaFromRecycleBin(
+  mediaId: string,
+  targetId: string | null = null
+): Promise<void> {
+  const resp = await apiFetch('PUT', `/recycle-bin/media/${mediaId}/restore`, {
+    target: targetId ? { id: targetId } : null,
+  });
+  if (!resp.ok) {
+    throw new Error(`PUT recycle-bin media restore failed: ${resp.status} ${await resp.text()}`);
+  }
+}
+
+/**
+ * List media items whose name starts with `prefix`, at the media root and at
+ * the media recycle-bin root, with where each one was found.
+ */
+export async function findMediaByNamePrefix(
+  prefix: string
+): Promise<Array<{ id: string; name: string; trashed: boolean }>> {
+  const found: Array<{ id: string; name: string; trashed: boolean }> = [];
+  for (const [path, trashed] of [
+    ['/tree/media/root?skip=0&take=1000', false],
+    ['/recycle-bin/media/root?skip=0&take=1000', true],
+  ] as const) {
+    const resp = await apiFetch('GET', path);
+    if (!resp.ok) throw new Error(`findMediaByNamePrefix: GET ${path} failed: ${resp.status}`);
+    for (const item of ((await resp.json()) as any).items ?? []) {
+      const name: string = item.variants?.[0]?.name ?? '';
+      if (name.startsWith(prefix)) found.push({ id: item.id, name, trashed });
+    }
+  }
+  return found;
+}
+
+/**
+ * Permanently delete a media item, wherever it is: trash it first if needed,
+ * then delete it from the recycle bin. A 404 at either stage means it is
+ * already gone, which counts as success.
+ */
+export async function deleteMediaPermanently(mediaId: string): Promise<void> {
+  const trash = await apiFetch('PUT', `/media/${mediaId}/move-to-recycle-bin`);
+  if (trash.status === 404) return;
+  if (!trash.ok) {
+    // Only "already in the recycle bin" (400, operationStatus InTrash) is benign;
+    // any other failure must surface here, not as a confusing DELETE error later.
+    const body = await trash.text();
+    let operationStatus: string | undefined;
+    try {
+      operationStatus = (JSON.parse(body) as any)?.operationStatus;
+    } catch {
+      // Not JSON: fall through to the error below.
+    }
+    if (!(trash.status === 400 && operationStatus === 'InTrash')) {
+      throw new Error(`deleteMediaPermanently: trash failed: ${trash.status} ${body}`);
+    }
+  }
+  const resp = await apiFetch('DELETE', `/recycle-bin/media/${mediaId}`);
+  if (!resp.ok && resp.status !== 404) {
+    throw new Error(`DELETE recycle-bin media failed: ${resp.status} ${await resp.text()}`);
+  }
 }

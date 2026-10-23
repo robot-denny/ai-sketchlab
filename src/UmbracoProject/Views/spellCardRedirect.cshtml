@@ -1,4 +1,6 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@using UmbracoProject.Features.Services.Content
+@inject IUrlSegmentReader UrlSegments
 
 @*
     Spell Card Redirect — the template on a stack node and on both card types.
@@ -27,6 +29,10 @@
     var stack = isStack ? Model : Model.Parent();
     var spellbook = Model.AncestorOrSelf("spellbook");
 
+    // IPublishedContent.UrlSegment is obsolete in v18; IUrlSegmentReader resolves it the
+    // same way and returns "" (never null) when there is no segment.
+    var stackSegment = stack == null ? string.Empty : UrlSegments.GetUrlSegment(stack);
+
     string target;
     if (spellbook == null)
     {
@@ -34,17 +40,17 @@
         // leaving them on a blank body.
         target = "/";
     }
-    else if (stack == null || string.IsNullOrWhiteSpace(stack.UrlSegment))
+    else if (string.IsNullOrWhiteSpace(stackSegment))
     {
         target = spellbook.Url();
     }
     else if (isStack)
     {
-        target = spellbook.Url() + "#deck/" + stack.UrlSegment;
+        target = spellbook.Url() + "#deck/" + stackSegment;
     }
     else
     {
-        target = spellbook.Url() + "#deck/" + stack.UrlSegment + "/" + Model.UrlSegment;
+        target = spellbook.Url() + "#deck/" + stackSegment + "/" + UrlSegments.GetUrlSegment(Model);
     }
 
     Context.Response.Redirect(target, permanent: false);

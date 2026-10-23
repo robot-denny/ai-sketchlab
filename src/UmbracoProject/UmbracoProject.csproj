@@ -43,13 +43,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Clean.Core" Version="7.0.8" />
-    <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="17.0.5" />
-    <!-- MessagePack: direct pin to float the transitive (Umbraco.Cms.Search.Core 1.0.0 → MessagePack
-         [3.1.4,)) up to the first patched release. 3.1.4–3.1.6 carry GHSA-hv8m-jj95-wg3x (high, NU1903);
-         3.1.7 was the first patched release; pinned forward to 3.1.8, then to 3.1.9 for GHSA-qhrr-8q5h-9q3h (moderate, NU1902, affects >= 3.0.0, < 3.1.9; 2026-10-15). The open dependency range lets us pin forward without breaking the chain —
-         so we resolve the vulnerability rather than suppress NU1903. Revisit when Umbraco's Search
-         chain ships a newer MessagePack itself. -->
+    <PackageReference Include="Clean.Core" Version="8.0.1" />
+    <PackageReference Include="jcdcdev.Umbraco.ExtendedMarkdownEditor" Version="18.0.0" />
+    <!-- MessagePack: direct pin to float the transitive MessagePack past its advisories. On v18,
+         Umbraco.Cms 18.2.1 asks for MessagePack >= 3.1.8 and Umbraco.Cms.Search.Core 18.2.0 for >= 3.1.7,
+         so NuGet would resolve 3.1.8, which carries GHSA-qhrr-8q5h-9q3h (moderate, NU1902, affects
+         >= 3.0.0, < 3.1.9; 2026-10-15). 3.1.9 is the first patched release. Both floors are open ranges,
+         so pinning forward doesn't break the chain: we resolve the vulnerability rather than suppress it.
+         (History: first pinned on v17 to 3.1.7+ for GHSA-hv8m-jj95-wg3x, high, NU1903.) Drop once
+         Umbraco's chain asks for MessagePack >= 3.1.9 itself. -->
     <PackageReference Include="MessagePack" Version="3.1.9" />
     <!-- System.Security.Cryptography.Pkcs: direct pin to float the transitive 10.0.0 past
          GHSA-846f-f764-76mx (high) and GHSA-2fmv-rv2c-59x7 (moderate), both affecting >= 10.0.0, <= 10.0.12
@@ -62,53 +64,40 @@
          (an explicit pin trips NU1510). The advisory only bites HelloWorld, a packable RCL that doesn't
          prune it; the pin lives there. -->
 
-    <!-- Umbraco.AI suite, pinned to each package's latest 17.x. The vendor realigned to the
-         CMS major (17.0.0, 2026-06-25) and now patches each package independently — hence the
-         mixed 17.0.x / 17.1.x / 17.2.x / 17.3.x below (all the same major, internally range-compatible).
-         Bumped 2026-08-20 to each package's 17.x head. The set anchors on **Umbraco.AI 17.3.1**:
-         AI.OpenAI 17.2.0, AI.Anthropic 17.1.0 and AI.Google 17.0.3 require AI.Core >= 17.3.0, and
-         AI.Deploy 17.1.0 requires AI.Startup >= 17.3.0, so the core metapackage moves with them.
+    <!-- Umbraco.AI suite on the v18 line (Umbraco 18 upgrade, 2026-10-22). The vendor patches each
+         package independently, hence the mixed 18.x minors below. The minimums are interlocked, so
+         move the family as ONE unit: the provider packages (OpenAI/Anthropic/Google) require
+         AI.Core >= 18.6.0; AI.Agent.Deploy 18.1.0 requires AI.Agent.Startup >= 18.4.0 and
+         AI.Deploy >= 18.3.0; AI.Search.Core 18.0.4 requires Umbraco.Cms.Search.Core [18.0.0, 18.999.999).
          (AI.Core and AI.Startup are internal components pulled transitively by the Umbraco.AI
-         metapackage below — they are not separate PackageReference lines; only Umbraco.AI is.)
-         AI.Core 17.3.1 requires only Umbraco.Cms.Core >= 17.5.0 (satisfied by 17.5.3) — no CMS bump.
-         Keep each on its latest 17.x; do NOT cross to 18.x until the planned v18 upgrade.
-         Previously bumped 2026-07-07 for AI.Deploy 17.0.1 (fixed profile Settings serializing to `{}`
-         in the .uda — see docs/ai-copilot.md; superseded here by 17.1.0, which retains that fix).
-         **Umbraco.AI.Search deliberately held at 17.0.0**: AI.Search.Core (a transitive dependency of
-         the pinned Umbraco.AI.Search package, not referenced directly) at 17.0.3 widened its
-         Umbraco.Cms.Search.Core constraint to [17.0.0, 17.999.999), which would force the pinned
-         Cms.Search.* stack off the 1.x line onto 17.x — and Cms.Search.Provider.Examine has no stable
-         17.x (only 17.0.0-beta.1). That is a separate search-stack migration, not a safe drop-in bump. -->
-    <PackageReference Include="Umbraco.AI" Version="17.3.1" />
-    <PackageReference Include="Umbraco.AI.Agent" Version="17.1.4" />
-    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="17.0.4" />
-    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="17.0.1" />
-    <PackageReference Include="Umbraco.AI.Agent.UI" Version="17.0.2" />
-    <PackageReference Include="Umbraco.AI.AGUI" Version="17.1.4" />
-    <PackageReference Include="Umbraco.AI.Anthropic" Version="17.1.0" />
-    <PackageReference Include="Umbraco.AI.Deploy" Version="17.1.0" />
-    <PackageReference Include="Umbraco.AI.Google" Version="17.0.3" />
-    <PackageReference Include="Umbraco.AI.OpenAI" Version="17.2.0" />
-    <PackageReference Include="Umbraco.AI.Prompt" Version="17.2.3" />
-    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="17.0.3" />
-    <PackageReference Include="Umbraco.AI.Search" Version="17.0.0" />
-    <PackageReference Include="Umbraco.Cloud.Cms" Version="17.2.3" />
-    <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="17.1.0" />
-    <PackageReference Include="Umbraco.Cms" Version="17.7.1" />
-    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="17.7.1" />
-    <!-- Umbraco.Cms.Search.* stays on the 1.x line even though a CMS-aligned 17.0.0 exists:
-         Umbraco.AI.Search 17.0.0 (above) constrains Umbraco.Cms.Search.Core to [1.0.0, 1.999.999),
-         so it pairs with the 1.x CMS-search stack, NOT the 17.0.0 one. Bumping these to 17.0.0
-         triggers NU1608 against AI.Search 17.0.0. Cms.Search 1.0.0 runs fine on Cms 17.5.x.
-         Provider.Examine has no stable release — 1.0.0-beta.9 remains the head companion to Core 1.0.0.
-         Revisit when a future Umbraco.AI.Search widens its Cms.Search.Core constraint to 17.x. -->
-    <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="1.0.0" />
-    <PackageReference Include="Umbraco.Cms.Search.Core" Version="1.0.0" />
-    <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="1.0.0" />
-    <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="1.0.0-beta.9" />
-    <PackageReference Include="Umbraco.Deploy.Cloud" Version="17.3.1" />
-    <PackageReference Include="Umbraco.Forms" Version="17.6.1" />
-    <PackageReference Include="Umbraco.Forms.Deploy" Version="17.0.1" />
+         metapackage — they are not separate PackageReference lines; only Umbraco.AI is.) -->
+    <PackageReference Include="Umbraco.AI" Version="18.6.0" />
+    <PackageReference Include="Umbraco.AI.Agent" Version="18.4.0" />
+    <PackageReference Include="Umbraco.AI.Agent.Copilot" Version="18.2.0" />
+    <PackageReference Include="Umbraco.AI.Agent.Deploy" Version="18.1.0" />
+    <PackageReference Include="Umbraco.AI.Agent.UI" Version="18.3.0" />
+    <PackageReference Include="Umbraco.AI.AGUI" Version="18.4.0" />
+    <PackageReference Include="Umbraco.AI.Anthropic" Version="18.1.3" />
+    <PackageReference Include="Umbraco.AI.Deploy" Version="18.3.0" />
+    <PackageReference Include="Umbraco.AI.Google" Version="18.0.4" />
+    <PackageReference Include="Umbraco.AI.OpenAI" Version="18.3.1" />
+    <PackageReference Include="Umbraco.AI.Prompt" Version="18.4.0" />
+    <PackageReference Include="Umbraco.AI.Prompt.Deploy" Version="18.0.4" />
+    <PackageReference Include="Umbraco.AI.Search" Version="18.0.4" />
+    <PackageReference Include="Umbraco.Cloud.Cms" Version="18.0.3" />
+    <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="18.0.0" />
+    <PackageReference Include="Umbraco.Cms" Version="18.2.1" />
+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="18.2.1" />
+    <!-- Umbraco.Cms.Search.* on the CMS-aligned 18.x line, matching Umbraco.AI.Search 18.0.4's
+         [18.0.0, 18.999.999) constraint on Cms.Search.Core. Provider.Examine 18.2.0 is a stable
+         release, which retires the old 1.0.0-beta.9 pin (docs/pinned-betas.md). -->
+    <PackageReference Include="Umbraco.Cms.Search.BackOffice" Version="18.2.0" />
+    <PackageReference Include="Umbraco.Cms.Search.Core" Version="18.2.0" />
+    <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="18.2.0" />
+    <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="18.2.0" />
+    <PackageReference Include="Umbraco.Deploy.Cloud" Version="18.1.1" />
+    <PackageReference Include="Umbraco.Forms" Version="18.2.1" />
+    <PackageReference Include="Umbraco.Forms.Deploy" Version="18.0.1" />
   </ItemGroup>
 
   <ItemGroup>

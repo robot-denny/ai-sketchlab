@@ -1,5 +1,7 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockListModel>
 @using Umbraco.Cms.Core.Models.PublishedContent
+@using UmbracoProject.Features.Services.Content
+@inject IUrlSegmentReader UrlSegments
 @{
     if (Model?.Any() != true) { return; }
 
@@ -40,8 +42,10 @@
             var personaName = (blockAuthor.Name ?? string.Empty)
                 .Replace("\\", "\\\\")
                 .Replace("'", "\\27 ");
-            var personaSlug = !string.IsNullOrWhiteSpace(blockAuthor.UrlSegment)
-                ? blockAuthor.UrlSegment
+            // IPublishedContent.UrlSegment is obsolete in v18; IUrlSegmentReader resolves it the same way.
+            var authorSegment = UrlSegments.GetUrlSegment(blockAuthor);
+            var personaSlug = !string.IsNullOrWhiteSpace(authorSegment)
+                ? authorSegment
                 : (blockAuthor.Name ?? "ai").ToLowerInvariant().Replace(" ", "-");
             <div class="ella-wrap" data-attributed-to="@personaSlug" style="--persona-name: '@Html.Raw(personaName)';">
                 @rendered

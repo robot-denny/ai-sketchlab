@@ -121,7 +121,10 @@ jobs:
     name: "Playwright (against Dev)"
     needs: cloud-deployment
     if: ${{ github.ref == 'refs/heads/master' && success() }}
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-24.04, not ubuntu-latest: ubuntu-latest moved to 26.04, which Playwright
+    # 1.58 has no Chromium build for, and the screenshot baselines were rendered on 24.04's fonts.
+    # Move this together with update-snapshots.yml and a baseline regen.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 

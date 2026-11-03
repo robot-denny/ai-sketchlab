@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- No NoWarn-level NU19xx suppressions. The only audit suppressions are the five NAMED
+    <!-- No NoWarn-level NU19xx suppressions. The only audit suppressions are the six NAMED
          SixLabors.ImageSharp advisories (NuGetAuditSuppress, end of file; see the host csproj for the
          rationale). The `dotnet list package` vulnerability scan (vulnerable, include-transitive)
          was otherwise clean for this project as of 2026-08-26. All three prior suppressions were removed then:
@@ -45,19 +45,24 @@
   </ItemGroup>
 
   <!-- SixLabors.ImageSharp 3.1.12 advisories (published 2026-10-07), NAMED suppressions, not a blanket
-       NU1902/NU1903 NoWarn. The only patched release is 4.1.2, a new major that Umbraco's imaging stack
+       NU1902/NU1903 NoWarn. 4.1.2 patches all six but is a new major that Umbraco's imaging stack
        (Umbraco.Cms.Imaging.ImageSharp → ImageSharp 3.1.12 + ImageSharp.Web 3.2.0, unchanged through
-       Umbraco 18.2.1) was not built against, so pinning it risks runtime breakage in media cropping/resizing.
+       Umbraco 18.2.2) was not built against, so pinning it risks runtime breakage in media cropping/resizing.
+       3.2.0 (same major) also patches all six, but it adds Six Labors license enforcement: without a
+       paid SixLaborsLicenseKey a Release build fails (Debug only warns), which breaks Cloud's publish.
        Exposure is limited: uploads are backoffice-only (authenticated editors). Covered paths:
+         GHSA-v76p-62qx-wwq2 (high)   Tiled fax TIFF heap OOB write — decode path
          GHSA-j3p4-wp97-rph4 (high)   HistogramEqualization unchecked index — processor not used by Umbraco crops
          GHSA-j9gm-c75j-xc9q (high)   TIFF CCITT T4 encoder overflow — encode path
          GHSA-jjfr-hcj7-qf5w (high)   TIFF CCITT T6 encoder overflow — encode path
          GHSA-gwg2-r3hj-4w44 (medium) ICC CLUT parsing unbounded allocation — decode path
          GHSA-wmxv-xphr-5c9g (medium) BigTIFF IFD count non-progressing loop — decode path
-       Remove these once Umbraco ships an ImageSharp >= 4.1.2 (tracked in ROADMAP deps-imagesharp-advisories).
+       Remove these once Umbraco ships a patched ImageSharp (3.2.0+ or 4.1.2+; tracked in ROADMAP
+       deps-imagesharp-advisories).
        Any NEW advisory still fails the build. Mirrored in UmbracoProject, UmbracoProject.Features and
        UmbracoProject.Tests — keep the three lists identical. -->
   <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-v76p-62qx-wwq2" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j3p4-wp97-rph4" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-j9gm-c75j-xc9q" />
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-jjfr-hcj7-qf5w" />

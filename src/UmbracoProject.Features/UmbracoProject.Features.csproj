@@ -40,7 +40,7 @@
     <!-- Umbraco.AI.Search 18.0.4 constrains Umbraco.Cms.Search.Core to [18.0.0, 18.999.999),
          so Core is on the 18.x line (mirrors the host). -->
     <PackageReference Include="Umbraco.AI.Search" Version="18.0.4" />
-    <PackageReference Include="Umbraco.Cms" Version="18.2.1" />
+    <PackageReference Include="Umbraco.Cms" Version="18.2.2" />
     <PackageReference Include="Umbraco.Cms.Search.Core" Version="18.2.0" />
   </ItemGroup>
 

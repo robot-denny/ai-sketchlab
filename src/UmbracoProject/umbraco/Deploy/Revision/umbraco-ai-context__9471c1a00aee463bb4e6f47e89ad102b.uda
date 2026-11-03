@@ -17,5 +17,5 @@
   "Udi": "umb://umbraco-ai-context/9471c1a00aee463bb4e6f47e89ad102b",
   "Dependencies": [],
   "__type": "Umbraco.AI.Deploy,Umbraco.AI.Deploy.Artifacts.AIContextArtifact",
-  "__version": "17.2.1"
+  "__version": "18.1.1"
 }

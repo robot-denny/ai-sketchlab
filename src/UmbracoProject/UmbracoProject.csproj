@@ -86,8 +86,8 @@
     <PackageReference Include="Umbraco.AI.Search" Version="18.0.4" />
     <PackageReference Include="Umbraco.Cloud.Cms" Version="18.0.3" />
     <PackageReference Include="Umbraco.Cloud.StorageProviders.AzureBlob" Version="18.0.0" />
-    <PackageReference Include="Umbraco.Cms" Version="18.2.1" />
-    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="18.2.1" />
+    <PackageReference Include="Umbraco.Cms" Version="18.2.2" />
+    <PackageReference Include="Umbraco.Cms.DevelopmentMode.Backoffice" Version="18.2.2" />
     <!-- Umbraco.Cms.Search.* on the CMS-aligned 18.x line, matching Umbraco.AI.Search 18.0.4's
          [18.0.0, 18.999.999) constraint on Cms.Search.Core. Provider.Examine 18.2.0 is a stable
          release, which retires the old 1.0.0-beta.9 pin (docs/pinned-betas.md). -->
@@ -96,7 +96,7 @@
     <PackageReference Include="Umbraco.Cms.Search.DeliveryApi" Version="18.2.0" />
     <PackageReference Include="Umbraco.Cms.Search.Provider.Examine" Version="18.2.0" />
     <PackageReference Include="Umbraco.Deploy.Cloud" Version="18.1.1" />
-    <PackageReference Include="Umbraco.Forms" Version="18.2.1" />
+    <PackageReference Include="Umbraco.Forms" Version="18.2.2" />
     <PackageReference Include="Umbraco.Forms.Deploy" Version="18.0.1" />
   </ItemGroup>
 

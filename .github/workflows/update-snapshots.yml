@@ -39,7 +39,10 @@ permissions:
 jobs:
   regenerate:
     name: Regenerate baselines
-    runs-on: ubuntu-latest
+    # Pinned to ubuntu-24.04, not ubuntu-latest: ubuntu-latest moved to 26.04, which Playwright
+    # 1.58 has no Chromium build for, and the screenshot baselines were rendered on 24.04's fonts.
+    # Move this together with main.yml's Playwright job and a baseline regen.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:

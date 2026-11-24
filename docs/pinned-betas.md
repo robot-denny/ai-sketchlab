@@ -16,13 +16,13 @@ version, why, and what retires it.
 |---|---|---|
 | Umbraco.Cms.Search.Provider.Examine | 1.0.0-beta.9 | **18.2.0** (stable), on the Umbraco 18 upgrade. It was the companion to `Cms.Search.Core` 1.0.0, and no stable Provider.Examine existed on the 1.x or 17.x lines. |
 
-## Current search stack (as of 2026-10-22)
+## Current search stack (as of 2026-11-20)
 
 | Package | Installed |
 |---|---|
 | `Umbraco.Cms.Search.Core` / `.BackOffice` / `.DeliveryApi` | 18.2.0 |
 | `Umbraco.Cms.Search.Provider.Examine` | 18.2.0 (stable) |
-| `Umbraco.AI.Search` | 18.0.4 (its `AI.Search.Core` requires `Cms.Search.Core [18.0.0, 18.999.999)`) |
+| `Umbraco.AI.Search` | 18.0.7 (its `AI.Search.Core` requires `Cms.Search.Core [18.0.0, 18.999.999)`) |
 | `Umbraco.AI` + the 11 other non-Search AI packages | 18.x, moved as one unit (see the comment in [UmbracoProject.csproj](../src/UmbracoProject/UmbracoProject.csproj)) |
 
 Provider.Examine is the keyword provider the Core façade routes to (`.AddExamineSearchProvider()` in

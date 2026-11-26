@@ -42,6 +42,25 @@ public class GuideRedirectMiddlewareTests
         Assert.False(nextWasCalled(), "a matched legacy path must short-circuit the pipeline");
     }
 
+    // Temporary placeholder until the /cantrip node exists — must be a 302 so clients don't cache it
+    // past the page's launch. Delete these cases together with the middleware entry.
+    [Theory]
+    [InlineData("/cantrip")]
+    [InlineData("/cantrip/")]
+    [InlineData("/Cantrip")]
+    public async Task InvokeAsync_CantripPlaceholder_302sToToolkitPost(string path)
+    {
+        var middleware = Build(out var nextWasCalled);
+        var context = new DefaultHttpContext();
+        context.Request.Path = path;
+
+        await middleware.InvokeAsync(context);
+
+        Assert.Equal(StatusCodes.Status302Found, context.Response.StatusCode);
+        Assert.Equal("/blog/an-agentic-development-toolkit-for-cross-functional-teams/", context.Response.Headers.Location);
+        Assert.False(nextWasCalled(), "a matched placeholder path must short-circuit the pipeline");
+    }
+
     // Longest-first ordering: /styleguide/components must NOT be captured by the /styleguide rule.
     [Fact]
     public async Task InvokeAsync_ComponentsPath_PrefersTheLongerMatch()
@@ -75,6 +94,7 @@ public class GuideRedirectMiddlewareTests
     [InlineData("/guides/styleguide")]
     [InlineData("/styleguide/components/extra")]
     [InlineData("/styleguideish")]
+    [InlineData("/cantrip/extra")]
     public async Task InvokeAsync_NonLegacyPath_CallsNextAndDoesNotRedirect(string path)
     {
         var middleware = Build(out var nextWasCalled);

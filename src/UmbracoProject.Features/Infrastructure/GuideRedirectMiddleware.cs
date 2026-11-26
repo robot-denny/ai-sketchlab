@@ -14,6 +14,12 @@ namespace UmbracoProject.Features.Infrastructure;
 // content routing (see Program.cs) so the redirect fires ahead of content/static
 // handling. A DB `umbracoRedirectUrl` seed would be per-environment and
 // non-deployable; this middleware is deployable and environment-agnostic.
+//
+// It also carries one TEMPORARY 302 placeholder redirect:
+//   /cantrip → /blog/an-agentic-development-toolkit-for-cross-functional-teams/
+// /cantrip has no content node yet. Because this middleware runs before Umbraco's
+// content routing, the entry would shadow the real page — REMOVE it in the same
+// change that publishes the /cantrip node.
 public class GuideRedirectMiddleware
 {
     private readonly RequestDelegate _next;
@@ -26,28 +32,32 @@ public class GuideRedirectMiddleware
     // to a normal 404 rather than redirect. The trailing-slash variant is precomputed here (not
     // per-request) so nothing allocates on the hot path: this middleware runs ahead of static-file
     // handling, so it sees every request including assets.
-    private static readonly (string LegacyPath, string LegacyPathWithSlash, string TargetPath)[] Redirects =
+    // The placeholder entry is 302 rather than 301 so browsers don't cache it past the day the real
+    // /cantrip page replaces it.
+    private static readonly (string LegacyPath, string LegacyPathWithSlash, string TargetPath, int StatusCode)[] Redirects =
     {
-        ("/styleguide/components", "/styleguide/components/", "/guides/component-guide"),
-        ("/styleguide", "/styleguide/", "/guides/styleguide"),
+        ("/styleguide/components", "/styleguide/components/", "/guides/component-guide", StatusCodes.Status301MovedPermanently),
+        ("/styleguide", "/styleguide/", "/guides/styleguide", StatusCodes.Status301MovedPermanently),
+        ("/cantrip", "/cantrip/", "/blog/an-agentic-development-toolkit-for-cross-functional-teams/", StatusCodes.Status302Found),
     };
 
     public async Task InvokeAsync(HttpContext context)
     {
         PathString path = context.Request.Path;
 
-        foreach ((string legacyPath, string legacyPathWithSlash, string targetPath) in Redirects)
+        foreach ((string legacyPath, string legacyPathWithSlash, string targetPath, int statusCode) in Redirects)
         {
             if (path.Equals(legacyPath, StringComparison.OrdinalIgnoreCase)
                 || path.Equals(legacyPathWithSlash, StringComparison.OrdinalIgnoreCase))
             {
                 // Method-agnostic (matches SitemapRewriteMiddleware): content URLs are GET-only in
                 // practice, so a POST/HEAD hitting a legacy path and being redirected is harmless.
-                // 301 (not 302/308) because these moves are permanent — but note a 301 is cached hard
-                // by clients, so if a /guides/* target is ever renamed again the re-migration must
-                // re-point the target here (cached clients won't re-consult a stale legacy URL).
+                // The guide moves are 301 (not 302/308) because they are permanent — but note a 301 is
+                // cached hard by clients, so if a /guides/* target is ever renamed again the
+                // re-migration must re-point the target here (cached clients won't re-consult a stale
+                // legacy URL).
                 string location = targetPath + context.Request.QueryString;
-                context.Response.StatusCode = StatusCodes.Status301MovedPermanently;
+                context.Response.StatusCode = statusCode;
                 context.Response.Headers.Location = location;
                 return;
             }

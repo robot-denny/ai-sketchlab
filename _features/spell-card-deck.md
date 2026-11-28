@@ -7,9 +7,9 @@ the one thing newcomers get wrong. It is a reading surface: no sign-in, nothing 
 back.
 
 **Source**: `_work/shipped/spell-cards/spec.md` · plan `_work/shipped/spell-cards/plan.md`
-**Last verified**: 2026-09-09 — every card checked field-by-field against Cantrip's published
-`docs/spell-cards.md` at `9f8a85f` (34 units: 16 spells, 18 references), and confirmed on the
-rendered Live page. One deliberate difference remains, recorded in Increments below.
+**Last verified**: 2026-11-28 — every card checked field-by-field against Cantrip's published
+`docs/spell-cards.md` at `881b516` (39 units on the site: 17 spells, 22 references), on the local
+rendered page. Two deliberate differences remain, recorded in Increments below.
 
 ---
 
@@ -22,6 +22,26 @@ increment.
 - [x] Spell card deck — stacks, cards, flip, linking, editor-controlled content, and the narrow-screen
       carousel. Shipped 2026-09-01 across ten steps — spec, plan, discovery and the design reference
       archived at `_work/shipped/spell-cards/`.
+- [x] Roster brought to Cantrip's `881b516` state (2026-11-28) — content-only sync, no code. 32
+      fields re-voiced across 19 cards (Cantrip's copy changes plus a US-spelling sweep), and five
+      new units created by hand: `test-content-principles` joins **Core** as its ninth reference
+      (Core now **20 cards**), and `umbraco-17-block-authoring`, `umbraco-17-guide-generator`,
+      `umbraco-17-test-content-builder` and the `/test-content` spell join **umbraco-17** (now
+      **14 cards**: nine references, five spells), taking the deck to **39**. `/test-content` has
+      no sigil of its own yet. Its `cardMark` is blank, so it wears the umbraco-17 pack mark. The
+      page's `deckLede` and both stacks' `stackBlurb` counts were corrected with it. Cantrip's own
+      umbraco-17 divider says "eight references" against nine published, so the blurb follows the
+      units, not the divider. `dotnet-conventions` was declined again for the reason below.
+- [ ] **optimizely-12 pack** — Cantrip publishes a fifth pack (`optimizely-12-test-content-builder`
+      and its own `/test-content`). Deliberately not carried, because a fifth stack would render
+      un-themed (no `packSigils` entry, no `spell-deck__stack--optimizely-12` rule, monogram tile)
+      on a deck designed as four. Wants a pack sigil, the CSS rule, the roster test's pack list,
+      and scoped screenshot baselines. (no spec yet)
+- [ ] **Sync tool matches cards by name alone**, so Cantrip's two `/test-content` units collide:
+      the later optimizely-12 one shadows the umbraco-17 one, `report` shows a permanent false
+      three-field edit on `/test-content`, and **`apply` would overwrite the umbraco-17 card with
+      Optimizely copy if approved. Decline it.** Fix: key units by group + name, and skip groups
+      with no site stack. (no spec yet)
 - [x] Roster brought to Cantrip's 34-unit state (2026-09-09) — two Core references were added and
       most of the deck was re-voiced, after Cantrip rewrote its own card copy under a prose
       discipline. `security-review-rules` and `prose-discipline` join **Core** at reference

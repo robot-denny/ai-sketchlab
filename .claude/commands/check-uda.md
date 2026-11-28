@@ -4,7 +4,7 @@ Analyze Umbraco Deploy schema (.uda) files for potential conflicts and drift bef
 
 Umbraco stores CMS schema (document types, data types, templates, etc.) as `.uda` files in `src/UmbracoProject/umbraco/Deploy/Revision/`. Problems fall into two buckets:
 
-**Git-side conflicts** (comparing local working tree against `origin/master`):
+**Git-side conflicts** (comparing local working tree against the upstream, normally `github/master`):
 1. **Accidental local changes** — Umbraco auto-regenerates `.uda` files on startup. Developers stage them without realising.
 2. **Remote-ahead** — A teammate or Umbraco Cloud's auto-commit modified schema you haven't pulled.
 3. **Both-modified** — The same `.uda` was changed both locally and remotely.
@@ -44,12 +44,13 @@ git rev-parse --abbrev-ref HEAD
 ```
 
 ```bash
-# Fetch latest from remote (updates remote refs without merging — safe)
-git fetch origin 2>&1
+# Fetch latest from both remotes (updates remote refs without merging — safe).
+# `github` is the dev repo and the usual upstream; `origin` is Umbraco Cloud Live's SCM.
+git fetch github 2>&1; git fetch origin 2>&1
 ```
 
 ```bash
-# Check upstream tracking branch (output is e.g. origin/master, or nothing)
+# Check upstream tracking branch (output is e.g. github/master, or nothing)
 git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "NO_UPSTREAM"
 ```
 
@@ -132,23 +133,19 @@ curl -sk -H "Authorization: Bearer ${TOKEN}" \
   "${UMBRACO_LIVE_URL}/umbraco/deploy/management/api/v1/schema"
 ```
 
-The response has shape:
+The response is a **flat JSON array** — one object per entity, each carrying its own `entityType` (verified 2026-11-24; older Deploy builds returned a `comparisonData` object keyed by category, which no longer parses):
 
 ```json
-{
-  "comparisonData": {
-    "data-type": [
-      { "udi": {"uriValue": "umb://data-type/..."}, "label": "...",
-        "fileName": "data-type__...uda",
-        "umbracoExists": true, "fileExists": true, "isUpToDate": true }
-    ],
-    "document-type": [ ... ],
-    ...
-  }
-}
+[
+  { "udi": {"uriValue": "umb://data-type/...", "entityType": "data-type", "isRoot": false},
+    "label": "...", "fileName": "data-type__...uda",
+    "umbracoExists": true, "fileExists": true, "isUpToDate": true,
+    "canDeleteItem": true, "entityType": "data-type" },
+  ...
+]
 ```
 
-For each entity type category, compute three counts:
+Group the items by `entityType`, then for each category compute three counts:
 
 - **Live-only orphans**: items where `umbracoExists && !fileExists` AND no local file exists at that filename either. These are DB-only entities on Live that are not tracked in git. Action: either extract them on Live (dashboard → "Create file" → pull back via git), or delete them from Live's DB if they shouldn't exist.
 - **File-only on Live**: items where `!umbracoExists && fileExists`. The `.uda` arrived on Live but Deploy hasn't imported it yet. Usually transient after a push; if it persists, see **Step 8 — Importing pending schema on Cloud**.
